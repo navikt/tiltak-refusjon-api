@@ -9,4 +9,10 @@ class RefusjonController {
     fun beregn(grunnlag: Refusjonsgrunnlag): Int {
         return beregnRefusjon(grunnlag)
     }
+
+    @GetMapping("refusjon")
+    fun hentRefusjon(id: String): Refusjon {
+        println("Returnerer refusjon")
+        return Refusjon("enId", "Arbeidstrening")
+    }
 }

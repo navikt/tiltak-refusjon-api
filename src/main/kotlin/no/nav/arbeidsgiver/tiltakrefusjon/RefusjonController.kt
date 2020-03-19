@@ -1,9 +1,15 @@
 package no.nav.arbeidsgiver.tiltakrefusjon
 
+import hentRefusjon
+import no.nav.arbeidsgiver.tiltakrefusjon.domain.Refusjon
+import no.nav.arbeidsgiver.tiltakrefusjon.domain.Refusjonsgrunnlag
+import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
+@CrossOrigin(origins = ["http://localhost:3000"])
 class RefusjonController {
     @GetMapping("beregn")
     fun beregn(grunnlag: Refusjonsgrunnlag): Int {
@@ -11,8 +17,13 @@ class RefusjonController {
     }
 
     @GetMapping("refusjon")
-    fun hentRefusjon(id: String): Refusjon {
+    fun hent(id: String): Refusjon {
         println("Returnerer refusjon")
-        return Refusjon("enId", "Arbeidstrening")
+        return hentRefusjon("fraREpo")
+    }
+
+    @PostMapping("refusjon")
+    fun lagre(refusjon: Refusjon) {
+        println("Lagrer refusjon: " + refusjon)
     }
 }

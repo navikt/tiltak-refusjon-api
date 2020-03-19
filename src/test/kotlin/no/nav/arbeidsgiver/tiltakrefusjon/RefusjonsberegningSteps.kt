@@ -1,6 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon
 
 import io.cucumber.java8.No
+import no.nav.arbeidsgiver.tiltakrefusjon.domain.Refusjonsgrunnlag
 import org.assertj.core.api.Assertions.assertThat
 
 class RefusjonsberegningSteps : No {

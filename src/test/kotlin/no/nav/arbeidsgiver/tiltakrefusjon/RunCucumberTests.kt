@@ -4,11 +4,9 @@ import io.cucumber.junit.Cucumber
 import io.cucumber.junit.CucumberOptions
 import org.junit.runner.RunWith
 
-
 @RunWith(Cucumber::class)
 @CucumberOptions(
-        features = ["src/test/resources/features"],
-        tags = ["not @ignored"],
-        plugin = ["pretty", "html:target/cucumber"]
+        plugin = ["pretty", "json:target/report.json", "de.monochromata.cucumber.report.PrettyReports:target/pretty-cucumber"],
+        features = ["src/test/resources/features"]
 )
 class RunCucumberTests

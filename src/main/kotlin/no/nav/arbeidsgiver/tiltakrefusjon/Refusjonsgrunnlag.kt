@@ -1,3 +1,3 @@
 package no.nav.arbeidsgiver.tiltakrefusjon
 
-data class Refusjonsgrunnlag(val inntekt: Int, val prosent: Int)
+data class Refusjonsgrunnlag(val inntekter: List<Inntektslinje>, val prosent: Int)

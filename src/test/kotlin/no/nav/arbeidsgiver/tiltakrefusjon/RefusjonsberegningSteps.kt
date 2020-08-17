@@ -9,6 +9,8 @@ import java.time.LocalDate
 class RefusjonsberegningSteps : No {
     init {
         var prosent = 0
+        var startDato: LocalDate? = null
+        var sluttDato: LocalDate? = null
         var inntekstlinjer: List<Inntektslinje> = listOf()
         Gitt("følgende opplysninger om inntekt") { tabell: DataTable ->
             inntekstlinjer = tabell.asMaps().map {
@@ -20,11 +22,18 @@ class RefusjonsberegningSteps : No {
                 )
             }
         }
-        Når("lønnstilskudd på {int} prosent skal refunderes for periode {string} til {string}") { lønnstilskuddProsent: Int, startDato: String, sluttDato: String ->
+        Når("lønnstilskudd på {int} prosent skal refunderes for periode {string} til {string}") { lønnstilskuddProsent: Int, startDatoString: String, sluttDatoString: String ->
             prosent = lønnstilskuddProsent
+            if (startDatoString.isNotEmpty()) {
+                startDato = LocalDate.parse(startDatoString)
+            }
+            if (sluttDatoString.isNotEmpty()) {
+                sluttDato = LocalDate.parse(sluttDatoString)
+            }
+
         }
         Så("beregnes refusjon til {string} kr") { refusjon: String ->
-            val beregnet = beregnRefusjon(Refusjonsgrunnlag(inntekstlinjer, prosent))
+            val beregnet = beregnRefusjon(Refusjonsgrunnlag(inntekstlinjer, prosent, startDato, sluttDato))
             assertThat(beregnet).isEqualByComparingTo(refusjon);
         }
     }

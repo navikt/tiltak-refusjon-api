@@ -1,13 +1,12 @@
 package no.nav.arbeidsgiver.tiltakrefusjon
 
-import io.cucumber.core.backend.Pending
 import io.cucumber.datatable.DataTable
 import io.cucumber.java8.No
-import io.cucumber.java8.PendingException
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Assume
 import java.math.BigDecimal
 import java.time.LocalDate
+import java.time.YearMonth
 
 class RefusjonsberegningSteps : No {
     init {
@@ -17,22 +16,27 @@ class RefusjonsberegningSteps : No {
         var inntekstlinjer: List<Inntektslinje> = listOf()
         Gitt("følgende opplysninger om inntekt") { tabell: DataTable ->
             inntekstlinjer = tabell.asMaps().map {
+                var opptjeningsperiodeFom: LocalDate? = null;
+                var opptjeningsperiodeTom: LocalDate? = null;
+                if (!it["opptjeningsperiodeFom"].isNullOrBlank()) {
+                    opptjeningsperiodeFom = LocalDate.parse(it["opptjeningsperiodeFom"])
+                }
+                if (!it["opptjeningsperiodeTom"].isNullOrBlank()) {
+                    opptjeningsperiodeTom = LocalDate.parse(it["opptjeningsperiodeTom"])
+                }
                 Inntektslinje(
                         it["inntektType"]!!,
                         BigDecimal(it["beløp"]),
-                        LocalDate.parse(it["opptjeningsperiodeFom"]),
-                        LocalDate.parse(it["opptjeningsperiodeTom"])
+                        YearMonth.parse(it["måned"]),
+                        opptjeningsperiodeFom,
+                        opptjeningsperiodeTom
                 )
             }
         }
         Når("lønnstilskudd på {int} prosent skal refunderes for periode {string} til {string}") { lønnstilskuddProsent: Int, startDatoString: String, sluttDatoString: String ->
             prosent = lønnstilskuddProsent
-            if (startDatoString.isNotEmpty()) {
-                startDato = LocalDate.parse(startDatoString)
-            }
-            if (sluttDatoString.isNotEmpty()) {
-                sluttDato = LocalDate.parse(sluttDatoString)
-            }
+            startDato = LocalDate.parse(startDatoString)
+            sluttDato = LocalDate.parse(sluttDatoString)
 
         }
         Så("beregnes refusjon til {string} kr") { refusjon: String ->

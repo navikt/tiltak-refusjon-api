@@ -1,8 +1,11 @@
 package no.nav.arbeidsgiver.tiltakrefusjon
 
+import io.cucumber.core.backend.Pending
 import io.cucumber.datatable.DataTable
 import io.cucumber.java8.No
+import io.cucumber.java8.PendingException
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.Assume
 import java.math.BigDecimal
 import java.time.LocalDate
 
@@ -35,6 +38,9 @@ class RefusjonsberegningSteps : No {
         Så("beregnes refusjon til {string} kr") { refusjon: String ->
             val beregnet = beregnRefusjon(Refusjonsgrunnlag(inntekstlinjer, prosent, startDato, sluttDato))
             assertThat(beregnet).isEqualByComparingTo(refusjon);
+        }
+        Before("@skip_scenario") { _ ->
+            Assume.assumeTrue("Ignorerer scenario", false)
         }
     }
 }

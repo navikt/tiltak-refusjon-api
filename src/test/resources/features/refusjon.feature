@@ -8,6 +8,7 @@ Egenskap: Beregn refusjon for lønnstilskudd
     Når lønnstilskudd på 60 prosent skal refunderes for periode "2020-01-01" til "2020-01-31"
     Så beregnes refusjon til "6000" kr
 
+  @skip_scenario
   Scenario: Beregn lønnstilskudd for deler av perioden
     Gitt følgende opplysninger om inntekt
       | inntektType  | beløp | opptjeningsperiodeFom | opptjeningsperiodeTom |

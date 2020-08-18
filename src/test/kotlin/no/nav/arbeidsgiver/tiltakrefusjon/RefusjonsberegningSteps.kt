@@ -21,7 +21,7 @@ class RefusjonsberegningSteps : No {
                         it["inntektType"]!!,
                         BigDecimal(it["beløp"]),
                         LocalDate.parse(it["opptjeningsperiodeFom"]),
-                        LocalDate.parse(it["opptjeningsperiodeFom"])
+                        LocalDate.parse(it["opptjeningsperiodeTom"])
                 )
             }
         }

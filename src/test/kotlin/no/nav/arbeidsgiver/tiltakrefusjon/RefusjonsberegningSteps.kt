@@ -15,21 +15,13 @@ class RefusjonsberegningSteps : No {
         var sluttDato: LocalDate? = null
         var inntekstlinjer: List<Inntektslinje> = listOf()
         Gitt("følgende opplysninger om inntekt") { tabell: DataTable ->
-            inntekstlinjer = tabell.asMaps().map {
-                var opptjeningsperiodeFom: LocalDate? = null;
-                var opptjeningsperiodeTom: LocalDate? = null;
-                if (!it["opptjeningsperiodeFom"].isNullOrBlank()) {
-                    opptjeningsperiodeFom = LocalDate.parse(it["opptjeningsperiodeFom"])
-                }
-                if (!it["opptjeningsperiodeTom"].isNullOrBlank()) {
-                    opptjeningsperiodeTom = LocalDate.parse(it["opptjeningsperiodeTom"])
-                }
+            inntekstlinjer = tabell.asMaps().map { map: MutableMap<String, String> ->
                 Inntektslinje(
-                        it["inntektType"]!!,
-                        BigDecimal(it["beløp"]),
-                        YearMonth.parse(it["måned"]),
-                        opptjeningsperiodeFom,
-                        opptjeningsperiodeTom
+                        map["inntektType"]!!,
+                        BigDecimal(map["beløp"]),
+                        YearMonth.parse(map["måned"]),
+                        map["opptjeningsperiodeFom"]?.let { LocalDate.parse(it) },
+                        map["opptjeningsperiodeTom"]?.let { LocalDate.parse(it) }
                 )
             }
         }

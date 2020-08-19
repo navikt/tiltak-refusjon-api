@@ -1,8 +1,13 @@
 package no.nav.arbeidsgiver.tiltakrefusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.domain.Refusjonsgrunnlag
+import java.math.BigDecimal
 
-fun beregnRefusjon(grunnlag: Refusjonsgrunnlag) : Int {
-    return grunnlag.inntekt * grunnlag.prosent / 100
+fun beregnRefusjon(grunnlag: Refusjonsgrunnlag): BigDecimal {
+    val inntekt = grunnlag.inntekter
+            .map { it.beløp }
+            .fold(BigDecimal.ZERO, BigDecimal::add)
+
+    val prosentBigDecimal = (grunnlag.prosent / 100.0).toBigDecimal()
+    return inntekt * prosentBigDecimal
 }
-

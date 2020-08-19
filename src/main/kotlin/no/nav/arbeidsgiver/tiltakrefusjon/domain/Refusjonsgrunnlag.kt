@@ -1,3 +1,11 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.domain
 
-data class Refusjonsgrunnlag(val inntekt: Int, val prosent: Int)
+import no.nav.arbeidsgiver.tiltakrefusjon.Inntektslinje
+import java.time.LocalDate
+
+data class Refusjonsgrunnlag(
+        val inntekter: List<Inntektslinje>,
+        val prosent: Int,
+        val startDato: LocalDate?,
+        val sluttDato: LocalDate?
+)

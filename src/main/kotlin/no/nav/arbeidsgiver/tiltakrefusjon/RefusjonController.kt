@@ -3,13 +3,11 @@ package no.nav.arbeidsgiver.tiltakrefusjon
 import hentRefusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.domain.Refusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.domain.Refusjonsgrunnlag
-import org.springframework.web.bind.annotation.CrossOrigin
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @CrossOrigin(origins = ["http://localhost:3000"])
+
 class RefusjonController {
     @GetMapping("beregn")
     fun beregn(grunnlag: Refusjonsgrunnlag): Int {
@@ -22,7 +20,7 @@ class RefusjonController {
         return hentRefusjon("fraREpo")
     }
 
-    @PostMapping("refusjon")
+    @PutMapping("refusjon")
     fun lagre(refusjon: Refusjon) {
         println("Lagrer refusjon: " + refusjon)
     }

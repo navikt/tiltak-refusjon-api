@@ -7,6 +7,9 @@ metadata:
     team: arbeidsgiver
 spec:
   image: {{image}}
+  resources:
+    limits:
+      cpu: 1500m
   gcp:
     sqlInstances:
       - type: POSTGRES_11

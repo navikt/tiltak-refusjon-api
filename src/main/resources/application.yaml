@@ -1,3 +1,0 @@
-server:
-  servlet.context-path: /tiltak-refusjon-api
-  port: 8070

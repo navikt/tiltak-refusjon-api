@@ -1,0 +1,14 @@
+server:
+  servlet.context-path: /tiltak-refusjon-api
+
+spring:
+  main:
+    banner-mode: "off"
+  datasource:
+    platform: postgres
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      connection-test-query: select 1
+      maximum-pool-size: 4
+  jpa:
+    open-in-view: false

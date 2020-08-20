@@ -2,12 +2,14 @@ package no.nav.arbeidsgiver.tiltakrefusjon
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
+import org.springframework.context.annotation.Profile
 
 @SpringBootApplication
-class TiltakRefusjonApplication
+@Profile("local")
+class TestTiltakRefusjonApplication
 
 fun main(args: Array<String>) {
-    runApplication<TiltakRefusjonApplication>(*args) {
-        setAdditionalProfiles(System.getenv("NAIS_CLUSTER_NAME"))
+    runApplication<TestTiltakRefusjonApplication>(*args) {
+        setAdditionalProfiles("local")
     }
 }

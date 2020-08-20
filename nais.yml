@@ -12,4 +12,4 @@ spec:
       - type: POSTGRES_11
         databases:
           - name: tiltak-refusjon
-            envVarPrefix: SPRING_DATASOURCE
+            envVarPrefix: DB

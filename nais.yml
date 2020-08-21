@@ -10,6 +10,10 @@ spec:
   resources:
     limits:
       cpu: 1500m
+  accessPolicy:
+    inbound:
+      rules:
+        - application: tiltak-refusjon
   gcp:
     sqlInstances:
       - type: POSTGRES_11

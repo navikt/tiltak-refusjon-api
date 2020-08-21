@@ -34,7 +34,7 @@ class RefusjonController(val refusjonRepository: RefusjonRepository) {
     }
 
     @PutMapping
-    fun lagre(refusjon: Refusjon): Refusjon {
+    fun lagre(@RequestBody refusjon: Refusjon): Refusjon {
         return refusjonRepository.save(refusjon)
     }
 }

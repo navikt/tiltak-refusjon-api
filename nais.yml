@@ -13,7 +13,8 @@ spec:
   accessPolicy:
     inbound:
       rules:
-        - application: tiltak-refusjon
+        - application: tiltak-refusjon-innside
+        - application: tiltak-refusjon-utside
   gcp:
     sqlInstances:
       - type: POSTGRES_11

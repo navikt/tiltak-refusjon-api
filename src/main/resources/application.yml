@@ -13,3 +13,25 @@ spring:
       maximum-pool-size: 4
   jpa:
     open-in-view: false
+
+management:
+  metrics:
+    web:
+      server:
+        request:
+          autotime:
+            enabled: true
+    enable.executor: true
+  health :
+    refresh:
+      enabled: false
+    diskspace:
+      enabled: false
+  endpoint:
+    health:
+      show-details : always
+  endpoints:
+    web:
+      exposure:
+        include: info, health, metrics, prometheus
+      base-path: /internal/actuator

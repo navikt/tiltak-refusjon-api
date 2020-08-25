@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component
 @Component
 class TestDataLaster(private val refusjonRepository: RefusjonRepository) : ApplicationListener<ApplicationReadyEvent> {
     override fun onApplicationEvent(event: ApplicationReadyEvent) {
-        refusjonRepository.save(enRefusjon())
+        refusjonRepository.saveAll(toRefusjoner())
+
     }
 }

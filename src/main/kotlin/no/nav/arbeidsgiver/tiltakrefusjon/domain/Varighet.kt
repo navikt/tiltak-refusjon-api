@@ -9,11 +9,11 @@ val format = "d. MMMM yyyy"
 val localeNo: Locale = Locale.forLanguageTag("no")
 val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern(format, localeNo);
 
-data class Varighet(val datoFra: LocalDate, val datoTil: LocalDate) {
+data class Varighet (val datoFra: LocalDate, val datoTil: LocalDate) {
     val periode: Period = beregn(datoFra, datoTil)
     val fraDato: String = format(datoFra)
     val tilDato: String = format(datoTil)
-    val maaneder: Int = periode.months
+    val måneder: Int = periode.months
     var dager: Int = periode.days
 }
 

@@ -3,6 +3,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.domain.FakeRefusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.domain.Refusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.domain.Refusjonsgrunnlag
+import no.nav.arbeidsgiver.tiltakrefusjon.domain.datoerTilVarighet
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.web.bind.annotation.*
 import java.math.BigDecimal
@@ -30,7 +31,9 @@ class RefusjonController(val refusjonRepository: RefusjonRepository) {
 
     @GetMapping("/{id}")
     fun hent(@PathVariable id: String): Refusjon? {
-        return refusjonRepository.findByIdOrNull(id)
+        var refusjon = refusjonRepository.findByIdOrNull(id)
+        refusjon?.varighet = datoerTilVarighet(refusjon!!.fraDato, refusjon!!.tilDato)
+        return refusjon;
     }
 
     @PutMapping

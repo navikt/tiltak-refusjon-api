@@ -35,3 +35,9 @@ management:
       exposure:
         include: info, health, metrics, prometheus
       base-path: /internal/actuator
+
+no.nav.security.jwt:
+  issuer:
+    aad:
+      discoveryurl: https://login.microsoftonline.com/62366534-1ec3-4962-8869-9b5535279d0b/v2.0/.well-known/openid-configuration
+      accepted_audience: ${AZURE_APP_CLIENT_ID}, api://${AZURE_APP_CLIENT_ID}

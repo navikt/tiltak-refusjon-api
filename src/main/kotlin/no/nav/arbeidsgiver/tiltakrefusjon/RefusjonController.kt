@@ -3,6 +3,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.domain.FakeRefusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.domain.Refusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.domain.Refusjonsgrunnlag
+import no.nav.security.token.support.core.api.Protected
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.web.bind.annotation.*
 import java.math.BigDecimal
@@ -11,7 +12,7 @@ const val REQUEST_MAPPING = "/refusjon"
 
 @RestController
 @RequestMapping(REQUEST_MAPPING)
-@CrossOrigin(origins = ["http://localhost:3000"])
+@Protected
 class RefusjonController(val refusjonRepository: RefusjonRepository) {
     @GetMapping("/beregn")
     fun beregn(grunnlag: Refusjonsgrunnlag): BigDecimal {

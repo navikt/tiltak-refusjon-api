@@ -21,6 +21,9 @@ spec:
       rules:
         - application: tiltak-refusjon-innside
         - application: tiltak-refusjon-utside
+  azure:
+    application:
+      enabled: true
   gcp:
     sqlInstances:
       - type: POSTGRES_11

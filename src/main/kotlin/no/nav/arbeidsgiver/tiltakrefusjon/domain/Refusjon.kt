@@ -1,6 +1,5 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.domain
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import java.time.LocalDate
 import javax.persistence.Entity
 import javax.persistence.Id
@@ -15,7 +14,7 @@ data class Refusjon(
         val veileder: String,
         val bedrift: String,
         val bedriftnummer: String,
-        val feriedager: Int,
+        var feriedager: Int,
         val trekkFeriedagerBeløp: Int,
         val sykedager: Int,
         val sykepenger: Int,
@@ -31,21 +30,9 @@ data class Refusjon(
         val sumUtgifterArbeidsgiver: Int,
         val satsRefusjon: Double,
         val refusjonPrMåned: Int,
-
-
         val fraDato: LocalDate,
-
-
-        val tilDato: LocalDate,
-
-        @JsonIgnore
-        @Transient
-        var varighet: Varighet?
+        val tilDato: LocalDate
 )
-
-fun datoerTilVarighet(fraDato: LocalDate, tilDato: LocalDate): Varighet{
-        return Varighet(fraDato, tilDato);
-}
 
 
 

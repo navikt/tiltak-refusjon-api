@@ -1,12 +1,14 @@
 package no.nav.arbeidsgiver.tiltakrefusjon
 
-import no.nav.arbeidsgiver.tiltakrefusjon.domain.FakeRefusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.domain.Refusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.domain.Refusjonsgrunnlag
-import no.nav.arbeidsgiver.tiltakrefusjon.domain.datoerTilVarighet
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.client.HttpClientErrorException
+import org.springframework.web.client.HttpStatusCodeException
 import java.math.BigDecimal
+import javax.servlet.http.HttpServletResponse
 
 const val REQUEST_MAPPING = "/refusjon"
 
@@ -19,11 +21,6 @@ class RefusjonController(val refusjonRepository: RefusjonRepository) {
         return beregnRefusjon(grunnlag)
     }
 
-    @GetMapping("/fake")
-    fun hentFake(): FakeRefusjon {
-        return FakeRefusjon()
-    }
-
     @GetMapping
     fun hentAlle(): List<Refusjon> {
         return refusjonRepository.findAll()
@@ -31,13 +28,17 @@ class RefusjonController(val refusjonRepository: RefusjonRepository) {
 
     @GetMapping("/{id}")
     fun hent(@PathVariable id: String): Refusjon? {
-        var refusjon = refusjonRepository.findByIdOrNull(id)
-        refusjon?.varighet = datoerTilVarighet(refusjon!!.fraDato, refusjon!!.tilDato)
-        return refusjon;
+        return refusjonRepository.findByIdOrNull(id)
     }
 
     @PutMapping
-    fun lagre(@RequestBody refusjon: Refusjon): Refusjon {
+    fun oppdater(@RequestBody refusjon: Refusjon): Refusjon {
+        refusjonRepository.findByIdOrNull(refusjon.id) ?: throw HttpClientErrorException(HttpStatus.BAD_REQUEST, "Prøver å oppdatere en refusjon som ikke finnes")
         return refusjonRepository.save(refusjon)
+    }
+
+    @ExceptionHandler
+    fun håndterException(e : HttpStatusCodeException, response : HttpServletResponse){
+        response.sendError(e.statusCode.value(), e.statusText);
     }
 }

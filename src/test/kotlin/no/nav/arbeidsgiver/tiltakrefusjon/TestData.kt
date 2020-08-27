@@ -3,8 +3,8 @@ package no.nav.arbeidsgiver.tiltakrefusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.domain.Refusjon
 import java.time.LocalDate
 
-fun toRefusjoner(): List<Refusjon> {
-    val refusjon1 = Refusjon(
+fun enRefusjon():Refusjon{
+    return Refusjon(
             id = "1",
             tiltak = "Arbeidstrening",
             deltaker = "Mikke Mus",
@@ -29,10 +29,13 @@ fun toRefusjoner(): List<Refusjon> {
             satsRefusjon = 0.4,
             refusjonPrMåned = 13579,
             fraDato = LocalDate.of(2020, 8, 1),
-            tilDato = LocalDate.of(2020, 10, 31),
-            varighet = null
+            tilDato = LocalDate.of(2020, 10, 31)
     )
+}
 
+fun toRefusjoner(): List<Refusjon> {
+
+    val refusjon1 = enRefusjon()
     val refusjon2 = Refusjon(
             id = "2",
             tiltak = "Arbeidstrening",
@@ -58,8 +61,7 @@ fun toRefusjoner(): List<Refusjon> {
             satsRefusjon = 0.4,
             refusjonPrMåned = 10579,
             fraDato = LocalDate.of(2020, 8, 1),
-            tilDato = LocalDate.of(2020, 11, 1),
-            varighet = null
+            tilDato = LocalDate.of(2020, 11, 1)
     )
     return listOf(refusjon1, refusjon2)
 }

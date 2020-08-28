@@ -30,3 +30,4 @@ spec:
         databases:
           - name: tiltak-refusjon
             envVarPrefix: DB
+            cascadingDelete: true

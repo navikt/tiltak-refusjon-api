@@ -1,0 +1,27 @@
+alter table refusjon add column tiltak varchar;
+alter table refusjon add column deltaker varchar;
+alter table refusjon add column deltaker_fnr varchar;
+alter table refusjon add column veileder varchar;
+alter table refusjon add column bedrift varchar;
+alter table refusjon add column bedriftnummer varchar(9);
+alter table refusjon add column fra_dato date;
+alter table refusjon add column til_dato date;
+alter table refusjon add column stillingsprosent numeric(4,1);
+alter table refusjon add column feriedager numeric(4,1);
+alter table refusjon add column trekk_feriedager_beløp numeric(8,2);
+alter table refusjon add column feriepenger numeric(8,2);
+alter table refusjon add column sats_feriepenger numeric (4,3);
+alter table refusjon add column sykedager integer;
+alter table refusjon add column sykepenger numeric(8,2);
+alter table refusjon add column sats_otp numeric(4,3);
+alter table refusjon add column beløp_otp numeric(8,2);
+alter table refusjon add column arbeidsgiveravgift numeric(8,2);
+alter table refusjon add column sats_arbeidsgiveravgift numeric(4,3);
+alter table refusjon add column månedslønn numeric(8,2);
+alter table refusjon add column netto_månedslønn numeric(8,2);
+alter table refusjon add column sum_utgifter_arbeidsgiver numeric(8,2);
+alter table refusjon add column sats_refusjon numeric(3,2);
+alter table refusjon add column refusjon_pr_måned numeric(8,2);
+alter table refusjon add column opprettet_tidspunkt timestamp default (now());
+alter table refusjon add column endret_tidspunkt timestamp default (now());
+

@@ -86,6 +86,13 @@ class TiltakRefusjonApiTest(
                 .andExpect(status().is4xxClientError)
     }
 
+    @Test
+    fun `Får feil hvis cookie mangler`() {
+        mockMvc.perform(
+                get(REQUEST_MAPPING))
+                .andExpect(status().is4xxClientError)
+    }
+
     private fun sendRequest(request: MockHttpServletRequestBuilder): String {
         return sendRequest(request, null)
     }
@@ -99,7 +106,8 @@ class TiltakRefusjonApiTest(
         return mockMvc.perform(
                 request
                         .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON).cookie(cookie))
+                        .accept(MediaType.APPLICATION_JSON)
+                        .cookie(cookie))
                 .andExpect(status().isOk)
                 .andReturn()
                 .response.contentAsString

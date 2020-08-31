@@ -3,6 +3,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.domain.Refusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.domain.Refusjonsgrunnlag
 import no.nav.security.token.support.core.api.Protected
+import no.nav.security.token.support.spring.validation.interceptor.JwtTokenUnauthorizedException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
@@ -43,6 +44,10 @@ class RefusjonController(val refusjonRepository: RefusjonRepository) {
 
         if (e is HttpStatusCodeException) {
             response.sendError(e.statusCode.value(), e.statusText)
+            return
+        }
+        if(e is JwtTokenUnauthorizedException){
+            response.sendError(HttpStatus.UNAUTHORIZED.value(), e.message)
             return
         }
         response.sendError(HttpStatus.SERVICE_UNAVAILABLE.value(), e.message)

@@ -9,3 +9,14 @@ spring:
     console:
       enabled: true
       path: /h2-console
+
+no.nav.security.jwt:
+  issuer:
+    aad:
+      discoveryurl: http://metadata
+      acceptedaudience: aud-localhost
+      cookiename: localhost-idtoken
+
+logging:
+  level:
+    no.nav.arbeidsgiver.tiltakrefusjon: DEBUG

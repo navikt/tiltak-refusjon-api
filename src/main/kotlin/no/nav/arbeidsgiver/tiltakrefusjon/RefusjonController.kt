@@ -39,7 +39,12 @@ class RefusjonController(val refusjonRepository: RefusjonRepository) {
     }
 
     @ExceptionHandler
-    fun håndterException(e : HttpStatusCodeException, response : HttpServletResponse){
-        response.sendError(e.statusCode.value(), e.statusText);
+    fun håndterException(e : Exception, response : HttpServletResponse){
+
+        if (e is HttpStatusCodeException) {
+            response.sendError(e.statusCode.value(), e.statusText)
+            return
+        }
+        response.sendError(HttpStatus.SERVICE_UNAVAILABLE.value(), e.message)
     }
 }

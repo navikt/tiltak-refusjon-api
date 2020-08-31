@@ -14,8 +14,12 @@ no.nav.security.jwt:
   issuer:
     aad:
       discoveryurl: http://metadata
-      acceptedaudience: aud-localhost
-      cookiename: localhost-idtoken
+      accepted_audience: aud-localhost
+      cookie_name: localhost-idtoken
+    selvbetjening:
+      discoveryurl: http://metadata
+      accepted_audience: aud-localhost
+      cookie_name: localhost-idtoken
 
 logging:
   level:

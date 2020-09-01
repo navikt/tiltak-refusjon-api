@@ -12,7 +12,7 @@ import org.springframework.web.client.HttpStatusCodeException
 import java.math.BigDecimal
 import javax.servlet.http.HttpServletResponse
 
-const val REQUEST_MAPPING = "/refusjon"
+const val REQUEST_MAPPING = "/api/refusjon"
 
 @RestController
 @RequestMapping(REQUEST_MAPPING)

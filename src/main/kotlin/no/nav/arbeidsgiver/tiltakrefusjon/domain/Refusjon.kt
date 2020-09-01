@@ -1,6 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.domain
 
 import java.time.LocalDate
+import java.time.LocalDateTime
 import javax.persistence.Entity
 import javax.persistence.Id
 
@@ -31,7 +32,8 @@ data class Refusjon(
         val satsRefusjon: Double,
         val refusjonPrMåned: Int,
         val fraDato: LocalDate,
-        val tilDato: LocalDate
+        val tilDato: LocalDate,
+        val opprettet_tidspunkt: LocalDateTime
 )
 
 

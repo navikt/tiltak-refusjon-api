@@ -2,6 +2,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.domain.Refusjon
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 fun enRefusjon():Refusjon{
     return Refusjon(
@@ -29,7 +30,9 @@ fun enRefusjon():Refusjon{
             satsRefusjon = 0.4,
             refusjonPrMåned = 13579,
             fraDato = LocalDate.of(2020, 8, 1),
-            tilDato = LocalDate.of(2020, 10, 31)
+            tilDato = LocalDate.of(2020, 10, 31),
+            opprettet_tidspunkt = LocalDateTime.now()
+
     )
 }
 
@@ -61,7 +64,8 @@ fun toRefusjoner(): List<Refusjon> {
             satsRefusjon = 0.4,
             refusjonPrMåned = 10579,
             fraDato = LocalDate.of(2020, 8, 1),
-            tilDato = LocalDate.of(2020, 11, 1)
+            tilDato = LocalDate.of(2020, 11, 1),
+            opprettet_tidspunkt = LocalDateTime.now()
     )
     return listOf(refusjon1, refusjon2)
 }

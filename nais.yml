@@ -11,10 +11,10 @@ spec:
     limits:
       cpu: 1500m
   liveness:
-    path: /tiltak-refusjon-api/internal/actuator/health
+    path: /internal/actuator/health
     initialDelay: 20
     readiness:
-      path: /tiltak-refusjon-api/internal/actuator/health
+      path: /internal/actuator/health
       initialDelay: 20
   accessPolicy:
     inbound:

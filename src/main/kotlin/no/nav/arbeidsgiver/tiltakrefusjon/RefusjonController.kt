@@ -35,8 +35,7 @@ class RefusjonController(val refusjonRepository: RefusjonRepository) {
     }
 
     @PostMapping
-    fun opprett(): Refusjon {
-        val refusjon = Refusjon(id=ULID.random())
+    fun opprett(@RequestBody refusjon:Refusjon): Refusjon {
         return refusjonRepository.save(refusjon)
     }
 

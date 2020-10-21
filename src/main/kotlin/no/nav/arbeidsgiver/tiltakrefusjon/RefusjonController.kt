@@ -35,18 +35,18 @@ class RefusjonController(val refusjonRepository: RefusjonRepository) {
 
     @PutMapping
     fun oppdater(@RequestBody refusjon: Refusjon): Refusjon {
-        refusjonRepository.findByIdOrNull(refusjon.id) ?: throw HttpClientErrorException(HttpStatus.BAD_REQUEST, "Prøver å oppdatere en refusjon som ikke finnes")
+        refusjonRepository.findByIdOrNull(refusjon.id)
+                ?: throw HttpClientErrorException(HttpStatus.BAD_REQUEST, "Prøver å oppdatere en refusjon som ikke finnes")
         return refusjonRepository.save(refusjon)
     }
 
     @ExceptionHandler
-    fun håndterException(e : Exception, response : HttpServletResponse){
-
+    fun håndterException(e: Exception, response: HttpServletResponse) {
         if (e is HttpStatusCodeException) {
             response.sendError(e.statusCode.value(), e.statusText)
             return
         }
-        if(e is JwtTokenUnauthorizedException){
+        if (e is JwtTokenUnauthorizedException) {
             response.sendError(HttpStatus.UNAUTHORIZED.value(), e.message)
             return
         }

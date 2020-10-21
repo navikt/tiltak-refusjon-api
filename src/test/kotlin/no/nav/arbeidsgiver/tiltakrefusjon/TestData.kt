@@ -4,7 +4,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.domain.Refusjon
 import java.time.LocalDate
 import java.time.LocalDateTime
 
-fun enRefusjon():Refusjon{
+fun enRefusjon(): Refusjon {
     return Refusjon(
             id = "1",
             tiltak = "Arbeidstrening",
@@ -37,7 +37,6 @@ fun enRefusjon():Refusjon{
 }
 
 fun toRefusjoner(): List<Refusjon> {
-
     val refusjon1 = enRefusjon()
     val refusjon2 = Refusjon(
             id = "2",

@@ -20,6 +20,7 @@ Egenskap: Beregn refusjon for lønnstilskudd
       | inntektType  | beløp | måned   | opptjeningsperiodeFom | opptjeningsperiodeTom |
       | LØNNSINNTEKT | 10000 | 2020-01 |                       |                       |
     Når lønnstilskudd på 60 prosent skal refunderes for periode "2020-01-01" til "2020-01-15"
+#    Så er det ikke mulig å beregne refusjon
     Så beregnes refusjon til "6000" kr
 
   @skip_scenario
@@ -34,7 +35,8 @@ Egenskap: Beregn refusjon for lønnstilskudd
   Scenario: Beregn lønnstilskudd for hele perioden med feil måneder
     Gitt følgende opplysninger om inntekt
       | inntektType  | beløp | måned   | opptjeningsperiodeFom | opptjeningsperiodeTom |
-      | LØNNSINNTEKT | 10000 | 2019-01 |                       |                       |
+      | LØNNSINNTEKT | 7000  | 2019-01 |                       |                       |
+      | YTELSE       | 2000  | 2020-01 |                       |                       |
     Når lønnstilskudd på 60 prosent skal refunderes for periode "2020-01-01" til "2020-01-31"
     Så beregnes refusjon til "0" kr
 

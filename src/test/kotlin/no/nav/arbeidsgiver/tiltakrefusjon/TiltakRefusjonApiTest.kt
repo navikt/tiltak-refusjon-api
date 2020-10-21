@@ -61,7 +61,7 @@ class TiltakRefusjonApiTest(
     @Test
     fun `Oppdaterer refusjon med id`() {
         val refusjon = enRefusjon()
-        val feriedagerOppdatert = refusjon.feriedager.plus(1)
+        val feriedagerOppdatert = refusjon.feriedager?.plus(1)
         refusjon.feriedager = feriedagerOppdatert
 
         val json = sendRequest(put(REQUEST_MAPPING), refusjon)

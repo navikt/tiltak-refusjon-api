@@ -1,5 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon
 
+import com.github.guepardoapps.kulid.ULID
 import no.nav.arbeidsgiver.tiltakrefusjon.domain.Refusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.domain.Refusjonsgrunnlag
 import no.nav.security.token.support.core.api.Protected
@@ -31,6 +32,12 @@ class RefusjonController(val refusjonRepository: RefusjonRepository) {
     @GetMapping("/{id}")
     fun hent(@PathVariable id: String): Refusjon? {
         return refusjonRepository.findByIdOrNull(id)
+    }
+
+    @PostMapping
+    fun opprett(): Refusjon {
+        val refusjon = Refusjon(id=ULID.random())
+        return refusjonRepository.save(refusjon)
     }
 
     @PutMapping

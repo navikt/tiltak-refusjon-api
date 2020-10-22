@@ -17,9 +17,8 @@ class InnloggetBrukerController(val context:TokenValidationContextHolder,
     fun hentInnloggetBruker(): InnloggetBruker{
         val valContext = context.tokenValidationContext
         val claims = valContext.getClaims("aad")
-        val subject = claims.subject
-        val orgList = altinnTilgangsstyringService.hentTilganger(subject).asList()
-        return InnloggetBruker(subject, orgList, emptyList());
+        val personIdent = claims.subject
+        val orgList = altinnTilgangsstyringService.hentTilganger(personIdent).asList()
+        return InnloggetBruker(personIdent, orgList, emptyList());
     }
-
 }

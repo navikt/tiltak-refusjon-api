@@ -8,6 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.junit.jupiter.MockitoExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
+import org.mockito.ArgumentMatchers.anyString
 
 @ExtendWith(MockitoExtension::class)
 class InnloggetBrukerControllerTest {
@@ -24,7 +25,7 @@ class InnloggetBrukerControllerTest {
     @Test
     fun skal_returnere_logget_bruker_tilbake() {
         // GITT
-        every{ context.tokenValidationContext.getClaims(any()).subject} returns "007"
+        every{ context.tokenValidationContext.getClaims(anyString()).subject} returns "007"
 
         // NAAR
         val innloggetBruker = innloggetBrukerController.hentInnloggetBruker()

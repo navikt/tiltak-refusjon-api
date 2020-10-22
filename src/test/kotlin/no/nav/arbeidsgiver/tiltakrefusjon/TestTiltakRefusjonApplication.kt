@@ -13,6 +13,6 @@ class TestTiltakRefusjonApplication
 
 fun main(args: Array<String>) {
     runApplication<TestTiltakRefusjonApplication>(*args) {
-        setAdditionalProfiles("local")
+        setAdditionalProfiles("local","wiremock")
     }
 }

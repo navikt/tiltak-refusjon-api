@@ -7,12 +7,12 @@ import org.springframework.context.annotation.Import
 import org.springframework.context.annotation.Profile
 
 @SpringBootApplication
-@Profile("local","wiremock")
+@Profile("local")
 @Import(TokenGeneratorConfiguration::class)
 class LokalTiltakRefusjonApplication
 
 fun main(args: Array<String>) {
     runApplication<LokalTiltakRefusjonApplication>(*args) {
-        setAdditionalProfiles("local","wiremock")
+        setAdditionalProfiles("local")
     }
 }

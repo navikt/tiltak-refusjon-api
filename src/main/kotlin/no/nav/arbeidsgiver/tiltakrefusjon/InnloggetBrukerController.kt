@@ -6,8 +6,6 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
-
-
 const val REQUEST_MAPPING_INNLOGGET_BRUKER = "/api/innloggetBruker"
 
 @RestController
@@ -15,14 +13,13 @@ const val REQUEST_MAPPING_INNLOGGET_BRUKER = "/api/innloggetBruker"
 @Protected
 class InnloggetBrukerController(val context:TokenValidationContextHolder,
                                 val altinnTilgangsstyringService: AltinnTilgangsstyringService){
-
-
-
     @GetMapping
     fun hentInnloggetBruker(): InnloggetBruker{
-        val brukerFnr:String = context.tokenValidationContext.getClaims("aad").subject
-        val orgList = altinnTilgangsstyringService.hentTilganger(brukerFnr).asList()
-        return InnloggetBruker(brukerFnr, orgList, emptyList());
+        val valContext = context.tokenValidationContext
+        val claims = valContext.getClaims("aad")
+        val subject = claims.subject
+        val orgList = altinnTilgangsstyringService.hentTilganger(subject).asList()
+        return InnloggetBruker(subject, orgList, emptyList());
     }
 
 }

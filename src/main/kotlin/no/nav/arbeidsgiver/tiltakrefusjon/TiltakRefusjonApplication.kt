@@ -1,10 +1,12 @@
 package no.nav.arbeidsgiver.tiltakrefusjon
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.runApplication
 import kotlin.system.exitProcess
 
 @SpringBootApplication
+@EnableConfigurationProperties
 class TiltakRefusjonApplication
 
 fun main(args: Array<String>) {

@@ -15,22 +15,27 @@ class InnloggetBrukerControllerTest {
 
 
     var context: TokenValidationContextHolder = mockk<TokenValidationContextHolder>()
+    var altinnTilgangsstyringService = mockk<AltinnTilgangsstyringService>()
     lateinit var innloggetBrukerController:InnloggetBrukerController
 
     @BeforeEach
     fun setup(){
-        innloggetBrukerController = InnloggetBrukerController(context)
+        innloggetBrukerController = InnloggetBrukerController(context, altinnTilgangsstyringService)
     }
 
     @Test
     fun skal_returnere_logget_bruker_tilbake() {
         // GITT
-        every{ context.tokenValidationContext.getClaims(anyString()).subject} returns "007"
+        val fnr = "00000000007"
+        every{ altinnTilgangsstyringService.hentTilganger(fnr)} returns emptyArray()
+        every{ context.tokenValidationContext.getClaims(any()).subject} returns fnr
+
 
         // NAAR
         val innloggetBruker = innloggetBrukerController.hentInnloggetBruker()
 
-        // OG
-        assertThat(innloggetBruker.identifikator).isEqualTo("007")
+        // DA
+        assertThat(innloggetBruker.identifikator).isEqualTo(fnr)
+        assertThat(innloggetBruker.altinnOrganisasjoner).hasSize(0)
     }
 }

@@ -13,12 +13,16 @@ const val REQUEST_MAPPING_INNLOGGET_BRUKER = "/api/innloggetBruker"
 @RestController
 @RequestMapping(REQUEST_MAPPING_INNLOGGET_BRUKER)
 @Protected
-class InnloggetBrukerController(val context:TokenValidationContextHolder){
+class InnloggetBrukerController(val context:TokenValidationContextHolder,
+                                val altinnTilgangsstyringService: AltinnTilgangsstyringService){
+
+
 
     @GetMapping
     fun hentInnloggetBruker(): InnloggetBruker{
         val brukerFnr:String = context.tokenValidationContext.getClaims("aad").subject
-        return InnloggetBruker(brukerFnr, emptyList(), emptyList());
+        val orgList = altinnTilgangsstyringService.hentTilganger(brukerFnr).asList()
+        return InnloggetBruker(brukerFnr, orgList, emptyList());
     }
 
 }

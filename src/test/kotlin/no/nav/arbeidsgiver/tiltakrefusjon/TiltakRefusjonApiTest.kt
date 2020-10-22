@@ -35,7 +35,7 @@ class TiltakRefusjonApiTest(
     @BeforeAll
     fun setUpBeforeAll() {
         val userToken = JwtTokenGenerator.createSignedJWT("").serialize()
-        cookie = Cookie("localhost-idtoken", userToken)
+        cookie = Cookie("aad-idtoken", userToken)
     }
 
     @BeforeEach

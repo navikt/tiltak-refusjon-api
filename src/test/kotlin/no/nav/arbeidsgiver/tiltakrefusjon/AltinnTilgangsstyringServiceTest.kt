@@ -2,16 +2,15 @@ package no.nav.arbeidsgiver.tiltakrefusjon
 
 import io.mockk.every
 import io.mockk.mockk
+import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
-import org.junit.jupiter.api.BeforeEach
 import org.assertj.core.api.Assertions.assertThat
-
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import java.net.URI
 

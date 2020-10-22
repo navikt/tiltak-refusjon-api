@@ -2,13 +2,13 @@ package no.nav.arbeidsgiver.tiltakrefusjon
 
 import io.mockk.every
 import io.mockk.mockk
+import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.junit.jupiter.MockitoExtension
-import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeEach
-import org.mockito.ArgumentMatchers.anyString
 
 @ExtendWith(MockitoExtension::class)
 class InnloggetBrukerControllerTest {

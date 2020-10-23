@@ -14,21 +14,16 @@ class AltinnTilgangsstyringService(val altinnTilgangsstyringProperties: AltinnTi
 
     private val restTemplate:RestTemplate = RestTemplate()
 
-    /*
-        TODO:
-          1. Bygge riktig url til altinn
-          2. legge til og teste riktig headers
-     */
     fun hentTilganger(serviceCode:Int? = null, serviceEdition: Int? = null, fnr: Identifikator): Set<Organisasjon> {
         return restTemplate.exchange(
-                lagAltinnUrl(serviceCode,serviceEdition,fnr),
+                lagAltinnUrl(hentTallString(serviceCode),hentTallString(serviceEdition),fnr),
                 HttpMethod.GET,
                 getAuthHeadersForAltinn(),
                 Array<Organisasjon>::class.java).body?.toSet()
                 ?: return emptySet()
     }
 
-    private fun lagAltinnUrl(serviceCode:Int? = null, serviceEdition: Int? = null, fnr:Identifikator):URI{
+    private fun lagAltinnUrl(serviceCode:String, serviceEdition: String , fnr:Identifikator):URI{
         return UriComponentsBuilder.fromUri(altinnTilgangsstyringProperties.uri)
                 .queryParam("ForceEIAuthentication")
                 .queryParam("subject", fnr.verdi)
@@ -36,6 +31,10 @@ class AltinnTilgangsstyringService(val altinnTilgangsstyringProperties: AltinnTi
                 .queryParam("serviceEdition", serviceEdition ?: "")
                 .build()
                 .toUri();
+    }
+
+    private fun hentTallString(verdi:Int? = null):String{
+        return verdi?.toString() ?: ""
     }
 
     private fun getAuthHeadersForAltinn(): HttpEntity<HttpHeaders?>? {

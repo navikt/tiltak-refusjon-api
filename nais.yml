@@ -13,9 +13,9 @@ spec:
   liveness:
     path: /internal/actuator/health
     initialDelay: 20
-    readiness:
-      path: /internal/actuator/health
-      initialDelay: 20
+  readiness:
+    path: /internal/actuator/health
+    initialDelay: 20
   accessPolicy:
     inbound:
       rules:

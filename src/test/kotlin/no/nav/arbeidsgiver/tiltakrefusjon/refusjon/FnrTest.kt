@@ -17,6 +17,12 @@ internal class FnrTest {
         assertThrows(RefusjonException::class.java,{
             val fnr:Fnr = Fnr("123")
         });
+    }
 
+    @Test
+    fun `gitt fnr med flere enn 11 tall skal det kastes en exception`() {
+        assertThrows(RefusjonException::class.java,{
+            val fnr:Fnr = Fnr("1234567890123")
+        });
     }
 }

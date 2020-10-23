@@ -1,4 +1,4 @@
-package no.nav.arbeidsgiver.tiltakrefusjon
+package no.nav.arbeidsgiver.tiltakrefusjon.altinn
 
 data class Organisasjon (
         val Name: String,

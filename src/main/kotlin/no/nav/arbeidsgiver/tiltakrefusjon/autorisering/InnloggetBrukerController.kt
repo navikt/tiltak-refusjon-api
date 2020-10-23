@@ -1,4 +1,4 @@
-package no.nav.arbeidsgiver.tiltakrefusjon
+package no.nav.arbeidsgiver.tiltakrefusjon.autorisering
 
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
 import no.nav.security.token.support.core.api.Protected
@@ -15,7 +15,7 @@ const val REQUEST_MAPPING_INNLOGGET_BRUKER = "/api/innloggetBruker"
 class InnloggetBrukerController(val context:TokenValidationContextHolder,
                                 val altinnTilgangsstyringService: AltinnTilgangsstyringService){
     @GetMapping
-    fun hentInnloggetBruker(): InnloggetBruker{
+    fun hentInnloggetBruker(): InnloggetBruker {
         val valContext = context.tokenValidationContext
         val claims = valContext.getClaims("aad")
         val personIdent = claims.subject

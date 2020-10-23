@@ -1,4 +1,4 @@
-package no.nav.arbeidsgiver.tiltakrefusjon
+package no.nav.arbeidsgiver.tiltakrefusjon.autorisering
 
 import io.mockk.every
 import io.mockk.mockk
@@ -16,7 +16,7 @@ class InnloggetBrukerControllerTest {
 
     var context: TokenValidationContextHolder = mockk<TokenValidationContextHolder>()
     var altinnTilgangsstyringService = mockk<AltinnTilgangsstyringService>()
-    lateinit var innloggetBrukerController:InnloggetBrukerController
+    lateinit var innloggetBrukerController: InnloggetBrukerController
 
     @BeforeEach
     fun setup(){

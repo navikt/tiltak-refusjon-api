@@ -1,6 +1,5 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.altinn
 
-import no.nav.arbeidsgiver.tiltakrefusjon.Organisasjon
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
@@ -11,8 +10,10 @@ import java.net.URI
 @Service
 class AltinnTilgangsstyringService(val altinnTilgangsstyringProperties: AltinnTilgangsstyringProperties) {
 
+    val restTemplate:RestTemplate = RestTemplate()
+
     fun hentTilganger(fnr: String): Array<Organisasjon> {
-        return RestTemplate().exchange(
+        return restTemplate.exchange(
                 URI("http://localhost:8090/altinn-tilgangsstyring?subject=10000000000&serviceCode=&serviceEdition="),
                 HttpMethod.GET,
                 getAuthHeadersForAltinn(),

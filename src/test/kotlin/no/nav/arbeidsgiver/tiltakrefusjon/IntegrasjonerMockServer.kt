@@ -7,7 +7,7 @@ import org.springframework.beans.factory.DisposableBean
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
 
-@Profile("wiremock")
+@Profile("local")
 @Slf4j
 @Component
 class IntegrasjonerMockServer: DisposableBean{

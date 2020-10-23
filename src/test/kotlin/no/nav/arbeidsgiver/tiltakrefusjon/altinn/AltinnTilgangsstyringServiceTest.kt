@@ -1,36 +1,23 @@
-package no.nav.arbeidsgiver.tiltakrefusjon
+package no.nav.arbeidsgiver.tiltakrefusjon.altinn
 
 import io.mockk.every
 import io.mockk.mockk
-import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
-import java.net.URI
 
 
 @SpringBootTest
-@ActiveProfiles("local","wiremock")
-class AltinnTilgangsstyringServiceTest{
-
-
-    @Value("\${tiltak-refusjon.altinn-tilgangstyring.uri}")
-    lateinit var noe: URI
+@ActiveProfiles("local")
+class AltinnTilgangsstyringServiceTest(){
 
     @Autowired
     lateinit var altinnTilgangsstyringService: AltinnTilgangsstyringService;
     var context: TokenValidationContextHolder = mockk<TokenValidationContextHolder>()
-
-    @BeforeEach
-    fun setup(){
-
-    }
 
     @Test fun `skal returnere en liste med organisasjoner personen har tilgang til`(){
         // GITT

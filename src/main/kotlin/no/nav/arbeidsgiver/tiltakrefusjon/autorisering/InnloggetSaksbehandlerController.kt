@@ -1,4 +1,4 @@
-package no.nav.arbeidsgiver.tiltakrefusjon
+package no.nav.arbeidsgiver.tiltakrefusjon.autorisering
 
 import no.nav.security.token.support.core.api.Protected
 import no.nav.security.token.support.core.context.TokenValidationContextHolder

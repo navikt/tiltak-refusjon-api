@@ -12,7 +12,6 @@ import java.net.URI
 @Service
 class AltinnTilgangsstyringService(val altinnTilgangsstyringProperties: AltinnTilgangsstyringProperties) {
 
-    private val ALTINN_ORG_PAGE_SIZE:Int = 500
     private val restTemplate:RestTemplate = RestTemplate()
 
     /*
@@ -20,13 +19,13 @@ class AltinnTilgangsstyringService(val altinnTilgangsstyringProperties: AltinnTi
           1. Bygge riktig url til altinn
           2. legge til og teste riktig headers
      */
-    fun hentTilganger(serviceCode:Int? = null, serviceEdition: Int? = null, fnr:Identifikator): Array<Organisasjon> {
+    fun hentTilganger(serviceCode:Int? = null, serviceEdition: Int? = null, fnr: Identifikator): Set<Organisasjon> {
         return restTemplate.exchange(
                 lagAltinnUrl(serviceCode,serviceEdition,fnr),
                 HttpMethod.GET,
                 getAuthHeadersForAltinn(),
-                Array<Organisasjon>::class.java).body
-                ?: return emptyArray()
+                Array<Organisasjon>::class.java).body?.toSet()
+                ?: return emptySet()
     }
 
     private fun lagAltinnUrl(serviceCode:Int? = null, serviceEdition: Int? = null, fnr:Identifikator):URI{

@@ -29,7 +29,7 @@ class AltinnTilgangsstyringServiceTest(){
         every { context.tokenValidationContext.getClaims(any()).subject} returns fnr.verdi
 
         // NAAR
-        val organisasjoner: Array<Organisasjon>? = altinnTilgangsstyringService.hentTilganger(serviceCode, serviceEdition,fnr)
+        val organisasjoner: Set<Organisasjon>? = altinnTilgangsstyringService.hentTilganger(serviceCode, serviceEdition,fnr)
 
         // DA
         assertThat(organisasjoner).hasSize(8)

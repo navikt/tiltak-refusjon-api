@@ -27,7 +27,7 @@ class InnloggetBrukerControllerTest {
     fun `skal returnere logget bruker tilbake med ingen altinn organisasjoner`() {
         // GITT
         val fnr = Fnr("00000000007")
-        every{ altinnTilgangsstyringService.hentTilganger(0,0,fnr)} returns emptyArray()
+        every{ altinnTilgangsstyringService.hentTilganger(0,0,fnr)} returns emptySet()
         every{ context.tokenValidationContext.getClaims(any()).subject} returns fnr.verdi
 
 

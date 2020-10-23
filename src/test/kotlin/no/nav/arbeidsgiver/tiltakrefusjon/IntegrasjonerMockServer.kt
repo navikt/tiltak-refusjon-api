@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component
 @Slf4j
 @Component
 class IntegrasjonerMockServer() : DisposableBean{
-    private final val server: WireMockServer = WireMockServer(WireMockConfiguration
+    private val server: WireMockServer = WireMockServer(WireMockConfiguration
             .options()
             .usingFilesUnderClasspath(".")
             .port(8090))

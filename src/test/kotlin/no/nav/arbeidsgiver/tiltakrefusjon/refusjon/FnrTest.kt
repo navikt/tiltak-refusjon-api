@@ -25,4 +25,11 @@ internal class FnrTest {
             val fnr:Fnr = Fnr("1234567890123")
         });
     }
+
+    @Test
+    fun `gitt fnr med bokstaver og tall skal det kastes en exception`() {
+        assertThrows(RefusjonException::class.java,{
+            val fnr:Fnr = Fnr("1123z5678901")
+        });
+    }
 }

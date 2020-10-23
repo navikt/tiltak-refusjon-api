@@ -7,22 +7,20 @@ import org.springframework.beans.factory.DisposableBean
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
 
-@Profile("local")
+@Profile("wiremock")
 @Slf4j
 @Component
-class IntegrasjonerMockServer: DisposableBean{
-    val server: WireMockServer = WireMockServer(WireMockConfiguration
+class IntegrasjonerMockServer() : DisposableBean{
+    private final val server: WireMockServer = WireMockServer(WireMockConfiguration
             .options()
             .usingFilesUnderClasspath(".")
             .port(8090))
 
-    constructor() {
+    init {
         server.start()
     }
 
     override fun destroy() {
         server.stop()
     }
-
-
 }

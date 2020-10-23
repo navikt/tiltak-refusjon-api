@@ -10,7 +10,7 @@ import java.net.URI
 @Service
 class AltinnTilgangsstyringService(val altinnTilgangsstyringProperties: AltinnTilgangsstyringProperties) {
 
-    val restTemplate:RestTemplate = RestTemplate()
+    private final val restTemplate:RestTemplate = RestTemplate()
 
     fun hentTilganger(fnr: String): Array<Organisasjon> {
         return restTemplate.exchange(

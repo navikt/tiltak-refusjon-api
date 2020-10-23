@@ -2,11 +2,14 @@ package no.nav.arbeidsgiver.tiltakrefusjon
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
-import no.nav.arbeidsgiver.tiltakrefusjon.domain.Refusjon
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
 import no.nav.security.token.support.test.JwtTokenGenerator
-import org.junit.Ignore
-import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest

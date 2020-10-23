@@ -1,4 +1,4 @@
-package no.nav.arbeidsgiver.tiltakrefusjon.domain
+package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.Inntektslinje
 import java.time.LocalDate

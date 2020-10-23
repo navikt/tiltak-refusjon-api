@@ -1,6 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.autorisering
 
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Fnr
 import no.nav.security.token.support.core.api.Protected
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import org.springframework.web.bind.annotation.GetMapping
@@ -18,8 +19,8 @@ class InnloggetBrukerController(val context:TokenValidationContextHolder,
     fun hentInnloggetBruker(): InnloggetBruker {
         val valContext = context.tokenValidationContext
         val claims = valContext.getClaims("aad")
-        val personIdent = claims.subject
-        val orgList = altinnTilgangsstyringService.hentTilganger(personIdent).asList()
-        return InnloggetBruker(personIdent, orgList, emptyList());
+        val personIdent = Fnr(claims.subject)
+        val orgList = altinnTilgangsstyringService.hentTilganger(0,0,personIdent).asList()
+        return InnloggetBruker(personIdent.verdi, orgList, emptyList());
     }
 }

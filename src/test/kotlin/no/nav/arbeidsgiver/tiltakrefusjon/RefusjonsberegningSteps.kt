@@ -2,7 +2,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon
 
 import io.cucumber.datatable.DataTable
 import io.cucumber.java8.No
-import no.nav.arbeidsgiver.tiltakrefusjon.domain.Refusjonsgrunnlag
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjonsgrunnlag
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Assume
 import java.math.BigDecimal

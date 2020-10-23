@@ -1,6 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon
 
-import no.nav.arbeidsgiver.tiltakrefusjon.domain.Refusjon
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
 import java.time.LocalDate
 import java.time.LocalDateTime
 

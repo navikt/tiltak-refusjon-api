@@ -2,6 +2,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon.altinn
 
 import io.mockk.every
 import io.mockk.mockk
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Fnr
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -20,13 +21,15 @@ class AltinnTilgangsstyringServiceTest(){
     lateinit var altinnTilgangsstyringService: AltinnTilgangsstyringService;
     var context: TokenValidationContextHolder = mockk<TokenValidationContextHolder>()
 
-    @Test fun `skal returnere en liste med organisasjoner personen har tilgang til`(){
+    @Test fun `skal returnere en tom liste med organisasjoner når personen har ikke tilgang til noen`(){
         // GITT
-        val fnr = "00000000007"
-        every { context.tokenValidationContext.getClaims(any()).subject} returns fnr
+        val serviceCode = null
+        val serviceEdition = null
+        val fnr = Fnr("10000000007")
+        every { context.tokenValidationContext.getClaims(any()).subject} returns fnr.verdi
 
         // NAAR
-        val organisasjoner: Array<Organisasjon>? = altinnTilgangsstyringService.hentTilganger(fnr)
+        val organisasjoner: Array<Organisasjon>? = altinnTilgangsstyringService.hentTilganger(serviceCode, serviceEdition,fnr)
 
         // DA
         assertThat(organisasjoner).hasSize(8)

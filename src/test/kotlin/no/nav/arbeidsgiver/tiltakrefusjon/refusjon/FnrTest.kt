@@ -10,6 +10,13 @@ internal class FnrTest {
         assertThrows(RefusjonException::class.java,{
             val fnr:Fnr = Fnr("")
         });
+    }
+
+    @Test
+    fun `gitt kort fnr skal det kastes en exception`() {
+        assertThrows(RefusjonException::class.java,{
+            val fnr:Fnr = Fnr("123")
+        });
 
     }
 }

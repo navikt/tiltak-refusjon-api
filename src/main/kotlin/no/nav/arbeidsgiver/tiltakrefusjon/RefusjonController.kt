@@ -35,6 +35,11 @@ class RefusjonController(val refusjonRepository: RefusjonRepository) {
         return refusjonRepository.findAll()
     }
 
+    @GetMapping("/bedrift/{bedriftnummer}")
+    fun hentAlleMedBedriftnummer(@PathVariable bedriftnummer:String): List<Refusjon> {
+        return refusjonRepository.findByBedriftnummer(bedriftnummer)
+    }
+
     @GetMapping("/{id}")
     fun hent(@PathVariable id: String): Refusjon? {
         return refusjonRepository.findByIdOrNull(id)

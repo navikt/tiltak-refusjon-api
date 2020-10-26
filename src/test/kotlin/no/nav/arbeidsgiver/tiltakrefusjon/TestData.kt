@@ -12,7 +12,7 @@ fun enRefusjon(): Refusjon {
             deltakerFnr = "07098142678",
             veileder = "Jonas Trane",
             bedrift = "Kiwi Majorstuen",
-            bedriftnummer = "998877665",
+            bedriftnummer = "910712306",
             feriedager = 2,
             trekkFeriedagerBeløp = 1500,
             sykedager = 2,

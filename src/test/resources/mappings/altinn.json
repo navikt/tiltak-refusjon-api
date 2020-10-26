@@ -31,14 +31,14 @@
           {
             "Name": "SALTRØD FORELDER",
             "Type": "Enterprise",
-            "OrganizationNumber": "910825550",
+            "OrganizationNumber": "998877665",
             "OrganizationForm": "AS",
             "Status": "Active"
           },
           {
             "Name": "Bedriften Med Midlertidi Lts",
             "Type": "Business",
-            "OrganizationNumber": "910712314",
+            "OrganizationNumber": "998877665",
             "OrganizationForm": "BEDR",
             "Status": "Active",
             "ParentOrganizationNumber": "910825555"

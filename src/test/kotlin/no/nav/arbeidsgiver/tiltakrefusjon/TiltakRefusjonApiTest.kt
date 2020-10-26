@@ -45,7 +45,7 @@ class TiltakRefusjonApiTest(
 
     @BeforeEach
     fun setUp() {
-        refusjonRepository.saveAll(toRefusjoner())
+        refusjonRepository.saveAll(refusjoner())
     }
 
     @Test

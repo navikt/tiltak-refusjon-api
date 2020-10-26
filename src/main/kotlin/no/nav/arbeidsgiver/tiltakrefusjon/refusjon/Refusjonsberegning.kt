@@ -1,6 +1,5 @@
-package no.nav.arbeidsgiver.tiltakrefusjon
+package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjonsgrunnlag
 import java.math.BigDecimal
 
 fun beregnRefusjon(grunnlag: Refusjonsgrunnlag): BigDecimal {

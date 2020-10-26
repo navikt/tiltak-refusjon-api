@@ -1,7 +1,5 @@
-package no.nav.arbeidsgiver.tiltakrefusjon
+package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjonsgrunnlag
 import no.nav.security.token.support.core.api.Protected
 import no.nav.security.token.support.spring.validation.interceptor.JwtTokenUnauthorizedException
 import org.springframework.data.repository.findByIdOrNull

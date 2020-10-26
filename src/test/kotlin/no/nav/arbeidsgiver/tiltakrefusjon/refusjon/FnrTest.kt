@@ -1,6 +1,5 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
-import no.nav.arbeidsgiver.tiltakrefusjon.exceptions.RefusjonException
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test

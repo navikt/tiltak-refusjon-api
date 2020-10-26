@@ -1,6 +1,5 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.altinn
 
-import no.nav.arbeidsgiver.tiltakrefusjon.exceptions.AltinnFeilException
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Identifikator
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders

@@ -1,4 +1,4 @@
-package no.nav.arbeidsgiver.tiltakrefusjon.exceptions
+package no.nav.arbeidsgiver.tiltakrefusjon.altinn
 
 class AltinnFeilException : RuntimeException{
     constructor(message: String?):super(message)

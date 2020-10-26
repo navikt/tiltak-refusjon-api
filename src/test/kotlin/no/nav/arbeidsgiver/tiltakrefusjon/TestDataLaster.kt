@@ -1,5 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon
 
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonRepository
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.ApplicationListener
 import org.springframework.stereotype.Component

@@ -1,6 +1,5 @@
-package no.nav.arbeidsgiver.tiltakrefusjon
+package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
 import org.springframework.data.jpa.repository.JpaRepository
 
 interface RefusjonRepository: JpaRepository<Refusjon, String>{

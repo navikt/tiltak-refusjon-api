@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.junit.jupiter.MockitoExtension
+import org.springframework.http.ResponseEntity
 
 @ExtendWith(MockitoExtension::class)
 class InnloggetBrukerControllerTest {
@@ -27,15 +28,15 @@ class InnloggetBrukerControllerTest {
     fun `skal returnere logget bruker tilbake med ingen altinn organisasjoner`() {
         // GITT
         val fnr = Fnr("00000000007")
-        every{ altinnTilgangsstyringService.hentTilganger(0,0,fnr)} returns emptySet()
+        every{ altinnTilgangsstyringService.hentTilganger(fnr)} returns emptySet()
         every{ context.tokenValidationContext.getClaims(any()).subject} returns fnr.verdi
 
 
         // NAAR
-        val innloggetBruker = innloggetBrukerController.hentInnloggetBruker()
+        val innloggetBrukerResponse:ResponseEntity<InnloggetBruker> = innloggetBrukerController.hentInnloggetBruker()
 
         // DA
-        assertThat(innloggetBruker.identifikator).isEqualTo(fnr.verdi)
-        assertThat(innloggetBruker.altinnOrganisasjoner).hasSize(0)
+        assertThat(innloggetBrukerResponse.body?.identifikator).isEqualTo(fnr.verdi)
+        assertThat(innloggetBrukerResponse.body?.altinnOrganisasjoner).hasSize(0)
     }
 }

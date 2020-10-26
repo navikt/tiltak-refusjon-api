@@ -23,13 +23,11 @@ class AltinnTilgangsstyringServiceTest(){
 
     @Test fun `skal returnere en tom liste med organisasjoner når personen har ikke tilgang til noen`(){
         // GITT
-        val serviceCode = null
-        val serviceEdition = null
         val fnr = Fnr("10000000007")
         every { context.tokenValidationContext.getClaims(any()).subject} returns fnr.verdi
 
         // NAAR
-        val organisasjoner: Set<Organisasjon>? = altinnTilgangsstyringService.hentTilganger(serviceCode, serviceEdition,fnr)
+        val organisasjoner: Set<Organisasjon>? = altinnTilgangsstyringService.hentTilganger(fnr)
 
         // DA
         assertThat(organisasjoner).hasSize(8)

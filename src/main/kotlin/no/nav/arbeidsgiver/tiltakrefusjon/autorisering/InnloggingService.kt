@@ -27,11 +27,11 @@ class InnloggingService(val context: TokenValidationContextHolder,
 
     fun sjekkHarTilgangTilBedrift(bedriftsnummerDetSokesOm:String) {
         if(erIkkeTomme(bedriftsnummerDetSokesOm)
-                && harTilgangTilBedriftenDetSokesOm(bedriftsnummerDetSokesOm)){
+                && harIkkeTilgangTilBedriftenDetSokesOm(bedriftsnummerDetSokesOm)){
             throw TilgangskontrollException("Person har ikke tilgang")
         }
     }
 
-    private fun harTilgangTilBedriftenDetSokesOm(bedriftsnummerDetSokesOm: String) =
+    private fun harIkkeTilgangTilBedriftenDetSokesOm(bedriftsnummerDetSokesOm: String) =
             !hentOrganisasjonerForPaloggetBruker()?.any { it.organizationNumber == bedriftsnummerDetSokesOm }!!
 }

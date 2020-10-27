@@ -19,4 +19,14 @@ public class UtilsTest {
   public void erIkkeTomme__uten_null() {
     assertThat(Utils.erIkkeTomme(1, "k", new Object())).isTrue();
   }
+
+  @Test
+  public void erNoenTomme_med_gyldig_objekter(){
+    assertThat(Utils.erNoenTomme(1, "k", new Object())).isFalse();
+  }
+
+  @Test
+  public void erNoenTomme_med_delvis_tomme_objekter(){
+    assertThat(Utils.erNoenTomme(1, "k", new Object(),"")).isTrue();
+  }
 }

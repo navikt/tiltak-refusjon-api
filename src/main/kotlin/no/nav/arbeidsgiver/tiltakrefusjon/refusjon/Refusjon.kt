@@ -10,7 +10,8 @@ data class Refusjon(
         @Id
         val id: String,
         val deltaker: String,
-        val tiltak: String,
+        val tiltakstype: Tiltakstype,
+        val status: Status,
         val deltakerFnr: String,
         val veileder: String,
         val bedrift: String,

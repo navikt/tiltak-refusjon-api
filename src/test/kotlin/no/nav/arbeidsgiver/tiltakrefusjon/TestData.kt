@@ -1,20 +1,23 @@
 package no.nav.arbeidsgiver.tiltakrefusjon
 
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.io.File
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Status
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
+import java.io.File
+import java.time.LocalDate
+import java.time.LocalDateTime
 
 val TESTDATAPATH = "/src/test/resources/testdata/refusjon.json"
 
 fun enRefusjon(): Refusjon {
     return Refusjon(
             id = "1",
-            tiltak = "Arbeidstrening",
+            tiltakstype = Tiltakstype.MIDLERTIDLIG_LONNSTILSKUDD,
+            status = Status.BEHANDLET,
             deltaker = "Mikke Mus",
             deltakerFnr = "07098142678",
             veileder = "Jonas Trane",
@@ -39,7 +42,6 @@ fun enRefusjon(): Refusjon {
             fraDato = LocalDate.of(2020, 8, 1),
             tilDato = LocalDate.of(2020, 10, 31),
             opprettet_tidspunkt = LocalDateTime.now()
-
     )
 
 }

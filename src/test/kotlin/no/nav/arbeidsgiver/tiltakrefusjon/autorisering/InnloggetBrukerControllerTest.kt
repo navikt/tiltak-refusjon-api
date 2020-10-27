@@ -2,9 +2,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon.autorisering
 
 import io.mockk.every
 import io.mockk.mockk
-import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Fnr
-import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -15,28 +13,26 @@ import org.springframework.http.ResponseEntity
 @ExtendWith(MockitoExtension::class)
 class InnloggetBrukerControllerTest {
 
-    var context: TokenValidationContextHolder = mockk<TokenValidationContextHolder>()
-    var altinnTilgangsstyringService = mockk<AltinnTilgangsstyringService>()
-    lateinit var innloggetBrukerController: InnloggetBrukerController
+    var innloggingService: InnloggingService = mockk<InnloggingService>()
+    lateinit var innloggetBrukerController:InnloggetBrukerController
 
     @BeforeEach
     fun setup(){
-        innloggetBrukerController = InnloggetBrukerController(context, altinnTilgangsstyringService)
+        innloggetBrukerController = InnloggetBrukerController(innloggingService)
     }
 
     @Test
     fun `skal returnere logget bruker tilbake med ingen altinn organisasjoner`() {
         // GITT
-        val fnr = Fnr("00000000007")
-        every{ altinnTilgangsstyringService.hentTilganger(fnr)} returns emptySet()
-        every{ context.tokenValidationContext.getClaims(any()).get("pid").toString()} returns fnr.verdi
-
+        val fnrPaloggetBruker = Fnr("00000000007")
+        every { innloggingService.hentPaloggetIdent() } returns fnrPaloggetBruker
+        every{ innloggingService.hentTilganger(fnrPaloggetBruker)} returns emptySet()
 
         // NÅR
         val innloggetBrukerResponse:ResponseEntity<InnloggetBruker> = innloggetBrukerController.hentInnloggetBruker()
 
         // DA
-        assertThat(innloggetBrukerResponse.body?.identifikator).isEqualTo(fnr.verdi)
+        assertThat(innloggetBrukerResponse.body?.identifikator).isEqualTo(fnrPaloggetBruker.verdi)
         assertThat(innloggetBrukerResponse.body?.altinnOrganisasjoner).hasSize(0)
     }
 }

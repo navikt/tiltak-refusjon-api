@@ -18,6 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.ResultMatcher
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
@@ -26,7 +27,7 @@ import javax.servlet.http.Cookie
 
 
 @SpringBootTest
-@ActiveProfiles("local")
+@ActiveProfiles("local","wiremock")
 @AutoConfigureMockMvc
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class RefusjonApiTest(
@@ -57,12 +58,32 @@ class RefusjonApiTest(
 
     @Test
     fun `Henter refusjoner for en bedrift`() {
+        // GITT
+        val userToken = JwtTokenGenerator.createSignedJWT("17049223186").serialize()
+        cookie = Cookie("aad-idtoken", userToken)
         val bedriftnummer = "998877665"
+
+        // NÅR
         val json = sendRequest(get("$REQUEST_MAPPING/bedrift/$bedriftnummer"))
         val liste = mapper.readValue(json, object : TypeReference<List<Refusjon?>?>() {})
+
+        // DA
         assertTrue(liste!!.all { it!!.bedriftnummer.equals(bedriftnummer) })
         assertEquals(4, liste!!.size)
     }
+
+    @Test
+    fun `skal ikke kunne hente refusjoner for en bedrift som personen ikke har tilgang til`() {
+        // GITT
+        val fnrForPerson = "07098142678"
+        val userToken = JwtTokenGenerator.createSignedJWT(fnrForPerson).serialize()
+        cookie = Cookie("aad-idtoken", userToken)
+        val bedriftnummer = "998877665"
+
+        // NÅR
+       sendRequest(get("$REQUEST_MAPPING/bedrift/$bedriftnummer"),status().isServiceUnavailable)
+    }
+
 
     @Test
     fun `Henter refusjon med id`() {
@@ -124,5 +145,13 @@ class RefusjonApiTest(
                 .andExpect(status().isOk)
                 .andReturn()
                 .response.contentAsString
+    }
+    private fun sendRequest(request: MockHttpServletRequestBuilder,forventetStatus: ResultMatcher) {
+        mockMvc.perform(
+                request
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .cookie(cookie))
+                .andExpect(forventetStatus)
     }
 }

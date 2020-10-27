@@ -1,5 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
+import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggingService
 import no.nav.security.token.support.core.api.Protected
 import no.nav.security.token.support.spring.validation.interceptor.JwtTokenUnauthorizedException
 import org.springframework.data.repository.findByIdOrNull
@@ -22,7 +23,7 @@ const val REQUEST_MAPPING = "/api/refusjon"
 @RestController
 @RequestMapping(REQUEST_MAPPING)
 @Protected
-class RefusjonController(val refusjonRepository: RefusjonRepository) {
+class RefusjonController(val refusjonRepository: RefusjonRepository,val innloggingService: InnloggingService) {
     @GetMapping("/beregn")
     fun beregn(grunnlag: Refusjonsgrunnlag): BigDecimal {
         return beregnRefusjon(grunnlag)
@@ -35,6 +36,7 @@ class RefusjonController(val refusjonRepository: RefusjonRepository) {
 
     @GetMapping("/bedrift/{bedriftnummer}")
     fun hentAlleMedBedriftnummer(@PathVariable bedriftnummer:String): List<Refusjon> {
+        innloggingService.sjekkHarTilgangTilRefusjonerForBedrift(bedriftnummer)
         return refusjonRepository.findByBedriftnummer(bedriftnummer)
     }
 

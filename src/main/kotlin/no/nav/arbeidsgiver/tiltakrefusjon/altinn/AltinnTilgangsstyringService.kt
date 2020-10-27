@@ -46,4 +46,5 @@ class AltinnTilgangsstyringService(val altinnTilgangsstyringProperties: AltinnTi
         headers["APIKEY"] = altinnTilgangsstyringProperties.altinnApiKey
         return HttpEntity(headers)
     }
+
 }

@@ -2,7 +2,8 @@
   {
     "id": "1",
     "deltaker": "Alexander Kielland",
-    "tiltak": "Arbeidstrening",
+    "status": "UBEHANDLET",
+    "tiltakstype": "MIDLERTIDLIG_LONNSTILSKUDD",
     "deltakerFnr": "07098142678",
     "veileder": "Jonas Trane",
     "bedrift": "Kiwi Majorstuen",
@@ -30,7 +31,8 @@
   {
     "id": "2",
     "deltaker": "Bjørnstjerne Bjørnson",
-    "tiltak": "Arbeidstrening",
+    "status": "BEHANDLET",
+    "tiltakstype": "MIDLERTIDLIG_LONNSTILSKUDD",
     "deltakerFnr": "07049223182",
     "veileder": "Alf Hansen",
     "bedrift": "Kiwi Majorstuen",
@@ -57,8 +59,9 @@
   },
   {
     "id": "3",
+    "status": "BEHANDLET",
     "deltaker": "Jonas Lie",
-    "tiltak": "Arbeidstrening",
+    "tiltakstype": "MIDLERTIDLIG_LONNSTILSKUDD",
     "deltakerFnr": "07049223183",
     "veileder": "Alf Hansen",
     "bedrift": "Kiwi Majorstuen",
@@ -86,7 +89,8 @@
   {
     "id": "4",
     "deltaker": "Henrik Ibsen",
-    "tiltak": "Arbeidstrening",
+    "status": "BEHANDLET",
+    "tiltakstype": "MIDLERTIDLIG_LONNSTILSKUDD",
     "deltakerFnr": "07049223184",
     "veileder": "Alf Hansen",
     "bedrift": "Kiwi Majorstuen",
@@ -114,8 +118,9 @@
   {
     "id": "5",
     "deltaker": "Ivar Åsen",
-    "tiltak": "Arbeidstrening",
-    "deltakerFnr": "07049223186",
+    "status": "BEHANDLET",
+    "tiltakstype": "MIDLERTIDLIG_LONNSTILSKUDD",
+    "deltakerFnr": "17049223186",
     "veileder": "Alf Hansen",
     "bedrift": "Kiwi Majorstuen",
     "bedriftnummer": "999999999",
@@ -142,7 +147,8 @@
   {
     "id": "6",
     "deltaker": "Nils Nilsen",
-    "tiltak": "Arbeidstrening",
+    "status": "BEHANDLET",
+    "tiltakstype": "MIDLERTIDLIG_LONNSTILSKUDD",
     "deltakerFnr": "07049223188",
     "veileder": "Alf Hansen",
     "bedrift": "Kiwi Majorstuen",
@@ -170,7 +176,8 @@
   {
     "id": "7",
     "deltaker": "Henrik Wergeland",
-    "tiltak": "Arbeidstrening",
+    "status": "BEHANDLET",
+    "tiltakstype": "MIDLERTIDLIG_LONNSTILSKUDD",
     "deltakerFnr": "07049223190",
     "veileder": "Alf Hansen",
     "bedrift": "Kiwi Majorstuen",
@@ -198,7 +205,8 @@
   {
     "id": "8",
     "deltaker": "Knut Hamsun",
-    "tiltak": "Arbeidstrening",
+    "tiltakstype": "MIDLERTIDLIG_LONNSTILSKUDD",
+    "status": "BEHANDLET",
     "deltakerFnr": "07049223190",
     "veileder": "Alf Hansen",
     "bedrift": "Kiwi Majorstuen",
@@ -226,7 +234,8 @@
   {
     "id": "9",
     "deltaker": "Sigrid Undset",
-    "tiltak": "Arbeidstrening",
+    "status": "BEHANDLET",
+    "tiltakstype": "MIDLERTIDLIG_LONNSTILSKUDD",
     "deltakerFnr": "07049223190",
     "veileder": "Alf Hansen",
     "bedrift": "Kiwi Majorstuen",
@@ -254,7 +263,8 @@
   {
     "id": "10",
     "deltaker": "Amalie Skram",
-    "tiltak": "Arbeidstrening",
+    "status": "UBEHANDLET",
+    "tiltakstype": "MIDLERTIDLIG_LONNSTILSKUDD",
     "deltakerFnr": "07049223190",
     "veileder": "Alf Hansen",
     "bedrift": "Kiwi Majorstuen",
@@ -282,7 +292,8 @@
   {
     "id": "11",
     "deltaker": "Camilla Collett",
-    "tiltak": "Arbeidstrening",
+    "status": "UBEHANDLET",
+    "tiltakstype": "MIDLERTIDLIG_LONNSTILSKUDD",
     "deltakerFnr": "07049223190",
     "veileder": "Alf Hansen",
     "bedrift": "Kiwi Majorstuen",
@@ -310,7 +321,8 @@
   {
     "id": "12",
     "deltaker": "Inger Hagerup",
-    "tiltak": "Arbeidstrening",
+    "tiltakstype": "MIDLERTIDLIG_LONNSTILSKUDD",
+    "status": "BEHANDLET",
     "deltakerFnr": "07049223190",
     "veileder": "Alf Hansen",
     "bedrift": "Kiwi Majorstuen",
@@ -338,7 +350,8 @@
   {
     "id": "13",
     "deltaker": "Inger Hagerup",
-    "tiltak": "Arbeidstrening",
+    "tiltakstype": "MIDLERTIDLIG_LONNSTILSKUDD",
+    "status": "BEHANDLET",
     "deltakerFnr": "07049223190",
     "veileder": "Alf Hansen",
     "bedrift": "Kiwi Majorstuen",
@@ -366,7 +379,8 @@
   {
     "id": "14",
     "deltaker": "Inger Hagerup",
-    "tiltak": "Arbeidstrening",
+    "status": "UBEHANDLET",
+    "tiltakstype": "MIDLERTIDLIG_LONNSTILSKUDD",
     "deltakerFnr": "07049223190",
     "veileder": "Alf Hansen",
     "bedrift": "Kiwi Majorstuen",

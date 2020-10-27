@@ -1,9 +1,6 @@
 name: Bygg og deploy master
 
-on:
-  push:
-    branches:
-      - 'master'
+on: [push, workflow_dispatch]
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -12,8 +12,8 @@ class InnloggingService(val context: TokenValidationContextHolder,
                         val altinnTilgangsstyringService: AltinnTilgangsstyringService) {
     fun hentPaloggetIdent():Identifikator{
         val valContext = context.tokenValidationContext
-        val claims = valContext.getClaims("aad")
-        return Fnr(claims.subject)
+        val claims = valContext.getClaims("tokenx")
+        return Fnr(claims.getStringClaim("pid"))
     }
 
     fun hentTilganger(personIdent: Identifikator): Set<Organisasjon> {

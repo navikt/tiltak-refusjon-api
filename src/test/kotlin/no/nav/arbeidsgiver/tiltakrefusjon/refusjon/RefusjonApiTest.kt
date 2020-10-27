@@ -2,16 +2,15 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.nimbusds.jwt.JWTClaimsSet
+import com.nimbusds.jwt.SignedJWT
 import no.nav.arbeidsgiver.tiltakrefusjon.enRefusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjoner
+import no.nav.security.token.support.test.JwkGenerator
 import no.nav.security.token.support.test.JwtTokenGenerator
+import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
@@ -23,11 +22,13 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import java.security.interfaces.RSAKey
+import java.util.*
 import javax.servlet.http.Cookie
 
 
 @SpringBootTest
-@ActiveProfiles("local","wiremock")
+@ActiveProfiles("local", "wiremock")
 @AutoConfigureMockMvc
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class RefusjonApiTest(
@@ -36,12 +37,33 @@ class RefusjonApiTest(
         @Autowired val mockMvc: MockMvc
 ) {
 
+    val TOKEN_X_NAVN = "tokenx-idtoken";
     lateinit var cookie: Cookie
+
+    fun lagTokenForFnr(fnr: String): String? {
+        val now = Date()
+        val claims = JWTClaimsSet.Builder()
+                .subject("")
+                .issuer("iss-localhost")
+                .audience("aud-localhost")
+                .jwtID(UUID.randomUUID().toString())
+                .claim("pid", fnr)
+                .claim("acr", "Level4")
+                .claim("ver", "1.0")
+                .claim("nonce", "myNonce")
+                .claim("auth_time", now)
+                .notBeforeTime(now)
+                .issueTime(now)
+                .expirationTime(Date(now.getTime() + 1000000)).build()
+
+        return JwtTokenGenerator.createSignedJWT(JwkGenerator.getDefaultRSAKey(), claims).serialize();
+    }
 
     @BeforeAll
     fun setUpBeforeAll() {
-        val userToken = JwtTokenGenerator.createSignedJWT("").serialize()
-        cookie = Cookie("aad-idtoken", userToken)
+        val userToken = lagTokenForFnr("");
+        //val userToken = JwtTokenGenerator.createSignedJWT("").serialize()
+        cookie = Cookie(TOKEN_X_NAVN, userToken)
     }
 
     @BeforeEach
@@ -59,8 +81,9 @@ class RefusjonApiTest(
     @Test
     fun `Henter refusjoner for en bedrift`() {
         // GITT
-        val userToken = JwtTokenGenerator.createSignedJWT("17049223186").serialize()
-        cookie = Cookie("aad-idtoken", userToken)
+        //val userToken = JwtTokenGenerator.createSignedJWT("17049223186").serialize()
+        val userToken = lagTokenForFnr("17049223186")
+        cookie = Cookie(TOKEN_X_NAVN, userToken)
         val bedriftnummer = "998877665"
 
         // NÅR
@@ -76,12 +99,12 @@ class RefusjonApiTest(
     fun `skal ikke kunne hente refusjoner for en bedrift som personen ikke har tilgang til`() {
         // GITT
         val fnrForPerson = "07098142678"
-        val userToken = JwtTokenGenerator.createSignedJWT(fnrForPerson).serialize()
-        cookie = Cookie("aad-idtoken", userToken)
+        val userToken = lagTokenForFnr(fnrForPerson) //JwtTokenGenerator.createSignedJWT(fnrForPerson).serialize()
+        cookie = Cookie(TOKEN_X_NAVN, userToken)
         val bedriftnummer = "998877665"
 
         // NÅR
-       sendRequest(get("$REQUEST_MAPPING/bedrift/$bedriftnummer"),status().isServiceUnavailable)
+       sendRequest(get("$REQUEST_MAPPING/bedrift/$bedriftnummer"), status().isServiceUnavailable)
     }
 
 
@@ -146,7 +169,7 @@ class RefusjonApiTest(
                 .andReturn()
                 .response.contentAsString
     }
-    private fun sendRequest(request: MockHttpServletRequestBuilder,forventetStatus: ResultMatcher) {
+    private fun sendRequest(request: MockHttpServletRequestBuilder, forventetStatus: ResultMatcher) {
         mockMvc.perform(
                 request
                         .contentType(MediaType.APPLICATION_JSON)

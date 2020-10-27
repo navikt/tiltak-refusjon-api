@@ -33,5 +33,5 @@ class InnloggingService(val context: TokenValidationContextHolder,
     }
 
     private fun harIkkeTilgangTilBedriftenDetSokesOm(bedriftsnummerDetSokesOm: String) =
-            !hentOrganisasjonerForPaloggetBruker()?.any { it.organizationNumber == bedriftsnummerDetSokesOm }!!
+            hentOrganisasjonerForPaloggetBruker()?.none { it.organizationNumber == bedriftsnummerDetSokesOm }!!
 }

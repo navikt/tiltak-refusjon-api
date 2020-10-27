@@ -30,7 +30,7 @@ class InnloggingServiceTest{
         // GITT
         val fnr = Fnr("00000000007")
         every{ altinnTilgangsstyringService.hentTilganger(fnr)} returns emptySet()
-        every{ context.tokenValidationContext.getClaims(any()).subject} returns fnr.verdi
+        every{ context.tokenValidationContext.getClaims(any()).getStringClaim("pid")} returns fnr.verdi
 
 
         // NÅR
@@ -45,7 +45,7 @@ class InnloggingServiceTest{
         // GITT
         val fnr = Fnr("00000000007")
         every{ altinnTilgangsstyringService.hentTilganger(fnr)} returns setOf<Organisasjon>(enOrganisasjon())
-        every{ context.tokenValidationContext.getClaims(any()).subject} returns fnr.verdi
+        every{ context.tokenValidationContext.getClaims(any()).getStringClaim("pid")} returns fnr.verdi
 
         // NÅR
         val organasjoner = innloggetService.hentTilgangerForPaloggetbruker()

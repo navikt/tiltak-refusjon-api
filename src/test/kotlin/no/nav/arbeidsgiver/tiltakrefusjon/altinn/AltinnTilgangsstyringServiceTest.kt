@@ -26,7 +26,7 @@ class AltinnTilgangsstyringServiceTest(){
         // GITT
         altinnTilgangsstyringProperties.serviceCode = 4936
         val fnr = Fnr("10000000007")
-        every { context.tokenValidationContext.getClaims(any()).subject} returns fnr.verdi
+        every { context.tokenValidationContext.getClaims(any()).getStringClaim("pid")} returns fnr.verdi
 
         // NÅR
         val organisasjoner: Set<Organisasjon>? = altinnTilgangsstyringService.hentTilganger(fnr)
@@ -39,7 +39,7 @@ class AltinnTilgangsstyringServiceTest(){
         // GITT
         altinnTilgangsstyringProperties.serviceCode = 4936
         val fnr = Fnr("01234567890")
-        every { context.tokenValidationContext.getClaims(any()).subject} returns fnr.verdi
+        every { context.tokenValidationContext.getClaims(any()).getStringClaim("pid")} returns fnr.verdi
 
         // NÅR
         assertThrows<AltinnFeilException> {
@@ -53,7 +53,7 @@ class AltinnTilgangsstyringServiceTest(){
         altinnTilgangsstyringProperties.serviceCode = 5516
         altinnTilgangsstyringService = AltinnTilgangsstyringService(altinnTilgangsstyringProperties)
         val fnr = Fnr("01234567890")
-        every { context.tokenValidationContext.getClaims(any()).subject } returns fnr.verdi
+        every { context.tokenValidationContext.getClaims(any()).getStringClaim("pid") } returns fnr.verdi
 
         // NÅR
         val organisasjoner: Set<Organisasjon>? = altinnTilgangsstyringService.hentTilganger(fnr)
@@ -67,7 +67,7 @@ class AltinnTilgangsstyringServiceTest(){
         altinnTilgangsstyringProperties.serviceCode = 0
         altinnTilgangsstyringService = AltinnTilgangsstyringService(altinnTilgangsstyringProperties)
         val fnr = Fnr("01234567890")
-        every { context.tokenValidationContext.getClaims(any()).subject } returns fnr.verdi
+        every { context.tokenValidationContext.getClaims(any()).getStringClaim("pid") } returns fnr.verdi
 
         // NÅR
         assertThrows<AltinnFeilException> {

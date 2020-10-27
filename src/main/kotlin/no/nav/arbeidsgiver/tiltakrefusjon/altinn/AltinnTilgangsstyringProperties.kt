@@ -12,10 +12,6 @@ var proxyUri:URI = URI(""),
 var altinnApiKey:String = "",
 var apiGwApiKey:String = "",
 var beOmRettighetBaseUrl:String = "",
-var ltsMidlertidigServiceCode:Int = 0,
-var ltsMidlertidigServiceEdition:Int = 0,
-var ltsVarigServiceCode:Int = 0,
-var ltsVarigServiceEdition:Int = 0,
-var arbtreningServiceCode:Int = 0,
-var arbtreningServiceEdition:Int =0
+var serviceCode:Int = 0,
+var serviceEdition:Int = 0
 )

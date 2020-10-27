@@ -1,12 +1,17 @@
-package no.nav.arbeidsgiver.tiltakrefusjon
+package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
-import no.nav.arbeidsgiver.tiltakrefusjon.domain.Refusjon
+import no.nav.arbeidsgiver.tiltakrefusjon.enRefusjon
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjoner
 import no.nav.security.token.support.test.JwtTokenGenerator
-import org.junit.Ignore
-import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
@@ -24,7 +29,7 @@ import javax.servlet.http.Cookie
 @ActiveProfiles("local")
 @AutoConfigureMockMvc
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class TiltakRefusjonApiTest(
+class RefusjonApiTest(
         @Autowired val refusjonRepository: RefusjonRepository,
         @Autowired val mapper: ObjectMapper,
         @Autowired val mockMvc: MockMvc
@@ -40,14 +45,23 @@ class TiltakRefusjonApiTest(
 
     @BeforeEach
     fun setUp() {
-        refusjonRepository.saveAll(toRefusjoner())
+        refusjonRepository.saveAll(refusjoner())
     }
 
     @Test
     fun `Henter alle refusjonene`() {
         val json = sendRequest(get(REQUEST_MAPPING))
         val liste = mapper.readValue(json, object : TypeReference<List<Refusjon?>?>() {})
-        assertEquals(2, liste!!.size)
+        assertEquals(14, liste!!.size)
+    }
+
+    @Test
+    fun `Henter refusjoner for en bedrift`() {
+        val bedriftnummer = "998877665"
+        val json = sendRequest(get("$REQUEST_MAPPING/bedrift/$bedriftnummer"))
+        val liste = mapper.readValue(json, object : TypeReference<List<Refusjon?>?>() {})
+        assertTrue(liste!!.all { it!!.bedriftnummer.equals(bedriftnummer) })
+        assertEquals(4, liste!!.size)
     }
 
     @Test

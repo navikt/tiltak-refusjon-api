@@ -1,13 +1,17 @@
-package no.nav.arbeidsgiver.tiltakrefusjon
+package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
-import com.github.guepardoapps.kulid.ULID
-import no.nav.arbeidsgiver.tiltakrefusjon.domain.Refusjon
-import no.nav.arbeidsgiver.tiltakrefusjon.domain.Refusjonsgrunnlag
 import no.nav.security.token.support.core.api.Protected
 import no.nav.security.token.support.spring.validation.interceptor.JwtTokenUnauthorizedException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.ExceptionHandler
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpStatusCodeException
 import java.math.BigDecimal
@@ -27,6 +31,11 @@ class RefusjonController(val refusjonRepository: RefusjonRepository) {
     @GetMapping
     fun hentAlle(): List<Refusjon> {
         return refusjonRepository.findAll()
+    }
+
+    @GetMapping("/bedrift/{bedriftnummer}")
+    fun hentAlleMedBedriftnummer(@PathVariable bedriftnummer:String): List<Refusjon> {
+        return refusjonRepository.findByBedriftnummer(bedriftnummer)
     }
 
     @GetMapping("/{id}")

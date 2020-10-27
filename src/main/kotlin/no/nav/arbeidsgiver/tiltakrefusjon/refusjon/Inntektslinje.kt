@@ -1,4 +1,4 @@
-package no.nav.arbeidsgiver.tiltakrefusjon
+package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import java.math.BigDecimal
 import java.time.LocalDate

@@ -1,8 +1,15 @@
 package no.nav.arbeidsgiver.tiltakrefusjon
 
-import no.nav.arbeidsgiver.tiltakrefusjon.domain.Refusjon
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.io.File
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+
+val TESTDATAPATH = "/src/test/resources/testdata/refusjon.json"
 
 fun enRefusjon(): Refusjon {
     return Refusjon(
@@ -12,7 +19,7 @@ fun enRefusjon(): Refusjon {
             deltakerFnr = "07098142678",
             veileder = "Jonas Trane",
             bedrift = "Kiwi Majorstuen",
-            bedriftnummer = "998877665",
+            bedriftnummer = "910712306",
             feriedager = 2,
             trekkFeriedagerBeløp = 1500,
             sykedager = 2,
@@ -34,37 +41,13 @@ fun enRefusjon(): Refusjon {
             opprettet_tidspunkt = LocalDateTime.now()
 
     )
+
 }
 
-fun toRefusjoner(): List<Refusjon> {
-    val refusjon1 = enRefusjon()
-    val refusjon2 = Refusjon(
-            id = "2",
-            tiltak = "Arbeidstrening",
-            deltaker = "Donald Duck",
-            deltakerFnr = "07049223182",
-            veileder = "Alf Hansen",
-            bedrift = "Kiwi Majorstuen",
-            bedriftnummer = "998877665",
-            feriedager = 0,
-            trekkFeriedagerBeløp = 0,
-            sykedager = 0,
-            sykepenger = 0,
-            stillingsprosent = 50,
-            månedslønn = 20000,
-            nettoMånedslønn = 15000,
-            satsOtp = 0.02,
-            beløpOtp = 530,
-            satsFeriepenger = 0.12,
-            feriepenger = 3180,
-            satsArbeidsgiveravgift = 0.141,
-            arbeidsgiveravgift = 2737,
-            sumUtgifterArbeidsgiver = 33947,
-            satsRefusjon = 0.4,
-            refusjonPrMåned = 10579,
-            fraDato = LocalDate.of(2020, 8, 1),
-            tilDato = LocalDate.of(2020, 11, 1),
-            opprettet_tidspunkt = LocalDateTime.now()
-    )
-    return listOf(refusjon1, refusjon2)
+fun refusjoner(): List<Refusjon> {
+    val mapper = jacksonObjectMapper()
+    mapper.registerKotlinModule()
+    mapper.registerModule(JavaTimeModule())
+    val refusjoner = mapper.readValue<List<Refusjon>>(File(System.getProperty("user.dir") + TESTDATAPATH).readText(Charsets.UTF_8))
+    return refusjoner
 }

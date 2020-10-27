@@ -29,7 +29,7 @@ class InnloggetBrukerControllerTest {
         // GITT
         val fnr = Fnr("00000000007")
         every{ altinnTilgangsstyringService.hentTilganger(fnr)} returns emptySet()
-        every{ context.tokenValidationContext.getClaims(any()).subject} returns fnr.verdi
+        every{ context.tokenValidationContext.getClaims(any()).get("pid").toString()} returns fnr.verdi
 
 
         // NÅR

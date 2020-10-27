@@ -16,10 +16,10 @@ no.nav.security.jwt:
       discoveryurl: http://metadata
       accepted_audience: aud-localhost
       cookie_name: aad-idtoken
-    selvbetjening:
+    tokenx:
       discoveryurl: http://metadata
       accepted_audience: aud-localhost
-      cookie_name: selvbetjening-idtoken
+      cookie_name: tokenx-idtoken
 
 logging:
   level:

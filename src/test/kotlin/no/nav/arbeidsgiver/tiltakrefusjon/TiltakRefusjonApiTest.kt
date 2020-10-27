@@ -7,6 +7,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonRepository
 import no.nav.security.token.support.test.JwtTokenGenerator
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
@@ -52,7 +53,16 @@ class TiltakRefusjonApiTest(
     fun `Henter alle refusjonene`() {
         val json = sendRequest(get(REQUEST_MAPPING))
         val liste = mapper.readValue(json, object : TypeReference<List<Refusjon?>?>() {})
-        assertEquals(2, liste!!.size)
+        assertEquals(14, liste!!.size)
+    }
+
+    @Test
+    fun `Henter refusjoner for en bedrift`() {
+        val bedriftnummer = "998877665"
+        val json = sendRequest(get("$REQUEST_MAPPING/bedrift/$bedriftnummer"))
+        val liste = mapper.readValue(json, object : TypeReference<List<Refusjon?>?>() {})
+        assertTrue(liste!!.all { it!!.bedriftnummer.equals(bedriftnummer) })
+        assertEquals(4, liste!!.size)
     }
 
     @Test

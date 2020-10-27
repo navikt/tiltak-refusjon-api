@@ -26,7 +26,7 @@ class InnloggingService(val context: TokenValidationContextHolder,
 
     fun sjekkHarTilgangTilRefusjonerForBedrift(bedriftsnummer:String): Boolean {
         if(!hentTilgangerForPaloggetbruker()?.any{ it.organizationNumber == bedriftsnummer }!!){
-            throw TilgangskontrollException("Person har tilgang")
+            throw TilgangskontrollException("Person har ikke tilgang")
         }
         return true
     }

@@ -20,8 +20,8 @@ class InnloggetBrukerController(val context:TokenValidationContextHolder,
     @GetMapping
     fun hentInnloggetBruker(): ResponseEntity<InnloggetBruker> {
         val valContext = context.tokenValidationContext
-        val claims = valContext.getClaims("aad")
-        val personIdent = Fnr(claims.subject)
+        val claims = valContext.getClaims("tokenx")
+        val personIdent = Fnr(claims.get("pid").toString())
         val organisasjoner:Set<Organisasjon> = altinnTilgangsstyringService.hentTilganger(personIdent)
         return ResponseEntity.ok(InnloggetBruker(personIdent.verdi, organisasjoner));
     }

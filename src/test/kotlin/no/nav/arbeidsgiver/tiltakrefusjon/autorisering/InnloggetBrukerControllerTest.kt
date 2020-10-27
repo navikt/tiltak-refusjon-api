@@ -2,7 +2,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon.autorisering
 
 import io.mockk.every
 import io.mockk.mockk
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Fnr
+import no.nav.arbeidsgiver.tiltakrefusjon.altinn.enOrganisasjon
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -22,17 +22,16 @@ class InnloggetBrukerControllerTest {
     }
 
     @Test
-    fun `skal returnere logget bruker tilbake med ingen altinn organisasjoner`() {
+    fun `skal returnere logget bruker tilbake med 1 altinn organisasjoner`() {
         // GITT
-        val fnrPaloggetBruker = Fnr("00000000007")
-        every { innloggingService.hentPaloggetIdent() } returns fnrPaloggetBruker
-        every{ innloggingService.hentTilganger(fnrPaloggetBruker)} returns emptySet()
+        val fnrPaloggetBruker = "00000000007"
+        every { innloggingService.hentInnloggetBruker() } returns InnloggetBruker(fnrPaloggetBruker, setOf(enOrganisasjon()))
 
         // NÅR
         val innloggetBrukerResponse:ResponseEntity<InnloggetBruker> = innloggetBrukerController.hentInnloggetBruker()
 
         // DA
-        assertThat(innloggetBrukerResponse.body?.identifikator).isEqualTo(fnrPaloggetBruker.verdi)
-        assertThat(innloggetBrukerResponse.body?.altinnOrganisasjoner).hasSize(0)
+        assertThat(innloggetBrukerResponse.body?.identifikator).isEqualTo(fnrPaloggetBruker)
+        assertThat(innloggetBrukerResponse.body?.altinnOrganisasjoner).hasSize(1)
     }
 }

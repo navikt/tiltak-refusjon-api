@@ -4,7 +4,6 @@ import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Fnr
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Identifikator
-import no.nav.arbeidsgiver.tiltakrefusjon.utils.Utils.erIkkeTomme
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import org.springframework.stereotype.Component
 
@@ -25,13 +24,9 @@ class InnloggingService(val context: TokenValidationContextHolder,
         return hentTilganger(hentPaloggetIdent())
     }
 
-    fun sjekkHarTilgangTilBedrift(bedriftsnummerDetSokesOm:String) {
-        if(erIkkeTomme(bedriftsnummerDetSokesOm)
-                && harIkkeTilgangTilBedriftenDetSokesOm(bedriftsnummerDetSokesOm)){
-            throw TilgangskontrollException("Person har ikke tilgang")
-        }
+    fun hentInnloggetBruker():InnloggetBruker{
+        val paloggetFnr:Identifikator = hentPaloggetIdent()
+        val organisasjoner:Set<Organisasjon> = hentTilganger(paloggetFnr)
+        return InnloggetBruker(paloggetFnr.verdi, organisasjoner);
     }
-
-    private fun harIkkeTilgangTilBedriftenDetSokesOm(bedriftsnummerDetSokesOm: String) =
-            hentOrganisasjonerForPaloggetBruker()?.none { it.organizationNumber == bedriftsnummerDetSokesOm }!!
 }

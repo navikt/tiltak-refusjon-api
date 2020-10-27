@@ -1,21 +1,21 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
-import io.mockk.mockk
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.test.context.ActiveProfiles
 
-import org.mockito.junit.jupiter.MockitoExtension
-@ExtendWith(MockitoExtension::class)
-class RefusjonControllerTest{
-
-    val refusjonRepository:RefusjonRepository = mockk<RefusjonRepository>()
-    val refusjonController:RefusjonController = RefusjonController(refusjonRepository)
-
+@SpringBootTest
+@ActiveProfiles("local")
+class RefusjonControllerTest(@Autowired val refusjonController: RefusjonController){
 
     @Test fun `skal kunne opprette klassen`(){
         assertThat(refusjonController).isNotNull
     }
 
+    @Test fun `skal kunne hente alle refusjoner`(){
+        assertThat(refusjonController.hentAlle()).hasSize(14)
+    }
 
 }

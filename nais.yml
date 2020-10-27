@@ -21,6 +21,9 @@ spec:
       rules:
         - application: tiltak-refusjon-innside
         - application: tiltak-refusjon-utside
+    outbound:
+      external:
+        - host: api-gw-q1.adeo.no
   azure:
     application:
       enabled: true
@@ -32,3 +35,5 @@ spec:
         databases:
           - name: tiltak-refusjon
             envVarPrefix: DB
+  envFrom:
+    - secret: tiltak-refusjon-altinn

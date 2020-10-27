@@ -6,12 +6,12 @@ import java.net.URI
 
 @Component
 @ConfigurationProperties(prefix = "tiltak-refusjon.altinn-tilgangstyring")
-data class AltinnTilgangsstyringProperties (
-         var  uri:URI = URI(""),
-var proxyUri:URI = URI(""),
-var altinnApiKey:String = "",
-var apiGwApiKey:String = "",
-var beOmRettighetBaseUrl:String = "",
-var serviceCode:Int = 0,
-var serviceEdition:Int = 0
+data class AltinnTilgangsstyringProperties(
+        var uri: URI = URI(""),
+        var proxyUri: URI = URI(""),
+        var altinnApiKey: String = "",
+        var apiGwApiKey: String = "",
+        var beOmRettighetBaseUrl: String = "",
+        var serviceCode: Int = 0,
+        var serviceEdition: Int = 0
 )

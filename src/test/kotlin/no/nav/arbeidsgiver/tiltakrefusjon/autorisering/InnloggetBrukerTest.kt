@@ -15,7 +15,7 @@ internal class InnloggetBrukerTest {
 
 
         // NÅR
-        innloggetBruker.sjekkOmTilgang("1007")
+        innloggetBruker.harTilgang("1007")
     }
 
     @Test
@@ -28,7 +28,7 @@ internal class InnloggetBrukerTest {
 
         // NÅR
         assertThrows<TilgangskontrollException>{
-            (innloggetBruker.sjekkOmTilgang("111111"))
+            (innloggetBruker.harTilgang("111111"))
         }
     }
 }

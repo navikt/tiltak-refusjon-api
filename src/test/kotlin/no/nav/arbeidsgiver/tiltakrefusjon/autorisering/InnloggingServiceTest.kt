@@ -3,8 +3,6 @@ package no.nav.arbeidsgiver.tiltakrefusjon.autorisering
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
-import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
-import no.nav.arbeidsgiver.tiltakrefusjon.altinn.enOrganisasjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Fnr
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import org.assertj.core.api.Assertions
@@ -34,24 +32,10 @@ class InnloggingServiceTest{
 
 
         // NÅR
-        val organasjoner = innloggetService.hentTilganger(fnr)
+        val organasjoner = innloggetService.hentOrganisasjoner(fnr)
 
         // DA
         Assertions.assertThat(organasjoner).isEmpty()
-    }
-
-    @Test
-    fun `skal returnere ingen altinn organisasjoner for innloggetbruker`() {
-        // GITT
-        val fnr = Fnr("00000000007")
-        every{ altinnTilgangsstyringService.hentTilganger(fnr)} returns setOf<Organisasjon>(enOrganisasjon())
-        every{ context.tokenValidationContext.getClaims(any()).getStringClaim("pid")} returns fnr.verdi
-
-        // NÅR
-        val organasjoner = innloggetService.hentOrganisasjonerForPaloggetBruker()
-
-        // DA
-        Assertions.assertThat(organasjoner).hasSize(1)
     }
 
 }

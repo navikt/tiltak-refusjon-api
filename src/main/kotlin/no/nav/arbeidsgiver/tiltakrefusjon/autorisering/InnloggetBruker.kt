@@ -6,9 +6,9 @@ data class InnloggetBruker (
         val identifikator: String,
         val altinnOrganisasjoner: Set<Organisasjon>
 ){
-    fun sjekkOmTilgang(bedriftsnummerDetSokesOm:String){
+    fun harTilgang(bedriftsnummerDetSokesOm:String){
         if(altinnOrganisasjoner.none { it.organizationNumber == bedriftsnummerDetSokesOm }){
-            throw TilgangskontrollException("Person har ikke tilgang")
+            throw TilgangskontrollException("Person har ikke tilgang til bedrift.")
         }
     }
 }

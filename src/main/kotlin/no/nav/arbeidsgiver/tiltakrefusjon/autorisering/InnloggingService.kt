@@ -16,17 +16,13 @@ class InnloggingService(val context: TokenValidationContextHolder,
         return Fnr(claims.getStringClaim("pid"))
     }
 
-    fun hentTilganger(personIdent: Identifikator): Set<Organisasjon> {
+    fun hentOrganisasjoner(personIdent: Identifikator): Set<Organisasjon> {
         return altinnTilgangsstyringService.hentTilganger(personIdent)
-    }
-
-    fun hentOrganisasjonerForPaloggetBruker(): Set<Organisasjon>? {
-        return hentTilganger(hentPaloggetIdent())
     }
 
     fun hentInnloggetBruker():InnloggetBruker{
         val paloggetFnr:Identifikator = hentPaloggetIdent()
-        val organisasjoner:Set<Organisasjon> = hentTilganger(paloggetFnr)
+        val organisasjoner:Set<Organisasjon> = hentOrganisasjoner(paloggetFnr)
         return InnloggetBruker(paloggetFnr.verdi, organisasjoner);
     }
 }

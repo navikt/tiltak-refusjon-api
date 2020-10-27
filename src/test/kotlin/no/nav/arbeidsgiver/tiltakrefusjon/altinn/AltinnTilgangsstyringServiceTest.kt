@@ -28,7 +28,7 @@ class AltinnTilgangsstyringServiceTest(){
         val fnr = Fnr("10000000007")
         every { context.tokenValidationContext.getClaims(any()).subject} returns fnr.verdi
 
-        // NAAR
+        // NÅR
         val organisasjoner: Set<Organisasjon>? = altinnTilgangsstyringService.hentTilganger(fnr)
 
         // DA
@@ -41,7 +41,7 @@ class AltinnTilgangsstyringServiceTest(){
         val fnr = Fnr("01234567890")
         every { context.tokenValidationContext.getClaims(any()).subject} returns fnr.verdi
 
-        // NAR
+        // NÅR
         assertThrows<AltinnFeilException> {
             altinnTilgangsstyringService.hentTilganger(fnr)
         }
@@ -55,7 +55,7 @@ class AltinnTilgangsstyringServiceTest(){
         val fnr = Fnr("01234567890")
         every { context.tokenValidationContext.getClaims(any()).subject } returns fnr.verdi
 
-        // NAAR
+        // NÅR
         val organisasjoner: Set<Organisasjon>? = altinnTilgangsstyringService.hentTilganger(fnr)
 
         // DA
@@ -69,7 +69,7 @@ class AltinnTilgangsstyringServiceTest(){
         val fnr = Fnr("01234567890")
         every { context.tokenValidationContext.getClaims(any()).subject } returns fnr.verdi
 
-        // NAAR
+        // NÅR
         assertThrows<AltinnFeilException> {
             val organisasjoner: Set<Organisasjon>? = altinnTilgangsstyringService.hentTilganger(fnr)
         }

@@ -32,7 +32,7 @@ class InnloggetBrukerControllerTest {
         every{ context.tokenValidationContext.getClaims(any()).subject} returns fnr.verdi
 
 
-        // NAAR
+        // NÅR
         val innloggetBrukerResponse:ResponseEntity<InnloggetBruker> = innloggetBrukerController.hentInnloggetBruker()
 
         // DA

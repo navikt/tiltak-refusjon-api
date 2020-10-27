@@ -4,6 +4,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Fnr
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Identifikator
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.Utils.erIkkeTomme
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import org.springframework.stereotype.Component
 
@@ -20,14 +21,17 @@ class InnloggingService(val context: TokenValidationContextHolder,
         return altinnTilgangsstyringService.hentTilganger(personIdent)
     }
 
-    fun hentTilgangerForPaloggetbruker(): Set<Organisasjon>? {
+    fun hentOrganisasjonerForPaloggetBruker(): Set<Organisasjon>? {
         return hentTilganger(hentPaloggetIdent())
     }
 
-    fun sjekkHarTilgangTilRefusjonerForBedrift(bedriftsnummer:String): Boolean {
-        if(!hentTilgangerForPaloggetbruker()?.any{ it.organizationNumber == bedriftsnummer }!!){
-            throw TilgangskontrollException("Person har tilgang")
+    fun sjekkHarTilgangTilBedrift(bedriftsnummerDetSokesOm:String) {
+        if(erIkkeTomme(bedriftsnummerDetSokesOm)
+                && harIkkeTilgangTilBedriftenDetSokesOm(bedriftsnummerDetSokesOm)){
+            throw TilgangskontrollException("Person har ikke tilgang")
         }
-        return true
     }
+
+    private fun harIkkeTilgangTilBedriftenDetSokesOm(bedriftsnummerDetSokesOm: String) =
+            hentOrganisasjonerForPaloggetBruker()?.none { it.organizationNumber == bedriftsnummerDetSokesOm }!!
 }

@@ -36,7 +36,7 @@ class RefusjonController(val refusjonRepository: RefusjonRepository,val innloggi
 
     @GetMapping("/bedrift/{bedriftnummer}")
     fun hentAlleMedBedriftnummer(@PathVariable bedriftnummer:String): List<Refusjon> {
-        innloggingService.sjekkHarTilgangTilRefusjonerForBedrift(bedriftnummer)
+        innloggingService.sjekkHarTilgangTilBedrift(bedriftnummer)
         return refusjonRepository.findByBedriftnummer(bedriftnummer)
     }
 

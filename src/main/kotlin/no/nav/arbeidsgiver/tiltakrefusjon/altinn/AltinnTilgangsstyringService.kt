@@ -35,6 +35,7 @@ class AltinnTilgangsstyringService(val altinnTilgangsstyringProperties: AltinnTi
                 .queryParam("serviceCode", altinnTilgangsstyringProperties.serviceCode)
                 .queryParam("serviceEdition", altinnTilgangsstyringProperties.serviceEdition)
                 .queryParam("\$top", ALTINN_ORG_PAGE_SIZE)
+                .queryParam("\$filter", "Type+ne+'Person'")
                 .build()
                 .toUri();
     }

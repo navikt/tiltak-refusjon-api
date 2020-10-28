@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming
 data class Organisasjon (
         val name: String,
         val type: String,
-        val organizationNumber: String? = null,
+        val organizationNumber: String,
         val organizationForm: String,
         val status: String,
         val parentOrganizationNumber: String? = null

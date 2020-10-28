@@ -3,14 +3,17 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.nimbusds.jwt.JWTClaimsSet
-import com.nimbusds.jwt.SignedJWT
 import no.nav.arbeidsgiver.tiltakrefusjon.enRefusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjoner
 import no.nav.security.token.support.test.JwkGenerator
 import no.nav.security.token.support.test.JwtTokenGenerator
-import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
@@ -22,8 +25,8 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import java.security.interfaces.RSAKey
-import java.util.*
+import java.util.Date
+import java.util.UUID
 import javax.servlet.http.Cookie
 
 
@@ -90,7 +93,7 @@ class RefusjonApiTest(
         val json = sendRequest(get("$REQUEST_MAPPING/bedrift/$bedriftnummer"))
         val liste = mapper.readValue(json, object : TypeReference<List<Refusjon?>?>() {})
 
-        // DA
+        // SÅ
         assertTrue(liste!!.all { it!!.bedriftnummer.equals(bedriftnummer) })
         assertEquals(4, liste!!.size)
     }

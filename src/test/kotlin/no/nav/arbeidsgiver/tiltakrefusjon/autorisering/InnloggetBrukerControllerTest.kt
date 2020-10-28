@@ -30,7 +30,7 @@ class InnloggetBrukerControllerTest {
         // NÅR
         val innloggetBrukerResponse:ResponseEntity<InnloggetBruker> = innloggetBrukerController.hentInnloggetBruker()
 
-        // DA
+        // SÅ
         assertThat(innloggetBrukerResponse.body?.identifikator).isEqualTo(fnrPaloggetBruker)
         assertThat(innloggetBrukerResponse.body?.altinnOrganisasjoner).hasSize(1)
     }

@@ -31,7 +31,7 @@ class AltinnTilgangsstyringServiceTest(){
         // NÅR
         val organisasjoner: Set<Organisasjon>? = altinnTilgangsstyringService.hentTilganger(fnr)
 
-        // DA
+        // SÅ
         assertThat(organisasjoner).hasSize(8)
     }
 
@@ -58,7 +58,7 @@ class AltinnTilgangsstyringServiceTest(){
         // NÅR
         val organisasjoner: Set<Organisasjon>? = altinnTilgangsstyringService.hentTilganger(fnr)
 
-        // DA
+        // SÅ
         assertThat(organisasjoner).hasSize(0)
     }
 

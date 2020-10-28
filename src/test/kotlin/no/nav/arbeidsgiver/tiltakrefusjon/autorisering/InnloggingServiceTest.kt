@@ -34,7 +34,7 @@ class InnloggingServiceTest{
         // NÅR
         val organasjoner = innloggetService.hentOrganisasjoner(fnr)
 
-        // DA
+        // SÅ
         Assertions.assertThat(organasjoner).isEmpty()
     }
 

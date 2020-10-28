@@ -8,9 +8,11 @@ import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import org.springframework.stereotype.Component
 
 @Component
-class InnloggingService(val context: TokenValidationContextHolder,
-                        val altinnTilgangsstyringService: AltinnTilgangsstyringService) {
-    fun hentPaloggetIdent():Identifikator{
+class InnloggingService(
+        val context: TokenValidationContextHolder,
+        val altinnTilgangsstyringService: AltinnTilgangsstyringService
+) {
+    fun hentPaloggetIdent(): Identifikator {
         val valContext = context.tokenValidationContext
         val claims = valContext.getClaims("tokenx")
         return Fnr(claims.getStringClaim("pid"))
@@ -20,9 +22,9 @@ class InnloggingService(val context: TokenValidationContextHolder,
         return altinnTilgangsstyringService.hentTilganger(personIdent)
     }
 
-    fun hentInnloggetBruker():InnloggetBruker{
-        val paloggetFnr:Identifikator = hentPaloggetIdent()
-        val organisasjoner:Set<Organisasjon> = hentOrganisasjoner(paloggetFnr)
+    fun hentInnloggetBruker(): InnloggetBruker {
+        val paloggetFnr: Identifikator = hentPaloggetIdent()
+        val organisasjoner: Set<Organisasjon> = hentOrganisasjoner(paloggetFnr)
         return InnloggetBruker(paloggetFnr.verdi, organisasjoner);
     }
 }

@@ -23,7 +23,7 @@ spec:
         - application: tiltak-refusjon-utside
     outbound:
       external:
-        - host: tt02.altinn.no
+        - host: api-gw-q0.oera.no
   azure:
     application:
       enabled: true

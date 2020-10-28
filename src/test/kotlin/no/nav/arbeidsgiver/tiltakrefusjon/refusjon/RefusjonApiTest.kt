@@ -5,13 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.arbeidsgiver.tiltakrefusjon.enRefusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjoner
 import no.nav.security.token.support.test.JwtTokenGenerator
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.*
+import org.junit.jupiter.api.Assertions.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
@@ -27,7 +22,7 @@ import javax.servlet.http.Cookie
 
 
 @SpringBootTest
-@ActiveProfiles("local","wiremock")
+@ActiveProfiles("local", "wiremock")
 @AutoConfigureMockMvc
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class RefusjonApiTest(
@@ -36,12 +31,15 @@ class RefusjonApiTest(
         @Autowired val mockMvc: MockMvc
 ) {
 
-    lateinit var cookie: Cookie
+    lateinit var navCookie: Cookie
+    lateinit var arbGiverCookie: Cookie
 
     @BeforeAll
     fun setUpBeforeAll() {
-        val userToken = JwtTokenGenerator.createSignedJWT("").serialize()
-        cookie = Cookie("aad-idtoken", userToken)
+        val navIdToken = JwtTokenGenerator.createSignedJWT("Z123456").serialize()
+        navCookie = Cookie("aad-idtoken", navIdToken)
+        val arbGiverToken = JwtTokenGenerator.createSignedJWT("16120102137").serialize()
+        arbGiverCookie = Cookie("aad-idtoken", arbGiverToken)
     }
 
     @BeforeEach
@@ -50,21 +48,36 @@ class RefusjonApiTest(
     }
 
     @Test
-    fun `Henter alle refusjonene`() {
-        val json = sendRequest(get(REQUEST_MAPPING))
+    fun `hentAlle() er tilgjengelig for saksbehandler`() {
+        val json = sendRequest(get(REQUEST_MAPPING), navCookie)
         val liste = mapper.readValue(json, object : TypeReference<List<Refusjon?>?>() {})
-        assertEquals(14, liste!!.size)
+        assertFalse(liste!!.isEmpty())
+    }
+
+    @Test
+    fun `Saksbehandler har ikke leserettighet til en refusjon`() {
+        val json = sendRequest(get(REQUEST_MAPPING), navCookie)
+        val liste = mapper.readValue(json, object : TypeReference<List<Refusjon?>?>() {})
+
+        assertEquals(13, liste!!.size)
+        assertNull(liste.find { refusjon -> refusjon?.deltakerFnr.equals("07098142678") })
+    }
+
+    @Test
+    fun `hentAlle() er utilgjengelig for arbeidsgiver`() {
+        mockMvc.perform(get(REQUEST_MAPPING).contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .cookie(arbGiverCookie))
+                .andExpect(status().isUnauthorized)
     }
 
     @Test
     fun `Henter refusjoner for en bedrift`() {
         // GITT
-        val userToken = JwtTokenGenerator.createSignedJWT("17049223186").serialize()
-        cookie = Cookie("aad-idtoken", userToken)
         val bedriftnummer = "998877665"
 
         // NÅR
-        val json = sendRequest(get("$REQUEST_MAPPING/bedrift/$bedriftnummer"))
+        val json = sendRequest(get("$REQUEST_MAPPING/bedrift/$bedriftnummer"), arbGiverCookie)
         val liste = mapper.readValue(json, object : TypeReference<List<Refusjon?>?>() {})
 
         // DA
@@ -77,18 +90,18 @@ class RefusjonApiTest(
         // GITT
         val fnrForPerson = "07098142678"
         val userToken = JwtTokenGenerator.createSignedJWT(fnrForPerson).serialize()
-        cookie = Cookie("aad-idtoken", userToken)
+        val nyCookie: Cookie = Cookie("aad-idtoken", userToken)
         val bedriftnummer = "998877665"
 
         // NÅR
-       sendRequest(get("$REQUEST_MAPPING/bedrift/$bedriftnummer"),status().isServiceUnavailable)
+        sendRequest(get("$REQUEST_MAPPING/bedrift/$bedriftnummer"), nyCookie, status().isServiceUnavailable)
     }
 
 
     @Test
     fun `Henter refusjon med id`() {
         val id = "2"
-        val json = sendRequest(get("$REQUEST_MAPPING/$id"))
+        val json = sendRequest(get("$REQUEST_MAPPING/$id"), navCookie)
         val refusjon = mapper.readValue(json, Refusjon::class.java)
         assertEquals(id, refusjon.id)
     }
@@ -99,7 +112,7 @@ class RefusjonApiTest(
         val feriedagerOppdatert = refusjon.feriedager?.plus(1)
         refusjon.feriedager = feriedagerOppdatert
 
-        val json = sendRequest(put(REQUEST_MAPPING), refusjon)
+        val json = sendRequest(put(REQUEST_MAPPING), navCookie, refusjon)
 
         val oppdatertRefusjon = mapper.readValue(json, Refusjon::class.java)
         assertEquals(refusjon.id, oppdatertRefusjon!!.id)
@@ -115,9 +128,10 @@ class RefusjonApiTest(
                 put(REQUEST_MAPPING)
                         .content(mapper.writeValueAsString(ukjentRefusjon))
                         .contentType(MediaType.APPLICATION_JSON)
-                        .cookie(cookie))
+                        .cookie(navCookie))
                 .andExpect(status().is4xxClientError)
     }
+
 
     @Disabled("Disabled test. update localprofile, or enable cookie auth for localhost")
     @Test
@@ -127,11 +141,11 @@ class RefusjonApiTest(
                 .andExpect(status().is4xxClientError)
     }
 
-    private fun sendRequest(request: MockHttpServletRequestBuilder): String {
-        return sendRequest(request, null)
+    private fun sendRequest(request: MockHttpServletRequestBuilder, cookie: Cookie): String {
+        return sendRequest(request, cookie, null)
     }
 
-    private fun sendRequest(request: MockHttpServletRequestBuilder, refusjon: Refusjon?): String {
+    private fun sendRequest(request: MockHttpServletRequestBuilder, cookie: Cookie, refusjon: Refusjon?): String {
 
         if (refusjon != null) {
             request.content(mapper.writeValueAsString(refusjon))
@@ -146,7 +160,8 @@ class RefusjonApiTest(
                 .andReturn()
                 .response.contentAsString
     }
-    private fun sendRequest(request: MockHttpServletRequestBuilder,forventetStatus: ResultMatcher) {
+
+    private fun sendRequest(request: MockHttpServletRequestBuilder, cookie: Cookie, forventetStatus: ResultMatcher) {
         mockMvc.perform(
                 request
                         .contentType(MediaType.APPLICATION_JSON)

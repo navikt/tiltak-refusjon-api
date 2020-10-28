@@ -1,4 +1,3 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.autorisering
 
-data class
-InnloggetSaksbehandler(val identifikator: String)
+data class InnloggetSaksbehandler(val identifikator: NavIdent)

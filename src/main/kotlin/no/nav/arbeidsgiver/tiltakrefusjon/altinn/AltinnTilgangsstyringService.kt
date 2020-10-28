@@ -41,7 +41,6 @@ class AltinnTilgangsstyringService(val altinnTilgangsstyringProperties: AltinnTi
 
     private fun getAuthHeadersForAltinn(): HttpEntity<HttpHeaders?>? {
         val headers = HttpHeaders()
-        headers.setBearerAuth("token")
         headers["X-NAV-APIKEY"] = altinnTilgangsstyringProperties.apiGwApiKey
         headers["APIKEY"] = altinnTilgangsstyringProperties.altinnApiKey
         return HttpEntity(headers)

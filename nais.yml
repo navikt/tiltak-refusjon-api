@@ -23,7 +23,7 @@ spec:
         - application: tiltak-refusjon-utside
     outbound:
       external:
-        - host: api-gw-q1.adeo.no
+        - host: tt02.altinn.no
   azure:
     application:
       enabled: true

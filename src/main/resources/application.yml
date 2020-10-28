@@ -45,3 +45,4 @@ no.nav.security.jwt:
 tiltak-refusjon:
   altinn-tilgangstyring:
     altinnApiKey: ${ALTINN_API_KEY}
+    apiGwApiKey: ${ALTINN_API_GW_API_KEY}

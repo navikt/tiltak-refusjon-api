@@ -13,4 +13,3 @@ class InnloggetSaksbehandlerService(val context: TokenValidationContextHolder, v
         return InnloggetSaksbehandler(NavIdent(navIdent), abacTilgangsstyringService, refusjonRepository)
     }
 }
-

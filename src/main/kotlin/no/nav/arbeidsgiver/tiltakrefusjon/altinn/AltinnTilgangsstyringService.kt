@@ -13,7 +13,7 @@ import java.net.URI
 class AltinnTilgangsstyringService(val altinnTilgangsstyringProperties: AltinnTilgangsstyringProperties) {
 
     private val ALTINN_ORG_PAGE_SIZE = 500
-    private val restTemplate:RestTemplate = RestTemplate()
+    private val restTemplate: RestTemplate = RestTemplate()
 
     fun hentTilganger(fnr: Identifikator): Set<Organisasjon> {
         try {
@@ -23,25 +23,25 @@ class AltinnTilgangsstyringService(val altinnTilgangsstyringProperties: AltinnTi
                     getAuthHeadersForAltinn(),
                     Array<Organisasjon>::class.java).body?.toSet()
                     ?: return emptySet()
-        }catch (exception: RuntimeException){
-            throw AltinnFeilException("Altinn feil",exception)
+        } catch (exception: RuntimeException) {
+            throw AltinnFeilException("Altinn feil", exception)
         }
     }
 
-    private fun lagAltinnUrl(fnr: Identifikator):URI{
+    private fun lagAltinnUrl(fnr: Identifikator): URI {
         return UriComponentsBuilder.fromUri(altinnTilgangsstyringProperties.uri)
                 .queryParam("ForceEIAuthentication")
                 .queryParam("subject", fnr.verdi)
                 .queryParam("serviceCode", altinnTilgangsstyringProperties.serviceCode)
                 .queryParam("serviceEdition", altinnTilgangsstyringProperties.serviceEdition)
                 .queryParam("\$top", ALTINN_ORG_PAGE_SIZE)
+                .queryParam("\$filter", "Type+ne+'Person'")
                 .build()
                 .toUri();
     }
 
-   private fun getAuthHeadersForAltinn(): HttpEntity<HttpHeaders?>? {
+    private fun getAuthHeadersForAltinn(): HttpEntity<HttpHeaders?>? {
         val headers = HttpHeaders()
-        headers.setBearerAuth("token")
         headers["X-NAV-APIKEY"] = altinnTilgangsstyringProperties.apiGwApiKey
         headers["APIKEY"] = altinnTilgangsstyringProperties.altinnApiKey
         return HttpEntity(headers)

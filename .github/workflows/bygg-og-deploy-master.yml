@@ -1,9 +1,6 @@
 name: Bygg og deploy master
 
-on:
-  push:
-    branches:
-      - 'master'
+on: [push, workflow_dispatch]
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -94,27 +91,27 @@ jobs:
           RESOURCE: nais.yml
           PRINT_PAYLOAD: true
 
-  deploy-prod:
-    name: Deploy til prod
-    runs-on: ubuntu-latest
-    needs: deploy-dev
-    steps:
-      - name: Finn REPOSITORY_NAME
-        run: echo ::set-env name=REPOSITORY_NAME::$(echo "$GITHUB_REPOSITORY" | awk -F / '{print $2}')
-
-      - name: Sett IMAGE_BASE
-        run: echo ::set-env name=IMAGE_BASE::$(echo "docker.pkg.github.com/$GITHUB_REPOSITORY/$REPOSITORY_NAME")
-
-      - name: Sett IMAGE
-        run: echo ::set-env name=IMAGE::$(echo "$IMAGE_BASE:${{ github.sha }}")
-
-      - name: Sjekk ut kode
-        uses: actions/checkout@v2
-
-      - name: Deploy til prod-gcp
-        uses: nais/deploy/actions/deploy@v1
-        env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-          CLUSTER: prod-gcp
-          RESOURCE: nais.yml
-          PRINT_PAYLOAD: true
+#  deploy-prod:
+#    name: Deploy til prod
+#    runs-on: ubuntu-latest
+#    needs: deploy-dev
+#    steps:
+#      - name: Finn REPOSITORY_NAME
+#        run: echo ::set-env name=REPOSITORY_NAME::$(echo "$GITHUB_REPOSITORY" | awk -F / '{print $2}')
+#
+#      - name: Sett IMAGE_BASE
+#        run: echo ::set-env name=IMAGE_BASE::$(echo "docker.pkg.github.com/$GITHUB_REPOSITORY/$REPOSITORY_NAME")
+#
+#      - name: Sett IMAGE
+#        run: echo ::set-env name=IMAGE::$(echo "$IMAGE_BASE:${{ github.sha }}")
+#
+#      - name: Sjekk ut kode
+#        uses: actions/checkout@v2
+#
+#      - name: Deploy til prod-gcp
+#        uses: nais/deploy/actions/deploy@v1
+#        env:
+#          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+#          CLUSTER: prod-gcp
+#          RESOURCE: nais.yml
+#          PRINT_PAYLOAD: true

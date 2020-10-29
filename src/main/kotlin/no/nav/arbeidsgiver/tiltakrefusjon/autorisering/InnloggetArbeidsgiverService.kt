@@ -8,10 +8,11 @@ import org.springframework.stereotype.Component
 
 @Component
 class InnloggetArbeidsgiverService(val context: TokenValidationContextHolder,
-                                   val altinnTilgangsstyringService: AltinnTilgangsstyringService, val refusjonRepository: RefusjonRepository) {
+                                   val altinnTilgangsstyringService: AltinnTilgangsstyringService,
+                                   val refusjonRepository: RefusjonRepository) {
 
     fun hentInnloggetArbeidsgiver(): InnloggetArbeidsgiver {
-        val fnr: String = context.tokenValidationContext.getClaims("aad").subject
+        val fnr = context.tokenValidationContext.getClaims("tokenx").getStringClaim("pid")
         return InnloggetArbeidsgiver(Fnr(fnr), altinnTilgangsstyringService, refusjonRepository)
     }
 }

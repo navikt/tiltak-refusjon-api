@@ -16,6 +16,10 @@ class InnloggetArbeidsgiver(val fnr: Fnr, val altinnTilgangsstyringService: Alti
         organisasjoner = altinnTilgangsstyringService.hentTilganger(fnr)
     }
 
+    override fun finnAlle(): List<Refusjon> {
+        throw TilgangskontrollException(HttpStatus.UNAUTHORIZED)
+    }
+
     override fun finnAlleMedBedriftnummer(bedriftnummer: String): List<Refusjon> {
         sjekkHarTilgangTilRefusjonerForBedrift(bedriftnummer)
         return refusjonRepository.findByBedriftnummer(bedriftnummer)

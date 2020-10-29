@@ -2,7 +2,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.*
-import no.nav.security.token.support.core.api.Protected
+import no.nav.security.token.support.core.api.Unprotected
 import no.nav.security.token.support.spring.validation.interceptor.JwtTokenUnauthorizedException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
@@ -16,7 +16,7 @@ const val REQUEST_MAPPING = "/api/refusjon"
 
 @RestController
 @RequestMapping(REQUEST_MAPPING)
-@Protected
+@Unprotected
 
 class RefusjonController(val refusjonRepository: RefusjonRepository,
                          val innloggetBrukerService: InnloggetBrukerService,
@@ -31,8 +31,8 @@ class RefusjonController(val refusjonRepository: RefusjonRepository,
 
     @GetMapping
     fun hentAlle(): List<Refusjon> {
-        val innloggetSaksbehandler = innloggetSaksbehandlerService.hentInnloggetSaksbehandler()
-        return innloggetSaksbehandler.finnAlle();
+        val innloggetBruker = hentInnloggetBruker();
+        return innloggetBruker.finnAlle();
     }
 
     @GetMapping("/bedrift/{bedriftnummer}")

@@ -2,8 +2,10 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.nimbusds.jwt.JWTClaimsSet
 import no.nav.arbeidsgiver.tiltakrefusjon.enRefusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjoner
+import no.nav.security.token.support.test.JwkGenerator
 import no.nav.security.token.support.test.JwtTokenGenerator
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*
@@ -18,6 +20,8 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import java.util.Date
+import java.util.UUID
 import javax.servlet.http.Cookie
 
 
@@ -31,15 +35,16 @@ class RefusjonApiTest(
         @Autowired val mockMvc: MockMvc
 ) {
 
+    val TOKEN_X_NAVN = "tokenx-idtoken";
     lateinit var navCookie: Cookie
     lateinit var arbGiverCookie: Cookie
 
     @BeforeAll
     fun setUpBeforeAll() {
-        val navIdToken = JwtTokenGenerator.createSignedJWT("Z123456").serialize()
+        val navIdToken = lagTokenForNavId("Z123456")
         navCookie = Cookie("aad-idtoken", navIdToken)
-        val arbGiverToken = JwtTokenGenerator.createSignedJWT("16120102137").serialize()
-        arbGiverCookie = Cookie("aad-idtoken", arbGiverToken)
+        val arbGiverToken = lagTokenForFnr("16120102137");
+        arbGiverCookie = Cookie(TOKEN_X_NAVN, arbGiverToken)
     }
 
     @BeforeEach
@@ -94,21 +99,9 @@ class RefusjonApiTest(
         val json = sendRequest(get("$REQUEST_MAPPING/bedrift/$bedriftnummer"), navCookie)
         val liste = mapper.readValue(json, object : TypeReference<List<Refusjon?>?>() {})
 
-        // DA
+        // SÅ
         assertTrue(liste!!.all { it!!.bedriftnummer.equals(bedriftnummer) })
         assertEquals(4, liste!!.size)
-    }
-
-    @Test
-    fun `hentAlleMedBedriftnummer() - skal ikke kunne hente refusjoner for en bedrift som personen ikke har tilgang til`() {
-        // GITT
-        val fnrForPerson = "07098142678"
-        val userToken = JwtTokenGenerator.createSignedJWT(fnrForPerson).serialize()
-        val nyCookie: Cookie = Cookie("aad-idtoken", userToken)
-        val bedriftnummer = "998877665"
-
-        // NÅR
-        sendRequest(get("$REQUEST_MAPPING/bedrift/$bedriftnummer"), nyCookie, status().isServiceUnavailable)
     }
 
     @Test
@@ -154,6 +147,7 @@ class RefusjonApiTest(
 
     @Test
     fun `Oppdaterer refusjon med id`() {
+        setUpBeforeAll()
         val refusjon = enRefusjon()
         val feriedagerOppdatert = refusjon.feriedager?.plus(1)
         refusjon.feriedager = feriedagerOppdatert
@@ -167,6 +161,7 @@ class RefusjonApiTest(
 
     @Test
     fun `Oppdaterer ikke med ukjent id`() {
+        setUpBeforeAll()
         refusjonRepository.deleteById("1")
         val ukjentRefusjon = enRefusjon()
 
@@ -214,5 +209,41 @@ class RefusjonApiTest(
                         .accept(MediaType.APPLICATION_JSON)
                         .cookie(cookie))
                 .andExpect(forventetStatus)
+    }
+
+    fun lagTokenForFnr(fnr: String): String? {
+        val now = Date()
+        val claims = JWTClaimsSet.Builder()
+                .subject("")
+                .issuer("tokenx")
+                .audience("aud-localhost")
+                .jwtID(UUID.randomUUID().toString())
+                .claim("pid", fnr)
+                .claim("acr", "Level4")
+                .claim("ver", "1.0")
+                .claim("nonce", "myNonce")
+                .claim("auth_time", now)
+                .notBeforeTime(now)
+                .issueTime(now)
+                .expirationTime(Date(now.getTime() + 1000000)).build()
+
+        return JwtTokenGenerator.createSignedJWT(JwkGenerator.getDefaultRSAKey(), claims).serialize();
+    }
+
+    fun lagTokenForNavId(navId: String): String? {
+        val now = Date()
+        val claims = JWTClaimsSet.Builder()
+                .subject(navId)
+                .issuer("aad")
+                .audience("aud-localhost")
+                .jwtID(UUID.randomUUID().toString())
+                .claim("ver", "1.0")
+                .claim("auth_time", now)
+                .claim("nonce", "myNonce")
+                .notBeforeTime(now)
+                .issueTime(now)
+                .expirationTime(Date(now.getTime() + 1000000)).build()
+
+        return JwtTokenGenerator.createSignedJWT(JwkGenerator.getDefaultRSAKey(), claims).serialize();
     }
 }

@@ -9,7 +9,7 @@ import org.springframework.web.client.HttpClientErrorException
 
 class InnloggetSaksbehandler(val identifikator: NavIdent, val abacTilgangsstyringService: AbacTilgangsstyringService, val refusjonRepository: RefusjonRepository ) : InnloggetBruker() {
 
-    fun finnAlle(): List<Refusjon> {
+    override fun finnAlle(): List<Refusjon> {
         return medLesetilgang(refusjonRepository.findAll())
     }
 

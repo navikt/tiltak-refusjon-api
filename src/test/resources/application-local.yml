@@ -13,13 +13,13 @@ spring:
 no.nav.security.jwt:
   issuer:
     aad:
-      discoveryurl: http://metadata
+      discoveryurl: https://tiltak-fakelogin.labs.nais.io/metadata?issuer=aad
       accepted_audience: aud-localhost
       cookie_name: aad-idtoken
-    selvbetjening:
-      discoveryurl: http://metadata
+    tokenx:
+      discoveryurl: https://tiltak-fakelogin.labs.nais.io/metadata?issuer=tokenx
       accepted_audience: aud-localhost
-      cookie_name: selvbetjening-idtoken
+      cookie_name: tokenx-idtoken
 
 logging:
   level:

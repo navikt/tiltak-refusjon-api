@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
+import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.ResultMatcher
@@ -33,7 +34,8 @@ import javax.servlet.http.Cookie
 @SpringBootTest
 @ActiveProfiles("local", "wiremock")
 @AutoConfigureMockMvc
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@DirtiesContext
+//@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class RefusjonApiTest(
         @Autowired val refusjonRepository: RefusjonRepository,
         @Autowired val mapper: ObjectMapper,
@@ -47,7 +49,7 @@ class RefusjonApiTest(
         val now = Date()
         val claims = JWTClaimsSet.Builder()
                 .subject("")
-                .issuer("iss-localhost")
+                .issuer("tokenx")
                 .audience("aud-localhost")
                 .jwtID(UUID.randomUUID().toString())
                 .claim("pid", fnr)
@@ -62,10 +64,9 @@ class RefusjonApiTest(
         return JwtTokenGenerator.createSignedJWT(JwkGenerator.getDefaultRSAKey(), claims).serialize();
     }
 
-    @BeforeAll
+//    @BeforeAll
     fun setUpBeforeAll() {
         val userToken = lagTokenForFnr("");
-        //val userToken = JwtTokenGenerator.createSignedJWT("").serialize()
         cookie = Cookie(TOKEN_X_NAVN, userToken)
     }
 
@@ -76,6 +77,7 @@ class RefusjonApiTest(
 
     @Test
     fun `Henter alle refusjonene`() {
+        setUpBeforeAll()
         val json = sendRequest(get(REQUEST_MAPPING))
         val liste = mapper.readValue(json, object : TypeReference<List<Refusjon?>?>() {})
         assertEquals(14, liste!!.size)
@@ -84,7 +86,6 @@ class RefusjonApiTest(
     @Test
     fun `Henter refusjoner for en bedrift`() {
         // GITT
-        //val userToken = JwtTokenGenerator.createSignedJWT("17049223186").serialize()
         val userToken = lagTokenForFnr("17049223186")
         cookie = Cookie(TOKEN_X_NAVN, userToken)
         val bedriftnummer = "998877665"
@@ -102,7 +103,7 @@ class RefusjonApiTest(
     fun `skal ikke kunne hente refusjoner for en bedrift som personen ikke har tilgang til`() {
         // GITT
         val fnrForPerson = "07098142678"
-        val userToken = lagTokenForFnr(fnrForPerson) //JwtTokenGenerator.createSignedJWT(fnrForPerson).serialize()
+        val userToken = lagTokenForFnr(fnrForPerson)
         cookie = Cookie(TOKEN_X_NAVN, userToken)
         val bedriftnummer = "998877665"
 
@@ -113,6 +114,7 @@ class RefusjonApiTest(
 
     @Test
     fun `Henter refusjon med id`() {
+        setUpBeforeAll()
         val id = "2"
         val json = sendRequest(get("$REQUEST_MAPPING/$id"))
         val refusjon = mapper.readValue(json, Refusjon::class.java)
@@ -121,6 +123,7 @@ class RefusjonApiTest(
 
     @Test
     fun `Oppdaterer refusjon med id`() {
+        setUpBeforeAll()
         val refusjon = enRefusjon()
         val feriedagerOppdatert = refusjon.feriedager?.plus(1)
         refusjon.feriedager = feriedagerOppdatert
@@ -134,6 +137,7 @@ class RefusjonApiTest(
 
     @Test
     fun `Oppdaterer ikke med ukjent id`() {
+        setUpBeforeAll()
         refusjonRepository.deleteById("1")
         val ukjentRefusjon = enRefusjon()
 

@@ -8,8 +8,11 @@ data class Fnr(override val verdi: String) : Identifikator{
         }
     }
 
-    fun erGyldigFnr(fnr:String): Boolean{
-        return fnr.matches(Regex("^[0-9]{11}$"))
+    companion object {
+        @JvmStatic
+        fun erGyldigFnr(fnr: String): Boolean {
+            return fnr.matches(Regex("^[0-9]{11}$"))
+        }
     }
 
 }

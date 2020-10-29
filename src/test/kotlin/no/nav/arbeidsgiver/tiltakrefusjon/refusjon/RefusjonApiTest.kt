@@ -55,11 +55,11 @@ class RefusjonApiTest(
     }
 
     @Test
-    fun `Saksbehandler har ikke leserettighet til en refusjon`() {
+    fun `hentAlle() - Saksbehandler har ikke leserettighet til en refusjon`() {
         val json = sendRequest(get(REQUEST_MAPPING), navCookie)
         val liste = mapper.readValue(json, object : TypeReference<List<Refusjon?>?>() {})
 
-        assertEquals(13, liste!!.size)
+        assertEquals(14, liste!!.size)
         assertNull(liste.find { refusjon -> refusjon?.deltakerFnr.equals("07098142678") })
     }
 
@@ -72,7 +72,7 @@ class RefusjonApiTest(
     }
 
     @Test
-    fun `Henter refusjoner for en bedrift`() {
+    fun `hentAlleMedBedriftnummer() - Arbeidsgiver henter refusjoner for en bedrift`() {
         // GITT
         val bedriftnummer = "998877665"
 
@@ -86,7 +86,21 @@ class RefusjonApiTest(
     }
 
     @Test
-    fun `skal ikke kunne hente refusjoner for en bedrift som personen ikke har tilgang til`() {
+    fun `hentAlleMedBedriftnummer() - Saksbehandler henter refusjoner for en bedrift`() {
+        // GITT
+        val bedriftnummer = "998877665"
+
+        // NÅR
+        val json = sendRequest(get("$REQUEST_MAPPING/bedrift/$bedriftnummer"), navCookie)
+        val liste = mapper.readValue(json, object : TypeReference<List<Refusjon?>?>() {})
+
+        // DA
+        assertTrue(liste!!.all { it!!.bedriftnummer.equals(bedriftnummer) })
+        assertEquals(4, liste!!.size)
+    }
+
+    @Test
+    fun `hentAlleMedBedriftnummer() - skal ikke kunne hente refusjoner for en bedrift som personen ikke har tilgang til`() {
         // GITT
         val fnrForPerson = "07098142678"
         val userToken = JwtTokenGenerator.createSignedJWT(fnrForPerson).serialize()
@@ -97,13 +111,45 @@ class RefusjonApiTest(
         sendRequest(get("$REQUEST_MAPPING/bedrift/$bedriftnummer"), nyCookie, status().isServiceUnavailable)
     }
 
+    @Test
+    fun `hentAlleMedBedriftnummer() - skal ikke kunne hente refusjoner for en person som saksbehandler ikke har tilgang til`() {
+        // GITT
+        val fnrForPerson = "07098142678"
+        val bedriftnummer = "999999999"
+
+        // NÅR
+        val json = sendRequest(get("$REQUEST_MAPPING/bedrift/$bedriftnummer"), navCookie)
+        val liste = mapper.readValue(json, object : TypeReference<List<Refusjon?>?>() {})
+        assertNull(liste?.find { refusjon -> refusjon?.deltakerFnr.equals(fnrForPerson) })
+    }
+
 
     @Test
-    fun `Henter refusjon med id`() {
+    fun `hent() - Arbeidsgiver henter refusjon med id`() {
+        val id = "2"
+        val json = sendRequest(get("$REQUEST_MAPPING/$id"), arbGiverCookie)
+        val refusjon = mapper.readValue(json, Refusjon::class.java)
+        assertEquals(id, refusjon.id)
+    }
+
+    @Test
+    fun `hent() - Arbeidsgiver mangler tilgang til refusjon med id`() {
+        val id = "15"
+        sendRequest(get("$REQUEST_MAPPING/$id"), arbGiverCookie, status().isUnauthorized)
+    }
+
+    @Test
+    fun `hent() - Saksbehandler henter refusjon med id`() {
         val id = "2"
         val json = sendRequest(get("$REQUEST_MAPPING/$id"), navCookie)
         val refusjon = mapper.readValue(json, Refusjon::class.java)
         assertEquals(id, refusjon.id)
+    }
+
+    @Test
+    fun `hent() - Saksbehandler mangler tilgang til henter refusjon med id`() {
+        val id = "1"
+        sendRequest(get("$REQUEST_MAPPING/$id"), navCookie, status().isUnauthorized)
     }
 
     @Test

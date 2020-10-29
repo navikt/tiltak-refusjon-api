@@ -1,9 +1,9 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.autorisering
 
-import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
 
-data class InnloggetBruker (
-        val identifikator: String,
-        val altinnOrganisasjoner: Set<Organisasjon>
-)
+abstract class InnloggetBruker(){
+    abstract fun finnAlleMedBedriftnummer(bedriftnummer: String):List<Refusjon>
+    abstract fun finnRefusjon(id: String): Refusjon?
 
+}

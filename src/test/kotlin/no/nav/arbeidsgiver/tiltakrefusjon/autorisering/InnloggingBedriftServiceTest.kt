@@ -6,6 +6,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.enOrganisasjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Fnr
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonRepository
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.BeforeEach
@@ -15,14 +16,15 @@ import org.mockito.junit.jupiter.MockitoExtension
 
 
 @ExtendWith(MockitoExtension::class)
-class InnloggingServiceTest{
+class InnloggingBedriftServiceTest{
     var context: TokenValidationContextHolder = mockk<TokenValidationContextHolder>()
     var altinnTilgangsstyringService = mockk<AltinnTilgangsstyringService>()
-    lateinit var innloggetService: InnloggingService
+    var refusjonRepository = mockk<RefusjonRepository>()
+    lateinit var innloggetArbeidsgiverService: InnloggetArbeidsgiverService
 
     @BeforeEach
     fun setup(){
-        innloggetService = InnloggingService(context, altinnTilgangsstyringService)
+        innloggetArbeidsgiverService = InnloggetArbeidsgiverService(context, altinnTilgangsstyringService, refusjonRepository)
     }
 
     @Test
@@ -34,21 +36,21 @@ class InnloggingServiceTest{
 
 
         // NÅR
-        val organasjoner = innloggetService.hentTilganger(fnr)
+        val organasjoner = altinnTilgangsstyringService.hentTilganger(fnr)
 
         // DA
         Assertions.assertThat(organasjoner).isEmpty()
     }
 
     @Test
-    fun `skal returnere ingen altinn organisasjoner for innloggetbruker`() {
+    fun `skal returnere 1 altinn organisasjon for innloggetbruker`() {
         // GITT
         val fnr = Fnr("00000000007")
         every{ altinnTilgangsstyringService.hentTilganger(fnr)} returns setOf<Organisasjon>(enOrganisasjon())
         every{ context.tokenValidationContext.getClaims(any()).subject} returns fnr.verdi
 
         // NÅR
-        val organasjoner = innloggetService.hentTilgangerForPaloggetbruker()
+        val organasjoner = altinnTilgangsstyringService.hentTilganger(fnr)
 
         // DA
         Assertions.assertThat(organasjoner).hasSize(1)

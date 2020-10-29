@@ -1,7 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
-import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetSaksbehandlerService
-import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggingService
+import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
+import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.*
 import no.nav.security.token.support.core.api.Protected
 import no.nav.security.token.support.spring.validation.interceptor.JwtTokenUnauthorizedException
 import org.springframework.data.repository.findByIdOrNull
@@ -19,8 +19,10 @@ const val REQUEST_MAPPING = "/api/refusjon"
 @Protected
 
 class RefusjonController(val refusjonRepository: RefusjonRepository,
-                         val innloggingService: InnloggingService,
-                         val innloggetSaksbehandlerService: InnloggetSaksbehandlerService) {
+                         val innloggetBrukerService: InnloggetBrukerService,
+                         val innloggetSaksbehandlerService: InnloggetSaksbehandlerService,
+                         val altinnTilgangsstyringService: AltinnTilgangsstyringService,
+                         val abacTilgangsstyringService: AbacTilgangsstyringService) {
 
     @GetMapping("/beregn")
     fun beregn(grunnlag: Refusjonsgrunnlag): BigDecimal {
@@ -30,25 +32,24 @@ class RefusjonController(val refusjonRepository: RefusjonRepository,
     @GetMapping
     fun hentAlle(): List<Refusjon> {
         val innloggetSaksbehandler = innloggetSaksbehandlerService.hentInnloggetSaksbehandler()
-        return refusjonRepository.findAll()
-                .filter { refusjon: Refusjon ->
-                    innloggetSaksbehandlerService.harLeseTilgang(innloggetSaksbehandler.identifikator, refusjon.deltakerFnr)
-                }
+        return innloggetSaksbehandler.finnAlle();
     }
 
     @GetMapping("/bedrift/{bedriftnummer}")
     fun hentAlleMedBedriftnummer(@PathVariable bedriftnummer: String): List<Refusjon> {
-        innloggingService.sjekkHarTilgangTilRefusjonerForBedrift(bedriftnummer)
-        return refusjonRepository.findByBedriftnummer(bedriftnummer)
+        val innloggetBruker = hentInnloggetBruker();
+        return innloggetBruker.finnAlleMedBedriftnummer(bedriftnummer)
     }
 
     @GetMapping("/{id}")
     fun hent(@PathVariable id: String): Refusjon? {
-        return refusjonRepository.findByIdOrNull(id)
+        val innloggetBruker = hentInnloggetBruker()
+        val refusjon = innloggetBruker.finnRefusjon(id) ?: throw HttpClientErrorException(HttpStatus.NO_CONTENT)
+        return refusjon;
     }
 
     @PostMapping
-    fun opprett(@RequestBody refusjon: Refusjon): Refusjon {
+    fun opprett(@RequestBody refusjon: Refusjon): Refusjon { //TODO Hvem kan opprette?
         return refusjonRepository.save(refusjon)
     }
 
@@ -57,6 +58,14 @@ class RefusjonController(val refusjonRepository: RefusjonRepository,
         refusjonRepository.findByIdOrNull(refusjon.id)
                 ?: throw HttpClientErrorException(HttpStatus.BAD_REQUEST, "Prøver å oppdatere en refusjon som ikke finnes")
         return refusjonRepository.save(refusjon)
+    }
+
+    private fun hentInnloggetBruker(): InnloggetBruker {
+        val ident = innloggetBrukerService.hentInnloggetIdent()
+        if (ident is Fnr) {
+            return InnloggetArbeidsgiver(ident, altinnTilgangsstyringService, refusjonRepository)
+        }
+        return InnloggetSaksbehandler(ident as NavIdent, abacTilgangsstyringService, refusjonRepository)
     }
 
     @ExceptionHandler

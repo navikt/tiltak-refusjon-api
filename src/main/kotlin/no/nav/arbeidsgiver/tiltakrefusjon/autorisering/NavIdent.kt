@@ -12,7 +12,10 @@ data class NavIdent(override val verdi: String) : Identifikator {
         }
     }
 
-    fun erNavIdent(verdi: String?): Boolean {
-        return verdi != null && verdi.matches(Regex("\\w\\d{6}"))
+    companion object {
+        @JvmStatic
+        fun erNavIdent(verdi: String?): Boolean {
+            return verdi != null && verdi.matches(Regex("\\w\\d{6}"))
+        }
     }
 }

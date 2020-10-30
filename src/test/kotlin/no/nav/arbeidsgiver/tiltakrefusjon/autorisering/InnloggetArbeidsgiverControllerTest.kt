@@ -28,7 +28,7 @@ class InnloggetArbeidsgiverControllerTest {
     @Test
     fun `skal returnere logget bruker tilbake med ingen altinn organisasjoner`() {
         // GITT
-        val fnrPaloggetBruker = Fnr("00000000007")
+        val fnrPaloggetBruker:String = "00000000007"
         every{ altinnTilgangsstyringService.hentTilganger(eq(fnrPaloggetBruker))} returns emptySet();
         val innloggetArbeidsgiver = InnloggetArbeidsgiver(fnrPaloggetBruker, altinnTilgangsstyringService, refusjonRepository)
         every { innloggetArbeidsgiverService.hentInnloggetArbeidsgiver() } returns innloggetArbeidsgiver
@@ -37,7 +37,7 @@ class InnloggetArbeidsgiverControllerTest {
         val innloggetArbeidsgiverResponse:ResponseEntity<InnloggetArbeidsgiver> = innloggetArbeidsgiverController.hentInnloggetBruker()
 
         // DA
-        assertThat(innloggetArbeidsgiverResponse.body?.fnr).isEqualTo(fnrPaloggetBruker)
+        assertThat(innloggetArbeidsgiverResponse.body?.identifikator).isEqualTo(fnrPaloggetBruker)
         assertThat(innloggetArbeidsgiverResponse.body?.organisasjoner).hasSize(0)
     }
 }

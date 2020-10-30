@@ -10,6 +10,6 @@ class InnloggetSaksbehandlerService(val context: TokenValidationContextHolder, v
 
     fun hentInnloggetSaksbehandler(): InnloggetSaksbehandler {
         val navIdent: String = context.tokenValidationContext.getClaims("aad").subject
-        return InnloggetSaksbehandler(NavIdent(navIdent), abacTilgangsstyringService, refusjonRepository)
+        return InnloggetSaksbehandler(navIdent, abacTilgangsstyringService, refusjonRepository)
     }
 }

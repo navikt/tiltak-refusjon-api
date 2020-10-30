@@ -1,19 +1,21 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.autorisering
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Fnr
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Identifikator
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonRepository
 import org.springframework.http.HttpStatus
 
-class InnloggetArbeidsgiver(val fnr: Fnr, val altinnTilgangsstyringService: AltinnTilgangsstyringService, val refusjonRepository: RefusjonRepository) : InnloggetBruker() {
+data class InnloggetArbeidsgiver(
+        val identifikator: String,
+        @JsonIgnore val altinnTilgangsstyringService: AltinnTilgangsstyringService,
+        @JsonIgnore val refusjonRepository: RefusjonRepository) : InnloggetBruker() {
 
     val organisasjoner:Set<Organisasjon>
 
     init {
-        organisasjoner = altinnTilgangsstyringService.hentTilganger(fnr)
+        organisasjoner = altinnTilgangsstyringService.hentTilganger(identifikator)
     }
 
     override fun finnAlle(): List<Refusjon> {
@@ -31,12 +33,12 @@ class InnloggetArbeidsgiver(val fnr: Fnr, val altinnTilgangsstyringService: Alti
         return refusjon;
     }
 
-    fun hentTilganger(personIdent: Identifikator): Set<Organisasjon> {
+    fun hentTilganger(personIdent: String): Set<Organisasjon> {
         return altinnTilgangsstyringService.hentTilganger(personIdent)
     }
 
     fun hentTilgangerForPaloggetbruker(): Set<Organisasjon>? {
-        return hentTilganger(fnr)
+        return hentTilganger(identifikator)
     }
 
     fun sjekkHarTilgangTilRefusjonerForBedrift(bedriftsnummer: String): Boolean {

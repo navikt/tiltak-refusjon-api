@@ -1,6 +1,5 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
-import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.NavIdent
 import no.nav.common.abac.Pep
 import no.nav.common.abac.domain.AbacPersonId
 import no.nav.common.abac.domain.request.ActionId
@@ -10,12 +9,12 @@ import org.springframework.stereotype.Service
 @Service
 class AbacTilgangsstyringService(val pep: Pep) {
 
-    fun harLeseTilgang(navIdent: NavIdent, deltakerId: String): Boolean {
-        return harDeltakerTilgang(navIdent.verdi, deltakerId, ActionId.READ)
+    fun harLeseTilgang(navIdent: String, deltakerId: String): Boolean {
+        return harDeltakerTilgang(navIdent, deltakerId, ActionId.READ)
     }
 
-    fun harSkriveTilgang(navIdent: NavIdent, deltakerId: String): Boolean {
-        return harDeltakerTilgang(navIdent.verdi, deltakerId, ActionId.WRITE)
+    fun harSkriveTilgang(navIdent: String, deltakerId: String): Boolean {
+        return harDeltakerTilgang(navIdent, deltakerId, ActionId.WRITE)
     }
 
     private fun harDeltakerTilgang(saksbehandlerId: String, deltakerId: String, actionId: ActionId):Boolean{

@@ -1,7 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.autorisering
 
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Fnr
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonRepository
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import org.springframework.stereotype.Component
@@ -13,6 +12,6 @@ class InnloggetArbeidsgiverService(val context: TokenValidationContextHolder,
 
     fun hentInnloggetArbeidsgiver(): InnloggetArbeidsgiver {
         val fnr = context.tokenValidationContext.getClaims("tokenx").getStringClaim("pid")
-        return InnloggetArbeidsgiver(Fnr(fnr), altinnTilgangsstyringService, refusjonRepository)
+        return InnloggetArbeidsgiver(fnr, altinnTilgangsstyringService, refusjonRepository)
     }
 }

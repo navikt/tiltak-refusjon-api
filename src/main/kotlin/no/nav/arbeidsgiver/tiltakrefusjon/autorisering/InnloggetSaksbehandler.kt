@@ -1,5 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.autorisering
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.AbacTilgangsstyringService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonRepository
@@ -7,7 +8,10 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.web.client.HttpClientErrorException
 
-class InnloggetSaksbehandler(val identifikator: NavIdent, val abacTilgangsstyringService: AbacTilgangsstyringService, val refusjonRepository: RefusjonRepository ) : InnloggetBruker() {
+data class InnloggetSaksbehandler(
+        val identifikator: String,
+        @JsonIgnore val abacTilgangsstyringService: AbacTilgangsstyringService,
+        @JsonIgnore val refusjonRepository: RefusjonRepository ) : InnloggetBruker() {
 
     override fun finnAlle(): List<Refusjon> {
         return medLesetilgang(refusjonRepository.findAll())
@@ -35,5 +39,3 @@ class InnloggetSaksbehandler(val identifikator: NavIdent, val abacTilgangsstyrin
         throw HttpClientErrorException(HttpStatus.UNAUTHORIZED)
     }
 }
-
-//TODO Test ingen treff her og fro arb.giver

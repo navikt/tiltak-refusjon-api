@@ -5,7 +5,6 @@ import io.mockk.mockk
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.enOrganisasjon
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Fnr
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonRepository
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import org.assertj.core.api.Assertions
@@ -30,9 +29,9 @@ class InnloggingBedriftServiceTest{
     @Test
     fun `skal returnere logget bruker tilbake med ingen altinn organisasjoner`() {
         // GITT
-        val fnr = Fnr("00000000007")
+        val fnr:String = "00000000007"
         every{ altinnTilgangsstyringService.hentTilganger(fnr)} returns emptySet()
-        every{ context.tokenValidationContext.getClaims(any()).getStringClaim("pid")} returns fnr.verdi
+        every{ context.tokenValidationContext.getClaims(any()).getStringClaim("pid")} returns fnr
 
 
         // NÅR
@@ -45,9 +44,9 @@ class InnloggingBedriftServiceTest{
     @Test
     fun `skal returnere 1 altinn organisasjon for innloggetbruker`() {
         // GITT
-        val fnr = Fnr("00000000007")
+        val fnr:String = "00000000007"
         every{ altinnTilgangsstyringService.hentTilganger(fnr)} returns setOf<Organisasjon>(enOrganisasjon())
-        every{ context.tokenValidationContext.getClaims(any()).subject} returns fnr.verdi
+        every{ context.tokenValidationContext.getClaims(any()).subject} returns fnr
 
         // NÅR
         val organasjoner = altinnTilgangsstyringService.hentTilganger(fnr)

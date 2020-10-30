@@ -1,8 +1,11 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
-import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.*
-import no.nav.security.token.support.core.api.Unprotected
+import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetArbeidsgiver
+import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBruker
+import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBrukerService
+import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetSaksbehandler
+import no.nav.security.token.support.core.api.Protected
 import no.nav.security.token.support.spring.validation.interceptor.JwtTokenUnauthorizedException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
@@ -16,11 +19,9 @@ const val REQUEST_MAPPING = "/api/refusjon"
 
 @RestController
 @RequestMapping(REQUEST_MAPPING)
-@Unprotected
-
+@Protected
 class RefusjonController(val refusjonRepository: RefusjonRepository,
                          val innloggetBrukerService: InnloggetBrukerService,
-                         val innloggetSaksbehandlerService: InnloggetSaksbehandlerService,
                          val altinnTilgangsstyringService: AltinnTilgangsstyringService,
                          val abacTilgangsstyringService: AbacTilgangsstyringService) {
 
@@ -63,9 +64,9 @@ class RefusjonController(val refusjonRepository: RefusjonRepository,
     private fun hentInnloggetBruker(): InnloggetBruker {
         val ident = innloggetBrukerService.hentInnloggetIdent()
         if (ident is Fnr) {
-            return InnloggetArbeidsgiver(ident, altinnTilgangsstyringService, refusjonRepository)
+            return InnloggetArbeidsgiver(ident.verdi, altinnTilgangsstyringService, refusjonRepository)
         }
-        return InnloggetSaksbehandler(ident as NavIdent, abacTilgangsstyringService, refusjonRepository)
+        return InnloggetSaksbehandler(ident.verdi, abacTilgangsstyringService, refusjonRepository)
     }
 
     @ExceptionHandler

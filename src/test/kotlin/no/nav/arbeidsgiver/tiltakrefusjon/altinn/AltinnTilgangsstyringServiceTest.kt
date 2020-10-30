@@ -29,7 +29,7 @@ class AltinnTilgangsstyringServiceTest(){
         every { context.tokenValidationContext.getClaims(any()).getStringClaim("pid")} returns fnr.verdi
 
         // NÅR
-        val organisasjoner: Set<Organisasjon>? = altinnTilgangsstyringService.hentTilganger(fnr)
+        val organisasjoner: Set<Organisasjon>? = altinnTilgangsstyringService.hentTilganger(fnr.verdi)
 
         // SÅ
         assertThat(organisasjoner).hasSize(8)
@@ -43,7 +43,7 @@ class AltinnTilgangsstyringServiceTest(){
 
         // NÅR
         assertThrows<AltinnFeilException> {
-            altinnTilgangsstyringService.hentTilganger(fnr)
+            altinnTilgangsstyringService.hentTilganger(fnr.verdi)
         }
     }
 
@@ -56,7 +56,7 @@ class AltinnTilgangsstyringServiceTest(){
         every { context.tokenValidationContext.getClaims(any()).getStringClaim("pid") } returns fnr.verdi
 
         // NÅR
-        val organisasjoner: Set<Organisasjon>? = altinnTilgangsstyringService.hentTilganger(fnr)
+        val organisasjoner: Set<Organisasjon>? = altinnTilgangsstyringService.hentTilganger(fnr.verdi)
 
         // SÅ
         assertThat(organisasjoner).hasSize(0)
@@ -71,7 +71,7 @@ class AltinnTilgangsstyringServiceTest(){
 
         // NÅR
         assertThrows<AltinnFeilException> {
-            val organisasjoner: Set<Organisasjon>? = altinnTilgangsstyringService.hentTilganger(fnr)
+            val organisasjoner: Set<Organisasjon>? = altinnTilgangsstyringService.hentTilganger(fnr.verdi)
         }
     }
 

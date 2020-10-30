@@ -1,6 +1,5 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.altinn
 
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Identifikator
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
@@ -15,7 +14,7 @@ class AltinnTilgangsstyringService(val altinnTilgangsstyringProperties: AltinnTi
     private val ALTINN_ORG_PAGE_SIZE = 500
     private val restTemplate: RestTemplate = RestTemplate()
 
-    fun hentTilganger(fnr: Identifikator): Set<Organisasjon> {
+    fun hentTilganger(fnr: String): Set<Organisasjon> {
         try {
             return restTemplate.exchange(
                     lagAltinnUrl(fnr),
@@ -28,10 +27,10 @@ class AltinnTilgangsstyringService(val altinnTilgangsstyringProperties: AltinnTi
         }
     }
 
-    private fun lagAltinnUrl(fnr: Identifikator): URI {
+    private fun lagAltinnUrl(fnr: String): URI {
         return UriComponentsBuilder.fromUri(altinnTilgangsstyringProperties.uri)
                 .queryParam("ForceEIAuthentication")
-                .queryParam("subject", fnr.verdi)
+                .queryParam("subject", fnr)
                 .queryParam("serviceCode", altinnTilgangsstyringProperties.serviceCode)
                 .queryParam("serviceEdition", altinnTilgangsstyringProperties.serviceEdition)
                 .queryParam("\$top", ALTINN_ORG_PAGE_SIZE)

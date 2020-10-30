@@ -1,15 +1,10 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.autorisering
 
-import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
 
-data class InnloggetBruker(
-        val identifikator: String,
-        val altinnOrganisasjoner: Set<Organisasjon>
-) {
-    fun harTilgang(bedriftsnummerDetSokesOm: String) {
-        if (altinnOrganisasjoner.none { it.organizationNumber == bedriftsnummerDetSokesOm }) {
-            throw TilgangskontrollException("Person har ikke tilgang til bedrift.")
-        }
-    }
+abstract class InnloggetBruker(){
+    abstract fun finnAlle(): List<Refusjon>
+    abstract fun finnAlleMedBedriftnummer(bedriftnummer: String):List<Refusjon>
+    abstract fun finnRefusjon(id: String): Refusjon?
+
 }
-

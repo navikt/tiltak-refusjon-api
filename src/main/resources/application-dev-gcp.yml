@@ -4,3 +4,7 @@ tiltak-refusjon:
     beOmRettighetBaseUrl: https://arbeidsgiver-q.nav.no/min-side-arbeidsgiver/?fragment=be-om-tilgang
     serviceCode: 4936
     serviceEdition: 1
+  abac-tilgangstyring:
+    uri: https://wasapp-q0.adeo.no/asm-pdp/authorize
+    username: TODO
+    password: TODO

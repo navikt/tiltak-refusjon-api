@@ -10,6 +10,9 @@ spring:
       maximum-pool-size: 4
   jpa:
     open-in-view: false
+  jackson:
+    serialization:
+      FAIL_ON_EMPTY_BEANS: false
 
 management:
   metrics:

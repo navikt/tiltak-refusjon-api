@@ -1,18 +1,15 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
-import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggingService
+import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
+import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetArbeidsgiver
+import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBruker
+import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBrukerService
+import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetSaksbehandler
 import no.nav.security.token.support.core.api.Protected
 import no.nav.security.token.support.spring.validation.interceptor.JwtTokenUnauthorizedException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.ExceptionHandler
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpStatusCodeException
 import java.math.BigDecimal
@@ -23,7 +20,11 @@ const val REQUEST_MAPPING = "/api/refusjon"
 @RestController
 @RequestMapping(REQUEST_MAPPING)
 @Protected
-class RefusjonController(val refusjonRepository: RefusjonRepository,val innloggingService: InnloggingService) {
+class RefusjonController(val refusjonRepository: RefusjonRepository,
+                         val innloggetBrukerService: InnloggetBrukerService,
+                         val altinnTilgangsstyringService: AltinnTilgangsstyringService,
+                         val abacTilgangsstyringService: AbacTilgangsstyringService) {
+
     @GetMapping("/beregn")
     fun beregn(grunnlag: Refusjonsgrunnlag): BigDecimal {
         return beregnRefusjon(grunnlag)
@@ -31,22 +32,25 @@ class RefusjonController(val refusjonRepository: RefusjonRepository,val innloggi
 
     @GetMapping
     fun hentAlle(): List<Refusjon> {
-        return refusjonRepository.findAll()
+        val innloggetBruker = hentInnloggetBruker();
+        return innloggetBruker.finnAlle();
     }
 
     @GetMapping("/bedrift/{bedriftnummer}")
-    fun hentAlleMedBedriftnummer(@PathVariable bedriftnummer:String): List<Refusjon> {
-        innloggingService.hentInnloggetBruker().harTilgang(bedriftnummer)
-        return refusjonRepository.findByBedriftnummer(bedriftnummer)
+    fun hentAlleMedBedriftnummer(@PathVariable bedriftnummer: String): List<Refusjon> {
+        val innloggetBruker = hentInnloggetBruker();
+        return innloggetBruker.finnAlleMedBedriftnummer(bedriftnummer)
     }
 
     @GetMapping("/{id}")
     fun hent(@PathVariable id: String): Refusjon? {
-        return refusjonRepository.findByIdOrNull(id)
+        val innloggetBruker = hentInnloggetBruker()
+        val refusjon = innloggetBruker.finnRefusjon(id) ?: throw HttpClientErrorException(HttpStatus.NO_CONTENT)
+        return refusjon;
     }
 
     @PostMapping
-    fun opprett(@RequestBody refusjon:Refusjon): Refusjon {
+    fun opprett(@RequestBody refusjon: Refusjon): Refusjon { //TODO Hvem kan opprette?
         return refusjonRepository.save(refusjon)
     }
 
@@ -55,6 +59,14 @@ class RefusjonController(val refusjonRepository: RefusjonRepository,val innloggi
         refusjonRepository.findByIdOrNull(refusjon.id)
                 ?: throw HttpClientErrorException(HttpStatus.BAD_REQUEST, "Prøver å oppdatere en refusjon som ikke finnes")
         return refusjonRepository.save(refusjon)
+    }
+
+    private fun hentInnloggetBruker(): InnloggetBruker {
+        val ident = innloggetBrukerService.hentInnloggetIdent()
+        if (ident is Fnr) {
+            return InnloggetArbeidsgiver(ident.verdi, altinnTilgangsstyringService, refusjonRepository)
+        }
+        return InnloggetSaksbehandler(ident.verdi, abacTilgangsstyringService, refusjonRepository)
     }
 
     @ExceptionHandler

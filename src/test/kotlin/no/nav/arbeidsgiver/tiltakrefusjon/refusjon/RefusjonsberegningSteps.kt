@@ -10,8 +10,8 @@ import java.time.YearMonth
 class RefusjonsberegningSteps : No {
     init {
         var lonnstilskuddProsent = 0
-        var startDato: LocalDate? = null
-        var sluttDato: LocalDate? = null
+        var startDato: LocalDate = LocalDate.now()
+        var sluttDato: LocalDate = LocalDate.now().plusMonths(1)
         var inntekstlinjer: List<Inntektslinje> = listOf()
         var arbeidsgiveravgift = 0.0
         var feriepengersats = 0.0
@@ -23,8 +23,8 @@ class RefusjonsberegningSteps : No {
                         map["inntektType"]!!,
                         (map["beløp"])!!.toDouble(),
                         YearMonth.parse(map["måned"]),
-                        map["opptjeningsperiodeFom"]?.let {  LocalDate.parse(it)},
-                        map["opptjeningsperiodeTom"]?.let { LocalDate.parse(it) }
+                        map["inntektsperiodeFom"]?.let {  LocalDate.parse(it)},
+                        map["inntektsperiodeTom"]?.let { LocalDate.parse(it) }
                 )
             }
         }

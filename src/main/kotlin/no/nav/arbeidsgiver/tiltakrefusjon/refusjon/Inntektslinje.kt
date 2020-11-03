@@ -8,23 +8,24 @@ data class Inntektslinje(
         val inntektType: String,
         val beløp: Double,
         val måned: YearMonth,
-        var opptjeningsperiodeFom: LocalDate?,
-        var opptjeningsperiodeTom: LocalDate?
+        var inntektsperiodeFom: LocalDate?,
+        var inntektsperiodeTom: LocalDate?
 ) {
-    fun opptjenteDager(): Int {
+    fun opptjenteDager(sluttDato: LocalDate): Int {
         setOpptjentingsperiode()
-        return opptjeningsperiodeFom!!.datesUntil(opptjeningsperiodeTom!!.plusDays(1))
+        return inntektsperiodeFom!!.datesUntil(inntektsperiodeTom!!.plusDays(1))
                 .filter { erHverdag(it) }
+                .filter{ !it.isBefore(inntektsperiodeFom) && !it.isAfter(sluttDato) }
                 .count()
                 .toInt()
     }
 
     private fun setOpptjentingsperiode() {
-        if (opptjeningsperiodeFom == null) {
-            opptjeningsperiodeFom = måned.atDay(1)
+        if (inntektsperiodeFom == null) {
+            inntektsperiodeFom = måned.atDay(1)
         }
-        if (opptjeningsperiodeTom == null) {
-            opptjeningsperiodeTom = måned.atEndOfMonth()
+        if (inntektsperiodeTom == null) {
+            inntektsperiodeTom = måned.atEndOfMonth()
         }
     }
 
@@ -33,11 +34,11 @@ data class Inntektslinje(
     }
 
     fun erLønnsinntekt() = inntektType == "LØNNSINNTEKT" && beløp > 0.0
+
     fun innenPeriode(startDato: LocalDate?, sluttDato: LocalDate?): Boolean {
-        if ((opptjeningsperiodeFom == null || opptjeningsperiodeTom == null) || (startDato == null || sluttDato == null)) {
+        if ((inntektsperiodeFom == null || inntektsperiodeTom == null) || (startDato == null || sluttDato == null)) {
             return true
         }
-        return (opptjeningsperiodeFom!!.isEqual(startDato) || opptjeningsperiodeFom!!.isAfter(startDato))
-                && (opptjeningsperiodeTom!!.isEqual(sluttDato) || opptjeningsperiodeTom!!.isBefore(sluttDato))
+        return !inntektsperiodeFom!!.isBefore(startDato) && !inntektsperiodeTom!!.isAfter(sluttDato)
     }
 }

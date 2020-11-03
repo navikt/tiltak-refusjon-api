@@ -8,13 +8,17 @@ data class Inntektslinje(
         val inntektType: String,
         val beløp: Double,
         val måned: YearMonth,
-        val opptjeningsperiodeFom: LocalDate = måned.atDay(1),
-        val opptjeningsperiodeTom: LocalDate = måned.atEndOfMonth()
-){
+        var opptjeningsperiodeFom: LocalDate?,
+        var opptjeningsperiodeTom: LocalDate?
+) {
+    init {
+        opptjeningsperiodeFom?.let {måned.atDay(1)}
+        opptjeningsperiodeTom?.let {måned.atEndOfMonth()}
+    }
 
-    fun opptjenteDager():Int{
-        return opptjeningsperiodeFom.datesUntil(opptjeningsperiodeTom.plusDays(1))
-                .filter{erHverdag(it)}
+    fun opptjenteDager(): Int {
+        return opptjeningsperiodeFom!!.datesUntil(opptjeningsperiodeTom!!.plusDays(1))
+                .filter { erHverdag(it) }
                 .count()
                 .toInt()
     }
@@ -23,4 +27,12 @@ data class Inntektslinje(
         return dato.dayOfWeek != DayOfWeek.SATURDAY && dato.dayOfWeek != DayOfWeek.SUNDAY
     }
 
+    fun erLønnsinntekt() = inntektType == "LØNNSINNTEKT" && beløp > 0.0
+    fun innenPeriode(startDato: LocalDate?, sluttDato: LocalDate?): Boolean {
+        if ((opptjeningsperiodeFom == null || opptjeningsperiodeTom == null) || (startDato == null || sluttDato == null)) {
+            return true
+        }
+        return (opptjeningsperiodeFom!!.isEqual(startDato) || opptjeningsperiodeFom!!.isAfter(startDato))
+                && (opptjeningsperiodeTom!!.isEqual(sluttDato) || opptjeningsperiodeTom!!.isBefore(sluttDato))
+    }
 }

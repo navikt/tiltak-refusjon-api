@@ -23,9 +23,10 @@ class InnloggetBrukerService(val context: TokenValidationContextHolder) {
         }
 
         val aadClaim = valContext.getClaims("aad")
-        if (aadClaim != null && NavIdent.erNavIdent(aadClaim.subject)) {
-            return NavIdent(aadClaim.subject)
+        if (aadClaim != null && NavIdent.erNavIdent(aadClaim.getStringClaim("NAVident"))) {
+            return NavIdent(aadClaim.getStringClaim("NAVident"))
         }
+
         throw HttpClientErrorException(HttpStatus.UNAUTHORIZED, "Ukjent token")
     }
 }

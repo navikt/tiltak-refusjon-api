@@ -15,11 +15,11 @@ no.nav.security.jwt:
     aad:
       discoveryurl: https://tiltak-fakelogin.labs.nais.io/metadata?issuer=aad
       accepted_audience: aud-localhost
-      cookie_name: aad-idtoken
+      cookie_name: aad-token
     tokenx:
       discoveryurl: https://tiltak-fakelogin.labs.nais.io/metadata?issuer=tokenx
       accepted_audience: aud-localhost
-      cookie_name: tokenx-idtoken
+      cookie_name: tokenx-token
 
 logging:
   level:

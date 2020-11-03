@@ -11,11 +11,11 @@ data class Inntektslinje(
         var inntektsperiodeFom: LocalDate?,
         var inntektsperiodeTom: LocalDate?
 ) {
-    fun opptjenteDager(sluttDato: LocalDate): Int {
+    fun opptjenteDager(datoRefusjonslutt: LocalDate): Int {
         setOpptjentingsperiode()
         return inntektsperiodeFom!!.datesUntil(inntektsperiodeTom!!.plusDays(1))
                 .filter { erHverdag(it) }
-                .filter{ !it.isBefore(inntektsperiodeFom) && !it.isAfter(sluttDato) }
+                .filter{ !it.isBefore(inntektsperiodeFom) && !it.isAfter(datoRefusjonslutt) }
                 .count()
                 .toInt()
     }

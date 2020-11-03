@@ -32,7 +32,7 @@ class RefusjonController(val refusjonRepository: RefusjonRepository,
                          val abacTilgangsstyringService: AbacTilgangsstyringService) {
 
     @GetMapping("/beregn")
-    fun beregn(grunnlag: Refusjonsgrunnlag): Double {
+    fun beregn(grunnlag: Refusjonsgrunnlag): Int {
         return grunnlag.hentBeregnetGrunnlag()
     }
 

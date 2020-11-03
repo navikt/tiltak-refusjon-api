@@ -42,7 +42,7 @@ class RefusjonsberegningSteps : No {
         }
         Så("beregnes refusjon til {string} kr") { refusjon: String ->
             val beregnet = Refusjonsgrunnlag(inntekstlinjer, lonnstilskuddProsent, startDato, sluttDato,arbeidsgiveravgift, feriepengersats, tjenestepensjon).hentBeregnetGrunnlag()
-            assertThat(beregnet).isEqualByComparingTo(refusjon.toDouble());
+            assertThat(beregnet).isEqualByComparingTo(refusjon.toInt());
         }
         Så("skal programmet kaste en feil"){
             assertThrows<RefusjonsgrunnlagException> {

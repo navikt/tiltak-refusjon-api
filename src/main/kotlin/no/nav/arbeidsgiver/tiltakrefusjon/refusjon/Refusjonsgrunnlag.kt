@@ -12,7 +12,7 @@ data class Refusjonsgrunnlag(
         var feriepengersats: Double?,
         var tjenestepensjon: Double?
 ) {
-    fun hentBeregnetGrunnlag(): Double {
+    fun hentBeregnetGrunnlag(): Int {
         return inntekter
                 .filter { it.erLønnsinntekt() && it.innenPeriode(startDato, sluttDato) }
                 .map { inntekt ->
@@ -23,7 +23,6 @@ data class Refusjonsgrunnlag(
                     total.div(inntekt.opptjenteDager())
                             .times(stillingsprosent / 100.0)
                             .roundToInt()
-                            .toDouble()
                 }.sum()
     }
 }

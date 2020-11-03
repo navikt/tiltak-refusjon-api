@@ -4,7 +4,6 @@ import io.cucumber.datatable.DataTable
 import io.cucumber.java8.No
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Assume
-import org.junit.jupiter.api.assertThrows
 import java.time.LocalDate
 import java.time.YearMonth
 
@@ -43,11 +42,6 @@ class RefusjonsberegningSteps : No {
         Så("beregnes refusjon til {string} kr") { refusjon: String ->
             val beregnet = Refusjonsgrunnlag(inntekstlinjer, lonnstilskuddProsent, startDato, sluttDato,arbeidsgiveravgift, feriepengersats, tjenestepensjon).hentBeregnetGrunnlag()
             assertThat(beregnet).isEqualByComparingTo(refusjon.toInt());
-        }
-        Så("skal programmet kaste en feil"){
-            assertThrows<RefusjonsgrunnlagException> {
-                val beregnet = Refusjonsgrunnlag(inntekstlinjer, lonnstilskuddProsent, startDato, sluttDato,arbeidsgiveravgift, feriepengersats, tjenestepensjon).hentBeregnetGrunnlag()
-            }
         }
         Before("@skip_scenario") { _ ->
             Assume.assumeTrue("Ignorerer scenario", false)

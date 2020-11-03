@@ -7,12 +7,16 @@ import no.nav.arbeidsgiver.tiltakrefusjon.enRefusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjoner
 import no.nav.security.token.support.test.JwkGenerator
 import no.nav.security.token.support.test.JwtTokenGenerator
-import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
+import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.ResultMatcher
@@ -20,8 +24,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import java.util.Date
-import java.util.UUID
+import java.util.*
 import javax.servlet.http.Cookie
 
 
@@ -29,23 +32,18 @@ import javax.servlet.http.Cookie
 @ActiveProfiles("local", "wiremock")
 @AutoConfigureMockMvc
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@DirtiesContext
 class RefusjonApiTest(
         @Autowired val refusjonRepository: RefusjonRepository,
         @Autowired val mapper: ObjectMapper,
         @Autowired val mockMvc: MockMvc
 ) {
 
-    val TOKEN_X_NAVN = "tokenx-idtoken";
-    lateinit var navCookie: Cookie
-    lateinit var arbGiverCookie: Cookie
+    private final val TOKEN_X_COOKIE_NAVN = "tokenx-token"
+    private final val AAD_COOKIE_NAVN = "aad-token"
 
-    @BeforeAll
-    fun setUpBeforeAll() {
-        val navIdToken = lagTokenForNavId("Z123456")
-        navCookie = Cookie("aad-idtoken", navIdToken)
-        val arbGiverToken = lagTokenForFnr("16120102137");
-        arbGiverCookie = Cookie(TOKEN_X_NAVN, arbGiverToken)
-    }
+    val navCookie = Cookie(AAD_COOKIE_NAVN, lagTokenForNavId("Z123456"))
+    val arbGiverCookie = Cookie(TOKEN_X_COOKIE_NAVN, lagTokenForFnr("16120102137"))
 
     @BeforeEach
     fun setUp() {
@@ -87,7 +85,7 @@ class RefusjonApiTest(
 
         // DA
         assertTrue(liste!!.all { it!!.bedriftnummer.equals(bedriftnummer) })
-        assertEquals(4, liste!!.size)
+        assertEquals(4, liste.size)
     }
 
     @Test
@@ -101,7 +99,7 @@ class RefusjonApiTest(
 
         // SÅ
         assertTrue(liste!!.all { it!!.bedriftnummer.equals(bedriftnummer) })
-        assertEquals(4, liste!!.size)
+        assertEquals(4, liste.size)
     }
 
     @Test
@@ -147,9 +145,8 @@ class RefusjonApiTest(
 
     @Test
     fun `Oppdaterer refusjon med id`() {
-        setUpBeforeAll()
         val refusjon = enRefusjon()
-        val feriedagerOppdatert = refusjon.feriedager?.plus(1)
+        val feriedagerOppdatert = refusjon.feriedager.plus(1)
         refusjon.feriedager = feriedagerOppdatert
 
         val json = sendRequest(put(REQUEST_MAPPING), navCookie, refusjon)
@@ -161,7 +158,6 @@ class RefusjonApiTest(
 
     @Test
     fun `Oppdaterer ikke med ukjent id`() {
-        setUpBeforeAll()
         refusjonRepository.deleteById("1")
         val ukjentRefusjon = enRefusjon()
 
@@ -174,7 +170,6 @@ class RefusjonApiTest(
     }
 
 
-    @Disabled("Disabled test. update localprofile, or enable cookie auth for localhost")
     @Test
     fun `Får feil hvis cookie mangler`() {
         mockMvc.perform(
@@ -211,10 +206,10 @@ class RefusjonApiTest(
                 .andExpect(forventetStatus)
     }
 
-    fun lagTokenForFnr(fnr: String): String? {
+    private final fun lagTokenForFnr(fnr: String): String? {
         val now = Date()
         val claims = JWTClaimsSet.Builder()
-                .subject("")
+                .subject(UUID.randomUUID().toString())
                 .issuer("tokenx")
                 .audience("aud-localhost")
                 .jwtID(UUID.randomUUID().toString())
@@ -225,15 +220,16 @@ class RefusjonApiTest(
                 .claim("auth_time", now)
                 .notBeforeTime(now)
                 .issueTime(now)
-                .expirationTime(Date(now.getTime() + 1000000)).build()
+                .expirationTime(Date(now.time + 1000000)).build()
 
-        return JwtTokenGenerator.createSignedJWT(JwkGenerator.getDefaultRSAKey(), claims).serialize();
+        return JwtTokenGenerator.createSignedJWT(JwkGenerator.getDefaultRSAKey(), claims).serialize()
     }
 
-    fun lagTokenForNavId(navId: String): String? {
+    private final fun lagTokenForNavId(navId: String): String? {
         val now = Date()
         val claims = JWTClaimsSet.Builder()
-                .subject(navId)
+                .subject(UUID.randomUUID().toString())
+                .claim("NAVident", navId)
                 .issuer("aad")
                 .audience("aud-localhost")
                 .jwtID(UUID.randomUUID().toString())
@@ -242,8 +238,8 @@ class RefusjonApiTest(
                 .claim("nonce", "myNonce")
                 .notBeforeTime(now)
                 .issueTime(now)
-                .expirationTime(Date(now.getTime() + 1000000)).build()
+                .expirationTime(Date(now.time + 1000000)).build()
 
-        return JwtTokenGenerator.createSignedJWT(JwkGenerator.getDefaultRSAKey(), claims).serialize();
+        return JwtTokenGenerator.createSignedJWT(JwkGenerator.getDefaultRSAKey(), claims).serialize()
     }
 }

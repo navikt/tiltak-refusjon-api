@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service
 class InnloggetSaksbehandlerService(val context: TokenValidationContextHolder, val refusjonRepository: RefusjonRepository, val abacTilgangsstyringService: AbacTilgangsstyringService) {
 
     fun hentInnloggetSaksbehandler(): InnloggetSaksbehandler {
-        val navIdent: String = context.tokenValidationContext.getClaims("aad").subject
+        val navIdent: String = context.tokenValidationContext.getClaims("aad").getStringClaim("NAVident")
         return InnloggetSaksbehandler(navIdent, abacTilgangsstyringService, refusjonRepository)
     }
 }

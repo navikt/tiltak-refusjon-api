@@ -11,10 +11,6 @@ import org.springframework.web.client.HttpClientErrorException
 class InnloggetBrukerService(val context: TokenValidationContextHolder) {
 
     fun hentInnloggetIdent(): Identifikator {
-        return hentPaloggetIdent()
-    }
-
-    private fun hentPaloggetIdent(): Identifikator {
         val valContext = context.tokenValidationContext
 
         val tokenxClaims = valContext.getClaims("tokenx")
@@ -23,9 +19,10 @@ class InnloggetBrukerService(val context: TokenValidationContextHolder) {
         }
 
         val aadClaim = valContext.getClaims("aad")
-        if (aadClaim != null && NavIdent.erNavIdent(aadClaim.subject)) {
-            return NavIdent(aadClaim.subject)
+        if (aadClaim != null && NavIdent.erNavIdent(aadClaim.getStringClaim("NAVident"))) {
+            return NavIdent(aadClaim.getStringClaim("NAVident"))
         }
+
         throw HttpClientErrorException(HttpStatus.UNAUTHORIZED, "Ukjent token")
     }
 }

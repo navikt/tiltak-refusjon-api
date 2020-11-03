@@ -11,10 +11,6 @@ import org.springframework.web.client.HttpClientErrorException
 class InnloggetBrukerService(val context: TokenValidationContextHolder) {
 
     fun hentInnloggetIdent(): Identifikator {
-        return hentPaloggetIdent()
-    }
-
-    private fun hentPaloggetIdent(): Identifikator {
         val valContext = context.tokenValidationContext
 
         val tokenxClaims = valContext.getClaims("tokenx")

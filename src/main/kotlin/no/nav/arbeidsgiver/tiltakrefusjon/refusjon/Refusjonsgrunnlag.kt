@@ -18,8 +18,8 @@ data class Refusjonsgrunnlag(
                 .map { inntekt ->
                     val totalFeriepenger = inntekt.beløp * feriepengersats!!
                     val totalTjenestepensjon = (inntekt.beløp + totalFeriepenger) * tjenestepensjon!!
-                    val totalArbeidsgiveravgift = Math.round((inntekt.beløp + totalTjenestepensjon + totalFeriepenger) * arbeidsgiveravgift!!)
-                    val total = Math.round(inntekt.beløp + totalTjenestepensjon + totalFeriepenger + totalArbeidsgiveravgift)
+                    val totalArbeidsgiveravgift = (inntekt.beløp + totalTjenestepensjon + totalFeriepenger) * arbeidsgiveravgift!!
+                    val total = inntekt.beløp + totalTjenestepensjon + totalFeriepenger + totalArbeidsgiveravgift
                     total.div(inntekt.opptjenteDager())
                             .times(stillingsprosent / 100.0)
                             .roundToInt()

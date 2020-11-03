@@ -1,7 +1,7 @@
 #language: no
 Egenskap: Beregn refusjon for lønnstilskudd
 
-  Scenario: Beregn lønnstilskudd for deler av perioden med opptjeningsperiode dagpengersats
+  Scenario: Beregn lønnstilskudd for deler av perioden med opptjeningsperiode dagpengersats samt OTP, Feriepenger og AV.avgift
     Gitt følgende opplysninger om inntekt
       | inntektType  | beløp | måned   | opptjeningsperiodeFom | opptjeningsperiodeTom |
       | LØNNSINNTEKT | 20000 | 2020-01 |                       |                        |

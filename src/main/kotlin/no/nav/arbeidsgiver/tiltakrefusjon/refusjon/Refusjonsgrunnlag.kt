@@ -12,22 +12,20 @@ data class Refusjonsgrunnlag(
         var tjenestepensjon:Double?
 ) {
     fun hentBeregnetGrunnlag(): Double {
-        val sumGrunnlag =  inntekter.filter {
-            it.inntektType == "LØNNSINNTEKT"
-                    && it.beløp > 0.0
-                    && innenPeriode(it.opptjeningsperiodeFom, it.opptjeningsperiodeFom)
-        }.map {
-            val ferie = it.beløp * feriepengersats!!
-            val pensjon = (it.beløp + ferie) * tjenestepensjon!!
-            val agAvgift = Math.round((it.beløp + pensjon + ferie) * arbeidsgiveravgift!!)
-
-            (it.beløp + pensjon + ferie + agAvgift)
-                    .div(it.opptjenteDager())
-                    .times(stillingsprosent / 100.0)
-        }
-                .sum()
-        return  Math.round(sumGrunnlag).toDouble()
+        return inntekter
+                .filter {inntekt ->
+                    erLønnsinntekt(inntekt) &&
+                    innenPeriode(inntekt.opptjeningsperiodeFom, inntekt.opptjeningsperiodeFom)
+        }.map {inntekt ->
+            val totalFeriepenger = inntekt.beløp * feriepengersats!!
+            val totalTjenestepensjon = (inntekt.beløp + totalFeriepenger) * tjenestepensjon!!
+            val totalArbeidsgiveravgift = Math.round((inntekt.beløp + totalTjenestepensjon + totalFeriepenger) * arbeidsgiveravgift!!)
+            val total = inntekt.beløp + totalTjenestepensjon + totalFeriepenger + totalArbeidsgiveravgift
+            total.div(inntekt.opptjenteDager()).times(stillingsprosent / 100.0)
+        }.sum()
     }
+
+    private fun erLønnsinntekt(inntekt: Inntektslinje) = inntekt.inntektType == "LØNNSINNTEKT" && inntekt.beløp > 0.0
 
     private fun innenPeriode(opptjeningsperiodeFom: LocalDate?, opptjeningsperiodeTom: LocalDate?): Boolean {
         if ((opptjeningsperiodeFom == null || opptjeningsperiodeTom == null) || (startDato == null || sluttDato == null)) {

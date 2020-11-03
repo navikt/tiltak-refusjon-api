@@ -24,8 +24,8 @@ class RefusjonsberegningSteps : No {
                         map["inntektType"]!!,
                         (map["beløp"])!!.toDouble(),
                         YearMonth.parse(map["måned"]),
-                        map["opptjeningsperiodeFom"]?.let { LocalDate.parse(it) },
-                        map["opptjeningsperiodeTom"]?.let { LocalDate.parse(it) }
+                        map["opptjeningsperiodeFom"].let { LocalDate.parse(it) },
+                        map["opptjeningsperiodeTom"].let { LocalDate.parse(it) }
                 )
             }
         }

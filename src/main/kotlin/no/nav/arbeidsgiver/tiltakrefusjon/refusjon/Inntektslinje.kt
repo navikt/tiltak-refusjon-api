@@ -8,21 +8,15 @@ data class Inntektslinje(
         val inntektType: String,
         val beløp: Double,
         val måned: YearMonth,
-        var opptjeningsperiodeFom: LocalDate?,
-        var opptjeningsperiodeTom: LocalDate?
+        val opptjeningsperiodeFom: LocalDate = måned.atDay(1),
+        val opptjeningsperiodeTom: LocalDate = måned.atEndOfMonth()
 ){
 
     fun opptjenteDager():Int{
-        if(opptjeningsperiodeFom  == null ){
-            opptjeningsperiodeFom = måned.atDay(1)
-        }
-        if(opptjeningsperiodeTom  == null ){
-            opptjeningsperiodeTom = måned.atEndOfMonth()
-        }
-
-        return opptjeningsperiodeFom?.datesUntil(opptjeningsperiodeTom?.plusDays(1))?.filter{
-            dato -> erHverdag(dato)
-        }?.count()?.toInt()!!
+        return opptjeningsperiodeFom.datesUntil(opptjeningsperiodeTom.plusDays(1))
+                .filter{erHverdag(it)}
+                .count()
+                .toInt()
     }
 
     private fun erHverdag(dato: LocalDate): Boolean {

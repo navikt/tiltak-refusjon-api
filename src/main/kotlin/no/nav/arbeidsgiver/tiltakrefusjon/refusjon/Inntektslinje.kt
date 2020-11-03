@@ -11,16 +11,21 @@ data class Inntektslinje(
         var opptjeningsperiodeFom: LocalDate?,
         var opptjeningsperiodeTom: LocalDate?
 ) {
-    init {
-        opptjeningsperiodeFom?.let {måned.atDay(1)}
-        opptjeningsperiodeTom?.let {måned.atEndOfMonth()}
-    }
-
     fun opptjenteDager(): Int {
+        setOpptjentingsperiode()
         return opptjeningsperiodeFom!!.datesUntil(opptjeningsperiodeTom!!.plusDays(1))
                 .filter { erHverdag(it) }
                 .count()
                 .toInt()
+    }
+
+    private fun setOpptjentingsperiode() {
+        if (opptjeningsperiodeFom == null) {
+            opptjeningsperiodeFom = måned.atDay(1)
+        }
+        if (opptjeningsperiodeTom == null) {
+            opptjeningsperiodeTom = måned.atEndOfMonth()
+        }
     }
 
     private fun erHverdag(dato: LocalDate): Boolean {

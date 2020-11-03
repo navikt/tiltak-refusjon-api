@@ -31,7 +31,7 @@ Egenskap: Beregn refusjon for lønnstilskudd
       | LØNNSINNTEKT | 10000 | 2020-01 | 2020-01-20            | 2020-01-31            |
       | LØNNSINNTEKT | 20000 | 2020-01 | 2020-01-01            | 2020-01-31            |
     Når lønnstilskudd på 60 prosent skal refunderes for periode "2020-01-01" til "2020-01-31"
-    Så beregnes refusjon til "1121" kr
+    Så beregnes refusjon til "1122" kr
 
   Scenario: Beregn nedsatt arbeidsevne lønnstilskudd for ulike perioder med opptjeningsperiode dagpengersats med en gap mellom inntektene
     Gitt følgende opplysninger om inntekt

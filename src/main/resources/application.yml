@@ -59,7 +59,7 @@ no.nav.security.jwt:
         grant-type: urn:ietf:params:oauth:grant-type:token-exchange
         authentication:
           client-id: ${TOKEN_X_CLIENT_ID}
-          client-jwk: ${TOKEN_X_PRIVATE_JWK}
+          client-jwk: /var/run/secrets/nais.io/jwker/TOKEN_X_PRIVATE_JWK
           client-auth-method: private_key_jwt
         token-exchange:
           audience: ${TOKEN_X_AUDIENCE}

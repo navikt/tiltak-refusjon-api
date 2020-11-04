@@ -62,7 +62,7 @@ no.nav.security.jwt:
           client-jwk: /var/run/secrets/nais.io/jwker/TOKEN_X_PRIVATE_JWK
           client-auth-method: private_key_jwt
         token-exchange:
-          audience: ${TOKEN_X_AUDIENCE}
+          audience: "dev-fss:arbeidsgiver:tiltak-proxy"
 
 tiltak-refusjon:
   altinn-tilgangstyring:

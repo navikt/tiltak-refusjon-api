@@ -16,13 +16,13 @@ data class Refusjonsgrunnlag(
         return inntekter
                 .filter(Inntektslinje::erLønnsinntekt)
                 .map { inntekt ->
-                    val antallDagerIPeriode = inntekt.hentAntallOpptjenteDagerInnenPeriode(datoRefusjonstart, datoRefusjonslutt)
-                    if( antallDagerIPeriode == 0 ) return 0
+                    val dagerOpptjent = inntekt.hentAntallOpptjenteDagerInnenPeriode(datoRefusjonstart, datoRefusjonslutt)
+                    if( dagerOpptjent == 0 ) return 0
                     val feriepenger = inntekt.beløp * feriepengerSats!!
                     val tjenestepensjon = (inntekt.beløp + feriepenger) * tjenestepensjonSats!!
                     val arbeidsgiveravgift = (inntekt.beløp + tjenestepensjon + feriepenger) * arbeidsgiveravgiftSats!!
                     val total = inntekt.beløp + tjenestepensjon + feriepenger + arbeidsgiveravgift
-                    total.div(antallDagerIPeriode)
+                    total.div(dagerOpptjent)
                 }
                 .sum()
                 .times(refusjonsgrad / 100.0)

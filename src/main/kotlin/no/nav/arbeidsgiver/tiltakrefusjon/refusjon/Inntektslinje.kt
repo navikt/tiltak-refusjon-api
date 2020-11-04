@@ -15,7 +15,7 @@ data class Inntektslinje(
     constructor(inntektType:String, beløp: Double?, måned: YearMonth, inntektsperiodeFom: LocalDate? = null, inntektsperiodeTom: LocalDate? = null):
             this(inntektType,beløp ?: 0.0 ,måned, inntektsperiodeFom ?: måned.atDay(1), inntektsperiodeTom ?: måned.atEndOfMonth())
 
-    fun hentAntallOpptjenteDager(fraDato: LocalDate, tilDato: LocalDate): Int {
+    fun hentAntallOpptjenteDagerInnenPeriode(fraDato: LocalDate, tilDato: LocalDate): Int {
         return inntektsperiodeFom.datesUntil(inntektsperiodeTom.plusDays(1))
                 .filter(this::erHverdag)
                 .filter{ !it.isBefore(fraDato) && !it.isAfter(tilDato) }

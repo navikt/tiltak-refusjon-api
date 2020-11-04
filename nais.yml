@@ -24,6 +24,7 @@ spec:
     outbound:
       external:
         - host: api-gw-q0.oera.no
+        - host: tiltak-proxy.dev-fss-pub.nais.io
   azure:
     application:
       enabled: true

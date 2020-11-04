@@ -15,13 +15,14 @@ data class Refusjonsgrunnlag(
     fun hentBeregnetGrunnlag(): Int {
         return inntekter
                 .filter(Inntektslinje::erLønnsinntekt)
-                .filter { it.hentAntallOpptjenteDagerInnenPeriode(datoRefusjonstart, datoRefusjonslutt) > 0 }
                 .map { inntekt ->
+                    val antallDagerIPeriode = inntekt.hentAntallOpptjenteDagerInnenPeriode(datoRefusjonstart, datoRefusjonslutt)
+                    if( antallDagerIPeriode == 0 ) return 0
                     val feriepenger = inntekt.beløp * feriepengerSats!!
                     val tjenestepensjon = (inntekt.beløp + feriepenger) * tjenestepensjonSats!!
                     val arbeidsgiveravgift = (inntekt.beløp + tjenestepensjon + feriepenger) * arbeidsgiveravgiftSats!!
                     val total = inntekt.beløp + tjenestepensjon + feriepenger + arbeidsgiveravgift
-                    total.div(inntekt.hentAntallOpptjenteDagerInnenPeriode(datoRefusjonstart, datoRefusjonslutt))
+                    total.div(antallDagerIPeriode)
                 }
                 .sum()
                 .times(stillingsprosent / 100.0)

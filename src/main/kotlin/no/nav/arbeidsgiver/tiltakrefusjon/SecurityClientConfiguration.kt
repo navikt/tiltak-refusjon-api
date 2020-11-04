@@ -9,6 +9,7 @@ import no.nav.security.token.support.spring.api.EnableJwtTokenValidation
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Profile
 import org.springframework.http.HttpRequest
 import org.springframework.http.client.ClientHttpRequestExecution
 import org.springframework.http.client.ClientHttpRequestInterceptor
@@ -16,7 +17,7 @@ import org.springframework.web.client.RestTemplate
 
 @EnableOAuth2Client(cacheEnabled = true)
 @Configuration
-@ConditionalOnPropertyNotEmpty("no.nav.security.jwt.client")
+@Profile("dev-gcp")
 class SecurityClientConfiguration {
     /**
      * Create one RestTemplate per OAuth2 client entry to separate between different scopes per API

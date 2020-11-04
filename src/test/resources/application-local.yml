@@ -20,6 +20,7 @@ no.nav.security.jwt:
       discoveryurl: https://tiltak-fakelogin.labs.nais.io/metadata?issuer=tokenx
       accepted_audience: aud-localhost
       cookie_name: tokenx-token
+  client: null
 
 logging:
   level:

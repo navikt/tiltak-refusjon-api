@@ -5,28 +5,22 @@ import java.time.LocalDate
 import java.time.YearMonth
 
 data class Inntektslinje(
-        val inntektType: String,
-        val beløp: Double,
-        val måned: YearMonth,
-        var inntektsperiodeFom: LocalDate?,
-        var inntektsperiodeTom: LocalDate?
+        val inntektType: String = "LØNNSINNTEKT",
+        val beløp: Double = 0.0,
+        val måned: YearMonth = YearMonth.now(),
+        val inntektsperiodeFom: LocalDate = måned.atDay(1),
+        val inntektsperiodeTom: LocalDate = måned.atEndOfMonth()
 ) {
+
+    constructor(inntektType:String, beløp: Double?, måned: YearMonth, inntektsperiodeFom: LocalDate? = null, inntektsperiodeTom: LocalDate? = null):
+            this(inntektType,beløp ?: 0.0 ,måned, inntektsperiodeFom ?: måned.atDay(1), inntektsperiodeTom ?: måned.atEndOfMonth())
+
     fun antallOpptjenteDager(datoRefusjonstart: LocalDate, datoRefusjonslutt: LocalDate): Int {
-        setInntektsperiodeTilEnMånedOmIkkeSatt()
-        return inntektsperiodeFom!!.datesUntil(inntektsperiodeTom!!.plusDays(1))
+        return inntektsperiodeFom.datesUntil(inntektsperiodeTom.plusDays(1))
                 .filter(this::erHverdag)
                 .filter{ !it.isBefore(datoRefusjonstart) && !it.isAfter(datoRefusjonslutt) }
                 .count()
                 .toInt()
-    }
-
-    private fun setInntektsperiodeTilEnMånedOmIkkeSatt() {
-        if (inntektsperiodeFom == null) {
-            inntektsperiodeFom = måned.atDay(1)
-        }
-        if (inntektsperiodeTom == null) {
-            inntektsperiodeTom = måned.atEndOfMonth()
-        }
     }
 
     private fun erHverdag(dato: LocalDate): Boolean {

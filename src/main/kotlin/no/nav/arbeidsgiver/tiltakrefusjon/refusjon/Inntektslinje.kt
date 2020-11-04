@@ -11,16 +11,16 @@ data class Inntektslinje(
         var inntektsperiodeFom: LocalDate?,
         var inntektsperiodeTom: LocalDate?
 ) {
-    fun opptjenteDager(datoRefusjonslutt: LocalDate): Int {
-        setOpptjentingsperiode()
+    fun antallOpptjenteDager(datoRefusjonstart: LocalDate, datoRefusjonslutt: LocalDate): Int {
+        setInntektsperiodeEnMånedOmIkkeSatt()
         return inntektsperiodeFom!!.datesUntil(inntektsperiodeTom!!.plusDays(1))
                 .filter { erHverdag(it) }
-                .filter{ !it.isBefore(inntektsperiodeFom) && !it.isAfter(datoRefusjonslutt) }
+                .filter{ !it.isBefore(datoRefusjonstart) && !it.isAfter(datoRefusjonslutt) }
                 .count()
                 .toInt()
     }
 
-    private fun setOpptjentingsperiode() {
+    private fun setInntektsperiodeEnMånedOmIkkeSatt() {
         if (inntektsperiodeFom == null) {
             inntektsperiodeFom = måned.atDay(1)
         }
@@ -34,11 +34,4 @@ data class Inntektslinje(
     }
 
     fun erLønnsinntekt() = inntektType == "LØNNSINNTEKT" && beløp > 0.0
-
-    fun innenPeriode(startDato: LocalDate?, sluttDato: LocalDate?): Boolean {
-        if ((inntektsperiodeFom == null || inntektsperiodeTom == null) || (startDato == null || sluttDato == null)) {
-            return true
-        }
-        return !inntektsperiodeFom!!.isBefore(startDato) && !inntektsperiodeTom!!.isAfter(sluttDato)
-    }
 }

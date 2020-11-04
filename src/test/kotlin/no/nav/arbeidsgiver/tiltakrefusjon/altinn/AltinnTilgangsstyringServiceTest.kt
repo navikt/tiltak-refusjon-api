@@ -47,7 +47,6 @@ class AltinnTilgangsstyringServiceTest(){
         }
     }
 
-
     @Test fun `skal returnere en tom liste med organisasjoner om personen ikke har tilgang`(@Autowired altinnTilgangsstyringProperties:AltinnTilgangsstyringProperties) {
         // GITT
         altinnTilgangsstyringProperties.serviceCode = 5516

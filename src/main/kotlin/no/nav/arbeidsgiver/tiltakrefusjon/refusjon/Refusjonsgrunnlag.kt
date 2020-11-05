@@ -29,8 +29,4 @@ data class Refusjonsgrunnlag(
                 .times(refusjonsgrad / 100.0)
                 .roundToInt()
     }
-
-    fun hentAntallDagerForGittInntekt(){
-
-    }
 }

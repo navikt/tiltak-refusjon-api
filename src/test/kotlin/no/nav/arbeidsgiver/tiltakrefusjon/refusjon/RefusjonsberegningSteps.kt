@@ -39,7 +39,7 @@ class RefusjonsberegningSteps : No {
             sluttDato = LocalDate.parse(sluttDatoString)
 
         }
-        Så("beregnes refusjon til {string} kr per måned") { refusjon: String ->
+        Så("beregnes refusjon til {string} kr for periode") { refusjon: String ->
             val beregnet = Refusjonsgrunnlag(inntekstlinjer, lonnstilskuddProsent, startDato, sluttDato,arbeidsgiveravgift, feriepengersats, tjenestepensjon).hentBeregnetGrunnlag()
             assertThat(beregnet).isEqualByComparingTo(refusjon.toInt());
         }

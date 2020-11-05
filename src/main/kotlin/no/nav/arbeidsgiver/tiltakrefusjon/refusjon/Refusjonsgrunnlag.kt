@@ -16,7 +16,7 @@ data class Refusjonsgrunnlag(
         return inntekter
                 .filter(Inntektslinje::erLønnsinntekt)
                 .map { inntekt ->
-                    val dagerOpptjentInnenRefusjonsperiode = inntekt.hentAntallOpptjenteDagerInnenPeriode(datoRefusjonstart, datoRefusjonslutt)
+                    val dagerOpptjentInnenRefusjonsperiode = inntekt.hentAntallDagerOpptjentInnenPeriode(datoRefusjonstart, datoRefusjonslutt)
                     if( dagerOpptjentInnenRefusjonsperiode == 0 ) return 0
                     val beløpPerDag = inntekt.hentBeløpPerDag()
                     val feriepenger = beløpPerDag * feriepengerSats!!

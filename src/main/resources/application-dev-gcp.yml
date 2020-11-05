@@ -1,4 +1,6 @@
 tiltak-refusjon:
+  integrasjon:
+    inntektskomponenten-uri: https://app-q4.adeo.no/inntektskomponenten-ws/rs/api/v1/hentinntektlist
   altinn-tilgangstyring:
     uri: https://api-gw-q0.oera.no/ekstern/altinn/api/serviceowner/reportees
     beOmRettighetBaseUrl: https://arbeidsgiver-q.nav.no/min-side-arbeidsgiver/?fragment=be-om-tilgang

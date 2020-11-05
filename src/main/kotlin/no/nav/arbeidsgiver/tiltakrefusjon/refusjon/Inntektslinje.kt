@@ -15,6 +15,14 @@ data class Inntektslinje(
     constructor(inntektType:String, beløp: Double?, måned: YearMonth, inntektsperiodeFom: LocalDate? = null, inntektsperiodeTom: LocalDate? = null):
             this(inntektType,beløp ?: 0.0 ,måned, inntektsperiodeFom ?: måned.atDay(1), inntektsperiodeTom ?: måned.atEndOfMonth())
 
+
+    fun hentAntallDagerOpptjent():Int{
+        return opptjeningsperiodeFom.datesUntil(opptjenningsperiodeTom.plusDays(1))
+                .filter(this::erHverdag)
+                .count()
+                .toInt()
+    }
+
     fun hentAntallOpptjenteDagerInnenPeriode(fraDato: LocalDate, tilDato: LocalDate): Int {
         return opptjeningsperiodeFom.datesUntil(opptjenningsperiodeTom.plusDays(1))
                 .filter(this::erHverdag)
@@ -28,4 +36,7 @@ data class Inntektslinje(
     }
 
     fun erLønnsinntekt() = inntektType == "LØNNSINNTEKT" && beløp > 0.0
+    fun hentBeløpPerDag(): Double {
+        return beløp / hentAntallDagerOpptjent()
+    }
 }

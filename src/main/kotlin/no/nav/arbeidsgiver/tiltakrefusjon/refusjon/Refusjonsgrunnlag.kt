@@ -8,21 +8,25 @@ data class Refusjonsgrunnlag(
         val refusjonsgrad: Int,
         val datoRefusjonstart: LocalDate,
         val datoRefusjonslutt: LocalDate,
-        var arbeidsgiveravgiftSats: Double?,
-        var feriepengerSats: Double?,
-        var tjenestepensjonSats: Double?
+        var arbeidsgiveravgiftSats: Double,
+        var feriepengerSats: Double,
+        var tjenestepensjonSats: Double
 ) {
     fun hentBeregnetGrunnlag(): Int {
         return inntekter
                 .filter(Inntektslinje::erLønnsinntekt)
                 .map { inntekt ->
-                    val dagerOpptjent = inntekt.hentAntallOpptjenteDagerInnenPeriode(datoRefusjonstart, datoRefusjonslutt)
-                    if( dagerOpptjent == 0 ) return 0
-                    val feriepenger = inntekt.beløp * feriepengerSats!!
-                    val tjenestepensjon = (inntekt.beløp + feriepenger) * tjenestepensjonSats!!
-                    val arbeidsgiveravgift = (inntekt.beløp + tjenestepensjon + feriepenger) * arbeidsgiveravgiftSats!!
-                    val total = inntekt.beløp + tjenestepensjon + feriepenger + arbeidsgiveravgift
-                    total.div(dagerOpptjent)
+                    val dagerOpptjentInnenRefusjonsperiode = inntekt.hentAntallDagerOpptjentInnenPeriode(datoRefusjonstart, datoRefusjonslutt)
+                    if( dagerOpptjentInnenRefusjonsperiode == 0 ) return 0
+
+                    val beløpPerDag = inntekt.hentBeløpPerDag()
+
+                    val feriepengerPerDag = beløpPerDag * feriepengerSats
+                    val tjenestepensjonPerDag = (beløpPerDag + feriepengerPerDag) * tjenestepensjonSats
+                    val arbeidsgiveravgiftPerDag = (beløpPerDag + tjenestepensjonPerDag + feriepengerPerDag) * arbeidsgiveravgiftSats
+                    val totalBeløpPerDag =  beløpPerDag + tjenestepensjonPerDag + feriepengerPerDag + arbeidsgiveravgiftPerDag
+
+                    totalBeløpPerDag.times(dagerOpptjentInnenRefusjonsperiode)
                 }
                 .sum()
                 .times(refusjonsgrad / 100.0)

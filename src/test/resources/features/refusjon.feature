@@ -9,7 +9,6 @@ Egenskap: Beregn refusjon for lønnstilskudd
     Når lønnstilskudd på 60 prosent skal refunderes for periode "2020-01-01" til "2020-01-31"
     Så beregnes refusjon til "680" kr per dag
 
-  # UTEN OTP, FERIEPENGER, AG AVGIFT
   Scenario: Beregn lønnstilskudd for deler av perioden med inntektsperiode dagpengersats
     Gitt følgende opplysninger om inntekt
       | inntektType  | beløp | måned   | inntektsperiodeFom | inntektsperiodeTom |

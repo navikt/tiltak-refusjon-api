@@ -8,9 +8,9 @@ data class Refusjonsgrunnlag(
         val refusjonsgrad: Int,
         val datoRefusjonstart: LocalDate,
         val datoRefusjonslutt: LocalDate,
-        var arbeidsgiveravgiftSats: Double?,
-        var feriepengerSats: Double?,
-        var tjenestepensjonSats: Double?
+        var arbeidsgiveravgiftSats: Double,
+        var feriepengerSats: Double,
+        var tjenestepensjonSats: Double
 ) {
     fun hentBeregnetGrunnlag(): Int {
         return inntekter
@@ -18,11 +18,14 @@ data class Refusjonsgrunnlag(
                 .map { inntekt ->
                     val dagerOpptjentInnenRefusjonsperiode = inntekt.hentAntallDagerOpptjentInnenPeriode(datoRefusjonstart, datoRefusjonslutt)
                     if( dagerOpptjentInnenRefusjonsperiode == 0 ) return 0
+
                     val beløpPerDag = inntekt.hentBeløpPerDag()
-                    val feriepenger = beløpPerDag * feriepengerSats!!
-                    val tjenestepensjon = (beløpPerDag + feriepenger) * tjenestepensjonSats!!
-                    val arbeidsgiveravgift = (beløpPerDag + tjenestepensjon + feriepenger) * arbeidsgiveravgiftSats!!
-                    val totalBeløpPerDag =  beløpPerDag + tjenestepensjon + feriepenger + arbeidsgiveravgift
+
+                    val feriepengerPerDag = beløpPerDag * feriepengerSats
+                    val tjenestepensjonPerDag = (beløpPerDag + feriepengerPerDag) * tjenestepensjonSats
+                    val arbeidsgiveravgiftPerDag = (beløpPerDag + tjenestepensjonPerDag + feriepengerPerDag) * arbeidsgiveravgiftSats
+                    val totalBeløpPerDag =  beløpPerDag + tjenestepensjonPerDag + feriepengerPerDag + arbeidsgiveravgiftPerDag
+
                     totalBeløpPerDag.times(dagerOpptjentInnenRefusjonsperiode)
                 }
                 .sum()

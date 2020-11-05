@@ -39,11 +39,11 @@ Egenskap: Beregn refusjon for lønnstilskudd
   Scenario: Beregn nedsatt arbeidsevne lønnstilskudd for ulike perioder med inntektsperiode dagpengersats med en gap mellom inntektene
     Gitt følgende opplysninger om inntekt
       | inntektType  | beløp | måned   | inntektsperiodeFom | inntektsperiodeTom |
-      | LØNNSINNTEKT | 10000 | 2020-01 | 2020-01-01            | 2020-01-10            |
-      | FERIE        |   0   | 2020-01 | 2020-01-11            | 2020-01-17            |
-      | LØNNSINNTEKT | 20000 | 2020-01 | 2020-01-18            | 2020-01-31            |
+      | LØNNSINNTEKT | 10000 | 2020-04 | 2020-04-01            | 2020-04-10            |
+      | FERIE        | 5000  | 2020-04 | 2020-04-11            | 2020-04-17            |
+      | LØNNSINNTEKT | 20000 | 2020-04 | 2020-04-18            | 2020-04-30            |
     Og avtale med arbeidsgiveravgift "0.141", feriepengersats "0.12" og OTP "0.02"
-    Når lønnstilskudd på 60 prosent skal refunderes for periode "2020-01-01" til "2020-01-31"
+    Når lønnstilskudd på 60 prosent skal refunderes for periode "2020-01-04" til "2020-04-30"
     Så beregnes refusjon til "23463" kr per måned
 
   Scenario: Beregn nedsatt arbeidsevne lønnstilskudd for hele perioden med eldre dato og ny ytelse

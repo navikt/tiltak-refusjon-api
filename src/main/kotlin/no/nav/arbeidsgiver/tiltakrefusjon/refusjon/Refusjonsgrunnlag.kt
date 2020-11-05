@@ -22,8 +22,8 @@ data class Refusjonsgrunnlag(
                     val feriepenger = beløpPerDag * feriepengerSats!!
                     val tjenestepensjon = (beløpPerDag + feriepenger) * tjenestepensjonSats!!
                     val arbeidsgiveravgift = (beløpPerDag + tjenestepensjon + feriepenger) * arbeidsgiveravgiftSats!!
-                    val total =  beløpPerDag + tjenestepensjon + feriepenger + arbeidsgiveravgift
-                    total.times(dagerOpptjentInnenRefusjonsperiode)
+                    val totalBeløpPerDag =  beløpPerDag + tjenestepensjon + feriepenger + arbeidsgiveravgift
+                    totalBeløpPerDag.times(dagerOpptjentInnenRefusjonsperiode)
                 }
                 .sum()
                 .times(refusjonsgrad / 100.0)

@@ -14,10 +14,25 @@ import org.springframework.web.client.RestTemplate
 @Protected
 @Profile("dev-gcp")
 class TiltakProxyTestController(
-        @Qualifier("tokenx") val restTemplate: RestTemplate
+        @Qualifier("påVegneAvArbeidsgiverProxyRestTemplate")
+        val påVegneAvArbeidsgiverProxyRestTemplate: RestTemplate,
+        @Qualifier("påVegneAvSaksbehandlerProxyRestTemplate")
+        val påVegneAvSaksbehandlerProxyRestTemplate: RestTemplate,
+        @Qualifier("anonymProxyRestTemplate")
+        val anonymProxyRestTemplate: RestTemplate
 ) {
-    @GetMapping("")
-    fun test(): String? {
-        return restTemplate.getForObject("https://tiltak-proxy.dev-fss-pub.nais.io/test", String::class.java);
+    @GetMapping("/tokenx")
+    fun testTokenX(): String? {
+        return påVegneAvArbeidsgiverProxyRestTemplate.getForObject("https://tiltak-proxy.dev-fss-pub.nais.io/test-tokenx", String::class.java);
+    }
+
+    @GetMapping("/aad")
+    fun testAad(): String? {
+        return påVegneAvSaksbehandlerProxyRestTemplate.getForObject("https://tiltak-proxy.dev-fss-pub.nais.io/test-aad", String::class.java);
+    }
+
+    @GetMapping("/aad-anonym")
+    fun testAadAnonym(): String? {
+        return anonymProxyRestTemplate.getForObject("https://tiltak-proxy.dev-fss-pub.nais.io/test-aad", String::class.java);
     }
 }

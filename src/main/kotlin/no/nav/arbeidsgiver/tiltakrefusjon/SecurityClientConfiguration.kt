@@ -1,11 +1,9 @@
 package no.nav.arbeidsgiver.tiltakrefusjon
 
-import no.nav.arbeidsgiver.tiltakrefusjon.utils.ConditionalOnPropertyNotEmpty
 import no.nav.security.token.support.client.core.ClientProperties
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService
 import no.nav.security.token.support.client.spring.ClientConfigurationProperties
 import no.nav.security.token.support.client.spring.oauth2.EnableOAuth2Client
-import no.nav.security.token.support.spring.api.EnableJwtTokenValidation
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -18,31 +16,24 @@ import org.springframework.web.client.RestTemplate
 @EnableOAuth2Client(cacheEnabled = true)
 @Configuration
 @Profile("dev-gcp")
-class SecurityClientConfiguration {
-    /**
-     * Create one RestTemplate per OAuth2 client entry to separate between different scopes per API
-     */
-    @Bean("azure")
-    fun downstreamResourceRestTemplate(
-            restTemplateBuilder: RestTemplateBuilder,
-            clientConfigurationProperties: ClientConfigurationProperties,
-            oAuth2AccessTokenService: OAuth2AccessTokenService
-    ): RestTemplate? {
-        val clientProperties = clientConfigurationProperties.registration["aad"]
-                ?: throw RuntimeException("could not find oauth2 client config for aad")
-        return restTemplateBuilder
-                .additionalInterceptors(bearerTokenInterceptor(clientProperties, oAuth2AccessTokenService))
-                .build()
-    }
+class SecurityClientConfiguration(
+        val restTemplateBuilder: RestTemplateBuilder,
+        val clientConfigurationProperties: ClientConfigurationProperties,
+        val oAuth2AccessTokenService: OAuth2AccessTokenService
+) {
 
-    @Bean("tokenx")
-    fun downstreamResourceTokenXRestTemplate(
-            restTemplateBuilder: RestTemplateBuilder,
-            clientConfigurationProperties: ClientConfigurationProperties,
-            oAuth2AccessTokenService: OAuth2AccessTokenService
-    ): RestTemplate? {
-        val clientProperties = clientConfigurationProperties.registration["tokenx"]
-                ?: throw RuntimeException("could not find oauth2 client config for tokenx")
+    @Bean
+    fun påVegneAvSaksbehandlerProxyRestTemplate() = restTemplateForRegistration("aad")
+
+    @Bean
+    fun påVegneAvArbeidsgiverProxyRestTemplate() = restTemplateForRegistration("tokenx")
+
+    @Bean
+    fun anonymProxyRestTemplate() = restTemplateForRegistration("aad-anonym")
+
+    private fun restTemplateForRegistration(registration: String): RestTemplate {
+        val clientProperties = clientConfigurationProperties.registration[registration]
+                ?: throw RuntimeException("could not find oauth2 client config for $registration")
         return restTemplateBuilder
                 .additionalInterceptors(bearerTokenInterceptor(clientProperties, oAuth2AccessTokenService))
                 .build()

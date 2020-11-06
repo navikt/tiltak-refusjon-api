@@ -15,18 +15,15 @@ data class Refusjonsgrunnlag(
     fun hentBeregnetGrunnlag(): Int {
         return inntekter
                 .filter(Inntektslinje::erLønnsinntekt)
-                .map { inntekt ->
-                    val dagerOpptjentInnenRefusjonsperiode = inntekt.hentAntallDagerOpptjentInnenPeriode(datoRefusjonstart, datoRefusjonslutt)
-                    if( dagerOpptjentInnenRefusjonsperiode == 0 ) return 0
-
-                    val beløpPerDag = inntekt.hentBeløpPerDag()
-
+                .map { it.tilDagsatsForPeriode(datoRefusjonstart, datoRefusjonslutt) }
+                .map { dagsats ->
+                    val beløpPerDag = dagsats.beløp
                     val feriepengerPerDag = beløpPerDag * feriepengerSats
                     val tjenestepensjonPerDag = (beløpPerDag + feriepengerPerDag) * tjenestepensjonSats
                     val arbeidsgiveravgiftPerDag = (beløpPerDag + tjenestepensjonPerDag + feriepengerPerDag) * arbeidsgiveravgiftSats
                     val totalBeløpPerDag =  beløpPerDag + tjenestepensjonPerDag + feriepengerPerDag + arbeidsgiveravgiftPerDag
 
-                    totalBeløpPerDag.times(dagerOpptjentInnenRefusjonsperiode)
+                    totalBeløpPerDag.times(dagsats.dager)
                 }
                 .sum()
                 .times(refusjonsgrad / 100.0)

@@ -17,11 +17,12 @@ data class Inntektslinje(
             this(inntektType, beløp ?: 0.0, måned, inntektsperiodeFom ?: måned.atDay(1), inntektsperiodeTom ?: måned.atEndOfMonth())
 
     fun hentAntallDagerOpptjent() = dagerOpptjentList().count()
-    fun hentAntallDagerOpptjentInnenPeriode(fraDato: LocalDate, tilDato: LocalDate) = dagerOpptjentList().filter { !it.isBefore(fraDato) && !it.isAfter(tilDato) }.count()
+    fun hentAntallDagerOpptjent(fraDato: LocalDate, tilDato: LocalDate) = dagerOpptjentList().filter { !it.isBefore(fraDato) && !it.isAfter(tilDato) }.count()
 
     private fun dagerOpptjentList() = opptjeningsperiodeFom.datesUntil(opptjenningsperiodeTom.plusDays(1)).filter(this::erHverdag).toList()
     private fun erHverdag(dato: LocalDate) = dato.dayOfWeek != DayOfWeek.SATURDAY && dato.dayOfWeek != DayOfWeek.SUNDAY
 
     fun erLønnsinntekt() = inntektType == "LØNNSINNTEKT" && beløp > 0.0
     fun hentBeløpPerDag() = beløp / hentAntallDagerOpptjent()
+    fun tilDagsatsForPeriode(datoFra: LocalDate, datoTil: LocalDate):Dagsats = Dagsats(hentBeløpPerDag(),hentAntallDagerOpptjent(datoFra,datoTil))
 }

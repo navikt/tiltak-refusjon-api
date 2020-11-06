@@ -54,6 +54,14 @@ no.nav.security.jwt:
           client-id: ${AZURE_APP_CLIENT_ID}
           client-secret: ${AZURE_APP_CLIENT_SECRET}
           client-auth-method: client_secret_basic
+      aad-anonym:
+        token-endpoint-url: https://login.microsoftonline.com/62366534-1ec3-4962-8869-9b5535279d0b/oauth2/v2.0/token
+        grant-type: client_credentials
+        scope: api://c1b75f3c-3087-48f7-8424-cfb2d42923cc/.default
+        authentication:
+          client-id: ${AZURE_APP_CLIENT_ID}
+          client-secret: ${AZURE_APP_CLIENT_SECRET}
+          client-auth-method: client_secret_basic
       tokenx:
         token-endpoint-url: https://tokendings.dev-gcp.nais.io/token
         grant-type: urn:ietf:params:oauth:grant-type:token-exchange

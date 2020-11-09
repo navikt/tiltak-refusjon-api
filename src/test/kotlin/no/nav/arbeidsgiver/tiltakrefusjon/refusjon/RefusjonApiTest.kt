@@ -56,6 +56,23 @@ class RefusjonApiTest(
 
 
     @Test
+    fun `hentBeregnetRefusjon() for deltaker, bedrift og periode`(){
+        // GITT
+        val bedriftnummer = "998877665"
+        val deltakerFnr = "07049223182"
+        val datoRefusjonPeriodeFom = "2020-09"
+        val datoRefusjonPeriodeTom = "2020-10"
+
+        // NÅR
+        val json = sendRequest(get("$REQUEST_MAPPING/beregn/deltaker/$deltakerFnr/bedrift/$bedriftnummer/fra/$datoRefusjonPeriodeFom/til/$datoRefusjonPeriodeTom"), arbGiverCookie)
+        val refusjonsgrunnlag = mapper.readValue(json, object : TypeReference<Refusjonsgrunnlag?>() {})
+
+        // S^
+        assertEquals(0, refusjonsgrunnlag!!.inntekter.size)
+    }
+
+
+    @Test
     fun `hentRefusjon() for deltaker, bedrift og periode`(){
         // GITT
         val bedriftnummer = "998877665"
@@ -69,8 +86,10 @@ class RefusjonApiTest(
 
         // S^
         assertEquals(1, liste!!.size)
-        assertNotNull(liste.find { refusjon -> refusjon?.deltakerFnr.equals("07049223182") })
+        assertNotNull(liste.find { refusjon -> refusjon?.deltakerFnr.equals("07049223182")
+                && refusjon?.bedriftnummer.equals("998877665") })
     }
+
 
     @Test
     fun `hentAlle() er tilgjengelig for saksbehandler`() {

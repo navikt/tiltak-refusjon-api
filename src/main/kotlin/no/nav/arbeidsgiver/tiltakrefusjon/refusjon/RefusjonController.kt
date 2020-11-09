@@ -45,6 +45,18 @@ class RefusjonController(val refusjonRepository: RefusjonRepository,
     }
 
 
+    @GetMapping("/beregn/deltaker/{deltakerfnr}/bedrift/{bedriftnummer}/fra/{datoFom}/til/{datoTom}")
+    fun hentBeregnetRefusjonForPeriodeDeltakerOgBedrift(@PathVariable deltakerfnr: String,@PathVariable bedriftnummer: String,@PathVariable datoFom: String,@PathVariable datoTom: String): Refusjonsgrunnlag {
+        val fom = LocalDate.of(YearMonth.parse(datoFom).year,  YearMonth.parse(datoFom).month,1)
+        val tom = LocalDate.of(YearMonth.parse(datoTom).year,  YearMonth.parse(datoTom).month,1)
+        val refusjon = refusjonRepository.findByDeltakerFnrAndBedriftnummerAndFraDatoGreaterThanEqualAndTilDatoLessThanEqual(deltakerfnr, bedriftnummer, fom, tom)
+
+        val refusjonsgrunnlag = Refusjonsgrunnlag(emptyList(),refusjon.first().stillingsprosent,refusjon.first().fraDato,refusjon.first().tilDato,1.0,1.0,1.0)
+
+        return refusjonsgrunnlag
+    }
+
+
     @GetMapping("/deltaker/{deltakerfnr}/bedrift/{bedriftnummer}/fra/{datoFom}/til/{datoTom}")
     fun hentRefusjonForPeriodeDeltakerOgBedrift(@PathVariable deltakerfnr: String,@PathVariable bedriftnummer: String,@PathVariable datoFom: String,@PathVariable datoTom: String): List<Refusjon> {
         val fom = LocalDate.of(YearMonth.parse(datoFom).year,  YearMonth.parse(datoFom).month,1)

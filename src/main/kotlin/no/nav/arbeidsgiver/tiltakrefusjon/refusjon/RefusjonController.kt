@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpStatusCodeException
+import java.time.LocalDate
+import java.time.YearMonth
 import javax.servlet.http.HttpServletResponse
 
 const val REQUEST_MAPPING = "/api/refusjon"
@@ -41,6 +43,15 @@ class RefusjonController(val refusjonRepository: RefusjonRepository,
         val innloggetBruker = hentInnloggetBruker();
         return innloggetBruker.finnAlle();
     }
+
+
+    @GetMapping("/deltaker/{deltakerfnr}/bedrift/{bedriftnummer}/fra/{datoFom}/til/{datoTom}")
+    fun hentRefusjonForPeriodeDeltakerOgBedrift(@PathVariable deltakerfnr: String,@PathVariable bedriftnummer: String,@PathVariable datoFom: String,@PathVariable datoTom: String): List<Refusjon> {
+        val fom = LocalDate.of(YearMonth.parse(datoFom).year,  YearMonth.parse(datoFom).month,1)
+        val tom = LocalDate.of(YearMonth.parse(datoTom).year,  YearMonth.parse(datoTom).month,1)
+        return refusjonRepository.findByDeltakerFnrAndBedriftnummerAndFraDatoGreaterThanEqualAndTilDatoLessThanEqual(deltakerfnr, bedriftnummer,fom,tom)
+    }
+
 
     @GetMapping("/bedrift/{bedriftnummer}")
     fun hentAlleMedBedriftnummer(@PathVariable bedriftnummer: String): List<Refusjon> {

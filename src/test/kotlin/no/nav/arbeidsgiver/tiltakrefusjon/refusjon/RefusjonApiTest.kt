@@ -9,6 +9,7 @@ import no.nav.security.token.support.test.JwkGenerator
 import no.nav.security.token.support.test.JwtTokenGenerator
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
@@ -67,8 +68,8 @@ class RefusjonApiTest(
         val liste = mapper.readValue(json, object : TypeReference<List<Refusjon?>?>() {})
 
         // S^
-        assertEquals(14, liste!!.size)
-        assertNull(liste.find { refusjon -> refusjon?.deltakerFnr.equals("07098142678") })
+        assertEquals(1, liste!!.size)
+        assertNotNull(liste.find { refusjon -> refusjon?.deltakerFnr.equals("07049223182") })
     }
 
     @Test

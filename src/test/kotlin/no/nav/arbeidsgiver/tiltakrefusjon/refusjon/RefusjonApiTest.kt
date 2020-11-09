@@ -69,6 +69,7 @@ class RefusjonApiTest(
 
         // S^
         assertEquals(1, refusjonsgrunnlag!!.size)
+        assertEquals(1, refusjonsgrunnlag.first().inntekter.size)
     }
 
 

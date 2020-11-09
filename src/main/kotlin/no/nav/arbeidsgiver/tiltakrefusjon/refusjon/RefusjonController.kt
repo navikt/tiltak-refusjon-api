@@ -44,15 +44,16 @@ class RefusjonController(val refusjonRepository: RefusjonRepository,
         return innloggetBruker.finnAlle();
     }
 
-
     @GetMapping("/beregn/deltaker/{deltakerfnr}/bedrift/{bedriftnummer}/fra/{datoFom}/til/{datoTom}")
     fun hentBeregnetRefusjonForPeriodeDeltakerOgBedrift(@PathVariable deltakerfnr: String,@PathVariable bedriftnummer: String,@PathVariable datoFom: String,@PathVariable datoTom: String): List<Refusjonsgrunnlag> {
         val refusjon = hentRefusjonForBedriftOgDeltakerInnenPeriode(datoFom, datoTom, deltakerfnr, bedriftnummer)
+        // hent av innteker for person....
+        // koble det inn i refusjon objektet om blir returnert
+        // lag en test som tester at innkter er fylt inn
         return refusjon.map{
                     Refusjonsgrunnlag(emptyList(),it.stillingsprosent,it.fraDato,it.tilDato,1.0,1.0,1.0)
                 }
     }
-
 
     @GetMapping("/deltaker/{deltakerfnr}/bedrift/{bedriftnummer}/fra/{datoFom}/til/{datoTom}")
     fun hentRefusjonForPeriodeDeltakerOgBedrift(@PathVariable deltakerfnr: String,@PathVariable bedriftnummer: String,@PathVariable datoFom: String,@PathVariable datoTom: String): List<Refusjon> {

@@ -21,8 +21,8 @@ data class Inntektslinje(
 
     private fun dagerOpptjentList() = opptjeningsperiodeFom.datesUntil(opptjenningsperiodeTom.plusDays(1)).filter(this::erHverdag).toList()
     private fun erHverdag(dato: LocalDate) = dato.dayOfWeek != DayOfWeek.SATURDAY && dato.dayOfWeek != DayOfWeek.SUNDAY
+    fun hentBeløpPerDag() = beløp / hentAntallDagerOpptjent()
 
     fun erLønnsinntekt() = inntektType == "LØNNSINNTEKT" && beløp > 0.0
-    fun hentBeløpPerDag() = beløp / hentAntallDagerOpptjent()
     fun tilDagsatsForPeriode(datoFra: LocalDate, datoTil: LocalDate):Dagsats = Dagsats(hentBeløpPerDag(),hentAntallDagerOpptjent(datoFra,datoTil))
 }

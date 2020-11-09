@@ -59,9 +59,11 @@ class RefusjonApiTest(
         // GITT
         val bedriftnummer = "998877665"
         val deltakerFnr = "07049223182"
+        val datoRefusjonPeriodeFom = "2020-09"
+        val datoRefusjonPeriodeTom = "2020-10"
 
         // NÅR
-        val json = sendRequest(get("$REQUEST_MAPPING/deltaker/$deltakerFnr/bedrift/$bedriftnummer"), arbGiverCookie)
+        val json = sendRequest(get("$REQUEST_MAPPING/deltaker/$deltakerFnr/bedrift/$bedriftnummer/fra/$datoRefusjonPeriodeFom/til/$datoRefusjonPeriodeTom"), arbGiverCookie)
         val liste = mapper.readValue(json, object : TypeReference<List<Refusjon?>?>() {})
 
         // S^

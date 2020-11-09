@@ -46,11 +46,11 @@ class RefusjonController(val refusjonRepository: RefusjonRepository,
 
 
     @GetMapping("/beregn/deltaker/{deltakerfnr}/bedrift/{bedriftnummer}/fra/{datoFom}/til/{datoTom}")
-    fun hentBeregnetRefusjonForPeriodeDeltakerOgBedrift(@PathVariable deltakerfnr: String,@PathVariable bedriftnummer: String,@PathVariable datoFom: String,@PathVariable datoTom: String): Refusjonsgrunnlag {
+    fun hentBeregnetRefusjonForPeriodeDeltakerOgBedrift(@PathVariable deltakerfnr: String,@PathVariable bedriftnummer: String,@PathVariable datoFom: String,@PathVariable datoTom: String): List<Refusjonsgrunnlag> {
         val refusjon = hentRefusjonForBedriftOgDeltakerInnenPeriode(datoFom, datoTom, deltakerfnr, bedriftnummer)
-        val refusjonsgrunnlag = Refusjonsgrunnlag(emptyList(),refusjon.first().stillingsprosent,refusjon.first().fraDato,refusjon.first().tilDato,1.0,1.0,1.0)
-
-        return refusjonsgrunnlag
+        return refusjon.map{
+                    Refusjonsgrunnlag(emptyList(),it.stillingsprosent,it.fraDato,it.tilDato,1.0,1.0,1.0)
+                }
     }
 
 

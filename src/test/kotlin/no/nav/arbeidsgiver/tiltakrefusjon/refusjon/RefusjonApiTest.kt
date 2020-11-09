@@ -65,10 +65,10 @@ class RefusjonApiTest(
 
         // NÅR
         val json = sendRequest(get("$REQUEST_MAPPING/beregn/deltaker/$deltakerFnr/bedrift/$bedriftnummer/fra/$datoRefusjonPeriodeFom/til/$datoRefusjonPeriodeTom"), arbGiverCookie)
-        val refusjonsgrunnlag = mapper.readValue(json, object : TypeReference<Refusjonsgrunnlag?>() {})
+        val refusjonsgrunnlag = mapper.readValue(json, object : TypeReference<List<Refusjonsgrunnlag>?>() {})
 
         // S^
-        assertEquals(0, refusjonsgrunnlag!!.inntekter.size)
+        assertEquals(1, refusjonsgrunnlag!!.size)
     }
 
 

@@ -7,9 +7,11 @@ import no.nav.arbeidsgiver.tiltakrefusjon.enRefusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjoner
 import no.nav.security.token.support.test.JwkGenerator
 import no.nav.security.token.support.test.JwtTokenGenerator
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
@@ -24,7 +26,8 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import java.util.*
+import java.util.Date
+import java.util.UUID
 import javax.servlet.http.Cookie
 
 
@@ -48,6 +51,22 @@ class RefusjonApiTest(
     @BeforeEach
     fun setUp() {
         refusjonRepository.saveAll(refusjoner())
+    }
+
+
+    @Test
+    fun `hentRefusjon() for deltaker, bedrift og periode`(){
+        // GITT
+        val bedriftnummer = "998877665"
+        val deltakerFnr = "07049223182"
+
+        // NÅR
+        val json = sendRequest(get("$REQUEST_MAPPING/deltaker/$deltakerFnr/bedrift/$bedriftnummer"), arbGiverCookie)
+        val liste = mapper.readValue(json, object : TypeReference<List<Refusjon?>?>() {})
+
+        // S^
+        assertEquals(14, liste!!.size)
+        assertNull(liste.find { refusjon -> refusjon?.deltakerFnr.equals("07098142678") })
     }
 
     @Test

@@ -25,4 +25,5 @@ data class Inntektslinje(
 
     fun erLønnsinntekt() = inntektType == "LØNNSINNTEKT" && beløp > 0.0
     fun tilDagsatsForPeriode(datoFra: LocalDate, datoTil: LocalDate):Dagsats = Dagsats(hentBeløpPerDag(),hentAntallDagerOpptjent(datoFra,datoTil))
+
 }

@@ -1,0 +1,5 @@
+host:
+  - api-gw-q0.oera.no
+  - tiltak-proxy.dev-fss-pub.nais.io
+tenant: trygdeetaten.no
+slack_alert_channel: arbeidsgiver-notifications-test

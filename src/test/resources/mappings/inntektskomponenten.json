@@ -7,13 +7,13 @@
         "urlPath": "/inntekskomponenten/hentinntektliste",
         "queryParameters": {
           "ident": {
-            "matches": "^1\\d{10}$"
+            "matches": "\\d{11}"
           },
           "ainntektsfilter":{
             "matches": "KontrollArbeidsmarkedstiltakA-inntekt"
           },
-          "maanedFom":{"matches": "\\d-\\d"},
-          "maanedTom":{"matches": "\\d-\\d"}
+          "maanedFom":{"matches": "^\\d{4}-\\d{2}$"},
+          "maanedTom":{"matches": "^\\d{4}-\\d{2}$"}
         }
       },
       "response": {

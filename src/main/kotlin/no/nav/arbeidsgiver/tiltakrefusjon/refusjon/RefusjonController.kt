@@ -5,6 +5,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetArbeidsgiver
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBruker
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBrukerService
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetSaksbehandler
+import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentConsumer
 import no.nav.security.token.support.core.api.Protected
 import no.nav.security.token.support.spring.validation.interceptor.JwtTokenUnauthorizedException
 import org.springframework.data.repository.findByIdOrNull
@@ -30,6 +31,7 @@ const val REQUEST_MAPPING = "/api/refusjon"
 @Protected
 class RefusjonController(val refusjonRepository: RefusjonRepository,
                          val innloggetBrukerService: InnloggetBrukerService,
+                         val inntektskomponentConsumer: InntektskomponentConsumer,
                          val altinnTilgangsstyringService: AltinnTilgangsstyringService,
                          val abacTilgangsstyringService: AbacTilgangsstyringService) {
 
@@ -47,6 +49,9 @@ class RefusjonController(val refusjonRepository: RefusjonRepository,
     @GetMapping("/beregn/deltaker/{deltakerfnr}/bedrift/{bedriftnummer}/fra/{datoFom}/til/{datoTom}")
     fun hentBeregnetRefusjonForPeriodeDeltakerOgBedrift(@PathVariable deltakerfnr: String,@PathVariable bedriftnummer: String,@PathVariable datoFom: String,@PathVariable datoTom: String): List<Refusjonsgrunnlag> {
         val refusjon = hentRefusjonForBedriftOgDeltakerInnenPeriode(datoFom, datoTom, deltakerfnr, bedriftnummer)
+        val fom = LocalDate.of(YearMonth.parse(datoFom).year, YearMonth.parse(datoFom).month, 1)
+        val tom = LocalDate.of(YearMonth.parse(datoTom).year, YearMonth.parse(datoTom).month, 1)
+        val inntekter = inntektskomponentConsumer.hentInntekter(deltakerfnr,fom, tom)
         // hent av innteker for person....
         // koble det inn i refusjon objektet om blir returnert
         // lag en test som tester at innkter er fylt inn

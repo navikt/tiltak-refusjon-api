@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
-import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.ResultMatcher
@@ -36,7 +35,6 @@ import javax.servlet.http.Cookie
 @ActiveProfiles("local", "wiremock")
 @AutoConfigureMockMvc
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@DirtiesContext
 class RefusjonApiTest(
         @Autowired val refusjonRepository: RefusjonRepository,
         @Autowired val mapper: ObjectMapper,
@@ -59,7 +57,7 @@ class RefusjonApiTest(
     fun `hentBeregnetRefusjon() for deltaker, bedrift og periode`(){
         // GITT
         val bedriftnummer = "998877665"
-        val deltakerFnr = "07049223182"
+        val deltakerFnr = "28128521498"
         val datoRefusjonPeriodeFom = "2020-09"
         val datoRefusjonPeriodeTom = "2020-10"
 
@@ -77,7 +75,7 @@ class RefusjonApiTest(
     fun `hentRefusjon() for deltaker, bedrift og periode`(){
         // GITT
         val bedriftnummer = "998877665"
-        val deltakerFnr = "07049223182"
+        val deltakerFnr = "28128521498"
         val datoRefusjonPeriodeFom = "2020-09"
         val datoRefusjonPeriodeTom = "2020-10"
 

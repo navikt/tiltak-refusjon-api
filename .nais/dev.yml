@@ -4,4 +4,4 @@ host:
 tenant: trygdeetaten.no
 slack_alert_channel: arbeidsgiver-notifications-test
 env:
-  - PROXY_CLIENT_ID: a7f34b33-cd4d-4e94-aea8-867ab609ecf5
+  PROXY_CLIENT_ID: a7f34b33-cd4d-4e94-aea8-867ab609ecf5

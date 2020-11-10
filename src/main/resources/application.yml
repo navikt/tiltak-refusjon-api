@@ -39,7 +39,7 @@ management:
 no.nav.security.jwt:
   issuer:
     aad:
-      discoveryurl: https://login.microsoftonline.com/62366534-1ec3-4962-8869-9b5535279d0b/v2.0/.well-known/openid-configuration
+      discoveryurl: ${AZURE_APP_WELL_KNOWN_URL}
       accepted_audience: ${AZURE_APP_CLIENT_ID}, api://${AZURE_APP_CLIENT_ID}
     tokenx:
       discoveryurl: ${TOKEN_X_WELL_KNOWN_URL}
@@ -47,17 +47,17 @@ no.nav.security.jwt:
   client:
     registration:
       aad:
-        token-endpoint-url: https://login.microsoftonline.com/62366534-1ec3-4962-8869-9b5535279d0b/oauth2/v2.0/token
+        token-endpoint-url: https://login.microsoftonline.com/${AZURE_APP_TENANT_ID}/oauth2/v2.0/token
         grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
-        scope: api://c1b75f3c-3087-48f7-8424-cfb2d42923cc/.default
+        scope: api://${PROXY_CLIENT_ID}}/.default
         authentication:
           client-id: ${AZURE_APP_CLIENT_ID}
           client-secret: ${AZURE_APP_CLIENT_SECRET}
           client-auth-method: client_secret_basic
       aad-anonym:
-        token-endpoint-url: https://login.microsoftonline.com/62366534-1ec3-4962-8869-9b5535279d0b/oauth2/v2.0/token
+        token-endpoint-url: https://login.microsoftonline.com/${AZURE_APP_TENANT_ID}/oauth2/v2.0/token
         grant-type: client_credentials
-        scope: api://c1b75f3c-3087-48f7-8424-cfb2d42923cc/.default
+        scope: api://${PROXY_CLIENT_ID}}/.default
         authentication:
           client-id: ${AZURE_APP_CLIENT_ID}
           client-secret: ${AZURE_APP_CLIENT_SECRET}

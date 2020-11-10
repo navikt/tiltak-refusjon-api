@@ -23,11 +23,13 @@ spec:
         - application: tiltak-refusjon-utside
     outbound:
       external:
-        - host: api-gw-q0.oera.no
-        - host: tiltak-proxy.dev-fss-pub.nais.io
+      {{#each host}}
+        - host: "{{this}}"
+      {{/each}}
   azure:
     application:
       enabled: true
+      tenant: {{tenant}}
   tokenx:
     enabled: true
   gcp:
@@ -36,5 +38,10 @@ spec:
         databases:
           - name: tiltak-refusjon
             envVarPrefix: DB
+  env:
+    {{#each env}}
+    - name: "{{@key}}"
+      value: "{{this}}"
+    {{/each}}
   envFrom:
     - secret: tiltak-refusjon-altinn

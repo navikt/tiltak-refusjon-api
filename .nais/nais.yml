@@ -38,5 +38,10 @@ spec:
         databases:
           - name: tiltak-refusjon
             envVarPrefix: DB
+  env:
+  {{#each env}}
+    - name: "{{@key}}"
+      value: "{{this}}"
+  {{/each}}
   envFrom:
     - secret: tiltak-refusjon-altinn

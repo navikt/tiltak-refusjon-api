@@ -27,12 +27,12 @@ class InntektskomponentConsumer {
 
     fun hentInntekter(fnr: String, bedriftnummer:String,periodeStart: LocalDate, periodeSlutt: LocalDate): List<Inntektslinje> {
         val response = restTemplate.exchange<InntektResponse>(getUrl(fnr, periodeStart, periodeSlutt), HttpMethod.POST, hentHttpHeaders())
-        return inntekterForBedrift(response.body!!.arbeidsInntektMaaned, bedriftnummer) ?: emptyList()
+        val arbeidsInntektMaaned = response.body!!.arbeidsInntektMaaned?.first()
+        return inntekterForBedrift(arbeidsInntektMaaned, bedriftnummer) ?: emptyList()
     }
 
-    private fun inntekterForBedrift(månedsInntektList: List<ArbeidsInntektMaaned>?,bedriftnummer:String): List<Inntektslinje>? {
+    private fun inntekterForBedrift(månedsInntektList: ArbeidsInntektMaaned?,bedriftnummer:String): List<Inntektslinje>? {
         val listeMedInntekter =  månedsInntektList!!
-                .first()
                 .arbeidsInntektInformasjon?.inntektListe?.filter{ it.virksomhet?.identifikator?.toString().equals(bedriftnummer) }
                 ?.map {
                    Inntektslinje(it.inntektType!!,

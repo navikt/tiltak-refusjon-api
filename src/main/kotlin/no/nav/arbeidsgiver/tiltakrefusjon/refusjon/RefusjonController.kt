@@ -51,7 +51,7 @@ class RefusjonController(val refusjonRepository: RefusjonRepository,
         val refusjon = hentRefusjonForBedriftOgDeltakerInnenPeriode(datoFom, datoTom, deltakerfnr, bedriftnummer)
         val fom = LocalDate.of(YearMonth.parse(datoFom).year, YearMonth.parse(datoFom).month, 1)
         val tom = LocalDate.of(YearMonth.parse(datoTom).year, YearMonth.parse(datoTom).month, 1)
-        val inntekter = inntektskomponentConsumer.hentInntekter(deltakerfnr,fom, tom)
+        val inntekter = inntektskomponentConsumer.hentInntekter(deltakerfnr,bedriftnummer,fom, tom)
         return refusjon.map{
                     Refusjonsgrunnlag(inntekter,it.stillingsprosent,it.fraDato,it.tilDato,1.0,1.0,1.0)
                 }

@@ -8,12 +8,12 @@ import java.net.URI
 
 @Service
 class GraphApiService(
-        @Qualifier("påVegneAvSaksbehandlerProxyRestTemplate")
-        val påVegneAvSaksbehandlerProxyRestTemplate: RestTemplate,
+        @Qualifier("påVegneAvSaksbehandlerGraphRestTemplate")
+        val påVegneAvSaksbehandlerGraphRestTemplate: RestTemplate,
         @Value("\${tiltak-refusjon.graph-api.uri}") val graphApiUri: URI
 ) {
     fun hentNavIdent(): NavIdent {
-        val response = påVegneAvSaksbehandlerProxyRestTemplate.getForObject(graphApiUri, GraphApiResponse::class.java)
+        val response = påVegneAvSaksbehandlerGraphRestTemplate.getForObject(graphApiUri, GraphApiResponse::class.java)
         return response?.let { NavIdent(it.onPremisesSamAccountName) } ?: throw RuntimeException("Finner ikke navident")
     }
 

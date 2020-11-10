@@ -23,6 +23,9 @@ class SecurityClientConfiguration(
 ) {
 
     @Bean
+    fun påVegneAvSaksbehandlerGraphRestTemplate() = restTemplateForRegistration("aad-graph")
+
+    @Bean
     fun påVegneAvSaksbehandlerProxyRestTemplate() = restTemplateForRegistration("aad")
 
     @Bean

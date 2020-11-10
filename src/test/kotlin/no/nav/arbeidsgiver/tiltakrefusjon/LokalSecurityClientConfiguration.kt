@@ -7,6 +7,9 @@ import org.springframework.context.annotation.Configuration
 @Configuration
 class LokalSecurityClientConfiguration(val restTemplateBuilder: RestTemplateBuilder) {
     @Bean
+    fun påVegneAvSaksbehandlerGraphRestTemplate() = restTemplateBuilder.build()
+
+    @Bean
     fun påVegneAvSaksbehandlerProxyRestTemplate() = restTemplateBuilder.build()
 
     @Bean

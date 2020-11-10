@@ -1,6 +1,8 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.inntekt
 
+import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.response.ArbeidsInntektMaaned
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.response.InntektResponse
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Inntektslinje
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
@@ -21,12 +23,23 @@ class InntektskomponentConsumer {
 
     private val restTemplate: RestTemplate = RestTemplate()
 
-
     private val url:String = "http://localhost:8090/inntekskomponenten/hentinntektliste"
 
-    fun hentInntekter(fnr: String, periodeStart: LocalDate, periodeSlutt: LocalDate): InntektResponse? {
-        val response = restTemplate.exchange<InntektResponse>(getUrl(fnr,periodeStart,periodeSlutt), HttpMethod.POST, hentHttpHeaders())
-        return response.body
+    fun hentInntekter(fnr: String, periodeStart: LocalDate, periodeSlutt: LocalDate): List<Inntektslinje> {
+        val response = restTemplate.exchange<InntektResponse>(getUrl(fnr, periodeStart, periodeSlutt), HttpMethod.POST, hentHttpHeaders())
+        return inntekterForBedrift(response.body!!.arbeidsInntektMaaned) ?: emptyList()
+    }
+
+    private fun inntekterForBedrift(månedsInntektList: List<ArbeidsInntektMaaned>?): List<Inntektslinje>? {
+        val listeMedInntekter =  månedsInntektList!!.first().arbeidsInntektInformasjon?.inntektListe?.map {
+                   Inntektslinje(it.inntektType!!,
+                            it.beloep.toDouble(),
+                            YearMonth.parse(it.utbetaltIMaaned),
+                            LocalDate.parse(it.opptjeningsperiodeFom),
+                            LocalDate.parse(it.opptjeningsperiodeTom))
+                }
+
+        return listeMedInntekter
     }
 
     private fun hentHttpHeaders(): HttpEntity<HttpHeaders> {
@@ -40,7 +53,7 @@ class InntektskomponentConsumer {
         return UriComponentsBuilder.fromHttpUrl(url)
                 .queryParam("ident", fnr)
                 .queryParam("maanedFom", (YearMonth.of(periodeStart.year, periodeStart.month)))
-                .queryParam("maanedTom",  (YearMonth.of(periodeSlutt.year, periodeSlutt.month)))
+                .queryParam("maanedTom", (YearMonth.of(periodeSlutt.year, periodeSlutt.month)))
                 .queryParam("ainntektsfilter", AINNTEKT_FILTER)
                 .build()
                 .toUri()

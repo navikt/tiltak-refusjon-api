@@ -85,7 +85,7 @@ class RefusjonApiTest(
 
         // S^
         assertEquals(1, liste!!.size)
-        assertNotNull(liste.find { refusjon -> refusjon?.deltakerFnr.equals("07049223182")
+        assertNotNull(liste.find { refusjon -> refusjon?.deltakerFnr.equals("28128521498")
                 && refusjon?.bedriftnummer.equals("998877665") })
     }
 

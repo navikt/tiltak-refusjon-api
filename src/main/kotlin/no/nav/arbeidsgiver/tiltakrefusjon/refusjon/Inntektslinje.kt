@@ -6,7 +6,7 @@ import java.time.YearMonth
 import kotlin.streams.toList
 
 data class Inntektslinje(
-        val inntektType: String = "LØNNSINNTEKT",
+        val inntektType: String = "LOENNSINNTEKT",
         val beløp: Double = 0.0,
         val måned: YearMonth = YearMonth.now(),
         val opptjeningsperiodeFom: LocalDate = måned.atDay(1),
@@ -23,7 +23,7 @@ data class Inntektslinje(
     private fun erHverdag(dato: LocalDate) = dato.dayOfWeek != DayOfWeek.SATURDAY && dato.dayOfWeek != DayOfWeek.SUNDAY
     fun hentBeløpPerDag() = beløp / hentAntallDagerOpptjent()
 
-    fun erLønnsinntekt() = inntektType == "LØNNSINNTEKT" && beløp > 0.0
+    fun erLønnsinntekt() = inntektType == "LOENNSINNTEKT" && beløp > 0.0
     fun tilDagsatsForPeriode(datoFra: LocalDate, datoTil: LocalDate):Dagsats = Dagsats(hentBeløpPerDag(),hentAntallDagerOpptjent(datoFra,datoTil))
 
 }

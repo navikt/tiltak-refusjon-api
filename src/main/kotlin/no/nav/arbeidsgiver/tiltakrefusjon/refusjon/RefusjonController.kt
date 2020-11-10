@@ -52,11 +52,8 @@ class RefusjonController(val refusjonRepository: RefusjonRepository,
         val fom = LocalDate.of(YearMonth.parse(datoFom).year, YearMonth.parse(datoFom).month, 1)
         val tom = LocalDate.of(YearMonth.parse(datoTom).year, YearMonth.parse(datoTom).month, 1)
         val inntekter = inntektskomponentConsumer.hentInntekter(deltakerfnr,fom, tom)
-        // hent av innteker for person....
-        // koble det inn i refusjon objektet om blir returnert
-        // lag en test som tester at innkter er fylt inn
         return refusjon.map{
-                    Refusjonsgrunnlag(emptyList(),it.stillingsprosent,it.fraDato,it.tilDato,1.0,1.0,1.0)
+                    Refusjonsgrunnlag(inntekter,it.stillingsprosent,it.fraDato,it.tilDato,1.0,1.0,1.0)
                 }
     }
 

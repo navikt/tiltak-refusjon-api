@@ -67,7 +67,7 @@ class RefusjonApiTest(
 
         // S^
         assertEquals(1, refusjonsgrunnlag!!.size)
-        assertEquals(1, refusjonsgrunnlag.first().inntekter.size)
+        assertEquals(3, refusjonsgrunnlag.first().inntekter.size)
     }
 
 
@@ -76,7 +76,7 @@ class RefusjonApiTest(
         // GITT
         val bedriftnummer = "998877665"
         val deltakerFnr = "28128521498"
-        val datoRefusjonPeriodeFom = "2020-09"
+        val datoRefusjonPeriodeFom = "2020-08"
         val datoRefusjonPeriodeTom = "2020-10"
 
         // NÅR

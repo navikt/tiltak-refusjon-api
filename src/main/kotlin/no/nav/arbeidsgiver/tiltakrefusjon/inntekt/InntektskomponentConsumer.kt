@@ -1,5 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.inntekt
 
+import InntektListe
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.response.ArbeidsInntektMaaned
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.response.InntektResponse
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Inntektslinje
@@ -23,26 +24,43 @@ class InntektskomponentConsumer {
 
     private val restTemplate: RestTemplate = RestTemplate()
 
+    //TODO: Sliter med å få denne fra application.yaml
     private val url:String = "http://localhost:8090/inntekskomponenten/hentinntektliste"
 
     fun hentInntekter(fnr: String, bedriftnummer:String,periodeStart: LocalDate, periodeSlutt: LocalDate): List<Inntektslinje> {
         val response = restTemplate.exchange<InntektResponse>(getUrl(fnr, periodeStart, periodeSlutt), HttpMethod.POST, hentHttpHeaders())
-        val arbeidsInntektMaaned = response.body!!.arbeidsInntektMaaned?.first()
-        return inntekterForBedrift(arbeidsInntektMaaned, bedriftnummer) ?: emptyList()
+        val arbeidsInntektMaaned = response.body!!.arbeidsInntektMaaned
+        return  inntekterForBedrift(arbeidsInntektMaaned, bedriftnummer) ?: emptyList()
     }
 
-    private fun inntekterForBedrift(månedsInntektList: ArbeidsInntektMaaned?,bedriftnummer:String): List<Inntektslinje>? {
-        val listeMedInntekter =  månedsInntektList!!
-                .arbeidsInntektInformasjon?.inntektListe?.filter{ it.virksomhet?.identifikator?.toString().equals(bedriftnummer) }
-                ?.map {
-                   Inntektslinje(it.inntektType!!,
-                            it.beloep.toDouble(),
-                            YearMonth.parse(it.utbetaltIMaaned),
-                            LocalDate.parse(it.opptjeningsperiodeFom),
-                            LocalDate.parse(it.opptjeningsperiodeTom))
-                }
+    private fun inntekterForBedrift(månedsInntektList: List<ArbeidsInntektMaaned>?, bedriftnummerDetSøkesOm:String): List<Inntektslinje>? {
+        val inntekterTotalt = mutableListOf<Inntektslinje>()
 
-        return listeMedInntekter
+        månedsInntektList?.forEach {
+            var arbeidsinntektListe: List<InntektListe>? = it.arbeidsInntektInformasjon?.inntektListe
+            arbeidsinntektListe?.filter{
+                it.virksomhet?.identifikator?.toString().equals(bedriftnummerDetSøkesOm)
+            }?.forEach {
+                        //TODO: Den best måten å håndtere null verdier på her?
+                        var fom: LocalDate? = null
+                        var tom: LocalDate? = null
+                        if(!it.opptjeningsperiodeFom.isNullOrEmpty()){
+                            fom = LocalDate.parse(it.opptjeningsperiodeFom)
+                        }
+                        if(!it.opptjeningsperiodeTom.isNullOrEmpty()){
+                            tom = LocalDate.parse(it.opptjeningsperiodeTom)
+                        }
+
+                        val inntekt = Inntektslinje(it.inntektType!!,
+                                it.beloep.toDouble(),
+                                YearMonth.parse(it.utbetaltIMaaned),
+                                fom, tom
+                        )
+                        inntekterTotalt.add(inntekt)
+                    }
+
+        }
+        return inntekterTotalt
     }
 
     private fun hentHttpHeaders(): HttpEntity<HttpHeaders> {

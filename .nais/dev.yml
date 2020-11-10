@@ -1,6 +1,8 @@
 host:
   - api-gw-q0.oera.no
   - tiltak-proxy.dev-fss-pub.nais.io
+  - graph.microsoft.com
+  - login.microsoftonline.com
 tenant: trygdeetaten.no
 slack_alert_channel: arbeidsgiver-notifications-test
 env:

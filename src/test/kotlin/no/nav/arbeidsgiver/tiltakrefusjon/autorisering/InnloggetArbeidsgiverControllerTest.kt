@@ -3,7 +3,6 @@ package no.nav.arbeidsgiver.tiltakrefusjon.autorisering
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Fnr
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonRepository
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -18,11 +17,11 @@ class InnloggetArbeidsgiverControllerTest {
     var innloggetArbeidsgiverService: InnloggetArbeidsgiverService = mockk<InnloggetArbeidsgiverService>()
     var altinnTilgangsstyringService: AltinnTilgangsstyringService = mockk<AltinnTilgangsstyringService>()
     var refusjonRepository: RefusjonRepository = mockk<RefusjonRepository>()
-    lateinit var innloggetArbeidsgiverController: InnloggetArbeidsgiverController
+    lateinit var innloggetArbeidsgiverController: InnloggetBrukerController
 
     @BeforeEach
     fun setup(){
-        innloggetArbeidsgiverController = InnloggetArbeidsgiverController(innloggetArbeidsgiverService, refusjonRepository)
+        innloggetArbeidsgiverController = InnloggetBrukerController(innloggetArbeidsgiverService, refusjonRepository)
     }
 
     @Test

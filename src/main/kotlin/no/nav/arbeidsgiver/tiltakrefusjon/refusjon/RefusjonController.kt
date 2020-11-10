@@ -49,6 +49,7 @@ class RefusjonController(val refusjonRepository: RefusjonRepository,
     @GetMapping("/beregn/deltaker/{deltakerfnr}/bedrift/{bedriftnummer}/fra/{datoFom}/til/{datoTom}")
     fun hentBeregnetRefusjonForPeriodeDeltakerOgBedrift(@PathVariable deltakerfnr: String,@PathVariable bedriftnummer: String,@PathVariable datoFom: String,@PathVariable datoTom: String): List<Refusjonsgrunnlag> {
         val refusjon = hentRefusjonForBedriftOgDeltakerInnenPeriode(datoFom, datoTom, deltakerfnr, bedriftnummer)
+        // TODO: hente avtale informasjon her ifra?
         return refusjon
                 .map{
                     //TODO: Hente inntekter for refusjonsperiode eller oppsøkt periode?

@@ -51,7 +51,7 @@ class RefusjonController(val refusjonRepository: RefusjonRepository,
 
     @GetMapping("/deltaker/{deltakerfnr}/bedrift/{bedriftnummer}/fra/{datoFom}/til/{datoTom}")
     fun hentRefusjonForPeriodeDeltakerOgBedrift(@PathVariable deltakerfnr: String,@PathVariable bedriftnummer: String,@PathVariable datoFom: String,@PathVariable datoTom: String): Refusjon {
-         return refusjonRepository.findOneByDeltakerFnrAndBedriftnummerAndFraDatoGreaterThanEqualAndTilDatoLessThanEqual(deltakerfnr, bedriftnummer, LocalDate.parse(datoFom), LocalDate.parse(datoTom))
+         return refusjonRepository.findOneByDeltakerFnrAndBedriftnummerAndFraDatoGreaterThanEqualAndTilDatoLessThanEqual(deltakerfnr, bedriftnummer, LocalDate.parse(datoFom), LocalDate.parse(datoTom))!!
     }
 
 

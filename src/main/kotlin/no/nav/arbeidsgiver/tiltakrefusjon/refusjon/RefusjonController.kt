@@ -68,8 +68,9 @@ class RefusjonController(val refusjonRepository: RefusjonRepository,
         return refusjon;
     }
 
+    // Til testformål
     @PostMapping
-    fun opprett(@RequestBody refusjon: Refusjon): Refusjon { //TODO Hvem kan opprette?
+    fun opprett(@RequestBody refusjon: Refusjon): Refusjon {
         return refusjonRepository.save(refusjon)
     }
 

@@ -19,10 +19,10 @@ import java.time.YearMonth
 
 
 @Service
-class InntektskomponentConsumer(@Value("\${tiltak-refusjon.integrasjon.inntektskomponenten-uri}") val url: String) {
-    private val AINNTEKT_FILTER = "KontrollArbeidsmarkedstiltakA-inntekt"
-    private val CONSUMER_ID_VAL = "tiltak-refusjon-api"
-    private val CALL_ID_VAL = "halo01"
+class InntektskomponentConsumer(@Value("\${tiltak-refusjon.inntektskomponenten.uri}") val url: String,
+                                @Value("\${tiltak-refusjon.inntektskomponenten.filter}") val ainntektsfilter: String,
+                                @Value("\${tiltak-refusjon.inntektskomponenten.consumer-id}") val consumerId: String,
+                                @Value("\${tiltak-refusjon.inntektskomponenten.call-id}") val callId: String) {
 
     private val restTemplate: RestTemplate = RestTemplate()
 
@@ -71,8 +71,8 @@ class InntektskomponentConsumer(@Value("\${tiltak-refusjon.integrasjon.inntektsk
 
     private fun hentHttpHeaders(): HttpEntity<HttpHeaders> {
         val httpHeaders = HttpHeaders()
-        httpHeaders.set("Nav-Consumer-Id", CONSUMER_ID_VAL)
-        httpHeaders["Nav-Call-Id"] = CALL_ID_VAL
+        httpHeaders.set("Nav-Consumer-Id", consumerId)
+        httpHeaders["Nav-Call-Id"] = callId
         return HttpEntity(httpHeaders)
     }
 
@@ -81,7 +81,7 @@ class InntektskomponentConsumer(@Value("\${tiltak-refusjon.integrasjon.inntektsk
                 .queryParam("ident", fnr)
                 .queryParam("maanedFom", (YearMonth.of(periodeStart.year, periodeStart.month)))
                 .queryParam("maanedTom", (YearMonth.of(periodeSlutt.year, periodeSlutt.month)))
-                .queryParam("ainntektsfilter", AINNTEKT_FILTER)
+                .queryParam("ainntektsfilter", ainntektsfilter)
                 .build()
                 .toUri()
     }

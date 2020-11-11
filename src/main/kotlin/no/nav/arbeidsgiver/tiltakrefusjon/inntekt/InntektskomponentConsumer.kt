@@ -19,24 +19,27 @@ import java.time.YearMonth
 
 
 @Service
-class InntektskomponentConsumer( @Value("\${tiltak-refusjon.integrasjon.inntektskomponenten-uri}") val url:String) {
+class InntektskomponentConsumer(@Value("\${tiltak-refusjon.integrasjon.inntektskomponenten-uri}") val url: String) {
     private val AINNTEKT_FILTER = "KontrollArbeidsmarkedstiltakA-inntekt"
     private val CONSUMER_ID_VAL = "tiltak-refusjon-api"
     private val CALL_ID_VAL = "halo01"
 
     private val restTemplate: RestTemplate = RestTemplate()
 
-    fun hentInntekter(refusjonsberegningRequest:RefusjonsberegningRequest): List<Inntektslinje> {
+    fun hentInntekter(refusjonsberegningRequest: RefusjonsberegningRequest): List<Inntektslinje> {
         //TODO
         // Feil håndtering
-        // Exceptions
         // Logging
-        val response = restTemplate.exchange<InntektResponse>(getUrl(refusjonsberegningRequest.fnr!!, LocalDate.parse( refusjonsberegningRequest.refusjonFraDato!!),    LocalDate.parse(refusjonsberegningRequest.refusjonTilDato!!)), HttpMethod.POST, hentHttpHeaders())
-        val arbeidsInntektMaaned = response.body!!.arbeidsInntektMaaned
-        return  inntekterForBedrift(arbeidsInntektMaaned,   refusjonsberegningRequest.bedriftNr!!) ?: emptyList()
+        try{
+            val response = restTemplate.exchange<InntektResponse>(getUrl(refusjonsberegningRequest.fnr!!, LocalDate.parse(refusjonsberegningRequest.refusjonFraDato!!), LocalDate.parse(refusjonsberegningRequest.refusjonTilDato!!)), HttpMethod.POST, hentHttpHeaders())
+            val arbeidsInntektMaaned = response.body!!.arbeidsInntektMaaned
+            return  inntekterForBedrift(arbeidsInntektMaaned, refusjonsberegningRequest.bedriftNr!!) ?: emptyList()
+        }catch (ex: Exception){
+            throw HentingAvInntektException()
+        }
     }
 
-    private fun inntekterForBedrift(månedsInntektList: List<ArbeidsInntektMaaned>?, bedriftnummerDetSøkesOm:String): List<Inntektslinje>? {
+    private fun inntekterForBedrift(månedsInntektList: List<ArbeidsInntektMaaned>?, bedriftnummerDetSøkesOm: String): List<Inntektslinje>? {
         val inntekterTotalt = mutableListOf<Inntektslinje>()
 
         månedsInntektList?.forEach {

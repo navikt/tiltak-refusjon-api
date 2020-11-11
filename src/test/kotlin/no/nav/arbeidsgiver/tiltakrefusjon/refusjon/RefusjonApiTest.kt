@@ -62,7 +62,7 @@ class RefusjonApiTest(
         val datoRefusjonPeriodeTom = "2020-10"
 
         // NÅR
-        val json = sendRequest(get("$REQUEST_MAPPING/beregn/deltaker/$deltakerFnr/bedrift/$bedriftnummer/fra/$datoRefusjonPeriodeFom/til/$datoRefusjonPeriodeTom"), arbGiverCookie)
+        val json = sendRequest(get("$REQUEST_MAPPING/beregn/?deltakerfnr=$deltakerFnr&bedriftnummer=$bedriftnummer&datoFom=$datoRefusjonPeriodeFom&datoTom=$datoRefusjonPeriodeTom"), arbGiverCookie)
         val refusjonsgrunnlag = mapper.readValue(json, object : TypeReference<List<Refusjonsgrunnlag>?>() {})
 
         // S^
@@ -76,7 +76,7 @@ class RefusjonApiTest(
         // GITT
         val bedriftnummer = "998877665"
         val deltakerFnr = "28128521498"
-        val datoRefusjonPeriodeFom = "2020-08"
+        val datoRefusjonPeriodeFom = "2020-09"
         val datoRefusjonPeriodeTom = "2020-10"
 
         // NÅR

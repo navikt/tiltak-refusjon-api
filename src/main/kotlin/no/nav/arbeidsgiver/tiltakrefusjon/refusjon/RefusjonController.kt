@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpStatusCodeException
@@ -35,7 +36,7 @@ class RefusjonController(val refusjonRepository: RefusjonRepository,
                          val altinnTilgangsstyringService: AltinnTilgangsstyringService,
                          val abacTilgangsstyringService: AbacTilgangsstyringService) {
 
-    @GetMapping("/beregn")
+    @GetMapping("/beregn/grunnlag")
     fun beregn(grunnlag: Refusjonsgrunnlag): Int {
         return grunnlag.hentBeregnetGrunnlag()
     }
@@ -46,8 +47,8 @@ class RefusjonController(val refusjonRepository: RefusjonRepository,
         return innloggetBruker.finnAlle();
     }
 
-    @GetMapping("/beregn/deltaker/{deltakerfnr}/bedrift/{bedriftnummer}/fra/{datoFom}/til/{datoTom}")
-    fun hentBeregnetRefusjonForPeriodeDeltakerOgBedrift(@PathVariable deltakerfnr: String,@PathVariable bedriftnummer: String,@PathVariable datoFom: String,@PathVariable datoTom: String): List<Refusjonsgrunnlag> {
+    @GetMapping("/beregn")
+    fun hentBeregnetRefusjonForPeriodeDeltakerOgBedrift(@RequestParam deltakerfnr: String, @RequestParam bedriftnummer: String, @RequestParam datoFom: String, @RequestParam datoTom: String): List<Refusjonsgrunnlag> {
         val refusjon = hentRefusjonForBedriftOgDeltakerInnenPeriode(datoFom, datoTom, deltakerfnr, bedriftnummer)
         // TODO: hente avtale informasjon her ifra?
         return refusjon

@@ -72,8 +72,6 @@ no.nav.security.jwt:
         token-exchange:
           audience: "dev-fss:arbeidsgiver:tiltak-proxy"
 
-inntektskomponenten:
-  url: Hello
 tiltak-refusjon:
   integrasjon:
     inntektskomponenten-uri: https://app.adeo.no/inntektskomponenten-ws/rs/api/v1/hentinntektliste

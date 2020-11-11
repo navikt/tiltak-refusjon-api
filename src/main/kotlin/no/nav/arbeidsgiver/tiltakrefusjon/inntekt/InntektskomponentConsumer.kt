@@ -5,6 +5,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.response.ArbeidsInntektMaaned
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.response.InntektResponse
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Inntektslinje
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonsberegningRequest
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
@@ -18,15 +19,12 @@ import java.time.YearMonth
 
 
 @Service
-class InntektskomponentConsumer {
+class InntektskomponentConsumer( @Value("\${tiltak-refusjon.integrasjon.inntektskomponenten-uri}") val url:String) {
     private val AINNTEKT_FILTER = "KontrollArbeidsmarkedstiltakA-inntekt"
     private val CONSUMER_ID_VAL = "tiltak-refusjon-api"
     private val CALL_ID_VAL = "halo01"
 
     private val restTemplate: RestTemplate = RestTemplate()
-
-    //TODO: Sliter med å få denne fra application.yaml
-    private val url:String = "http://localhost:8090/inntekskomponenten/hentinntektliste"
 
     fun hentInntekter(refusjonsberegningRequest:RefusjonsberegningRequest): List<Inntektslinje> {
         val response = restTemplate.exchange<InntektResponse>(getUrl(refusjonsberegningRequest.fnr!!,  refusjonsberegningRequest.refusjonFraDato!!,    refusjonsberegningRequest.refusjonTilDato!!), HttpMethod.POST, hentHttpHeaders())

@@ -26,9 +26,6 @@ logging:
   level:
     no.nav.arbeidsgiver.tiltakrefusjon: DEBUG
 
-inntektskomponenten:
-  url: Hello
-
 tiltak-refusjon:
   integrasjon:
     inntektskomponenten-uri: http://localhost:8090/inntekskomponenten/hentinntektliste

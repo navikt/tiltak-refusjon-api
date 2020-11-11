@@ -42,3 +42,5 @@ tiltak-refusjon:
     uri: http://localhost:8090/abac-tilgangstyring
     username: na
     password: na
+  graph-api:
+    uri: http://localhost:8090/graph-api

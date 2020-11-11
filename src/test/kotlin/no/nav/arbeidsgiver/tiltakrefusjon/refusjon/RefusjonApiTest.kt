@@ -68,7 +68,7 @@ class RefusjonApiTest(
         val json = sendRequest(post("$REQUEST_MAPPING/beregn",refusjonsberegningRequest), arbGiverCookie)
         val refusjonsgrunnlag = mapper.readValue(json, object : TypeReference<List<Refusjonsgrunnlag>?>() {})
 
-        // S^
+        // SÅ
         assertEquals(1, refusjonsgrunnlag!!.size)
         assertEquals(3, refusjonsgrunnlag.first().inntekter.size)
     }

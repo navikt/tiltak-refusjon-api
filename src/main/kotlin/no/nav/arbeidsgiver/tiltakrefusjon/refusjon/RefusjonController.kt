@@ -45,10 +45,12 @@ class RefusjonController(val refusjonRepository: RefusjonRepository,
         return innloggetBruker.finnAlle();
     }
 
+    //TODO: Riktig Request objekt?
     @PostMapping("/beregn")
     fun hentBeregnetRefusjonForPeriodeDeltakerOgBedrift(@RequestBody refusjonsberegningRequest: RefusjonsberegningRequest): List<Refusjonsgrunnlag> {
+        //TODO: Flere refusjoner for gitt periode, bedrift og deltaker?
         val refusjon:List<Refusjon> =  refusjonRepository.findByDeltakerFnrAndBedriftnummerAndFraDatoGreaterThanEqualAndTilDatoLessThanEqual(refusjonsberegningRequest.fnr!!, refusjonsberegningRequest.bedriftNr!!, refusjonsberegningRequest.refusjonFraDato!!, refusjonsberegningRequest.refusjonTilDato!!)
-        // TODO: hente avtale informasjon her ifra?
+        // TODO: hente avtale informasjon her ifra for å få ulike sats i beregningen?
         return refusjon
                 .map{
                     //TODO: Hente inntekter for refusjonsperiode eller oppsøkt periode?

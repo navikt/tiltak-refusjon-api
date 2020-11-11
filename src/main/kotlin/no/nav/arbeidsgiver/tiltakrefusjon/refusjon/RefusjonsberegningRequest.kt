@@ -6,4 +6,8 @@ data class RefusjonsberegningRequest  (
         var bedriftNr: String? = null,
         var refusjonFraDato: String? = null,
         var refusjonTilDato: String? = null
-)
+){
+    fun erUtfylt():Boolean{
+        return !(fnr.isNullOrEmpty() || bedriftNr.isNullOrEmpty() || refusjonFraDato.isNullOrEmpty() || refusjonTilDato.isNullOrEmpty())
+    }
+}

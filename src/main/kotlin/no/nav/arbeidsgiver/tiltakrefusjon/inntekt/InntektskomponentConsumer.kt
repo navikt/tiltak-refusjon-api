@@ -5,6 +5,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.response.ArbeidsInntektMaaned
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.response.InntektResponse
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Inntektslinje
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonsberegningRequest
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
@@ -25,6 +26,7 @@ class InntektskomponentConsumer(@Value("\${tiltak-refusjon.inntektskomponenten.u
                                 @Value("\${tiltak-refusjon.inntektskomponenten.call-id}") val callId: String) {
 
     private val restTemplate: RestTemplate = RestTemplate()
+    private val log = LoggerFactory.getLogger(InntektskomponentConsumer::class.java)
 
     fun hentInntekter(refusjonsberegningRequest: RefusjonsberegningRequest): List<Inntektslinje> {
         try{
@@ -32,6 +34,7 @@ class InntektskomponentConsumer(@Value("\${tiltak-refusjon.inntektskomponenten.u
             val inntekter = response.body!!.arbeidsInntektMaaned
             return  inntekterForBedrift(inntekter, refusjonsberegningRequest.bedriftNr)
         }catch (ex: Exception){
+             log.warn("Kall til Inntektskomponenten feilet: {}", ex.message)
             throw HentingAvInntektException()
         }
     }

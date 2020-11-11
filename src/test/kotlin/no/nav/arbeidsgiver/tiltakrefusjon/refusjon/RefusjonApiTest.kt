@@ -56,6 +56,26 @@ class RefusjonApiTest(
     }
 
     @Test
+    fun `hentBeregnetRefusjon() for deltaker, bedrift og periode når request  periode er ikke helt utfylt`(){
+        // GITT
+        val bedriftnummer = "998877000"
+        val deltakerFnr = "28128521000"
+        val datoRefusjonPeriodeFom ="aaaa"
+        val datoRefusjonPeriodeTom = "asdasds"
+        val refusjonsberegningRequest = RefusjonsberegningRequest(deltakerFnr, bedriftnummer, datoRefusjonPeriodeFom, datoRefusjonPeriodeTom)
+
+        // NÅR
+        val request = post("$REQUEST_MAPPING/beregn")
+                .content( ObjectMapper().writeValueAsString(refusjonsberegningRequest))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+
+        mockMvc.perform(request)
+                .andExpect(status().isUnauthorized)
+    }
+
+
+    @Test
     fun `hentBeregnetRefusjon() for deltaker, bedrift og periode når request er ikke helt utfylt`(){
         // GITT
         val bedriftnummer = "    "

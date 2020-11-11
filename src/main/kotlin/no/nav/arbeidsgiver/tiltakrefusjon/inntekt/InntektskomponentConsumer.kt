@@ -6,6 +6,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.response.InntektResponse
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Inntektslinje
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonsberegningRequest
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
@@ -17,15 +18,15 @@ import org.springframework.web.util.UriComponentsBuilder
 import java.net.URI
 import java.time.LocalDate
 import java.time.YearMonth
+import java.util.UUID
 
 
 @Service
 class InntektskomponentConsumer(@Value("\${tiltak-refusjon.inntektskomponenten.uri}") val url: String,
                                 @Value("\${tiltak-refusjon.inntektskomponenten.filter}") val ainntektsfilter: String,
                                 @Value("\${tiltak-refusjon.inntektskomponenten.consumer-id}") val consumerId: String,
-                                @Value("\${tiltak-refusjon.inntektskomponenten.call-id}") val callId: String) {
+                                @Qualifier("anonymProxyRestTemplate") val restTemplate: RestTemplate) {
 
-    private val restTemplate: RestTemplate = RestTemplate()
     private val log = LoggerFactory.getLogger(InntektskomponentConsumer::class.java)
 
     fun hentInntekter(refusjonsberegningRequest: RefusjonsberegningRequest): List<Inntektslinje> {
@@ -67,7 +68,7 @@ class InntektskomponentConsumer(@Value("\${tiltak-refusjon.inntektskomponenten.u
     private fun hentHttpHeaders(): HttpEntity<HttpHeaders> {
         val httpHeaders = HttpHeaders()
         httpHeaders.set("Nav-Consumer-Id", consumerId)
-        httpHeaders["Nav-Call-Id"] = callId
+        httpHeaders["Nav-Call-Id"] = UUID.randomUUID().toString()
         return HttpEntity(httpHeaders)
     }
 

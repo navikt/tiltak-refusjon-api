@@ -5,7 +5,7 @@ import kotlin.math.roundToInt
 
 data class Refusjonsgrunnlag(
         val inntekter: List<Inntektslinje>,
-        val refusjonsgrad: Int,
+        val stillingsprosent: Int,
         val datoRefusjonstart: LocalDate,
         val datoRefusjonslutt: LocalDate,
         var arbeidsgiveravgiftSats: Double,
@@ -26,7 +26,7 @@ data class Refusjonsgrunnlag(
                     totalBeløpPerDag.times(dagsats.dager)
                 }
                 .sum()
-                .times(refusjonsgrad / 100.0)
+                .times(stillingsprosent / 100.0)
                 .roundToInt()
     }
 }

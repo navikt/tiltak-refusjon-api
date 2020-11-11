@@ -9,7 +9,7 @@ class RefusjonsberegningService(val refusjonRepository: RefusjonRepository, val 
     fun hentGrunnlag(refusjonsberegningRequest: RefusjonsberegningRequest):Refusjonsgrunnlag{
         val refusjon:Refusjon =  refusjonRepository.findOneByDeltakerFnrAndBedriftnummerAndFraDatoGreaterThanEqualAndTilDatoLessThanEqual(refusjonsberegningRequest.fnr!!, refusjonsberegningRequest.bedriftNr!!, refusjonsberegningRequest.refusjonFraDato!!, refusjonsberegningRequest.refusjonTilDato!!)
         val inntekter = inntektskomponentConsumer.hentInntekter(refusjonsberegningRequest)
-        return Refusjonsgrunnlag(inntekter,refusjon.stillingsprosent,refusjon.fraDato,refusjon.tilDato,refusjon.satsArbeidsgiveravgift,refusjon.satsFeriepenger,0.2)
+        return Refusjonsgrunnlag(inntekter,refusjon.stillingsprosent,refusjon.fraDato,refusjon.tilDato,refusjon.satsArbeidsgiveravgift,refusjon.satsFeriepenger,0.02)
     }
 
 }

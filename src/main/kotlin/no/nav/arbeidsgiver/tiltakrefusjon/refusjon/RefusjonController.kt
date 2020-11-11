@@ -45,7 +45,6 @@ class RefusjonController(val refusjonRepository: RefusjonRepository,
         return innloggetBruker.finnAlle();
     }
 
-    //TODO: Riktig Request objekt?
     @PostMapping("/beregn")
     fun hentBeregnetRefusjonForPeriodeDeltakerOgBedrift(@RequestBody refusjonsberegningRequest: RefusjonsberegningRequest): List<Refusjonsgrunnlag> {
         //TODO: Flere refusjoner for gitt periode, bedrift og deltaker?

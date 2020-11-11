@@ -11,6 +11,8 @@ data class Refusjonsgrunnlag(
         var arbeidsgiveravgiftSats: Double,
         var feriepengerSats: Double
 ) {
+
+    constructor(  inntekter: List<Inntektslinje>, refusjon:Refusjon): this(inntekter,refusjon.stillingsprosent,refusjon.fraDato,refusjon.tilDato,refusjon.satsArbeidsgiveravgift,refusjon.satsFeriepenger)
     private val TJENESTEPENSJON_SATS = 0.02
 
     fun hentBeregnetGrunnlag(): Int {

@@ -24,8 +24,10 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.ResultMatcher
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import java.time.LocalDate
 import java.util.Date
 import java.util.UUID
 import javax.servlet.http.Cookie
@@ -58,11 +60,12 @@ class RefusjonApiTest(
         // GITT
         val bedriftnummer = "998877665"
         val deltakerFnr = "28128521498"
-        val datoRefusjonPeriodeFom = "2020-09"
-        val datoRefusjonPeriodeTom = "2020-10"
+        val datoRefusjonPeriodeFom = LocalDate.parse( "2020-09-01")
+        val datoRefusjonPeriodeTom = LocalDate.parse("2020-10-01")
+        val refusjonsberegningRequest = RefusjonsberegningRequest(deltakerFnr,bedriftnummer,datoRefusjonPeriodeFom,datoRefusjonPeriodeTom)
 
         // NÅR
-        val json = sendRequest(get("$REQUEST_MAPPING/beregn/?deltakerfnr=$deltakerFnr&bedriftnummer=$bedriftnummer&datoFom=$datoRefusjonPeriodeFom&datoTom=$datoRefusjonPeriodeTom"), arbGiverCookie)
+        val json = sendRequest(post("$REQUEST_MAPPING/beregn",refusjonsberegningRequest), arbGiverCookie)
         val refusjonsgrunnlag = mapper.readValue(json, object : TypeReference<List<Refusjonsgrunnlag>?>() {})
 
         // S^
@@ -76,8 +79,8 @@ class RefusjonApiTest(
         // GITT
         val bedriftnummer = "998877665"
         val deltakerFnr = "28128521498"
-        val datoRefusjonPeriodeFom = "2020-09"
-        val datoRefusjonPeriodeTom = "2020-10"
+        val datoRefusjonPeriodeFom = "2020-09-01"
+        val datoRefusjonPeriodeTom = "2020-10-01"
 
         // NÅR
         val json = sendRequest(get("$REQUEST_MAPPING/deltaker/$deltakerFnr/bedrift/$bedriftnummer/fra/$datoRefusjonPeriodeFom/til/$datoRefusjonPeriodeTom"), arbGiverCookie)

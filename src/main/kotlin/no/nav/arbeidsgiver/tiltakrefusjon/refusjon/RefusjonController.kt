@@ -17,12 +17,10 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpStatusCodeException
 import java.time.LocalDate
-import java.time.YearMonth
 import javax.servlet.http.HttpServletResponse
 
 const val REQUEST_MAPPING = "/api/refusjon"
@@ -47,27 +45,21 @@ class RefusjonController(val refusjonRepository: RefusjonRepository,
         return innloggetBruker.finnAlle();
     }
 
-    @GetMapping("/beregn")
-    fun hentBeregnetRefusjonForPeriodeDeltakerOgBedrift(@RequestParam deltakerfnr: String, @RequestParam bedriftnummer: String, @RequestParam datoFom: String, @RequestParam datoTom: String): List<Refusjonsgrunnlag> {
-        val refusjon = hentRefusjonForBedriftOgDeltakerInnenPeriode(datoFom, datoTom, deltakerfnr, bedriftnummer)
+    @PostMapping("/beregn")
+    fun hentBeregnetRefusjonForPeriodeDeltakerOgBedrift(@RequestBody refusjonsberegningRequest: RefusjonsberegningRequest): List<Refusjonsgrunnlag> {
+        val refusjon:List<Refusjon> =  refusjonRepository.findByDeltakerFnrAndBedriftnummerAndFraDatoGreaterThanEqualAndTilDatoLessThanEqual(refusjonsberegningRequest.fnr!!, refusjonsberegningRequest.bedriftNr!!, refusjonsberegningRequest.refusjonFraDato!!, refusjonsberegningRequest.refusjonTilDato!!)
         // TODO: hente avtale informasjon her ifra?
         return refusjon
                 .map{
                     //TODO: Hente inntekter for refusjonsperiode eller oppsøkt periode?
-                    val inntekter = inntektskomponentConsumer.hentInntekter(deltakerfnr,bedriftnummer,it.fraDato,it.tilDato)
+                    val inntekter = inntektskomponentConsumer.hentInntekter(refusjonsberegningRequest.fnr!!,refusjonsberegningRequest.bedriftNr!!,it.fraDato,it.tilDato)
                     Refusjonsgrunnlag(inntekter,it.stillingsprosent,it.fraDato,it.tilDato,1.0,1.0,1.0)
                 }
     }
 
     @GetMapping("/deltaker/{deltakerfnr}/bedrift/{bedriftnummer}/fra/{datoFom}/til/{datoTom}")
     fun hentRefusjonForPeriodeDeltakerOgBedrift(@PathVariable deltakerfnr: String,@PathVariable bedriftnummer: String,@PathVariable datoFom: String,@PathVariable datoTom: String): List<Refusjon> {
-        return hentRefusjonForBedriftOgDeltakerInnenPeriode(datoFom, datoTom, deltakerfnr, bedriftnummer)
-    }
-
-    private fun hentRefusjonForBedriftOgDeltakerInnenPeriode(datoFom: String, datoTom: String, deltakerfnr: String, bedriftnummer: String): List<Refusjon> {
-        val fom = LocalDate.of(YearMonth.parse(datoFom).year, YearMonth.parse(datoFom).month, 1)
-        val tom = LocalDate.of(YearMonth.parse(datoTom).year, YearMonth.parse(datoTom).month, 1)
-        return refusjonRepository.findByDeltakerFnrAndBedriftnummerAndFraDatoGreaterThanEqualAndTilDatoLessThanEqual(deltakerfnr, bedriftnummer, fom, tom)
+        return  return refusjonRepository.findByDeltakerFnrAndBedriftnummerAndFraDatoGreaterThanEqualAndTilDatoLessThanEqual(deltakerfnr, bedriftnummer, LocalDate.parse(datoFom), LocalDate.parse(datoTom))
     }
 
 

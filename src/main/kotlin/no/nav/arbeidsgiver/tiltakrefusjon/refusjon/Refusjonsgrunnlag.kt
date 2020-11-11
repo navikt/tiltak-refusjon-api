@@ -9,9 +9,10 @@ data class Refusjonsgrunnlag(
         val datoRefusjonstart: LocalDate,
         val datoRefusjonslutt: LocalDate,
         var arbeidsgiveravgiftSats: Double,
-        var feriepengerSats: Double,
-        var tjenestepensjonSats: Double
+        var feriepengerSats: Double
 ) {
+    private val TJENESTEPENSJON_SATS = 0.02
+
     fun hentBeregnetGrunnlag(): Int {
         return inntekter
                 .filter(Inntektslinje::erLønnsinntekt)
@@ -19,7 +20,7 @@ data class Refusjonsgrunnlag(
                 .map { dagsats ->
                     val beløpPerDag = dagsats.beløp
                     val feriepengerPerDag = beløpPerDag * feriepengerSats
-                    val tjenestepensjonPerDag = (beløpPerDag + feriepengerPerDag) * tjenestepensjonSats
+                    val tjenestepensjonPerDag = (beløpPerDag + feriepengerPerDag) * TJENESTEPENSJON_SATS
                     val arbeidsgiveravgiftPerDag = (beløpPerDag + tjenestepensjonPerDag + feriepengerPerDag) * arbeidsgiveravgiftSats
                     val totalBeløpPerDag =  beløpPerDag + tjenestepensjonPerDag + feriepengerPerDag + arbeidsgiveravgiftPerDag
 

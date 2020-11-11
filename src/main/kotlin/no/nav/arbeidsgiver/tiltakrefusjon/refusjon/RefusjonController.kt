@@ -5,7 +5,6 @@ import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetArbeidsgiver
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBruker
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBrukerService
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetSaksbehandler
-import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentConsumer
 import no.nav.security.token.support.core.api.Protected
 import no.nav.security.token.support.spring.validation.interceptor.JwtTokenUnauthorizedException
 import org.springframework.data.repository.findByIdOrNull
@@ -30,7 +29,7 @@ const val REQUEST_MAPPING = "/api/refusjon"
 @Protected
 class RefusjonController(val refusjonRepository: RefusjonRepository,
                          val innloggetBrukerService: InnloggetBrukerService,
-                         val inntektskomponentConsumer: InntektskomponentConsumer,
+                         val refusjonsberegningService: RefusjonsberegningService,
                          val altinnTilgangsstyringService: AltinnTilgangsstyringService,
                          val abacTilgangsstyringService: AbacTilgangsstyringService) {
 
@@ -47,9 +46,7 @@ class RefusjonController(val refusjonRepository: RefusjonRepository,
 
     @PostMapping("/beregn")
     fun hentBeregnetRefusjonForPeriodeDeltakerOgBedrift(@RequestBody refusjonsberegningRequest: RefusjonsberegningRequest): Refusjonsgrunnlag {
-        val refusjon:Refusjon =  refusjonRepository.findOneByDeltakerFnrAndBedriftnummerAndFraDatoGreaterThanEqualAndTilDatoLessThanEqual(refusjonsberegningRequest.fnr!!, refusjonsberegningRequest.bedriftNr!!, refusjonsberegningRequest.refusjonFraDato!!, refusjonsberegningRequest.refusjonTilDato!!)
-        val inntekter = inntektskomponentConsumer.hentInntekter(refusjonsberegningRequest)
-        return Refusjonsgrunnlag(inntekter,refusjon.stillingsprosent,refusjon.fraDato,refusjon.tilDato,refusjon.satsArbeidsgiveravgift,refusjon.satsFeriepenger,0.2)
+     return refusjonsberegningService.hentGrunnlag(refusjonsberegningRequest)
     }
 
     @GetMapping("/deltaker/{deltakerfnr}/bedrift/{bedriftnummer}/fra/{datoFom}/til/{datoTom}")

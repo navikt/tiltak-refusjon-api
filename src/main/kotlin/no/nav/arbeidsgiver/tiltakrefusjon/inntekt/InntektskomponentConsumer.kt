@@ -4,6 +4,7 @@ import InntektListe
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.response.ArbeidsInntektMaaned
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.response.InntektResponse
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Inntektslinje
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonException
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonsberegningRequest
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpEntity
@@ -31,6 +32,9 @@ class InntektskomponentConsumer(@Value("\${tiltak-refusjon.inntektskomponenten.u
         // Feil håndtering
         // Logging
         try{
+            if(!refusjonsberegningRequest.erUtfylt()){
+                throw RefusjonException("Refusjonsberegning er ikke utfylt av bruker")
+            }
             val response = restTemplate.exchange<InntektResponse>(getUrl(refusjonsberegningRequest.fnr!!, LocalDate.parse(refusjonsberegningRequest.refusjonFraDato!!), LocalDate.parse(refusjonsberegningRequest.refusjonTilDato!!)), HttpMethod.POST, hentHttpHeaders())
             val arbeidsInntektMaaned = response.body!!.arbeidsInntektMaaned
             return  inntekterForBedrift(arbeidsInntektMaaned, refusjonsberegningRequest.bedriftNr!!) ?: emptyList()

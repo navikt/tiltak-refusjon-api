@@ -46,9 +46,6 @@ class RefusjonController(val refusjonRepository: RefusjonRepository,
 
     @PostMapping("/beregn")
     fun hentBeregnetRefusjonForPeriodeDeltakerOgBedrift(@RequestBody refusjonsberegningRequest: RefusjonsberegningRequest): Refusjonsgrunnlag {
-        if(!refusjonsberegningRequest.erUtfylt()){
-            throw RefusjonException("Refusjonsberegning er ikke utfylt av bruker")
-        }
         return refusjonsberegningService.hentGrunnlag(refusjonsberegningRequest)
     }
 

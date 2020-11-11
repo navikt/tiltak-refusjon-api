@@ -28,9 +28,9 @@ class InntektskomponentConsumer(@Value("\${tiltak-refusjon.inntektskomponenten.u
 
     fun hentInntekter(refusjonsberegningRequest: RefusjonsberegningRequest): List<Inntektslinje> {
         try{
-            val response = restTemplate.exchange<InntektResponse>(getUrl(refusjonsberegningRequest.fnr, LocalDate.parse(refusjonsberegningRequest.refusjonFraDato), LocalDate.parse(refusjonsberegningRequest.refusjonTilDato)), HttpMethod.POST, hentHttpHeaders())
-            val arbeidsInntektMaaned = response.body!!.arbeidsInntektMaaned
-            return  inntekterForBedrift(arbeidsInntektMaaned, refusjonsberegningRequest.bedriftNr) ?: emptyList()
+            val response = restTemplate.exchange<InntektResponse>(getUrl(refusjonsberegningRequest), HttpMethod.POST, hentHttpHeaders())
+            val inntekter = response.body!!.arbeidsInntektMaaned
+            return  inntekterForBedrift(inntekter, refusjonsberegningRequest.bedriftNr) ?: emptyList()
         }catch (ex: Exception){
             throw HentingAvInntektException()
         }
@@ -73,9 +73,11 @@ class InntektskomponentConsumer(@Value("\${tiltak-refusjon.inntektskomponenten.u
         return HttpEntity(httpHeaders)
     }
 
-    private fun getUrl(fnr: String, periodeStart: LocalDate, periodeSlutt: LocalDate): URI {
+    private fun getUrl(refusjonsberegningRequest: RefusjonsberegningRequest): URI {
+        val periodeStart = LocalDate.parse(refusjonsberegningRequest.refusjonFraDato)
+        val periodeSlutt =  LocalDate.parse(refusjonsberegningRequest.refusjonTilDato)
         return UriComponentsBuilder.fromHttpUrl(url)
-                .queryParam("ident", fnr)
+                .queryParam("ident", refusjonsberegningRequest.fnr)
                 .queryParam("maanedFom", (YearMonth.of(periodeStart.year, periodeStart.month)))
                 .queryParam("maanedTom", (YearMonth.of(periodeSlutt.year, periodeSlutt.month)))
                 .queryParam("ainntektsfilter", ainntektsfilter)

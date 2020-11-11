@@ -30,21 +30,17 @@ class InntektskomponentConsumer(@Value("\${tiltak-refusjon.inntektskomponenten.u
         try{
             val response = restTemplate.exchange<InntektResponse>(getUrl(refusjonsberegningRequest), HttpMethod.POST, hentHttpHeaders())
             val inntekter = response.body!!.arbeidsInntektMaaned
-            return  inntekterForBedrift(inntekter, refusjonsberegningRequest.bedriftNr) ?: emptyList()
+            return  inntekterForBedrift(inntekter, refusjonsberegningRequest.bedriftNr)
         }catch (ex: Exception){
             throw HentingAvInntektException()
         }
     }
 
-    private fun inntekterForBedrift(månedsInntektList: List<ArbeidsInntektMaaned>?, bedriftnummerDetSøkesOm: String): List<Inntektslinje>? {
+    private fun inntekterForBedrift(månedsInntektList: List<ArbeidsInntektMaaned>?, bedriftnummerDetSøkesOm: String): List<Inntektslinje> {
         val inntekterTotalt = mutableListOf<Inntektslinje>()
-
         månedsInntektList?.forEach {
-            var arbeidsinntektListe: List<InntektListe>? = it.arbeidsInntektInformasjon?.inntektListe
-            arbeidsinntektListe?.filter{
-                it.virksomhet?.identifikator?.toString().equals(bedriftnummerDetSøkesOm)
-            }?.forEach {
-                        //TODO: Den best måten å håndtere null verdier på her?
+            val arbeidsinntektListe: List<InntektListe>? = it.arbeidsInntektInformasjon?.inntektListe
+            arbeidsinntektListe?.filter{it.virksomhet?.identifikator?.toString().equals(bedriftnummerDetSøkesOm)}?.forEach {
                         var fom: LocalDate? = null
                         var tom: LocalDate? = null
                         if(!it.opptjeningsperiodeFom.isNullOrEmpty()){
@@ -61,7 +57,6 @@ class InntektskomponentConsumer(@Value("\${tiltak-refusjon.inntektskomponenten.u
                         )
                         inntekterTotalt.add(inntekt)
                     }
-
         }
         return inntekterTotalt
     }

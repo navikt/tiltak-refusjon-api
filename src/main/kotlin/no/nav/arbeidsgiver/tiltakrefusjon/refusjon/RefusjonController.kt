@@ -53,8 +53,7 @@ class RefusjonController(val refusjonRepository: RefusjonRepository,
         // TODO: hente avtale informasjon her ifra for å få ulike sats i beregningen?
         return refusjon
                 .map{
-                    //TODO: Hente inntekter for refusjonsperiode eller oppsøkt periode?
-                    val inntekter = inntektskomponentConsumer.hentInntekter(refusjonsberegningRequest.fnr!!,refusjonsberegningRequest.bedriftNr!!,it.fraDato,it.tilDato)
+                    val inntekter = inntektskomponentConsumer.hentInntekter(refusjonsberegningRequest.fnr!!,refusjonsberegningRequest.bedriftNr!!,refusjonsberegningRequest.refusjonFraDato,refusjonsberegningRequest.refusjonTilDato)
                     Refusjonsgrunnlag(inntekter,it.stillingsprosent,it.fraDato,it.tilDato,1.0,1.0,1.0)
                 }
     }

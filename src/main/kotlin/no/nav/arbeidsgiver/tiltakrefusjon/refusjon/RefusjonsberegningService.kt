@@ -7,9 +7,11 @@ import java.time.LocalDate
 @Service
 class RefusjonsberegningService(val refusjonRepository: RefusjonRepository, val inntektskomponentConsumer: InntektskomponentConsumer) {
     fun hentGrunnlag(refusjonsberegningRequest: RefusjonsberegningRequest):Refusjonsgrunnlag{
-        //TODO: Sjekk om refusjonsrequest inneholder tomme verdier med en metode i den og kasat en ekseption
-        val refusjon:Refusjon =  refusjonRepository.findOneByDeltakerFnrAndBedriftnummerAndFraDatoGreaterThanEqualAndTilDatoLessThanEqual(refusjonsberegningRequest.fnr!!, refusjonsberegningRequest.bedriftNr!!, LocalDate.parse(refusjonsberegningRequest.refusjonFraDato!!), LocalDate.parse(refusjonsberegningRequest.refusjonTilDato!!))
+        if(!refusjonsberegningRequest.erUtfylt()){
+            throw RefusjonException("Refusjonsberegning er ikke utfylt av bruker")
+        }
         val inntekter = inntektskomponentConsumer.hentInntekter(refusjonsberegningRequest)
+        val refusjon:Refusjon =  refusjonRepository.findOneByDeltakerFnrAndBedriftnummerAndFraDatoGreaterThanEqualAndTilDatoLessThanEqual(refusjonsberegningRequest.fnr, refusjonsberegningRequest.bedriftNr, LocalDate.parse(refusjonsberegningRequest.refusjonFraDato), LocalDate.parse(refusjonsberegningRequest.refusjonTilDato))
         return Refusjonsgrunnlag(inntekter,refusjon.stillingsprosent,refusjon.fraDato,refusjon.tilDato,refusjon.satsArbeidsgiveravgift,refusjon.satsFeriepenger)
     }
 

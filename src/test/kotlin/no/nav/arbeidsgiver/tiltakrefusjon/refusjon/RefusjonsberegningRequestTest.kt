@@ -10,7 +10,7 @@ class RefusjonsberegningRequestTest{
     @Test
     fun `skal kunne si at alt er ikke utfylt når noen felter er ikke satt`(){
         // GITT
-        val request =  RefusjonsberegningRequest("00000000001",null,"2020-01-01",null)
+        val request =  RefusjonsberegningRequest("00000000001"," ","2020-01-01","  ")
 
         // SÅ
         assertFalse(request.erUtfylt())
@@ -19,7 +19,7 @@ class RefusjonsberegningRequestTest{
     @Test
     fun `skal kunne si at alt er ikke utfylt`(){
         // GITT
-        val request =  RefusjonsberegningRequest(null,null,null,null)
+        val request =  RefusjonsberegningRequest(" ","  ","  ","  ")
 
         // SÅ
         assertFalse(request.erUtfylt())

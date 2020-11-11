@@ -4,6 +4,7 @@ import InntektListe
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.response.ArbeidsInntektMaaned
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.response.InntektResponse
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Inntektslinje
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonsberegningRequest
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
@@ -27,10 +28,10 @@ class InntektskomponentConsumer {
     //TODO: Sliter med å få denne fra application.yaml
     private val url:String = "http://localhost:8090/inntekskomponenten/hentinntektliste"
 
-    fun hentInntekter(fnr: String, bedriftnummer:String,periodeStart: LocalDate, periodeSlutt: LocalDate): List<Inntektslinje> {
-        val response = restTemplate.exchange<InntektResponse>(getUrl(fnr, periodeStart, periodeSlutt), HttpMethod.POST, hentHttpHeaders())
+    fun hentInntekter(refusjonsberegningRequest:RefusjonsberegningRequest): List<Inntektslinje> {
+        val response = restTemplate.exchange<InntektResponse>(getUrl(refusjonsberegningRequest.fnr!!,  refusjonsberegningRequest.refusjonFraDato!!,    refusjonsberegningRequest.refusjonTilDato!!), HttpMethod.POST, hentHttpHeaders())
         val arbeidsInntektMaaned = response.body!!.arbeidsInntektMaaned
-        return  inntekterForBedrift(arbeidsInntektMaaned, bedriftnummer) ?: emptyList()
+        return  inntekterForBedrift(arbeidsInntektMaaned,   refusjonsberegningRequest.bedriftNr!!) ?: emptyList()
     }
 
     private fun inntekterForBedrift(månedsInntektList: List<ArbeidsInntektMaaned>?, bedriftnummerDetSøkesOm:String): List<Inntektslinje>? {

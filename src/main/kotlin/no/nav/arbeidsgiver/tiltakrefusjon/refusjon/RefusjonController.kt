@@ -52,7 +52,7 @@ class RefusjonController(val refusjonRepository: RefusjonRepository,
         val refusjon:List<Refusjon> =  refusjonRepository.findByDeltakerFnrAndBedriftnummerAndFraDatoGreaterThanEqualAndTilDatoLessThanEqual(refusjonsberegningRequest.fnr!!, refusjonsberegningRequest.bedriftNr!!, refusjonsberegningRequest.refusjonFraDato!!, refusjonsberegningRequest.refusjonTilDato!!)
         return refusjon
                 .map{
-                    val inntekter = inntektskomponentConsumer.hentInntekter(refusjonsberegningRequest.fnr!!,refusjonsberegningRequest.bedriftNr!!,refusjonsberegningRequest.refusjonFraDato,refusjonsberegningRequest.refusjonTilDato)
+                    val inntekter = inntektskomponentConsumer.hentInntekter(refusjonsberegningRequest)
                     Refusjonsgrunnlag(inntekter,it.stillingsprosent,it.fraDato,it.tilDato,it.satsArbeidsgiveravgift,it.satsFeriepenger,0.2)
                 }
     }

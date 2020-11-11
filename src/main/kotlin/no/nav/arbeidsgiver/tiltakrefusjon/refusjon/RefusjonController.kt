@@ -50,7 +50,6 @@ class RefusjonController(val refusjonRepository: RefusjonRepository,
     fun hentBeregnetRefusjonForPeriodeDeltakerOgBedrift(@RequestBody refusjonsberegningRequest: RefusjonsberegningRequest): List<Refusjonsgrunnlag> {
         //TODO: Flere refusjoner for gitt periode, bedrift og deltaker?
         val refusjon:List<Refusjon> =  refusjonRepository.findByDeltakerFnrAndBedriftnummerAndFraDatoGreaterThanEqualAndTilDatoLessThanEqual(refusjonsberegningRequest.fnr!!, refusjonsberegningRequest.bedriftNr!!, refusjonsberegningRequest.refusjonFraDato!!, refusjonsberegningRequest.refusjonTilDato!!)
-        // TODO: hente avtale informasjon her ifra for å få ulike sats i beregningen?
         return refusjon
                 .map{
                     val inntekter = inntektskomponentConsumer.hentInntekter(refusjonsberegningRequest.fnr!!,refusjonsberegningRequest.bedriftNr!!,refusjonsberegningRequest.refusjonFraDato,refusjonsberegningRequest.refusjonTilDato)

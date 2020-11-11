@@ -54,7 +54,7 @@ class RefusjonController(val refusjonRepository: RefusjonRepository,
         return refusjon
                 .map{
                     val inntekter = inntektskomponentConsumer.hentInntekter(refusjonsberegningRequest.fnr!!,refusjonsberegningRequest.bedriftNr!!,refusjonsberegningRequest.refusjonFraDato,refusjonsberegningRequest.refusjonTilDato)
-                    Refusjonsgrunnlag(inntekter,it.stillingsprosent,it.fraDato,it.tilDato,1.0,1.0,1.0)
+                    Refusjonsgrunnlag(inntekter,it.stillingsprosent,it.fraDato,it.tilDato,it.satsArbeidsgiveravgift,it.satsFeriepenger,0.2)
                 }
     }
 

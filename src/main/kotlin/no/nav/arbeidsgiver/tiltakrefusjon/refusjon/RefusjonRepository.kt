@@ -5,6 +5,6 @@ import java.time.LocalDate
 
 interface RefusjonRepository: JpaRepository<Refusjon, String>{
     fun findByBedriftnummer(Bedriftnummer:String):List<Refusjon>
-    fun findByDeltakerFnrAndBedriftnummerAndFraDatoGreaterThanEqualAndTilDatoLessThanEqual(DeltakerFnr:String, Bedriftnummer:String, fraDato:LocalDate, tilDato:LocalDate):List<Refusjon>
+    fun findOneByDeltakerFnrAndBedriftnummerAndFraDatoGreaterThanEqualAndTilDatoLessThanEqual(DeltakerFnr:String, Bedriftnummer:String, fraDato:LocalDate, tilDato:LocalDate):Refusjon
 }
 

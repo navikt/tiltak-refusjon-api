@@ -84,12 +84,12 @@ class RefusjonApiTest(
 
         // NÅR
         val json = sendRequest(get("$REQUEST_MAPPING/deltaker/$deltakerFnr/bedrift/$bedriftnummer/fra/$datoRefusjonPeriodeFom/til/$datoRefusjonPeriodeTom"), arbGiverCookie)
-        val liste = mapper.readValue(json, object : TypeReference<List<Refusjon?>?>() {})
+        val refusjon = mapper.readValue(json, object : TypeReference<Refusjon?>() {})
 
         // S^
-        assertEquals(1, liste!!.size)
-        assertNotNull(liste.find { refusjon -> refusjon?.deltakerFnr.equals("28128521498")
-                && refusjon?.bedriftnummer.equals("998877665") })
+        assertNotNull(refusjon)
+        assertNotNull(refusjon?.deltakerFnr.equals("28128521498")
+                && refusjon?.bedriftnummer.equals("998877665"))
     }
 
 

@@ -27,7 +27,11 @@ class InntektskomponentConsumer( @Value("\${tiltak-refusjon.integrasjon.inntekts
     private val restTemplate: RestTemplate = RestTemplate()
 
     fun hentInntekter(refusjonsberegningRequest:RefusjonsberegningRequest): List<Inntektslinje> {
-        val response = restTemplate.exchange<InntektResponse>(getUrl(refusjonsberegningRequest.fnr!!,  refusjonsberegningRequest.refusjonFraDato!!,    refusjonsberegningRequest.refusjonTilDato!!), HttpMethod.POST, hentHttpHeaders())
+        //TODO
+        // Feil håndtering
+        // Exceptions
+        // Logging
+        val response = restTemplate.exchange<InntektResponse>(getUrl(refusjonsberegningRequest.fnr!!, LocalDate.parse( refusjonsberegningRequest.refusjonFraDato!!),    LocalDate.parse(refusjonsberegningRequest.refusjonTilDato!!)), HttpMethod.POST, hentHttpHeaders())
         val arbeidsInntektMaaned = response.body!!.arbeidsInntektMaaned
         return  inntekterForBedrift(arbeidsInntektMaaned,   refusjonsberegningRequest.bedriftNr!!) ?: emptyList()
     }

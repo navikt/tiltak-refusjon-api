@@ -27,7 +27,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import java.time.LocalDate
 import java.util.Date
 import java.util.UUID
 import javax.servlet.http.Cookie
@@ -60,16 +59,21 @@ class RefusjonApiTest(
         // GITT
         val bedriftnummer = "998877665"
         val deltakerFnr = "28128521498"
-        val datoRefusjonPeriodeFom = LocalDate.parse( "2020-09-01")
-        val datoRefusjonPeriodeTom = LocalDate.parse("2020-10-01")
-        val refusjonsberegningRequest = RefusjonsberegningRequest(deltakerFnr,bedriftnummer,datoRefusjonPeriodeFom,datoRefusjonPeriodeTom)
+        val datoRefusjonPeriodeFom ="2020-09-01"
+        val datoRefusjonPeriodeTom = "2020-10-01"
+        val refusjonsberegningRequest = RefusjonsberegningRequest(deltakerFnr, bedriftnummer, datoRefusjonPeriodeFom, datoRefusjonPeriodeTom)
 
         // NÅR
-        val json = sendRequest(post("$REQUEST_MAPPING/beregn",refusjonsberegningRequest), arbGiverCookie)
+        val request = post("$REQUEST_MAPPING/beregn")
+                .content( ObjectMapper().writeValueAsString(refusjonsberegningRequest))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+
+        val json = sendRequest(request, arbGiverCookie)
         val refusjonsgrunnlag = mapper.readValue(json, object : TypeReference<Refusjonsgrunnlag?>() {})
 
         // SÅ
-        assertNotNull( refusjonsgrunnlag!!)
+        assertNotNull(refusjonsgrunnlag!!)
         assertEquals(3, refusjonsgrunnlag.inntekter.size)
     }
 

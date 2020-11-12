@@ -7,6 +7,37 @@
         "urlPath": "/inntekskomponenten/hentinntektliste",
         "queryParameters": {
           "ident": {
+            "matches": "00\\d{9}"
+          },
+          "ainntektsfilter":{
+            "matches": "KontrollArbeidsmarkedstiltakA-inntekt"
+          },
+          "maanedFom":{"matches": "^\\d{4}-\\d{2}$"},
+          "maanedTom":{"matches": "^\\d{4}-\\d{2}$"}
+        }
+      },
+      "response": {
+        "status": 200,
+        "jsonBody":
+        {
+
+        }
+      ,
+        "headers": {
+          "Content-Type": "application/json",
+          "Accept":"application/json",
+          "Nav-consumer-Id":"tiltak-refusjon",
+          "Nav-Call-Id":"hoppla1"
+        }
+      }
+    },
+    {
+      "priority": 2,
+      "request": {
+        "method": "POST",
+        "urlPath": "/inntekskomponenten/hentinntektliste",
+        "queryParameters": {
+          "ident": {
             "matches": "\\d{11}"
           },
           "ainntektsfilter":{

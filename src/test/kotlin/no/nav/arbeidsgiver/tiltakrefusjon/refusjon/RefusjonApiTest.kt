@@ -55,6 +55,28 @@ class RefusjonApiTest(
         refusjonRepository.saveAll(refusjoner())
     }
 
+
+    @Test
+    fun `hentBeregnetRefusjon() for deltaker, bedrift og periode når response inneholder ikke inntekter fra inntektskomponenten`(){
+        // GITT
+        val bedriftnummer = "998877000"
+        val deltakerFnr = "00128521000"
+        val datoRefusjonPeriodeFom ="2020-09-01"
+        val datoRefusjonPeriodeTom = "2020-10-01"
+        val refusjonsberegningRequest = RefusjonsberegningRequest(deltakerFnr, bedriftnummer, datoRefusjonPeriodeFom, datoRefusjonPeriodeTom)
+
+        // NÅR
+        val request = post("$REQUEST_MAPPING/beregn")
+                .content( ObjectMapper().writeValueAsString(refusjonsberegningRequest))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .cookie(arbGiverCookie)
+
+        mockMvc.perform(request)
+                .andExpect(status().isServiceUnavailable)
+    }
+
+
     @Test
     fun `hentBeregnetRefusjon() for deltaker, bedrift og periode når request  periode er ikke helt utfylt`(){
         // GITT
@@ -69,9 +91,10 @@ class RefusjonApiTest(
                 .content( ObjectMapper().writeValueAsString(refusjonsberegningRequest))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
+                .cookie(arbGiverCookie)
 
         mockMvc.perform(request)
-                .andExpect(status().isUnauthorized)
+                .andExpect(status().isServiceUnavailable)
     }
 
 
@@ -89,9 +112,10 @@ class RefusjonApiTest(
                 .content( ObjectMapper().writeValueAsString(refusjonsberegningRequest))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
+                .cookie(arbGiverCookie)
 
         mockMvc.perform(request)
-                .andExpect(status().isUnauthorized)
+                .andExpect(status().isServiceUnavailable)
     }
 
     @Test
@@ -108,9 +132,10 @@ class RefusjonApiTest(
                 .content( ObjectMapper().writeValueAsString(refusjonsberegningRequest))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
+                .cookie(arbGiverCookie)
 
         mockMvc.perform(request)
-                .andExpect(status().isUnauthorized)
+                .andExpect(status().isServiceUnavailable)
     }
 
     @Test
@@ -127,10 +152,11 @@ class RefusjonApiTest(
                 .content( ObjectMapper().writeValueAsString(refusjonsberegningRequest))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
+                .cookie(arbGiverCookie)
 
         // SÅ
         mockMvc.perform(request)
-                .andExpect(status().isUnauthorized)
+                .andExpect(status().isServiceUnavailable)
 
 
     }

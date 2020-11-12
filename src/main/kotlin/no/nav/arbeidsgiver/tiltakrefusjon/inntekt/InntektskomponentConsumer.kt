@@ -30,8 +30,8 @@ class InntektskomponentConsumer(@Value("\${tiltak-refusjon.inntektskomponenten.u
 
     fun hentInntekter(fnr:String, bedriftnummerDetSøkesPå: String, datoFra:LocalDate, datoTil:LocalDate): List<Inntektslinje> {
         try{
-            val responseMedInntekterForDeltaker = restTemplate.exchange<InntektResponse>(getUrl(fnr, datoFra,datoTil), HttpMethod.POST, hentHttpHeaders())
-            val inntekter = responseMedInntekterForDeltaker.body!!.arbeidsInntektMaaned
+            val responseMedInntekterForDeltaker = restTemplate.exchange<InntektResponse>(getUrl(fnr, datoFra,datoTil), HttpMethod.POST, hentHttpHeaders()).body
+            val inntekter = responseMedInntekterForDeltaker?.arbeidsInntektMaaned ?: throw HentingAvInntektException()
             return  inntekterForBedrift(inntekter, bedriftnummerDetSøkesPå)
         }catch (ex: Exception){
              log.warn("Kall til Inntektskomponenten feilet: {}", ex.message)

@@ -43,22 +43,23 @@ class InntektskomponentConsumer(@Value("\${tiltak-refusjon.inntektskomponenten.u
         val inntekterTotalt = mutableListOf<Inntektslinje>()
         månedsInntektList?.forEach {
             val arbeidsinntektListe: List<InntektListe>? = it.arbeidsInntektInformasjon?.inntektListe
-            arbeidsinntektListe?.filter{it.virksomhet?.identifikator?.toString().equals(bedriftnummerDetSøkesPå)}?.forEach {
-                        var fom: LocalDate? = null
-                        var tom: LocalDate? = null
+            arbeidsinntektListe?.filter{ it.virksomhet?.identifikator.toString() == bedriftnummerDetSøkesPå }?.forEach {
+                        var dateFraOpptjenningsperiode: LocalDate? = null
+                        var datoTilOpptjenningsperiode: LocalDate? = null
                         if(!it.opptjeningsperiodeFom.isNullOrEmpty()){
-                            fom = LocalDate.parse(it.opptjeningsperiodeFom)
+                            dateFraOpptjenningsperiode = LocalDate.parse(it.opptjeningsperiodeFom)
                         }
                         if(!it.opptjeningsperiodeTom.isNullOrEmpty()){
-                            tom = LocalDate.parse(it.opptjeningsperiodeTom)
+                            datoTilOpptjenningsperiode = LocalDate.parse(it.opptjeningsperiodeTom)
                         }
 
-                        val inntekt = Inntektslinje(it.inntektType!!,
-                                it.beloep.toDouble(),
-                                YearMonth.parse(it.utbetaltIMaaned),
-                                fom, tom
+                        inntekterTotalt.add(
+                                Inntektslinje(
+                                        it.inntektType,
+                                        it.beloep.toDouble(),
+                                        YearMonth.parse(it.utbetaltIMaaned),
+                                        dateFraOpptjenningsperiode, datoTilOpptjenningsperiode)
                         )
-                        inntekterTotalt.add(inntekt)
                     }
         }
         return inntekterTotalt

@@ -1,5 +1,5 @@
 data class InntektListe (
-	val inntektType : String?,
+	val inntektType : String,
 	val beloep : Int,
 	val fordel : String?,
 	val inntektskilde : String?,

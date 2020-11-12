@@ -10,10 +10,10 @@ class RefusjonsberegningService(val refusjonRepository: RefusjonRepository, val 
         if(!refusjonsberegningRequest.erUtfylt()){
             throw RefusjonException("Refusjonsberegning er ikke riktig utfylt")
         }
-        val fraDato = LocalDate.parse(refusjonsberegningRequest.refusjonFraDato)
-        val tilDato = LocalDate.parse(refusjonsberegningRequest.refusjonTilDato)
-        val inntekter = inntektskomponentConsumer.hentInntekter(refusjonsberegningRequest.fnr,refusjonsberegningRequest.bedriftNr,fraDato,tilDato)
-        val refusjon: Refusjon? =  refusjonRepository.findOneByDeltakerFnrAndBedriftnummerAndFraDatoGreaterThanEqualAndTilDatoLessThanEqual(refusjonsberegningRequest.fnr, refusjonsberegningRequest.bedriftNr, fraDato, tilDato)
+        val refusjonFraDato = LocalDate.parse(refusjonsberegningRequest.refusjonFraDato)
+        val refusjonTilDato = LocalDate.parse(refusjonsberegningRequest.refusjonTilDato)
+        val inntekter = inntektskomponentConsumer.hentInntekter(refusjonsberegningRequest.fnr,refusjonsberegningRequest.bedriftNr,refusjonFraDato,refusjonTilDato)
+        val refusjon: Refusjon? =  refusjonRepository.findOneByDeltakerFnrAndBedriftnummerAndFraDatoGreaterThanEqualAndTilDatoLessThanEqual(refusjonsberegningRequest.fnr, refusjonsberegningRequest.bedriftNr, refusjonFraDato, refusjonTilDato)
         if(refusjon == null){
             throw RefusjonException("Refusjon ikke funnet")
         }

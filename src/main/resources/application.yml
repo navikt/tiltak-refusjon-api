@@ -81,6 +81,10 @@ no.nav.security.jwt:
           audience: "dev-fss:arbeidsgiver:tiltak-proxy"
 
 tiltak-refusjon:
+  inntektskomponenten:
+    uri: http://localhost:8090/inntekskomponenten/hentinntektliste
+    filter: KontrollArbeidsmarkedstiltakA-inntekt
+    consumer-id: tiltak-refusjon-api
   altinn-tilgangstyring:
     altinnApiKey: ${ALTINN_API_KEY}
     apiGwApiKey: ${ALTINN_API_GW_API_KEY}

@@ -7,7 +7,11 @@ import no.nav.arbeidsgiver.tiltakrefusjon.enRefusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjoner
 import no.nav.security.token.support.test.JwkGenerator
 import no.nav.security.token.support.test.JwtTokenGenerator
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -21,17 +25,19 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.ResultMatcher
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import java.util.*
+import java.util.Date
+import java.util.UUID
 import javax.servlet.http.Cookie
 
 
 @SpringBootTest
 @ActiveProfiles("local")
 @AutoConfigureMockMvc
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @AutoConfigureWireMock(port = 8090)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class RefusjonApiTest(
         @Autowired val refusjonRepository: RefusjonRepository,
         @Autowired val mapper: ObjectMapper,
@@ -48,6 +54,155 @@ class RefusjonApiTest(
     fun setUp() {
         refusjonRepository.saveAll(refusjoner())
     }
+
+
+    @Test
+    fun `hentBeregnetRefusjon() for deltaker, bedrift og periode når response inneholder ikke inntekter fra inntektskomponenten`(){
+        // GITT
+        val bedriftnummer = "998877000"
+        val deltakerFnr = "00128521000"
+        val datoRefusjonPeriodeFom ="2020-09-01"
+        val datoRefusjonPeriodeTom = "2020-10-01"
+        val refusjonsberegningRequest = RefusjonsberegningRequest(deltakerFnr, bedriftnummer, datoRefusjonPeriodeFom, datoRefusjonPeriodeTom)
+
+        // NÅR
+        val request = post("$REQUEST_MAPPING/beregn")
+                .content( ObjectMapper().writeValueAsString(refusjonsberegningRequest))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .cookie(arbGiverCookie)
+
+        mockMvc.perform(request)
+                .andExpect(status().isServiceUnavailable)
+    }
+
+
+    @Test
+    fun `hentBeregnetRefusjon() for deltaker, bedrift og periode når request  periode er ikke helt utfylt`(){
+        // GITT
+        val bedriftnummer = "998877000"
+        val deltakerFnr = "28128521000"
+        val datoRefusjonPeriodeFom ="aaaa"
+        val datoRefusjonPeriodeTom = "asdasds"
+        val refusjonsberegningRequest = RefusjonsberegningRequest(deltakerFnr, bedriftnummer, datoRefusjonPeriodeFom, datoRefusjonPeriodeTom)
+
+        // NÅR
+        val request = post("$REQUEST_MAPPING/beregn")
+                .content( ObjectMapper().writeValueAsString(refusjonsberegningRequest))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .cookie(arbGiverCookie)
+
+        mockMvc.perform(request)
+                .andExpect(status().isServiceUnavailable)
+    }
+
+
+    @Test
+    fun `hentBeregnetRefusjon() for deltaker, bedrift og periode når request er ikke helt utfylt`(){
+        // GITT
+        val bedriftnummer = "    "
+        val deltakerFnr = "   "
+        val datoRefusjonPeriodeFom ="2020-09-01"
+        val datoRefusjonPeriodeTom = "2020-10-01"
+        val refusjonsberegningRequest = RefusjonsberegningRequest(deltakerFnr, bedriftnummer, datoRefusjonPeriodeFom, datoRefusjonPeriodeTom)
+
+        // NÅR
+        val request = post("$REQUEST_MAPPING/beregn")
+                .content( ObjectMapper().writeValueAsString(refusjonsberegningRequest))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .cookie(arbGiverCookie)
+
+        mockMvc.perform(request)
+                .andExpect(status().isServiceUnavailable)
+    }
+
+    @Test
+    fun `hentBeregnetRefusjon() for deltaker, bedrift og periode når request ident inneholder ugyldig tegn`(){
+        // GITT
+        val bedriftnummer = "998877665"
+        val deltakerFnr = "aaaa_asd28128521498"
+        val datoRefusjonPeriodeFom ="2020-09-01"
+        val datoRefusjonPeriodeTom = "2020-10-01"
+        val refusjonsberegningRequest = RefusjonsberegningRequest(deltakerFnr, bedriftnummer, datoRefusjonPeriodeFom, datoRefusjonPeriodeTom)
+
+        // NÅR
+        val request = post("$REQUEST_MAPPING/beregn")
+                .content( ObjectMapper().writeValueAsString(refusjonsberegningRequest))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .cookie(arbGiverCookie)
+
+        mockMvc.perform(request)
+                .andExpect(status().isServiceUnavailable)
+    }
+
+    @Test
+    fun `hentBeregnetRefusjon() for deltaker, bedrift og periode hvor de ikke finnes`(){
+        // GITT
+        val bedriftnummer = "998877000"
+        val deltakerFnr = "28128521000"
+        val datoRefusjonPeriodeFom ="2012-09-01"
+        val datoRefusjonPeriodeTom = "2012-10-01"
+        val refusjonsberegningRequest = RefusjonsberegningRequest(deltakerFnr, bedriftnummer, datoRefusjonPeriodeFom, datoRefusjonPeriodeTom)
+
+        // NÅR
+        val request = post("$REQUEST_MAPPING/beregn")
+                .content( ObjectMapper().writeValueAsString(refusjonsberegningRequest))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .cookie(arbGiverCookie)
+
+        // SÅ
+        mockMvc.perform(request)
+                .andExpect(status().isServiceUnavailable)
+
+
+    }
+
+    @Test
+    fun `hentBeregnetRefusjon() for deltaker, bedrift og periode`(){
+        // GITT
+        val bedriftnummer = "998877665"
+        val deltakerFnr = "28128521498"
+        val datoRefusjonPeriodeFom ="2020-09-01"
+        val datoRefusjonPeriodeTom = "2020-10-01"
+        val refusjonsberegningRequest = RefusjonsberegningRequest(deltakerFnr, bedriftnummer, datoRefusjonPeriodeFom, datoRefusjonPeriodeTom)
+
+        // NÅR
+        val request = post("$REQUEST_MAPPING/beregn")
+                .content( ObjectMapper().writeValueAsString(refusjonsberegningRequest))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+
+        val json = sendRequest(request, arbGiverCookie)
+        val refusjonsgrunnlag = mapper.readValue(json, object : TypeReference<Refusjonsgrunnlag?>() {})
+
+        // SÅ
+        assertNotNull(refusjonsgrunnlag!!)
+        assertEquals(3, refusjonsgrunnlag.inntekter.size)
+    }
+
+
+    @Test
+    fun `hentRefusjon() for deltaker, bedrift og periode`(){
+        // GITT
+        val bedriftnummer = "998877665"
+        val deltakerFnr = "28128521498"
+        val datoRefusjonPeriodeFom = "2020-09-01"
+        val datoRefusjonPeriodeTom = "2020-10-01"
+
+        // NÅR
+        val json = sendRequest(get("$REQUEST_MAPPING/deltaker/$deltakerFnr/bedrift/$bedriftnummer/fra/$datoRefusjonPeriodeFom/til/$datoRefusjonPeriodeTom"), arbGiverCookie)
+        val refusjon = mapper.readValue(json, object : TypeReference<Refusjon?>() {})
+
+        // SÅ
+        assertNotNull(refusjon)
+        assertNotNull(refusjon?.deltakerFnr.equals("28128521498")
+                && refusjon?.bedriftnummer.equals("998877665"))
+    }
+
 
     @Test
     fun `hentAlle() er tilgjengelig for saksbehandler`() {
@@ -180,7 +335,7 @@ class RefusjonApiTest(
         return sendRequest(request, cookie, null)
     }
 
-    private fun sendRequest(request: MockHttpServletRequestBuilder, cookie: Cookie, refusjon: Refusjon?): String {
+    private fun sendRequest(request: MockHttpServletRequestBuilder, cookie: Cookie, refusjon: Refusjon?, status: ResultMatcher = status().isOk): String {
 
         if (refusjon != null) {
             request.content(mapper.writeValueAsString(refusjon))
@@ -191,7 +346,7 @@ class RefusjonApiTest(
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .cookie(cookie))
-                .andExpect(status().isOk)
+                .andExpect(status)
                 .andReturn()
                 .response.contentAsString
     }

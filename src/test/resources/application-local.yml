@@ -27,6 +27,10 @@ logging:
     no.nav.arbeidsgiver.tiltakrefusjon: DEBUG
 
 tiltak-refusjon:
+  inntektskomponenten:
+    uri: http://localhost:8090/inntekskomponenten/hentinntektliste
+    filter: KontrollArbeidsmarkedstiltakA-inntekt
+    consumer-id: tiltak-refusjon-api
   altinn-tilgangstyring:
     uri: http://localhost:8090/altinn-tilgangsstyring
     proxyUri: http://localhost:9090/altinn-rettigheter-proxy/ekstern/altinn/api/serviceowner/reportees

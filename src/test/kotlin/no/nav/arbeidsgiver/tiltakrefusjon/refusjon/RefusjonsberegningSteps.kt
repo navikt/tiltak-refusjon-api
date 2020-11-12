@@ -28,10 +28,9 @@ class RefusjonsberegningSteps : No {
                 )
             }
         }
-        Og("avtale med arbeidsgiveravgift {string}, feriepengersats {string} og OTP {string}"){ agAvfigt:String, feriesats:String, otp:String ->
+        Og("avtale med arbeidsgiveravgift {string}, feriepengersats {string}"){ agAvfigt:String, feriesats:String ->
             arbeidsgiveravgift  = agAvfigt.toDouble()
             feriepengersats = feriesats.toDouble()
-            tjenestepensjon = otp.toDouble()
         }
         Når("lønnstilskudd på {int} prosent skal refunderes for periode {string} til {string}") { angittLonnstilskuddProsent: Int, startDatoString: String, sluttDatoString: String ->
             lonnstilskuddProsent = angittLonnstilskuddProsent
@@ -40,7 +39,7 @@ class RefusjonsberegningSteps : No {
 
         }
         Så("beregnes refusjon til {string} kr for periode") { refusjon: String ->
-            val beregnet = Refusjonsgrunnlag(inntekstlinjer, lonnstilskuddProsent, startDato, sluttDato,arbeidsgiveravgift, feriepengersats, tjenestepensjon).hentBeregnetGrunnlag()
+            val beregnet = Refusjonsgrunnlag(inntekstlinjer, lonnstilskuddProsent, startDato, sluttDato,arbeidsgiveravgift, feriepengersats).hentBeregnetGrunnlag()
             assertThat(beregnet).isEqualByComparingTo(refusjon.toInt());
         }
         Before("@skip_scenario") { _ ->

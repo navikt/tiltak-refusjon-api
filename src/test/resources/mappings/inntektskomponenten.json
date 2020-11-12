@@ -1,0 +1,256 @@
+{
+  "mappings": [
+    {
+      "priority": 1,
+      "request": {
+        "method": "POST",
+        "urlPath": "/inntekskomponenten/hentinntektliste",
+        "queryParameters": {
+          "ident": {
+            "matches": "00\\d{9}"
+          },
+          "ainntektsfilter":{
+            "matches": "KontrollArbeidsmarkedstiltakA-inntekt"
+          },
+          "maanedFom":{"matches": "^\\d{4}-\\d{2}$"},
+          "maanedTom":{"matches": "^\\d{4}-\\d{2}$"}
+        }
+      },
+      "response": {
+        "status": 200,
+        "jsonBody":
+        {
+
+        }
+      ,
+        "headers": {
+          "Content-Type": "application/json",
+          "Accept":"application/json",
+          "Nav-consumer-Id":"tiltak-refusjon",
+          "Nav-Call-Id":"hoppla1"
+        }
+      }
+    },
+    {
+      "priority": 2,
+      "request": {
+        "method": "POST",
+        "urlPath": "/inntekskomponenten/hentinntektliste",
+        "queryParameters": {
+          "ident": {
+            "matches": "\\d{11}"
+          },
+          "ainntektsfilter":{
+            "matches": "KontrollArbeidsmarkedstiltakA-inntekt"
+          },
+          "maanedFom":{"matches": "^\\d{4}-\\d{2}$"},
+          "maanedTom":{"matches": "^\\d{4}-\\d{2}$"}
+        }
+      },
+      "response": {
+        "status": 200,
+        "jsonBody":
+          {
+            "arbeidsInntektMaaned": [
+              {
+                "aarMaaned": "2020-08",
+                "arbeidsInntektInformasjon": {
+                  "inntektListe": [
+                    {
+                      "inntektType": "LOENNSINNTEKT",
+                      "beloep": 15000,
+                      "fordel": "kontantytelse",
+                      "inntektskilde": "A-ordningen",
+                      "inntektsperiodetype": "Maaned",
+                      "inntektsstatus": "LoependeInnrapportert",
+                      "leveringstidspunkt": "2020-11",
+                      "opptjeningsland": "NO",
+                      "opptjeningsperiodeFom": "2020-09-14",
+                      "opptjeningsperiodeTom": "2020-10-16",
+                      "utbetaltIMaaned": "2020-08",
+                      "opplysningspliktig": {
+                        "identifikator": "928497704",
+                        "aktoerType": "ORGANISASJON"
+                      },
+                      "virksomhet": {
+                        "identifikator": "998877665",
+                        "aktoerType": "ORGANISASJON"
+                      },
+                      "tilleggsinformasjon": {
+                        "kategori": "Nettoloennsordning"
+                      },
+                      "inntektsmottaker": {
+                        "identifikator": "28128521498",
+                        "aktoerType": "NATURLIG_IDENT"
+                      },
+                      "inngaarIGrunnlagForTrekk": true,
+                      "utloeserArbeidsgiveravgift": true,
+                      "informasjonsstatus": "InngaarAlltid",
+                      "beskrivelse": "fastloenn",
+                      "skatteOgAvgiftsregel": "nettoloenn"
+                    }
+                  ]
+                }
+              },
+              {
+                "aarMaaned": "2020-09",
+                "arbeidsInntektInformasjon": {
+                  "inntektListe": [
+                    {
+                      "inntektType": "LOENNSINNTEKT",
+                      "beloep": 15000,
+                      "fordel": "kontantytelse",
+                      "inntektskilde": "A-ordningen",
+                      "inntektsperiodetype": "Maaned",
+                      "inntektsstatus": "LoependeInnrapportert",
+                      "leveringstidspunkt": "2020-11",
+                      "opptjeningsland": "NO",
+                      "opptjeningsperiodeFom": "2020-09-14",
+                      "opptjeningsperiodeTom": "2020-10-16",
+                      "utbetaltIMaaned": "2020-09",
+                      "opplysningspliktig": {
+                        "identifikator": "928497704",
+                        "aktoerType": "ORGANISASJON"
+                      },
+                      "virksomhet": {
+                        "identifikator": "998877665",
+                        "aktoerType": "ORGANISASJON"
+                      },
+                      "tilleggsinformasjon": {
+                        "kategori": "Nettoloennsordning"
+                      },
+                      "inntektsmottaker": {
+                        "identifikator": "28128521498",
+                        "aktoerType": "NATURLIG_IDENT"
+                      },
+                      "inngaarIGrunnlagForTrekk": true,
+                      "utloeserArbeidsgiveravgift": true,
+                      "informasjonsstatus": "InngaarAlltid",
+                      "beskrivelse": "fastloenn",
+                      "skatteOgAvgiftsregel": "nettoloenn"
+                    }
+                  ]
+                }
+              },
+              {
+                "aarMaaned": "2020-10",
+                "arbeidsInntektInformasjon": {
+                  "inntektListe": [
+                    {
+                      "inntektType": "LOENNSINNTEKT",
+                      "beloep": 10000,
+                      "fordel": "kontantytelse",
+                      "inntektskilde": "A-ordningen",
+                      "inntektsperiodetype": "Maaned",
+                      "inntektsstatus": "LoependeInnrapportert",
+                      "leveringstidspunkt": "2020-11",
+                      "opptjeningsland": "NO",
+                      "opptjeningsperiodeFom": "2020-10-01",
+                      "utbetaltIMaaned": "2020-10",
+                      "opplysningspliktig": {
+                        "identifikator": "928497704",
+                        "aktoerType": "ORGANISASJON"
+                      },
+                      "virksomhet": {
+                        "identifikator": "998877665",
+                        "aktoerType": "ORGANISASJON"
+                      },
+                      "inntektsmottaker": {
+                        "identifikator": "28128521498",
+                        "aktoerType": "NATURLIG_IDENT"
+                      },
+                      "inngaarIGrunnlagForTrekk": true,
+                      "utloeserArbeidsgiveravgift": true,
+                      "informasjonsstatus": "InngaarAlltid",
+                      "beskrivelse": "fastloenn"
+                    }
+                  ]
+                }
+              }
+            ],
+            "ident": {
+              "identifikator": "28128521498",
+              "aktoerType": "NATURLIG_IDENT"
+            }
+          }
+        ,
+        "headers": {
+          "Content-Type": "application/json",
+          "Accept":"application/json",
+          "Nav-consumer-Id":"tiltak-refusjon",
+          "Nav-Call-Id":"hoppla1"
+        }
+      }
+    },
+    {
+      "priority": 1,
+      "request": {
+        "method": "POST",
+        "urlPath": "/inntekskomponenten/hentinntektliste",
+        "queryParameters": {
+          "ident": {
+            "matches": "[^\\d{11}]"
+          },
+          "ainntektsfilter":{
+            "matches": "KontrollArbeidsmarkedstiltakA-inntekt"
+          },
+          "maanedFom":{"matches": "^\\d{4}-\\d{2}$"},
+          "maanedTom":{"matches": "^\\d{4}-\\d{2}$"}
+        }
+      },
+      "response": {
+        "status": 400,
+        "jsonBody":
+        {
+          "timestamp": "2020-11-11T14:56:53.088+0100",
+          "status": "400",
+          "error": "Bad Request",
+          "message": "Feil i forespørselen: Ident må bestå av 11 sifre",
+          "path": "/api/v1/hentinntektliste"
+        }
+      ,
+        "headers": {
+          "Content-Type": "application/json",
+          "Accept":"application/json",
+          "Nav-consumer-Id":"tiltak-refusjon",
+          "Nav-Call-Id":"hoppla1"
+        }
+      }
+    },
+    {
+      "priority": 1,
+      "request": {
+        "method": "POST",
+        "urlPath": "/inntekskomponenten/hentinntektliste",
+        "queryParameters": {
+          "ident": {
+            "matches": "\\d{11}"
+          },
+          "ainntektsfilter":{
+            "matches": "KontrollArbeidsmarkedstiltakA-inntekt"
+          },
+          "maanedFom":{"matches": "\\w"},
+          "maanedTom":{"matches": "\\w"}
+        }
+      },
+      "response": {
+        "status": 500,
+        "jsonBody":
+        {
+          "timestamp": "2020-11-11T15:11:58.111+0100",
+          "status": "500",
+          "error": "Internal Server Error",
+          "message": "Det har oppstått en ukjent feil: Illegal unquoted character ((CTRL-CHAR, code 10)): has to be escaped using backslash to be included in name\n at [Source: {\n\t\n\t\"ident:{\n\t\t\"identifikator\":\"28128521498\",\n\t\t\"aktoerType\" : \"NATURLIG_IDENT\"\n\t},\n\t\"ainntektsfilter\":\"KontrollArbeidsmarkedstiltakA-inntekt\",\n\t\"maanedFom\":\"2020-0aa1\",\n\t\"maanedTom\":\"2020-11\"\n\t\n}; line: 3, column: 11]",
+          "path": "/api/v1/hentinntektliste"
+        }
+      ,
+        "headers": {
+          "Content-Type": "application/json",
+          "Accept":"application/json",
+          "Nav-consumer-Id":"tiltak-refusjon",
+          "Nav-Call-Id":"hoppla1"
+        }
+      }
+    }
+  ]
+}

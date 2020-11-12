@@ -1,4 +1,8 @@
 tiltak-refusjon:
+  inntektskomponenten:
+    uri: https://tiltak-proxy.dev-fss-pub.nais.io/hentinntektliste
+    filter: KontrollArbeidsmarkedstiltakA-inntekt
+    consumer-id: tiltak-refusjon-api
   altinn-tilgangstyring:
     uri: https://api-gw-q0.oera.no/ekstern/altinn/api/serviceowner/reportees
     beOmRettighetBaseUrl: https://arbeidsgiver-q.nav.no/min-side-arbeidsgiver/?fragment=be-om-tilgang

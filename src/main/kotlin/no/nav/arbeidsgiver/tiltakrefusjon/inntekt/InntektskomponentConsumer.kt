@@ -4,7 +4,6 @@ import InntektListe
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.response.ArbeidsInntektMaaned
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.response.InntektResponse
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Inntektslinje
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonsberegningRequest
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
@@ -29,22 +28,22 @@ class InntektskomponentConsumer(@Value("\${tiltak-refusjon.inntektskomponenten.u
 
     private val log = LoggerFactory.getLogger(InntektskomponentConsumer::class.java)
 
-    fun hentInntekter(refusjonsberegningRequest: RefusjonsberegningRequest): List<Inntektslinje> {
+    fun hentInntekter(fnr:String, bedriftnummerDetSøkesPå: String, datoFra:LocalDate, datoTil:LocalDate): List<Inntektslinje> {
         try{
-            val response = restTemplate.exchange<InntektResponse>(getUrl(refusjonsberegningRequest), HttpMethod.POST, hentHttpHeaders())
-            val inntekter = response.body!!.arbeidsInntektMaaned
-            return  inntekterForBedrift(inntekter, refusjonsberegningRequest.bedriftNr)
+            val responseMedInntekterForDeltaker = restTemplate.exchange<InntektResponse>(getUrl(fnr, datoFra,datoTil), HttpMethod.POST, hentHttpHeaders())
+            val inntekter = responseMedInntekterForDeltaker.body!!.arbeidsInntektMaaned
+            return  inntekterForBedrift(inntekter, bedriftnummerDetSøkesPå)
         }catch (ex: Exception){
              log.warn("Kall til Inntektskomponenten feilet: {}", ex.message)
             throw HentingAvInntektException()
         }
     }
 
-    private fun inntekterForBedrift(månedsInntektList: List<ArbeidsInntektMaaned>?, bedriftnummerDetSøkesOm: String): List<Inntektslinje> {
+    private fun inntekterForBedrift(månedsInntektList: List<ArbeidsInntektMaaned>?, bedriftnummerDetSøkesPå: String): List<Inntektslinje> {
         val inntekterTotalt = mutableListOf<Inntektslinje>()
         månedsInntektList?.forEach {
             val arbeidsinntektListe: List<InntektListe>? = it.arbeidsInntektInformasjon?.inntektListe
-            arbeidsinntektListe?.filter{it.virksomhet?.identifikator?.toString().equals(bedriftnummerDetSøkesOm)}?.forEach {
+            arbeidsinntektListe?.filter{it.virksomhet?.identifikator?.toString().equals(bedriftnummerDetSøkesPå)}?.forEach {
                         var fom: LocalDate? = null
                         var tom: LocalDate? = null
                         if(!it.opptjeningsperiodeFom.isNullOrEmpty()){
@@ -72,13 +71,11 @@ class InntektskomponentConsumer(@Value("\${tiltak-refusjon.inntektskomponenten.u
         return HttpEntity(httpHeaders)
     }
 
-    private fun getUrl(refusjonsberegningRequest: RefusjonsberegningRequest): URI {
-        val periodeStart = LocalDate.parse(refusjonsberegningRequest.refusjonFraDato)
-        val periodeSlutt =  LocalDate.parse(refusjonsberegningRequest.refusjonTilDato)
+    private fun getUrl(fnr:String, datoFra:LocalDate, datoTil:LocalDate): URI {
         return UriComponentsBuilder.fromHttpUrl(url)
-                .queryParam("ident", refusjonsberegningRequest.fnr)
-                .queryParam("maanedFom", (YearMonth.of(periodeStart.year, periodeStart.month)))
-                .queryParam("maanedTom", (YearMonth.of(periodeSlutt.year, periodeSlutt.month)))
+                .queryParam("ident", fnr)
+                .queryParam("maanedFom", (YearMonth.of(datoFra.year, datoFra.month)))
+                .queryParam("maanedTom", (YearMonth.of(datoTil.year, datoTil.month)))
                 .queryParam("ainntektsfilter", ainntektsfilter)
                 .build()
                 .toUri()

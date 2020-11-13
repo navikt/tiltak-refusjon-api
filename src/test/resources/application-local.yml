@@ -42,4 +42,5 @@ tiltak-refusjon:
     username: na
     password: na
   graph-api:
-    uri: http://localhost:8090/graph-api
+    uri: ""
+    fake: true

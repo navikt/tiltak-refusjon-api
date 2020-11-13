@@ -12,10 +12,10 @@ class GraphApiService(
         val påVegneAvSaksbehandlerGraphRestTemplate: RestTemplate,
         @Value("\${tiltak-refusjon.graph-api.uri}") val graphApiUri: URI
 ) {
-    fun hentNavIdent(): NavIdent {
-        val response = påVegneAvSaksbehandlerGraphRestTemplate.getForObject(graphApiUri, GraphApiResponse::class.java)
-        return response?.let { NavIdent(it.onPremisesSamAccountName) } ?: throw RuntimeException("Finner ikke navident")
+    fun hent(): GraphApiResponse {
+        return påVegneAvSaksbehandlerGraphRestTemplate.getForObject<GraphApiResponse>(graphApiUri, GraphApiResponse::class.java)
+                ?: throw RuntimeException("Feil ved graph api")
     }
 
-    data class GraphApiResponse(val onPremisesSamAccountName: String)
+    data class GraphApiResponse(val onPremisesSamAccountName: String, val displayName: String)
 }

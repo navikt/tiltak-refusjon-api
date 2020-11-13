@@ -11,7 +11,8 @@
           "Content-Type": "application/json"
         },
         "jsonBody": {
-          "onPremisesSamAccountName": "X123456"
+          "onPremisesSamAccountName": "X123456",
+          "displayName": "Navn Navnesen"
         }
       }
     }

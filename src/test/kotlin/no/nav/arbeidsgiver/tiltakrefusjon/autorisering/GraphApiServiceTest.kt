@@ -16,6 +16,8 @@ class GraphApiServiceTest {
 
     @Test
     fun `kan gjøre GET`() {
-        assertThat(graphApiService.hentNavIdent()).isEqualTo(NavIdent("X123456"))
+        val response = graphApiService.hent()
+        assertThat(response.onPremisesSamAccountName).isEqualTo("X123456")
+        assertThat(response.displayName).isEqualTo("Navn Navnesen")
     }
 }

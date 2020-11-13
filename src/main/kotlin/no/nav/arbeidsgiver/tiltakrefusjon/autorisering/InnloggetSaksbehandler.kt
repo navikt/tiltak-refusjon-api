@@ -9,9 +9,11 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.client.HttpClientErrorException
 
 data class InnloggetSaksbehandler(
-        val identifikator: String,
+        val ident: String,
+        val navn: String,
         @JsonIgnore val abacTilgangsstyringService: AbacTilgangsstyringService,
-        @JsonIgnore val refusjonRepository: RefusjonRepository ) : InnloggetBruker() {
+        @JsonIgnore val refusjonRepository: RefusjonRepository
+) : InnloggetBruker() {
 
     override fun finnAlle(): List<Refusjon> {
         return medLesetilgang(refusjonRepository.findAll())
@@ -22,18 +24,19 @@ data class InnloggetSaksbehandler(
     }
 
     override fun finnRefusjon(id: String): Refusjon? {
-       val refusjon = refusjonRepository.findByIdOrNull(id);
+        val refusjon = refusjonRepository.findByIdOrNull(id);
         return refusjon?.let { hvisLesetilgang(it) }
     }
 
-    private fun medLesetilgang(refusjoner:List<Refusjon>):List<Refusjon>{
+    private fun medLesetilgang(refusjoner: List<Refusjon>): List<Refusjon> {
         return refusjoner
-                .filter { refusjon: Refusjon -> abacTilgangsstyringService.harLeseTilgang(identifikator, refusjon.deltakerFnr)
-        }
+                .filter {
+                    abacTilgangsstyringService.harLeseTilgang(ident, it.deltakerFnr)
+                }
     }
 
-    private fun hvisLesetilgang(refusjon :Refusjon):Refusjon{
-        if( abacTilgangsstyringService.harLeseTilgang(identifikator, refusjon.deltakerFnr)){
+    private fun hvisLesetilgang(refusjon: Refusjon): Refusjon {
+        if (abacTilgangsstyringService.harLeseTilgang(ident, refusjon.deltakerFnr)) {
             return refusjon
         }
         throw HttpClientErrorException(HttpStatus.UNAUTHORIZED)

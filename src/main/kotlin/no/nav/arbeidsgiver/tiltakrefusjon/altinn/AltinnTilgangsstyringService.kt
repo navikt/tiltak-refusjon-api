@@ -11,7 +11,7 @@ import java.net.URI
 @Service
 class AltinnTilgangsstyringService(val altinnTilgangsstyringProperties: AltinnTilgangsstyringProperties) {
 
-    private val ALTINN_ORG_PAGE_SIZE = 500
+    private val ALTINN_ORG_PAGE_SIZE = 999
     private val restTemplate: RestTemplate = RestTemplate()
 
     fun hentTilganger(fnr: String): Set<Organisasjon> {

@@ -24,7 +24,7 @@ data class InnloggetSaksbehandler(
     }
 
     override fun finnRefusjon(id: String): Refusjon? {
-        val refusjon = refusjonRepository.findByIdOrNull(id);
+        val refusjon = refusjonRepository.findByIdOrNull(id)
         return refusjon?.let { hvisLesetilgang(it) }
     }
 

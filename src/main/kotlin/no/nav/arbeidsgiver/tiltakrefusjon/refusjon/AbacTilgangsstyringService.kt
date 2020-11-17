@@ -17,12 +17,12 @@ class AbacTilgangsstyringService(val pep: Pep) {
         return harDeltakerTilgang(navIdent, deltakerId, ActionId.WRITE)
     }
 
-    private fun harDeltakerTilgang(saksbehandlerId: String, deltakerId: String, actionId: ActionId):Boolean{
+    private fun harDeltakerTilgang(saksbehandlerId: String, deltakerId: String, actionId: ActionId): Boolean {
         val personId = AbacPersonId.fnr(deltakerId)
         try {
             pep.sjekkVeilederTilgangTilBruker(saksbehandlerId, actionId, personId)
         } catch (e: PepException) {
-            return false;
+            return false
         } catch (e: Exception) {
             return false
         }

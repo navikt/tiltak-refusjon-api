@@ -1,4 +1,4 @@
-data class Opplysningspliktig (
-	val identifikator : Int,
-	val aktoerType : String
+data class Opplysningspliktig(
+        val identifikator: Int,
+        val aktoerType: String
 )

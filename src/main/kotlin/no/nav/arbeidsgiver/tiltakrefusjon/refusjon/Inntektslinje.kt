@@ -14,7 +14,8 @@ data class Inntektslinje(
 ) {
 
     constructor(inntektType: String, beløp: Double?, måned: YearMonth, inntektsperiodeFom: LocalDate? = null, inntektsperiodeTom: LocalDate? = null) :
-            this(inntektType, beløp ?: 0.0, måned, inntektsperiodeFom ?: måned.atDay(1), inntektsperiodeTom ?: måned.atEndOfMonth())
+            this(inntektType, beløp ?: 0.0, måned, inntektsperiodeFom ?: måned.atDay(1), inntektsperiodeTom
+                    ?: måned.atEndOfMonth())
 
     fun hentAntallDagerOpptjent() = dagerOpptjentList().count()
     fun hentAntallDagerOpptjent(fraDato: LocalDate, tilDato: LocalDate) = dagerOpptjentList().filter { !it.isBefore(fraDato) && !it.isAfter(tilDato) }.count()
@@ -24,6 +25,6 @@ data class Inntektslinje(
     fun hentBeløpPerDag() = beløp / hentAntallDagerOpptjent()
 
     fun erLønnsinntekt() = inntektType == "LOENNSINNTEKT" && beløp > 0.0
-    fun tilDagsatsForPeriode(datoFra: LocalDate, datoTil: LocalDate):Dagsats = Dagsats(hentBeløpPerDag(),hentAntallDagerOpptjent(datoFra,datoTil))
+    fun tilDagsatsForPeriode(datoFra: LocalDate, datoTil: LocalDate): Dagsats = Dagsats(hentBeløpPerDag(), hentAntallDagerOpptjent(datoFra, datoTil))
 
 }

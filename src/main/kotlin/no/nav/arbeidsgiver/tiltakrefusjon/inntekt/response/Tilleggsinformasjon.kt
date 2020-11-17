@@ -1,4 +1,4 @@
-data class Tilleggsinformasjon (
+data class Tilleggsinformasjon(
 
-	val kategori : String
+        val kategori: String
 )

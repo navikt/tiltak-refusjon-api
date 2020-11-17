@@ -1,5 +1,5 @@
-data class Virksomhet (
+data class Virksomhet(
 
-	val identifikator : Int,
-	val aktoerType : String
+        val identifikator: Int,
+        val aktoerType: String
 )

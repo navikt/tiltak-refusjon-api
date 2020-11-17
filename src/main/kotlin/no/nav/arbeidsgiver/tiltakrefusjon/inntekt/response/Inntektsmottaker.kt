@@ -1,5 +1,5 @@
-data class Inntektsmottaker (
+data class Inntektsmottaker(
 
-	val identifikator : String,
-	val aktoerType : String
+        val identifikator: String,
+        val aktoerType: String
 )

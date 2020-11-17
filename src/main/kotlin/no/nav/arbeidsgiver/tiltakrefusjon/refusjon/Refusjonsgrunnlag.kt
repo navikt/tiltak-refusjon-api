@@ -12,7 +12,8 @@ data class Refusjonsgrunnlag(
         var feriepengerSats: Double
 ) {
 
-    constructor(  inntekter: List<Inntektslinje>, refusjon:Refusjon): this(inntekter,refusjon.stillingsprosent,refusjon.fraDato,refusjon.tilDato,refusjon.satsArbeidsgiveravgift,refusjon.satsFeriepenger)
+    constructor(inntekter: List<Inntektslinje>, refusjon: Refusjon) : this(inntekter, refusjon.stillingsprosent, refusjon.fraDato, refusjon.tilDato, refusjon.satsArbeidsgiveravgift, refusjon.satsFeriepenger)
+
     private val TJENESTEPENSJON_SATS = 0.02
 
     fun hentBeregnetGrunnlag(): Int {
@@ -24,7 +25,7 @@ data class Refusjonsgrunnlag(
                     val feriepengerPerDag = beløpPerDag * feriepengerSats
                     val tjenestepensjonPerDag = (beløpPerDag + feriepengerPerDag) * TJENESTEPENSJON_SATS
                     val arbeidsgiveravgiftPerDag = (beløpPerDag + tjenestepensjonPerDag + feriepengerPerDag) * arbeidsgiveravgiftSats
-                    val totalBeløpPerDag =  beløpPerDag + tjenestepensjonPerDag + feriepengerPerDag + arbeidsgiveravgiftPerDag
+                    val totalBeløpPerDag = beløpPerDag + tjenestepensjonPerDag + feriepengerPerDag + arbeidsgiveravgiftPerDag
 
                     totalBeløpPerDag.times(dagsats.dager)
                 }

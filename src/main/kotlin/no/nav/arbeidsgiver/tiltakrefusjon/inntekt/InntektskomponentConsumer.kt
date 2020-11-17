@@ -17,24 +17,26 @@ import org.springframework.web.util.UriComponentsBuilder
 import java.net.URI
 import java.time.LocalDate
 import java.time.YearMonth
-import java.util.UUID
+import java.util.*
 
 
 @Service
-class InntektskomponentConsumer(@Value("\${tiltak-refusjon.inntektskomponenten.uri}") val url: String,
-                                @Value("\${tiltak-refusjon.inntektskomponenten.filter}") val ainntektsfilter: String,
-                                @Value("\${tiltak-refusjon.inntektskomponenten.consumer-id}") val consumerId: String,
-                                @Qualifier("anonymProxyRestTemplate") val restTemplate: RestTemplate) {
+class InntektskomponentConsumer(
+        @Value("\${tiltak-refusjon.inntektskomponenten.uri}") val url: String,
+        @Value("\${tiltak-refusjon.inntektskomponenten.filter}") val ainntektsfilter: String,
+        @Value("\${tiltak-refusjon.inntektskomponenten.consumer-id}") val consumerId: String,
+        @Qualifier("anonymProxyRestTemplate") val restTemplate: RestTemplate
+) {
 
     private val log = LoggerFactory.getLogger(InntektskomponentConsumer::class.java)
 
-    fun hentInntekter(fnr:String, bedriftnummerDetSøkesPå: String, datoFra:LocalDate, datoTil:LocalDate): List<Inntektslinje> {
-        try{
-            val responseMedInntekterForDeltaker = restTemplate.exchange<InntektResponse>(getUrl(fnr, datoFra,datoTil), HttpMethod.POST, hentHttpHeaders()).body
+    fun hentInntekter(fnr: String, bedriftnummerDetSøkesPå: String, datoFra: LocalDate, datoTil: LocalDate): List<Inntektslinje> {
+        try {
+            val responseMedInntekterForDeltaker = restTemplate.exchange<InntektResponse>(getUrl(fnr, datoFra, datoTil), HttpMethod.POST, hentHttpHeaders()).body
             val inntekter = responseMedInntekterForDeltaker?.arbeidsInntektMaaned ?: throw HentingAvInntektException()
-            return  inntekterForBedrift(inntekter, bedriftnummerDetSøkesPå)
-        }catch (ex: Exception){
-             log.warn("Kall til Inntektskomponenten feilet: {}", ex.message)
+            return inntekterForBedrift(inntekter, bedriftnummerDetSøkesPå)
+        } catch (ex: Exception) {
+            log.warn("Kall til Inntektskomponenten feilet: {}", ex.message)
             throw HentingAvInntektException()
         }
     }
@@ -43,24 +45,24 @@ class InntektskomponentConsumer(@Value("\${tiltak-refusjon.inntektskomponenten.u
         val inntekterTotalt = mutableListOf<Inntektslinje>()
         månedsInntektList?.forEach {
             val arbeidsinntektListe: List<InntektListe>? = it.arbeidsInntektInformasjon?.inntektListe
-            arbeidsinntektListe?.filter{ it.virksomhet?.identifikator.toString() == bedriftnummerDetSøkesPå }?.forEach {
-                        var dateFraOpptjenningsperiode: LocalDate? = null
-                        var datoTilOpptjenningsperiode: LocalDate? = null
-                        if(!it.opptjeningsperiodeFom.isNullOrEmpty()){
-                            dateFraOpptjenningsperiode = LocalDate.parse(it.opptjeningsperiodeFom)
-                        }
-                        if(!it.opptjeningsperiodeTom.isNullOrEmpty()){
-                            datoTilOpptjenningsperiode = LocalDate.parse(it.opptjeningsperiodeTom)
-                        }
+            arbeidsinntektListe?.filter { it.virksomhet?.identifikator.toString() == bedriftnummerDetSøkesPå }?.forEach {
+                var dateFraOpptjenningsperiode: LocalDate? = null
+                var datoTilOpptjenningsperiode: LocalDate? = null
+                if (!it.opptjeningsperiodeFom.isNullOrEmpty()) {
+                    dateFraOpptjenningsperiode = LocalDate.parse(it.opptjeningsperiodeFom)
+                }
+                if (!it.opptjeningsperiodeTom.isNullOrEmpty()) {
+                    datoTilOpptjenningsperiode = LocalDate.parse(it.opptjeningsperiodeTom)
+                }
 
-                        inntekterTotalt.add(
-                                Inntektslinje(
-                                        it.inntektType,
-                                        it.beloep.toDouble(),
-                                        YearMonth.parse(it.utbetaltIMaaned),
-                                        dateFraOpptjenningsperiode, datoTilOpptjenningsperiode)
-                        )
-                    }
+                inntekterTotalt.add(
+                        Inntektslinje(
+                                it.inntektType,
+                                it.beloep.toDouble(),
+                                YearMonth.parse(it.utbetaltIMaaned),
+                                dateFraOpptjenningsperiode, datoTilOpptjenningsperiode)
+                )
+            }
         }
         return inntekterTotalt
     }
@@ -72,7 +74,7 @@ class InntektskomponentConsumer(@Value("\${tiltak-refusjon.inntektskomponenten.u
         return HttpEntity(httpHeaders)
     }
 
-    private fun getUrl(fnr:String, datoFra:LocalDate, datoTil:LocalDate): URI {
+    private fun getUrl(fnr: String, datoFra: LocalDate, datoTil: LocalDate): URI {
         return UriComponentsBuilder.fromHttpUrl(url)
                 .queryParam("ident", fnr)
                 .queryParam("maanedFom", (YearMonth.of(datoFra.year, datoFra.month)))

@@ -36,7 +36,7 @@ class AltinnTilgangsstyringService(val altinnTilgangsstyringProperties: AltinnTi
                 .queryParam("\$top", ALTINN_ORG_PAGE_SIZE)
                 .queryParam("\$filter", "Type+ne+'Person'")
                 .build()
-                .toUri();
+                .toUri()
     }
 
     private fun getAuthHeadersForAltinn(): HttpEntity<HttpHeaders?>? {

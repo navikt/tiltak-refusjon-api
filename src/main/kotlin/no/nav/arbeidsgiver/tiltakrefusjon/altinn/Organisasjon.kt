@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategy.UpperCamelCaseStrat
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 
 @JsonNaming(UpperCamelCaseStrategy::class)
-data class Organisasjon (
+data class Organisasjon(
         val name: String,
         val type: String,
         val organizationNumber: String,

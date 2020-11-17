@@ -34,7 +34,7 @@ data class Refusjon(
         val refusjonPrMåned: Int,
         val fraDato: LocalDate,
         val tilDato: LocalDate,
-        val opprettet_tidspunkt: LocalDateTime
+        val opprettetTidspunkt: LocalDateTime
 )
 
 

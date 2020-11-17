@@ -41,7 +41,7 @@ fun enRefusjon(): Refusjon {
             refusjonPrMåned = 13579,
             fraDato = LocalDate.of(2020, 8, 1),
             tilDato = LocalDate.of(2020, 10, 31),
-            opprettet_tidspunkt = LocalDateTime.now()
+            opprettetTidspunkt = LocalDateTime.now()
     )
 
 }

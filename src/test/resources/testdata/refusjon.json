@@ -26,7 +26,7 @@
     "refusjonPrMåned": 13579,
     "fraDato": "2020-08-01",
     "tilDato": "2020-10-31",
-    "opprettet_tidspunkt": "2020-10-26T16:05:22.482034"
+    "opprettetTidspunkt": "2020-10-26T16:05:22.482034"
   },
   {
     "id": "2",
@@ -55,7 +55,7 @@
     "refusjonPrMåned": 10579,
     "fraDato": "2020-09-01",
     "tilDato": "2020-10-01",
-    "opprettet_tidspunkt": "2020-10-26T16:05:22.482034"
+    "opprettetTidspunkt": "2020-10-26T16:05:22.482034"
   },
   {
     "id": "3",
@@ -84,7 +84,7 @@
     "refusjonPrMåned": 10579,
     "fraDato": "2020-08-01",
     "tilDato": "2020-11-01",
-    "opprettet_tidspunkt": "2020-10-26T16:05:22.482034"
+    "opprettetTidspunkt": "2020-10-26T16:05:22.482034"
   },
   {
     "id": "4",
@@ -113,7 +113,7 @@
     "refusjonPrMåned": 10579,
     "fraDato": "2020-08-01",
     "tilDato": "2020-11-01",
-    "opprettet_tidspunkt": "2020-10-26T16:05:22.482034"
+    "opprettetTidspunkt": "2020-10-26T16:05:22.482034"
   },
   {
     "id": "5",
@@ -142,7 +142,7 @@
     "refusjonPrMåned": 10579,
     "fraDato": "2020-08-01",
     "tilDato": "2020-11-01",
-    "opprettet_tidspunkt": "2020-10-26T16:05:22.482034"
+    "opprettetTidspunkt": "2020-10-26T16:05:22.482034"
   },
   {
     "id": "6",
@@ -171,7 +171,7 @@
     "refusjonPrMåned": 10579,
     "fraDato": "2020-08-01",
     "tilDato": "2020-11-01",
-    "opprettet_tidspunkt": "2020-10-26T16:05:22.482034"
+    "opprettetTidspunkt": "2020-10-26T16:05:22.482034"
   },
   {
     "id": "7",
@@ -200,7 +200,7 @@
     "refusjonPrMåned": 10579,
     "fraDato": "2020-08-01",
     "tilDato": "2020-11-01",
-    "opprettet_tidspunkt": "2020-10-26T16:05:22.482034"
+    "opprettetTidspunkt": "2020-10-26T16:05:22.482034"
   },
   {
     "id": "8",
@@ -229,7 +229,7 @@
     "refusjonPrMåned": 10579,
     "fraDato": "2020-08-01",
     "tilDato": "2020-11-01",
-    "opprettet_tidspunkt": "2020-10-26T16:05:22.482034"
+    "opprettetTidspunkt": "2020-10-26T16:05:22.482034"
   },
   {
     "id": "9",
@@ -258,7 +258,7 @@
     "refusjonPrMåned": 10579,
     "fraDato": "2020-08-01",
     "tilDato": "2020-11-01",
-    "opprettet_tidspunkt": "2020-10-26T16:05:22.482034"
+    "opprettetTidspunkt": "2020-10-26T16:05:22.482034"
   },
   {
     "id": "10",
@@ -287,7 +287,7 @@
     "refusjonPrMåned": 10579,
     "fraDato": "2020-08-01",
     "tilDato": "2020-11-01",
-    "opprettet_tidspunkt": "2020-10-26T16:05:22.482034"
+    "opprettetTidspunkt": "2020-10-26T16:05:22.482034"
   },
   {
     "id": "11",
@@ -316,7 +316,7 @@
     "refusjonPrMåned": 10579,
     "fraDato": "2020-08-01",
     "tilDato": "2020-11-01",
-    "opprettet_tidspunkt": "2020-10-26T16:05:22.482034"
+    "opprettetTidspunkt": "2020-10-26T16:05:22.482034"
   },
   {
     "id": "12",
@@ -345,7 +345,7 @@
     "refusjonPrMåned": 10579,
     "fraDato": "2020-08-01",
     "tilDato": "2020-11-01",
-    "opprettet_tidspunkt": "2020-10-26T16:05:22.482034"
+    "opprettetTidspunkt": "2020-10-26T16:05:22.482034"
   },
   {
     "id": "13",
@@ -374,7 +374,7 @@
     "refusjonPrMåned": 10579,
     "fraDato": "2020-08-01",
     "tilDato": "2020-11-01",
-    "opprettet_tidspunkt": "2020-10-26T16:05:22.482034"
+    "opprettetTidspunkt": "2020-10-26T16:05:22.482034"
   },
   {
     "id": "14",
@@ -403,7 +403,7 @@
     "refusjonPrMåned": 10579,
     "fraDato": "2020-08-01",
     "tilDato": "2020-11-01",
-    "opprettet_tidspunkt": "2020-10-26T16:05:22.482034"
+    "opprettetTidspunkt": "2020-10-26T16:05:22.482034"
   },
   {
     "id": "15",
@@ -432,6 +432,6 @@
     "refusjonPrMåned": 10579,
     "fraDato": "2020-08-01",
     "tilDato": "2020-11-01",
-    "opprettet_tidspunkt": "2020-10-26T16:05:22.482034"
+    "opprettetTidspunkt": "2020-10-26T16:05:22.482034"
   }
 ]

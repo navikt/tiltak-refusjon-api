@@ -11,14 +11,9 @@ jobs:
     name: Bygg
     runs-on: ubuntu-latest
     steps:
-      - name: Finn REPOSITORY_NAME
-        run: echo ::set-env name=REPOSITORY_NAME::$(echo "$GITHUB_REPOSITORY" | awk -F / '{print $2}')
-
-      - name: Sett IMAGE_BASE
-        run: echo ::set-env name=IMAGE_BASE::$(echo "docker.pkg.github.com/$GITHUB_REPOSITORY/$REPOSITORY_NAME")
-
-      - name: Sett IMAGE
-        run: echo ::set-env name=IMAGE::$(echo "$IMAGE_BASE:${{ github.sha }}")
+      - run: echo "REPOSITORY_NAME=$(echo $GITHUB_REPOSITORY | awk -F / '{print $2}')" >> $GITHUB_ENV
+      - run: echo "IMAGE_BASE=$(echo docker.pkg.github.com/$GITHUB_REPOSITORY/$REPOSITORY_NAME)" >> $GITHUB_ENV
+      - run: echo "IMAGE=$(echo $IMAGE_BASE:${{ github.sha }})" >> $GITHUB_ENV
 
       - name: Lukk deployment-issues
         uses: actions/github-script@0.9.0
@@ -71,14 +66,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: bygg
     steps:
-      - name: Finn REPOSITORY_NAME
-        run: echo ::set-env name=REPOSITORY_NAME::$(echo "$GITHUB_REPOSITORY" | awk -F / '{print $2}')
-
-      - name: Sett IMAGE_BASE
-        run: echo ::set-env name=IMAGE_BASE::$(echo "docker.pkg.github.com/$GITHUB_REPOSITORY/$REPOSITORY_NAME")
-
-      - name: Sett IMAGE
-        run: echo ::set-env name=IMAGE::$(echo "$IMAGE_BASE:${{ github.sha }}")
+      - run: echo "REPOSITORY_NAME=$(echo $GITHUB_REPOSITORY | awk -F / '{print $2}')" >> $GITHUB_ENV
+      - run: echo "IMAGE_BASE=$(echo docker.pkg.github.com/$GITHUB_REPOSITORY/$REPOSITORY_NAME)" >> $GITHUB_ENV
+      - run: echo "IMAGE=$(echo $IMAGE_BASE:${{ github.sha }})" >> $GITHUB_ENV
 
       - name: Sjekk ut kode
         uses: actions/checkout@v2
@@ -92,27 +82,3 @@ jobs:
           VARS: .nais/dev.yml
           PRINT_PAYLOAD: true
 
-#  deploy-prod:
-#    name: Deploy til prod
-#    runs-on: ubuntu-latest
-#    needs: deploy-dev
-#    steps:
-#      - name: Finn REPOSITORY_NAME
-#        run: echo ::set-env name=REPOSITORY_NAME::$(echo "$GITHUB_REPOSITORY" | awk -F / '{print $2}')
-#
-#      - name: Sett IMAGE_BASE
-#        run: echo ::set-env name=IMAGE_BASE::$(echo "docker.pkg.github.com/$GITHUB_REPOSITORY/$REPOSITORY_NAME")
-#
-#      - name: Sett IMAGE
-#        run: echo ::set-env name=IMAGE::$(echo "$IMAGE_BASE:${{ github.sha }}")
-#
-#      - name: Sjekk ut kode
-#        uses: actions/checkout@v2
-#
-#      - name: Deploy til prod-gcp
-#        uses: nais/deploy/actions/deploy@v1
-#        env:
-#          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-#          CLUSTER: prod-gcp
-#          RESOURCE: nais.yml
-#          PRINT_PAYLOAD: true

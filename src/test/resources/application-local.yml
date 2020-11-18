@@ -28,7 +28,7 @@ logging:
 
 tiltak-refusjon:
   inntektskomponenten:
-    uri: http://localhost:8090/inntekskomponenten/hentinntektliste
+    uri: http://localhost:8090/inntektskomponenten/hentinntektliste
     filter: KontrollArbeidsmarkedstiltakA-inntekt
     consumer-id: tiltak-refusjon-api
   altinn-tilgangstyring:

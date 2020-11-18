@@ -1,6 +1,8 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.inntekt
 
 import InntektListe
+import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.request.Aktør
+import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.request.InntektRequest
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.response.ArbeidsInntektMaaned
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.response.InntektResponse
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Inntektslinje
@@ -32,7 +34,8 @@ class InntektskomponentConsumer(
 
     fun hentInntekter(fnr: String, bedriftnummerDetSøkesPå: String, datoFra: LocalDate, datoTil: LocalDate): List<Inntektslinje> {
         try {
-            val responseMedInntekterForDeltaker = restTemplate.exchange<InntektResponse>(getUrl(fnr, datoFra, datoTil), HttpMethod.POST, hentHttpHeaders()).body
+            val requestEntity = lagRequest(fnr, YearMonth.from(datoFra), YearMonth.from(datoTil))
+            val responseMedInntekterForDeltaker = restTemplate.exchange<InntektResponse>(getUrl(fnr, datoFra, datoTil), HttpMethod.POST, requestEntity).body
             val inntekter = responseMedInntekterForDeltaker?.arbeidsInntektMaaned ?: throw HentingAvInntektException()
             return inntekterForBedrift(inntekter, bedriftnummerDetSøkesPå)
         } catch (ex: Exception) {
@@ -43,8 +46,8 @@ class InntektskomponentConsumer(
 
     private fun inntekterForBedrift(månedsInntektList: List<ArbeidsInntektMaaned>?, bedriftnummerDetSøkesPå: String): List<Inntektslinje> {
         val inntekterTotalt = mutableListOf<Inntektslinje>()
-        månedsInntektList?.forEach {
-            val arbeidsinntektListe: List<InntektListe>? = it.arbeidsInntektInformasjon?.inntektListe
+        månedsInntektList?.forEach { inntektMaaned ->
+            val arbeidsinntektListe: List<InntektListe>? = inntektMaaned.arbeidsInntektInformasjon?.inntektListe
             arbeidsinntektListe?.filter { it.virksomhet?.identifikator.toString() == bedriftnummerDetSøkesPå }?.forEach {
                 var dateFraOpptjenningsperiode: LocalDate? = null
                 var datoTilOpptjenningsperiode: LocalDate? = null
@@ -67,13 +70,15 @@ class InntektskomponentConsumer(
         return inntekterTotalt
     }
 
-    private fun hentHttpHeaders(): HttpEntity<HttpHeaders> {
-        val httpHeaders = HttpHeaders()
-        httpHeaders.set("Nav-Consumer-Id", consumerId)
-        httpHeaders["Nav-Call-Id"] = UUID.randomUUID().toString()
-        return HttpEntity(httpHeaders)
+    private fun lagRequest(fnr: String, månedFom: YearMonth, månedTom: YearMonth): HttpEntity<InntektRequest> {
+        val headers = HttpHeaders()
+        headers["Nav-Consumer-Id"] = consumerId
+        headers["Nav-Call-Id"] = UUID.randomUUID().toString()
+        val body = InntektRequest(Aktør(fnr), månedFom, månedTom, ainntektsfilter)
+        return HttpEntity(body, headers)
     }
 
+    // TODO: Fjerne denne metoden som legger på query-parametre. Inntektkomponenten bruker ikke dette, men må til p.t. for å ikke gjøre om alle Wiremock-mappingene
     private fun getUrl(fnr: String, datoFra: LocalDate, datoTil: LocalDate): URI {
         return UriComponentsBuilder.fromHttpUrl(url)
                 .queryParam("ident", fnr)

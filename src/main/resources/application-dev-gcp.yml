@@ -1,6 +1,6 @@
 tiltak-refusjon:
   inntektskomponenten:
-    uri: https://tiltak-proxy.dev-fss-pub.nais.io/inntekt/hentinntektliste
+    uri: https://tiltak-proxy.dev-fss-pub.nais.io/inntektskomponenten/hentinntektliste
     filter: KontrollArbeidsmarkedstiltakA-inntekt
     consumer-id: tiltak-refusjon-api
   altinn-tilgangstyring:

@@ -4,7 +4,7 @@
       "priority": 1,
       "request": {
         "method": "POST",
-        "urlPath": "/inntekskomponenten/hentinntektliste",
+        "urlPath": "/inntektskomponenten/hentinntektliste",
         "queryParameters": {
           "ident": {
             "matches": "00\\d{9}"
@@ -35,7 +35,7 @@
       "priority": 2,
       "request": {
         "method": "POST",
-        "urlPath": "/inntekskomponenten/hentinntektliste",
+        "urlPath": "/inntektskomponenten/hentinntektliste",
         "queryParameters": {
           "ident": {
             "matches": "\\d{11}"
@@ -186,7 +186,7 @@
       "priority": 1,
       "request": {
         "method": "POST",
-        "urlPath": "/inntekskomponenten/hentinntektliste",
+        "urlPath": "/inntektskomponenten/hentinntektliste",
         "queryParameters": {
           "ident": {
             "matches": "[^\\d{11}]"
@@ -221,7 +221,7 @@
       "priority": 1,
       "request": {
         "method": "POST",
-        "urlPath": "/inntekskomponenten/hentinntektliste",
+        "urlPath": "/inntektskomponenten/hentinntektliste",
         "queryParameters": {
           "ident": {
             "matches": "\\d{11}"

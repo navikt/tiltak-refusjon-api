@@ -1,6 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon
 
 import com.github.tomakehurst.wiremock.WireMockServer
+import com.github.tomakehurst.wiremock.common.ConsoleNotifier
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import lombok.extern.slf4j.Slf4j
 import org.springframework.beans.factory.DisposableBean
@@ -14,6 +15,7 @@ class IntegrasjonerMockServer() : DisposableBean{
     private val server: WireMockServer = WireMockServer(WireMockConfiguration
             .options()
             .usingFilesUnderClasspath(".")
+//            .notifier(ConsoleNotifier(true))
             .port(8090))
 
     init {

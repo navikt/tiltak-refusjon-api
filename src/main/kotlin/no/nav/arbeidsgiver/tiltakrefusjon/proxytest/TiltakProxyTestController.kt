@@ -28,11 +28,11 @@ class TiltakProxyTestController(
 
     @GetMapping("/aad")
     fun testAad(): String? {
-        return påVegneAvSaksbehandlerProxyRestTemplate.getForObject("https://tiltak-proxy.dev-fss-pub.nais.io/test-aad", String::class.java)
+        return påVegneAvSaksbehandlerProxyRestTemplate.getForObject("https://tiltak-proxy.dev-fss-pub.nais.io/auth", String::class.java)
     }
 
     @GetMapping("/aad-anonym")
     fun testAadAnonym(): String? {
-        return anonymProxyRestTemplate.getForObject("https://tiltak-proxy.dev-fss-pub.nais.io/test-aad", String::class.java)
+        return anonymProxyRestTemplate.getForObject("https://tiltak-proxy.dev-fss-pub.nais.io/auth", String::class.java)
     }
 }

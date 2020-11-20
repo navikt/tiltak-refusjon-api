@@ -15,11 +15,10 @@ import org.springframework.http.HttpMethod
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.exchange
-import org.springframework.web.util.UriComponentsBuilder
 import java.net.URI
 import java.time.LocalDate
 import java.time.YearMonth
-import java.util.*
+import java.util.UUID
 
 
 @Service
@@ -35,7 +34,7 @@ class InntektskomponentConsumer(
     fun hentInntekter(fnr: String, bedriftnummerDetSøkesPå: String, datoFra: LocalDate, datoTil: LocalDate): List<Inntektslinje> {
         try {
             val requestEntity = lagRequest(fnr, YearMonth.from(datoFra), YearMonth.from(datoTil))
-            val responseMedInntekterForDeltaker = restTemplate.exchange<InntektResponse>(getUrl(fnr, datoFra, datoTil), HttpMethod.POST, requestEntity).body
+            val responseMedInntekterForDeltaker = restTemplate.exchange<InntektResponse>(URI(url), HttpMethod.POST, requestEntity).body
             val inntekter = responseMedInntekterForDeltaker?.arbeidsInntektMaaned ?: throw HentingAvInntektException()
             return inntekterForBedrift(inntekter, bedriftnummerDetSøkesPå)
         } catch (ex: Exception) {
@@ -77,16 +76,4 @@ class InntektskomponentConsumer(
         val body = InntektRequest(Aktør(fnr), månedFom, månedTom, ainntektsfilter)
         return HttpEntity(body, headers)
     }
-
-    // TODO: Fjerne denne metoden som legger på query-parametre. Inntektkomponenten bruker ikke dette, men må til p.t. for å ikke gjøre om alle Wiremock-mappingene
-    private fun getUrl(fnr: String, datoFra: LocalDate, datoTil: LocalDate): URI {
-        return UriComponentsBuilder.fromHttpUrl(url)
-                .queryParam("ident", fnr)
-                .queryParam("maanedFom", (YearMonth.of(datoFra.year, datoFra.month)))
-                .queryParam("maanedTom", (YearMonth.of(datoTil.year, datoTil.month)))
-                .queryParam("ainntektsfilter", ainntektsfilter)
-                .build()
-                .toUri()
-    }
-
 }

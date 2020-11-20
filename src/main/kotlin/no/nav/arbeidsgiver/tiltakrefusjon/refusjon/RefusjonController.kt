@@ -33,6 +33,11 @@ class RefusjonController(
         return innloggetBruker.finnAlle()
     }
 
+    @PostMapping("/{refusjonId}/beregn")
+    fun hentBeregnetRefusjonForPeriodeDeltakerOgBedrift(@PathVariable refusjonId: String): Refusjonsgrunnlag {
+        return refusjonsberegningService.hentGrunnlag(refusjonId)
+    }
+
     @PostMapping("/beregn")
     fun hentBeregnetRefusjonForPeriodeDeltakerOgBedrift(@RequestBody refusjonsberegningRequest: RefusjonsberegningRequest): Refusjonsgrunnlag {
         return refusjonsberegningService.hentGrunnlag(refusjonsberegningRequest)

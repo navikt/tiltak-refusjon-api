@@ -14,14 +14,10 @@ data class Refusjonsgrunnlag(
 ) {
     private val TJENESTEPENSJON_SATS = 0.02
 
-    constructor(inntekter: List<Inntektslinje>, refusjon: Refusjon) : this(inntekter, refusjon.stillingsprosent, refusjon.fraDato, refusjon.tilDato, refusjon.satsArbeidsgiveravgift, refusjon.satsFeriepenger,0)
+    constructor(inntekter: List<Inntektslinje>, refusjon: Refusjon) : this(inntekter, refusjon.stillingsprosent, refusjon.fraDato, refusjon.tilDato, refusjon.satsArbeidsgiveravgift, refusjon.satsFeriepenger)
 
     init {
         beløp = hentBeregnetGrunnlag()
-    }
-
-    fun getBeløp():Int{
-        return hentBeregnetGrunnlag()
     }
 
     private fun hentBeregnetGrunnlag(): Int {

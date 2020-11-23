@@ -196,7 +196,7 @@ class RefusjonApiTest(
 
         // NÅR
         val json = sendRequest(get("$REQUEST_MAPPING/deltaker/$deltakerFnr/bedrift/$bedriftnummer/fra/$datoRefusjonPeriodeFom/til/$datoRefusjonPeriodeTom"), arbGiverCookie)
-        val refusjon = mapper.readValue(json, object : TypeReference<Refusjon?>() {})
+        val refusjon = mapper.readValue(json, Refusjon::class.java)
 
         // SÅ
         assertNotNull(refusjon)

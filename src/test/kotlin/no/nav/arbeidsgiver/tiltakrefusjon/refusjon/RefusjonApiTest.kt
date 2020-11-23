@@ -122,7 +122,7 @@ class RefusjonApiTest(
     fun `hentBeregnetRefusjon() for deltaker, bedrift og periode når request ident inneholder ugyldig tegn`(){
         // GITT
         val bedriftnummer = "998877665"
-        val deltakerFnr = "aaaa_asd28128521498"
+        val deltakerFnr = "2812aaaaa8521498"
         val datoRefusjonPeriodeFom ="2020-09-01"
         val datoRefusjonPeriodeTom = "2020-10-01"
         val refusjonsberegningRequest = RefusjonsberegningRequest(deltakerFnr, bedriftnummer, datoRefusjonPeriodeFom, datoRefusjonPeriodeTom)

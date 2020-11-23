@@ -29,11 +29,6 @@ class RefusjonController(
         val refusjonsberegningService: RefusjonsberegningService
 ) {
 
-    @GetMapping("/beregn/grunnlag")
-    fun beregn(grunnlag: Refusjonsgrunnlag): Int {
-        return grunnlag.hentBeregnetGrunnlag()
-    }
-
     @GetMapping
     fun hentAlle(): List<Refusjon> {
         val innloggetBruker = innloggetBrukerService.hentInnloggetBruker()
@@ -41,13 +36,13 @@ class RefusjonController(
     }
 
     @PostMapping("/{refusjonId}/beregn")
-    fun hentBeregnetRefusjonForPeriodeDeltakerOgBedrift(@PathVariable refusjonId: String): Int {
-        return refusjonsberegningService.hentGrunnlag(refusjonId).hentBeregnetGrunnlag()
+    fun hentBeregnetRefusjonForPeriodeDeltakerOgBedrift(@PathVariable refusjonId: String): Refusjonsgrunnlag {
+        return refusjonsberegningService.hentGrunnlag(refusjonId)
     }
 
     @PostMapping("/beregn")
-    fun hentBeregnetRefusjonForPeriodeDeltakerOgBedrift(@RequestBody refusjonsberegningRequest: RefusjonsberegningRequest): Int {
-        return refusjonsberegningService.hentGrunnlag(refusjonsberegningRequest).hentBeregnetGrunnlag()
+    fun hentBeregnetRefusjonForPeriodeDeltakerOgBedrift(@RequestBody refusjonsberegningRequest: RefusjonsberegningRequest): Refusjonsgrunnlag {
+        return refusjonsberegningService.hentGrunnlag(refusjonsberegningRequest)
     }
 
     @GetMapping("/deltaker/{deltakerfnr}/bedrift/{bedriftnummer}/fra/{datoFom}/til/{datoTom}")

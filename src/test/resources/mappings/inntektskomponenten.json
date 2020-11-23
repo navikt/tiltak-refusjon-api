@@ -1,6 +1,28 @@
 {
   "mappings": [
+    {
+      "priority": 1,
+      "request": {
+        "method": "POST",
+        "urlPath": "/inntektskomponenten-ws/rs/api/v1/hentinntektliste",
+        "bodyPatterns" : [ {
+          "equalToJson" : "{\"fnr\":\"2812aaaaa8521498\",\"bedriftNr\":\"998877665\",\"refusjonFraDato\":\"2020-09-01\",\"refusjonTilDato\":\"2020-10-01\"}"
+        }]},
+      "response": {
+        "status": 200,
+        "jsonBody":
+        {
 
+        }
+      ,
+        "headers": {
+          "Content-Type": "application/json",
+          "Accept":"application/json",
+          "Nav-consumer-Id":"tiltak-refusjon",
+          "Nav-Call-Id":"hoppla1"
+        }
+      }
+    },
     {
       "priority": 2,
       "request": {
@@ -150,7 +172,7 @@
         "method": "POST",
         "urlPath": "/inntektskomponenten-ws/rs/api/v1/hentinntektliste",
         "bodyPatterns" : [ {
-          "equalToJson" : "{\"fnr\":\"28128521498\",\"bedriftNr\":\"998877665\",\"refusjonFraDato\":\"2020-09-01\",\"refusjonTilDato\":\"2020-10-01\"}"
+          "equalToJson" : "{\"fnr\":\"   \",\"bedriftNr\":\"    \",\"refusjonFraDato\":\"2020-09-01\",\"refusjonTilDato\":\"2020-10-01\"}"
         }]},
       "response": {
         "status": 400,
@@ -160,41 +182,6 @@
           "status": "400",
           "error": "Bad Request",
           "message": "Feil i forespørselen: Ident må bestå av 11 sifre",
-          "path": "/api/v1/hentinntektliste"
-        }
-      ,
-        "headers": {
-          "Content-Type": "application/json",
-          "Accept":"application/json",
-          "Nav-consumer-Id":"tiltak-refusjon",
-          "Nav-Call-Id":"hoppla1"
-        }
-      }
-    },
-    {
-      "priority": 1,
-      "request": {
-        "method": "POST",
-        "urlPath": "/inntektskomponenten-ws/rs/api/v1/hentinntektliste",
-        "queryParameters": {
-          "ident": {
-            "matches": "\\d{11}"
-          },
-          "ainntektsfilter":{
-            "matches": "KontrollArbeidsmarkedstiltakA-inntekt"
-          },
-          "maanedFom":{"matches": "\\w"},
-          "maanedTom":{"matches": "\\w"}
-        }
-      },
-      "response": {
-        "status": 500,
-        "jsonBody":
-        {
-          "timestamp": "2020-11-11T15:11:58.111+0100",
-          "status": "500",
-          "error": "Internal Server Error",
-          "message": "Det har oppstått en ukjent feil: Illegal unquoted character ((CTRL-CHAR, code 10)): has to be escaped using backslash to be included in name\n at [Source: {\n\t\n\t\"ident:{\n\t\t\"identifikator\":\"28128521498\",\n\t\t\"aktoerType\" : \"NATURLIG_IDENT\"\n\t},\n\t\"ainntektsfilter\":\"KontrollArbeidsmarkedstiltakA-inntekt\",\n\t\"maanedFom\":\"2020-0aa1\",\n\t\"maanedTom\":\"2020-11\"\n\t\n}; line: 3, column: 11]",
           "path": "/api/v1/hentinntektliste"
         }
       ,

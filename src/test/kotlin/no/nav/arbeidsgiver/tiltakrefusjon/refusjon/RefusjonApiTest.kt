@@ -177,11 +177,12 @@ class RefusjonApiTest(
                 .accept(MediaType.APPLICATION_JSON)
 
         val json = sendRequest(request, arbGiverCookie)
-        val refusjonsgrunnlag = mapper.readValue(json, object : TypeReference<Refusjonsgrunnlag?>() {})
+        val refusjonsgrunnlag = mapper.readValue(json, Refusjonsgrunnlag::class.java)
 
         // SÅ
         assertNotNull(refusjonsgrunnlag!!)
         assertEquals(3, refusjonsgrunnlag.inntekter.size)
+        assertEquals(refusjonsgrunnlag.beløp,11245)
     }
 
 

@@ -8,15 +8,23 @@ data class Refusjonsgrunnlag(
         val stillingsprosent: Int,
         val datoRefusjonstart: LocalDate,
         val datoRefusjonslutt: LocalDate,
-        var arbeidsgiveravgiftSats: Double,
-        var feriepengerSats: Double
+        val arbeidsgiveravgiftSats: Double,
+        val feriepengerSats: Double,
+        var beløp: Int? = 0
 ) {
-
-    constructor(inntekter: List<Inntektslinje>, refusjon: Refusjon) : this(inntekter, refusjon.stillingsprosent, refusjon.fraDato, refusjon.tilDato, refusjon.satsArbeidsgiveravgift, refusjon.satsFeriepenger)
-
     private val TJENESTEPENSJON_SATS = 0.02
 
-    fun hentBeregnetGrunnlag(): Int {
+    constructor(inntekter: List<Inntektslinje>, refusjon: Refusjon) : this(inntekter, refusjon.stillingsprosent, refusjon.fraDato, refusjon.tilDato, refusjon.satsArbeidsgiveravgift, refusjon.satsFeriepenger,0)
+
+    init {
+        beløp = hentBeregnetGrunnlag()
+    }
+
+    fun getBeløp():Int{
+        return hentBeregnetGrunnlag()
+    }
+
+    private fun hentBeregnetGrunnlag(): Int {
         return inntekter
                 .filter(Inntektslinje::erLønnsinntekt)
                 .map { it.tilDagsatsForPeriode(datoRefusjonstart, datoRefusjonslutt) }

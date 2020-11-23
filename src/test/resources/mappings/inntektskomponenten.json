@@ -6,7 +6,7 @@
         "method": "POST",
         "urlPath": "/inntektskomponenten-ws/rs/api/v1/hentinntektliste",
         "bodyPatterns" : [ {
-          "equalToJson" : "{\"fnr\":\"2812aaaaa8521498\",\"bedriftNr\":\"998877665\",\"refusjonFraDato\":\"2020-09-01\",\"refusjonTilDato\":\"2020-10-01\"}"
+          "equalToJson" : {"fnr":"2812aaaaa8521498","bedriftNr":"998877665","refusjonFraDato":"2020-09-01","refusjonTilDato":"2020-10-01"}
         }]},
       "response": {
         "status": 200,
@@ -29,7 +29,7 @@
         "method": "POST",
         "urlPath": "/inntektskomponenten-ws/rs/api/v1/hentinntektliste",
         "bodyPatterns" : [ {
-          "equalToJson" : "{\"ident\":{\"identifikator\":\"28128521498\",\"aktoerType\":\"NATURLIG_IDENT\"},\"maanedFom\":\"2020-09\",\"maanedTom\":\"2020-10\",\"ainntektsfilter\":\"KontrollArbeidsmarkedstiltakA-inntekt\"}"
+          "equalToJson" : {"ident":{"identifikator":"28128521498","aktoerType":"NATURLIG_IDENT"},"maanedFom":"2020-09","maanedTom":"2020-10","ainntektsfilter":"KontrollArbeidsmarkedstiltakA-inntekt"}
       }]},
       "response": {
         "status": 200,
@@ -172,7 +172,7 @@
         "method": "POST",
         "urlPath": "/inntektskomponenten-ws/rs/api/v1/hentinntektliste",
         "bodyPatterns" : [ {
-          "equalToJson" : "{\"fnr\":\"   \",\"bedriftNr\":\"    \",\"refusjonFraDato\":\"2020-09-01\",\"refusjonTilDato\":\"2020-10-01\"}"
+          "equalToJson" : {"ident":{"identifikator":"   ","aktoerType":"NATURLIG_IDENT"},"maanedFom":"2020-09","maanedTom":"2020-10","ainntektsfilter":"KontrollArbeidsmarkedstiltakA-inntekt"}
         }]},
       "response": {
         "status": 400,

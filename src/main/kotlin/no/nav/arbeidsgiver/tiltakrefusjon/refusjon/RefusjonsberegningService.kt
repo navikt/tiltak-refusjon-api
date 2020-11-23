@@ -14,7 +14,7 @@ class RefusjonsberegningService(val refusjonRepository: RefusjonRepository, val 
         val refusjonFraDato = LocalDate.parse(refusjonsberegningRequest.refusjonFraDato)
         val refusjonTilDato = LocalDate.parse(refusjonsberegningRequest.refusjonTilDato)
         val inntekter = inntektskomponentConsumer.hentInntekter(refusjonsberegningRequest.fnr, refusjonsberegningRequest.bedriftNr, refusjonFraDato, refusjonTilDato)
-        val refusjon: Refusjon = refusjonRepository.findByDeltakerBedriftOgPeriode(refusjonsberegningRequest.fnr, refusjonsberegningRequest.bedriftNr, refusjonFraDato, refusjonTilDato)
+        val refusjon: Refusjon = refusjonRepository.findOneByDeltakerFnrAndBedriftnummerAndFraDatoGreaterThanEqualAndTilDatoLessThanEqual(refusjonsberegningRequest.fnr, refusjonsberegningRequest.bedriftNr, refusjonFraDato, refusjonTilDato)
                 ?: throw RefusjonException("Refusjon ikke funnet")
         return Refusjonsgrunnlag(inntekter, refusjon)
     }

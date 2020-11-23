@@ -8,14 +8,12 @@ import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.response.InntektResponse
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Inntektslinje
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.exchange
-import java.net.URI
 import java.time.LocalDate
 import java.time.YearMonth
 import java.util.UUID
@@ -23,9 +21,7 @@ import java.util.UUID
 
 @Service
 class InntektskomponentConsumer(
-        @Value("\${tiltak-refusjon.inntektskomponenten.uri}") val url: String,
-        @Value("\${tiltak-refusjon.inntektskomponenten.filter}") val ainntektsfilter: String,
-        @Value("\${tiltak-refusjon.inntektskomponenten.consumer-id}") val consumerId: String,
+        val inntektskomponentProperties: InntektskomponentProperties,
         @Qualifier("anonymProxyRestTemplate") val restTemplate: RestTemplate
 ) {
 
@@ -34,7 +30,7 @@ class InntektskomponentConsumer(
     fun hentInntekter(fnr: String, bedriftnummerDetSøkesPå: String, datoFra: LocalDate, datoTil: LocalDate): List<Inntektslinje> {
         try {
             val requestEntity = lagRequest(fnr, YearMonth.from(datoFra), YearMonth.from(datoTil))
-            val responseMedInntekterForDeltaker = restTemplate.exchange<InntektResponse>(URI(url), HttpMethod.POST, requestEntity).body
+            val responseMedInntekterForDeltaker = restTemplate.exchange<InntektResponse>(inntektskomponentProperties.uri, HttpMethod.POST, requestEntity).body
             val inntekter = responseMedInntekterForDeltaker?.arbeidsInntektMaaned ?: throw HentingAvInntektException()
             return inntekterForBedrift(inntekter, bedriftnummerDetSøkesPå)
         } catch (ex: Exception) {
@@ -71,9 +67,9 @@ class InntektskomponentConsumer(
 
     private fun lagRequest(fnr: String, månedFom: YearMonth, månedTom: YearMonth): HttpEntity<InntektRequest> {
         val headers = HttpHeaders()
-        headers["Nav-Consumer-Id"] = consumerId
+        headers["Nav-Consumer-Id"] = inntektskomponentProperties.consumerId
         headers["Nav-Call-Id"] = UUID.randomUUID().toString()
-        val body = InntektRequest(Aktør(fnr), månedFom, månedTom, ainntektsfilter)
+        val body = InntektRequest(Aktør(fnr), månedFom, månedTom, inntektskomponentProperties.filter)
         return HttpEntity(body, headers)
     }
 }

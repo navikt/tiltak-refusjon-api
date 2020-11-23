@@ -28,6 +28,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import java.nio.charset.StandardCharsets
 import java.util.Date
 import java.util.UUID
 import javax.servlet.http.Cookie
@@ -366,7 +367,7 @@ class RefusjonApiTest(
                         .cookie(cookie))
                 .andExpect(status)
                 .andReturn()
-                .response.contentAsString
+                .response.getContentAsString(StandardCharsets.UTF_8)
     }
 
     private fun sendRequest(request: MockHttpServletRequestBuilder, cookie: Cookie, forventetStatus: ResultMatcher) {

@@ -187,6 +187,23 @@ class RefusjonApiTest(
 
 
     @Test
+    fun `hentRefusjon() for deltaker, bedrift og periode som ikke finnes`(){
+        // GITT
+        val bedriftnummer = "998877665"
+        val deltakerFnr = "28128521498"
+        val datoRefusjonPeriodeFom = "2000-09-01"
+        val datoRefusjonPeriodeTom = "2000-10-01"
+
+        // NÅR
+        val json = sendRequest(get("$REQUEST_MAPPING/deltaker/$deltakerFnr/bedrift/$bedriftnummer/fra/$datoRefusjonPeriodeFom/til/$datoRefusjonPeriodeTom"), arbGiverCookie)
+
+
+        // SÅ
+        assertTrue(json.isBlank())
+    }
+
+
+    @Test
     fun `hentRefusjon() for deltaker, bedrift og periode`(){
         // GITT
         val bedriftnummer = "998877665"

@@ -5,7 +5,14 @@ import no.nav.security.token.support.core.api.Protected
 import no.nav.security.token.support.spring.validation.interceptor.JwtTokenUnauthorizedException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.ExceptionHandler
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpStatusCodeException
 import java.time.LocalDate
@@ -34,13 +41,13 @@ class RefusjonController(
     }
 
     @PostMapping("/{refusjonId}/beregn")
-    fun hentBeregnetRefusjonForPeriodeDeltakerOgBedrift(@PathVariable refusjonId: String): Refusjonsgrunnlag {
-        return refusjonsberegningService.hentGrunnlag(refusjonId)
+    fun hentBeregnetRefusjonForPeriodeDeltakerOgBedrift(@PathVariable refusjonId: String): Int {
+        return refusjonsberegningService.hentGrunnlag(refusjonId).hentBeregnetGrunnlag()
     }
 
     @PostMapping("/beregn")
-    fun hentBeregnetRefusjonForPeriodeDeltakerOgBedrift(@RequestBody refusjonsberegningRequest: RefusjonsberegningRequest): Refusjonsgrunnlag {
-        return refusjonsberegningService.hentGrunnlag(refusjonsberegningRequest)
+    fun hentBeregnetRefusjonForPeriodeDeltakerOgBedrift(@RequestBody refusjonsberegningRequest: RefusjonsberegningRequest): Int {
+        return refusjonsberegningService.hentGrunnlag(refusjonsberegningRequest).hentBeregnetGrunnlag()
     }
 
     @GetMapping("/deltaker/{deltakerfnr}/bedrift/{bedriftnummer}/fra/{datoFom}/til/{datoTom}")

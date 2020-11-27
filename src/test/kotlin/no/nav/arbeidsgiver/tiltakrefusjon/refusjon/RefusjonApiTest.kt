@@ -56,7 +56,6 @@ class RefusjonApiTest(
         refusjonRepository.saveAll(refusjoner())
     }
 
-
     @Test
     fun `hentBeregnetRefusjon() for deltaker, bedrift og periode når response inneholder ikke inntekter fra inntektskomponenten`(){
         // GITT

@@ -1,5 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.tilskudd
 
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonsberegningService
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.any
 import org.mockito.Mockito.verify
@@ -11,7 +12,7 @@ import org.springframework.kafka.test.context.EmbeddedKafka
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import java.time.LocalDate
-import java.util.UUID
+import java.util.*
 
 @ActiveProfiles("local")
 @SpringBootTest(properties = ["tiltak-refusjon.kafka.enabled=true"])
@@ -24,18 +25,16 @@ class GodkjentTilskuddLytterTest {
     lateinit var kafkaTemplate: KafkaTemplate<String, TilskuddMelding>
 
     @MockBean
-    lateinit var beregningServiceMock: BeregningService
+    lateinit var refusjonsberegningService: RefusjonsberegningService
 
     @Autowired
     lateinit var godkjentTilskuddLytter: GodkjentTilskuddLytter
 
     @Test
     fun `skal beregne tilskudd når melding blir lest fra topic`() {
-
-
         // GITT
-        val tilskuddMelding = TilskuddMelding(UUID.randomUUID(),
-                UUID.randomUUID(), UUID.randomUUID(),
+        val tilskuddMelding = TilskuddMelding(UUID.randomUUID().toString(),
+                UUID.randomUUID().toString(), UUID.randomUUID().toString(),
                 "VARLIG-LØNNSTILSKUDD", "Donald",
                 "Duck", "12345678901", "X123456",
                 "Duck Levering AS", "99999999", 12000,
@@ -45,9 +44,8 @@ class GodkjentTilskuddLytterTest {
         kafkaTemplate.send(Topics.REFUSJON, tilskuddMelding.avtaleId.toString(), tilskuddMelding)
 
         // SÅ
-
         Thread.sleep(1000)
-        verify(beregningServiceMock).bereg(any<TilskuddMelding>() ?: tilskuddMelding)
+        verify(refusjonsberegningService).opprettRefusjon(any<TilskuddMelding>() ?: tilskuddMelding)
     }
 
 

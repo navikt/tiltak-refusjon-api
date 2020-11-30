@@ -1,20 +1,20 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.tilskudd
 
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
 import java.time.LocalDate
-import java.util.UUID
 
-data class TilskuddMelding (
-    val avtaleId: UUID? = null,
-    val tilskuddPeriodeId: UUID? = null,
-    val avtaleInnholdId: UUID? = null,
-    val tiltakstype: String? = null,
-    val deltakerFornavn: String? = null,
-    val deltakerEtternavn: String? = null,
-    val deltakerFnr: String? = null,
-    val veilederNavIdent: String? = null,
-    val bedriftNavn: String? = null,
-    val bedriftnummer: String? = null,
-    val tilskuddBeløp: Int? = null,
-    val tilskuddFraDato: LocalDate? = null,
-    val tilskuddTilDato: LocalDate? = null
+data class TilskuddMelding(
+        val avtaleId: String,
+        val tilskuddPeriodeId: String,
+        val avtaleInnholdId: String,
+        val tiltakstype: Tiltakstype,
+        val deltakerFornavn: String,
+        val deltakerEtternavn: String,
+        val deltakerFnr: String,
+        val veilederNavIdent: String,
+        val bedriftNavn: String,
+        val bedriftNr: String,
+        val tilskuddBeløp: Int,
+        val tilskuddFraDato: LocalDate,
+        val tilskuddTilDato: LocalDate
 )

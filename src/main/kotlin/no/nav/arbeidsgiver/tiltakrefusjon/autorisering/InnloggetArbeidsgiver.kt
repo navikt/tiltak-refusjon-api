@@ -27,7 +27,7 @@ data class InnloggetArbeidsgiver(
 
     override fun finnRefusjon(id: String): Refusjon? {
         val refusjon: Refusjon? = refusjonRepository.findByIdOrNull(id)
-        refusjon?.let { sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftnummer) }
+        refusjon?.let { sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr) }
         return refusjon
     }
 

@@ -5,16 +5,22 @@ import kotlin.math.roundToInt
 
 data class Refusjonsgrunnlag(
         val inntekter: List<Inntektslinje>,
-        val stillingsprosent: Int,
         val datoRefusjonstart: LocalDate,
         val datoRefusjonslutt: LocalDate,
         val arbeidsgiveravgiftSats: Double,
-        val feriepengerSats: Double,
+        val feriepengeSats: Double,
+        val otpSats: Double,
         var beløp: Int? = 0
 ) {
-    private val TJENESTEPENSJON_SATS = 0.02
 
-    constructor(inntekter: List<Inntektslinje>, refusjon: Refusjon) : this(inntekter, refusjon.stillingsprosent, refusjon.fraDato, refusjon.tilDato, refusjon.satsArbeidsgiveravgift, refusjon.satsFeriepenger)
+    constructor(inntekter: List<Inntektslinje>, refusjon: Refusjon) : this(
+            inntekter,
+            refusjon.fraDato,
+            refusjon.tilDato,
+            refusjon.arbeidsgiveravgiftSats,
+            refusjon.feriepengerSats,
+            refusjon.otpSats
+    )
 
     init {
         beløp = hentBeregnetGrunnlag()
@@ -26,15 +32,14 @@ data class Refusjonsgrunnlag(
                 .map { it.tilDagsatsForPeriode(datoRefusjonstart, datoRefusjonslutt) }
                 .map { dagsats ->
                     val beløpPerDag = dagsats.beløp
-                    val feriepengerPerDag = beløpPerDag * feriepengerSats
-                    val tjenestepensjonPerDag = (beløpPerDag + feriepengerPerDag) * TJENESTEPENSJON_SATS
+                    val feriepengerPerDag = beløpPerDag * feriepengeSats
+                    val tjenestepensjonPerDag = (beløpPerDag + feriepengerPerDag) * otpSats
                     val arbeidsgiveravgiftPerDag = (beløpPerDag + tjenestepensjonPerDag + feriepengerPerDag) * arbeidsgiveravgiftSats
                     val totalBeløpPerDag = beløpPerDag + tjenestepensjonPerDag + feriepengerPerDag + arbeidsgiveravgiftPerDag
 
                     totalBeløpPerDag.times(dagsats.dager)
                 }
                 .sum()
-                .times(stillingsprosent / 100.0)
                 .roundToInt()
     }
 }

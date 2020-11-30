@@ -50,7 +50,6 @@ class RefusjonController(
         return refusjonRepository.findOneByDeltakerFnrAndBedriftnummerAndFraDatoGreaterThanEqualAndTilDatoLessThanEqual(deltakerfnr, bedriftnummer, LocalDate.parse(datoFom), LocalDate.parse(datoTom))
     }
 
-
     @GetMapping("/bedrift/{bedriftnummer}")
     fun hentAlleMedBedriftnummer(@PathVariable bedriftnummer: String): List<Refusjon> {
         val innloggetBruker = innloggetBrukerService.hentInnloggetBruker()
@@ -61,12 +60,6 @@ class RefusjonController(
     fun hent(@PathVariable id: String): Refusjon? {
         val innloggetBruker = innloggetBrukerService.hentInnloggetBruker()
         return innloggetBruker.finnRefusjon(id) ?: throw HttpClientErrorException(HttpStatus.NO_CONTENT)
-    }
-
-    // Til testformål
-    @PostMapping
-    fun opprett(@RequestBody refusjon: Refusjon): Refusjon {
-        return refusjonRepository.save(refusjon)
     }
 
     @PutMapping

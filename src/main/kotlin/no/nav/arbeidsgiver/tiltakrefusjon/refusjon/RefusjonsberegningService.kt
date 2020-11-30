@@ -1,6 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentConsumer
+import no.nav.arbeidsgiver.tiltakrefusjon.tilskudd.TilskuddMelding
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.time.LocalDate
@@ -22,7 +23,13 @@ class RefusjonsberegningService(val refusjonRepository: RefusjonRepository, val 
     fun hentGrunnlag(refusjonId: String): Refusjonsgrunnlag {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(refusjonId)
                 ?: throw RefusjonException("Refusjon ikke funnet")
-        val inntekter = inntektskomponentConsumer.hentInntekter(refusjon.deltakerFnr, refusjon.bedriftnummer, refusjon.fraDato, refusjon.tilDato)
+        val inntekter = inntektskomponentConsumer.hentInntekter(refusjon.deltakerFnr, refusjon.bedriftNr, refusjon.fraDato, refusjon.tilDato)
         return Refusjonsgrunnlag(inntekter, refusjon)
+    }
+
+    fun opprettRefusjon(tilskuddMelding: TilskuddMelding) {
+        if (refusjonRepository.findByTilskuddPeriodeId(tilskuddMelding.tilskuddPeriodeId) == null) {
+            val refusjon: Refusjon = nyRefusjon(tilskuddMelding)
+        }
     }
 }

@@ -218,7 +218,7 @@ class RefusjonApiTest(
         // SÅ
         assertNotNull(refusjon)
         assertNotNull(refusjon?.deltakerFnr.equals("28128521498")
-                && refusjon?.bedriftnummer.equals("998877665"))
+                && refusjon?.bedriftNr.equals("998877665"))
     }
 
 
@@ -256,7 +256,7 @@ class RefusjonApiTest(
         val liste = mapper.readValue(json, object : TypeReference<List<Refusjon?>?>() {})
 
         // DA
-        assertTrue(liste!!.all { it!!.bedriftnummer.equals(bedriftnummer) })
+        assertTrue(liste!!.all { it!!.bedriftNr.equals(bedriftnummer) })
         assertEquals(4, liste.size)
     }
 
@@ -270,7 +270,7 @@ class RefusjonApiTest(
         val liste = mapper.readValue(json, object : TypeReference<List<Refusjon?>?>() {})
 
         // SÅ
-        assertTrue(liste!!.all { it!!.bedriftnummer.equals(bedriftnummer) })
+        assertTrue(liste!!.all { it!!.bedriftNr.equals(bedriftnummer) })
         assertEquals(4, liste.size)
     }
 

@@ -28,7 +28,7 @@ create table inntektslinje
 (
     id                     varchar primary key,
     inntektsgrunnlag_id    varchar references inntektsgrunnlag (id),
-    type                   varchar,
+    inntekt_type           varchar,
     beløp                  numeric,
     måned                  varchar,
     opptjeningsperiode_fom date,

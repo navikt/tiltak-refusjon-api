@@ -10,7 +10,7 @@ data class Inntektslinje(
         val beløp: Double = 0.0,
         val måned: YearMonth = YearMonth.now(),
         val opptjeningsperiodeFom: LocalDate = måned.atDay(1),
-        val opptjenningsperiodeTom: LocalDate = måned.atEndOfMonth()
+        val opptjeningsperiodeTom: LocalDate = måned.atEndOfMonth()
 ) {
 
     constructor(inntektType: String, beløp: Double?, måned: YearMonth, inntektsperiodeFom: LocalDate? = null, inntektsperiodeTom: LocalDate? = null) :
@@ -20,7 +20,7 @@ data class Inntektslinje(
     fun hentAntallDagerOpptjent() = dagerOpptjentList().count()
     fun hentAntallDagerOpptjent(fraDato: LocalDate, tilDato: LocalDate) = dagerOpptjentList().filter { !it.isBefore(fraDato) && !it.isAfter(tilDato) }.count()
 
-    private fun dagerOpptjentList() = opptjeningsperiodeFom.datesUntil(opptjenningsperiodeTom.plusDays(1)).filter(this::erHverdag).toList()
+    private fun dagerOpptjentList() = opptjeningsperiodeFom.datesUntil(opptjeningsperiodeTom.plusDays(1)).filter(this::erHverdag).toList()
     private fun erHverdag(dato: LocalDate) = dato.dayOfWeek != DayOfWeek.SATURDAY && dato.dayOfWeek != DayOfWeek.SUNDAY
     fun hentBeløpPerDag() = beløp / hentAntallDagerOpptjent()
 

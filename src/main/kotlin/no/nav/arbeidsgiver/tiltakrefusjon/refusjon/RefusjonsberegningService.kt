@@ -1,10 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentConsumer
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.nydatamodell.Refusjonsak
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.nydatamodell.RefusjonsakRepository
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.nydatamodell.Tilskuddsgrunnlag
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.nydatamodell.TilskuddsgrunnlagRepository
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.nydatamodell.*
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskudd.TilskuddMelding
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -14,8 +11,7 @@ import java.time.LocalDate
 class RefusjonsberegningService(
         val refusjonRepository: RefusjonRepository,
         val inntektskomponentConsumer: InntektskomponentConsumer,
-        val refusjonsakRepository: RefusjonsakRepository,
-        val tilskuddsgrunnlagRepository: TilskuddsgrunnlagRepository
+        val refusjonsakRepository: RefusjonsakRepository
 ) {
     fun hentGrunnlag(refusjonsberegningRequest: RefusjonsberegningRequest): Refusjonsgrunnlag {
         if (!refusjonsberegningRequest.erUtfylt()) {
@@ -36,7 +32,7 @@ class RefusjonsberegningService(
         return Refusjonsgrunnlag(inntekter, refusjon)
     }
 
-    fun opprettRefusjon(tilskuddMelding: TilskuddMelding) {
+    fun opprettRefusjon(tilskuddMelding: TilskuddMelding): String {
         val tilskuddsgrunnlag = Tilskuddsgrunnlag(
                 avtaleId = tilskuddMelding.avtaleId,
                 tilskuddsperiodeId = tilskuddMelding.tilskuddsperiodeId,
@@ -54,8 +50,34 @@ class RefusjonsberegningService(
                 tiltakstype = tilskuddMelding.tiltakstype,
                 tilskuddsbeløp = tilskuddMelding.tilskuddsbeløp
         )
-        val refusjonsak = Refusjonsak(tilskuddsgrunnlagId = tilskuddsgrunnlag.id, deltakerFnr = tilskuddMelding.deltakerFnr, bedriftNr = tilskuddMelding.bedriftNr)
-        tilskuddsgrunnlagRepository.save(tilskuddsgrunnlag)
+        val refusjonsak = Refusjonsak(tilskuddsgrunnlag = tilskuddsgrunnlag, deltakerFnr = tilskuddMelding.deltakerFnr, bedriftNr = tilskuddMelding.bedriftNr)
         refusjonsakRepository.save(refusjonsak)
+        return refusjonsak.id
+    }
+
+    fun hentInntekterForRefusjon(refusjonsakId: String) {
+        val refusjon = refusjonsakRepository.findByIdOrNull(refusjonsakId) ?: throw RuntimeException()
+
+        val inntektsgrunnlag = Inntektsgrunnlag()
+        val inntekter = inntektskomponentConsumer.hentInntekter(
+                refusjon.deltakerFnr,
+                refusjon.bedriftNr,
+                refusjon.tilskuddsgrunnlag.tilskuddFom,
+                refusjon.tilskuddsgrunnlag.tilskuddTom
+        ).map {
+            InntektslinjeEntity(
+                    inntektsgrunnlag = inntektsgrunnlag,
+                    inntektType = it.inntektType,
+                    måned = it.måned,
+                    beløp = it.beløp,
+                    opptjeningsperiodeFom = it.opptjeningsperiodeFom,
+                    opptjeningsperiodeTom = it.opptjeningsperiodeTom
+            )
+        }
+        inntektsgrunnlag.inntekter.addAll(inntekter)
+
+        refusjon.inntektsgrunnlag = inntektsgrunnlag
+
+        refusjonsakRepository.save(refusjon)
     }
 }

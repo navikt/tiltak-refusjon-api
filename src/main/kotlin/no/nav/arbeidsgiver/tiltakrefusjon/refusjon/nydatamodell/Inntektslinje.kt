@@ -4,12 +4,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.github.guepardoapps.kulid.ULID
 import java.time.LocalDate
 import java.time.YearMonth
-import javax.persistence.Entity
-import javax.persistence.Id
-import javax.persistence.JoinColumn
-import javax.persistence.ManyToOne
+import javax.persistence.*
 
 @Entity
+@Table(name = "inntektslinje")
 data class InntektslinjeEntity(
         @Id
         val id: String = ULID.random(),
@@ -20,6 +18,6 @@ data class InntektslinjeEntity(
         val inntektType: String,
         val beløp: Double,
         val måned: YearMonth,
-        val opptjeningsperiodeFom: LocalDate,
-        val opptjenningsperiodeTom: LocalDate
+        val opptjeningsperiodeFom: LocalDate?,
+        val opptjeningsperiodeTom: LocalDate?
 )

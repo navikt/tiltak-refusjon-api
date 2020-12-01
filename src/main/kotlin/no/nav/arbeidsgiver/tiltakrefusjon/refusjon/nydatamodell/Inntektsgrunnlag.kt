@@ -6,9 +6,14 @@ import javax.persistence.*
 
 @Entity
 data class Inntektsgrunnlag(
-        @Id
-        val id: String = ULID.random(),
         @OneToMany(mappedBy = "inntektsgrunnlag", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
-        val inntekter: MutableList<InntektslinjeEntity> = mutableListOf(),
-        val innhentetTidspunkt: LocalDateTime = LocalDateTime.now()
-)
+        val inntekter: List<InntektslinjeEntity>
+) {
+    @Id
+    val id: String = ULID.random()
+    val innhentetTidspunkt: LocalDateTime = LocalDateTime.now()
+
+    init {
+        inntekter.forEach { it.inntektsgrunnlag = this }
+    }
+}

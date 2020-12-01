@@ -39,7 +39,7 @@ class RefusjonsberegningSteps : No {
 
         }
         Så("beregnes refusjon til {string} kr for periode") { refusjon: String ->
-            val beregnet = Refusjonsgrunnlag(inntekstlinjer, lonnstilskuddProsent, startDato, sluttDato,arbeidsgiveravgift, feriepengersats).beløp
+            val beregnet = Refusjonsberegner(inntekstlinjer, lonnstilskuddProsent, startDato, sluttDato,arbeidsgiveravgift, feriepengersats).beløp
             assertThat(beregnet).isEqualByComparingTo(refusjon.toInt());
         }
         Before("@skip_scenario") { _ ->

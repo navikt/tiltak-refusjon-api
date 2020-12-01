@@ -13,7 +13,7 @@ class RefusjonsberegningService(
         val inntektskomponentConsumer: InntektskomponentConsumer,
         val refusjonsakRepository: RefusjonsakRepository
 ) {
-    fun hentGrunnlag(refusjonsberegningRequest: RefusjonsberegningRequest): Refusjonsgrunnlag {
+    fun hentGrunnlag(refusjonsberegningRequest: RefusjonsberegningRequest): Refusjonsberegner {
         if (!refusjonsberegningRequest.erUtfylt()) {
             throw RefusjonException("Refusjonsberegning er ikke riktig utfylt")
         }
@@ -22,14 +22,14 @@ class RefusjonsberegningService(
         val inntekter = inntektskomponentConsumer.hentInntekter(refusjonsberegningRequest.fnr, refusjonsberegningRequest.bedriftNr, refusjonFraDato, refusjonTilDato)
         val refusjon: Refusjon = refusjonRepository.findOneByDeltakerFnrAndBedriftnummerAndFraDatoGreaterThanEqualAndTilDatoLessThanEqual(refusjonsberegningRequest.fnr, refusjonsberegningRequest.bedriftNr, refusjonFraDato, refusjonTilDato)
                 ?: throw RefusjonException("Refusjon ikke funnet")
-        return Refusjonsgrunnlag(inntekter, refusjon)
+        return Refusjonsberegner(inntekter, refusjon)
     }
 
-    fun hentGrunnlag(refusjonId: String): Refusjonsgrunnlag {
+    fun hentGrunnlag(refusjonId: String): Refusjonsberegner {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(refusjonId)
                 ?: throw RefusjonException("Refusjon ikke funnet")
         val inntekter = inntektskomponentConsumer.hentInntekter(refusjon.deltakerFnr, refusjon.bedriftnummer, refusjon.fraDato, refusjon.tilDato)
-        return Refusjonsgrunnlag(inntekter, refusjon)
+        return Refusjonsberegner(inntekter, refusjon)
     }
 
     fun opprettRefusjon(tilskuddMelding: TilskuddMelding): String {
@@ -58,23 +58,21 @@ class RefusjonsberegningService(
     fun hentInntekterForRefusjon(refusjonsakId: String) {
         val refusjon = refusjonsakRepository.findByIdOrNull(refusjonsakId) ?: throw RuntimeException()
 
-        val inntektsgrunnlag = Inntektsgrunnlag()
-        val inntekter = inntektskomponentConsumer.hentInntekter(
-                refusjon.deltakerFnr,
-                refusjon.bedriftNr,
-                refusjon.tilskuddsgrunnlag.tilskuddFom,
-                refusjon.tilskuddsgrunnlag.tilskuddTom
-        ).map {
-            InntektslinjeEntity(
-                    inntektsgrunnlag = inntektsgrunnlag,
-                    inntektType = it.inntektType,
-                    måned = it.måned,
-                    beløp = it.beløp,
-                    opptjeningsperiodeFom = it.opptjeningsperiodeFom,
-                    opptjeningsperiodeTom = it.opptjeningsperiodeTom
-            )
-        }
-        inntektsgrunnlag.inntekter.addAll(inntekter)
+        val inntektsgrunnlag = Inntektsgrunnlag(
+                inntektskomponentConsumer.hentInntekter(
+                        refusjon.deltakerFnr,
+                        refusjon.bedriftNr,
+                        refusjon.tilskuddsgrunnlag.tilskuddFom,
+                        refusjon.tilskuddsgrunnlag.tilskuddTom
+                ).map {
+                    InntektslinjeEntity(
+                            inntektType = it.inntektType,
+                            måned = it.måned,
+                            beløp = it.beløp,
+                            opptjeningsperiodeFom = it.opptjeningsperiodeFom,
+                            opptjeningsperiodeTom = it.opptjeningsperiodeTom
+                    )
+                })
 
         refusjon.inntektsgrunnlag = inntektsgrunnlag
 

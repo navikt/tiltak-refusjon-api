@@ -10,8 +10,6 @@ import javax.persistence.Id
 
 @Entity
 data class Tilskuddsgrunnlag(
-        @Id
-        val id: String = ULID.random(),
         val avtaleId: String,
         val tilskuddsperiodeId: String,
         val deltakerFornavn: String,
@@ -25,6 +23,10 @@ data class Tilskuddsgrunnlag(
         val feriepengerSats: Double,
         val otpSats: Double,
         val arbeidsgiveravgiftSats: Double,
-        @Enumerated(EnumType.STRING) val tiltakstype: Tiltakstype,
+        @Enumerated(EnumType.STRING)
+        val tiltakstype: Tiltakstype,
         val tilskuddsbeløp: Int
-)
+) {
+    @Id
+    val id: String = ULID.random()
+}

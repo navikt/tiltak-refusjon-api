@@ -3,7 +3,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 import java.time.LocalDate
 import kotlin.math.roundToInt
 
-data class Refusjonsgrunnlag(
+data class Refusjonsberegner(
         val inntekter: List<Inntektslinje>,
         val stillingsprosent: Int,
         val datoRefusjonstart: LocalDate,

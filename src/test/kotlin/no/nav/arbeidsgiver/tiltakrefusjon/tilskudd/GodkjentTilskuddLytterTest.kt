@@ -1,6 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.tilskudd
 
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonsberegningService
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.any
 import org.mockito.Mockito.verify
@@ -35,10 +36,10 @@ class GodkjentTilskuddLytterTest {
         // GITT
         val tilskuddMelding = TilskuddMelding(UUID.randomUUID().toString(),
                 UUID.randomUUID().toString(), UUID.randomUUID().toString(),
-                "VARLIG-LØNNSTILSKUDD", "Donald",
+                Tiltakstype.VARIG_LONNSTILSKUDD, "Donald",
                 "Duck", "12345678901", "X123456",
                 "Duck Levering AS", "99999999", 12000,
-                LocalDate.now().minusDays(15), LocalDate.now())
+                LocalDate.now().minusDays(15), LocalDate.now(), 0.12, 0.02, 0.141)
 
         // NÅR
         kafkaTemplate.send(Topics.REFUSJON, tilskuddMelding.avtaleId.toString(), tilskuddMelding)

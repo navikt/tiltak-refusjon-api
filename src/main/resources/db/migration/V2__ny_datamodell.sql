@@ -15,7 +15,8 @@ create table tilskuddsgrunnlag
     otp_sats                numeric(4, 3),
     arbeidsgiveravgift_sats numeric(4, 3),
     tiltakstype             varchar,
-    tilskuddsbeløp          numeric
+    tilskuddsbeløp          numeric,
+    lønnstilskuddsprosent   integer
 );
 
 create table inntektsgrunnlag

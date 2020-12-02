@@ -35,7 +35,7 @@ class RefusjonsberegningSteps : No {
                     veilederNavIdent = "",
                     bedriftNr = "",
                     bedriftNavn = "",
-                    tiltakstype = Tiltakstype.MIDLERTIDLIG_LONNSTILSKUDD,
+                    tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
                     tilskuddFom = LocalDate.parse(startDatoString),
                     tilskuddTom = LocalDate.parse(sluttDatoString),
                     feriepengerSats = feriesats.toDouble(),

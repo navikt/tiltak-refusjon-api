@@ -1,21 +1,13 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBrukerService
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.nydatamodell.Refusjonsak
 import no.nav.security.token.support.core.api.Protected
 import no.nav.security.token.support.spring.validation.interceptor.JwtTokenUnauthorizedException
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.ExceptionHandler
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpStatusCodeException
-import java.time.LocalDate
 import javax.servlet.http.HttpServletResponse
 
 const val REQUEST_MAPPING = "/api/refusjon"
@@ -24,39 +16,25 @@ const val REQUEST_MAPPING = "/api/refusjon"
 @RequestMapping(REQUEST_MAPPING)
 @Protected
 class RefusjonController(
-        val refusjonRepository: RefusjonRepository,
-        val innloggetBrukerService: InnloggetBrukerService,
-        val refusjonsberegningService: RefusjonsberegningService
+        val innloggetBrukerService: InnloggetBrukerService
 ) {
 
     @GetMapping
-    fun hentAlle(): List<Refusjon> {
+    fun hentAlle(): List<Refusjonsak> {
         val innloggetBruker = innloggetBrukerService.hentInnloggetBruker()
         return innloggetBruker.finnAlle()
     }
 
-    @GetMapping("/deltaker/{deltakerfnr}/bedrift/{bedriftnummer}/fra/{datoFom}/til/{datoTom}")
-    fun hentRefusjonForPeriodeDeltakerOgBedrift(@PathVariable deltakerfnr: String, @PathVariable bedriftnummer: String, @PathVariable datoFom: String, @PathVariable datoTom: String): Refusjon? {
-        return refusjonRepository.findOneByDeltakerFnrAndBedriftnummerAndFraDatoGreaterThanEqualAndTilDatoLessThanEqual(deltakerfnr, bedriftnummer, LocalDate.parse(datoFom), LocalDate.parse(datoTom))
-    }
-
     @GetMapping("/bedrift/{bedriftnummer}")
-    fun hentAlleMedBedriftnummer(@PathVariable bedriftnummer: String): List<Refusjon> {
+    fun hentAlleMedBedriftnummer(@PathVariable bedriftnummer: String): List<Refusjonsak> {
         val innloggetBruker = innloggetBrukerService.hentInnloggetBruker()
         return innloggetBruker.finnAlleMedBedriftnummer(bedriftnummer)
     }
 
     @GetMapping("/{id}")
-    fun hent(@PathVariable id: String): Refusjon? {
+    fun hent(@PathVariable id: String): Refusjonsak? {
         val innloggetBruker = innloggetBrukerService.hentInnloggetBruker()
-        return innloggetBruker.finnRefusjon(id) ?: throw HttpClientErrorException(HttpStatus.NO_CONTENT)
-    }
-
-    @PutMapping
-    fun oppdater(@RequestBody refusjon: Refusjon): Refusjon {
-        refusjonRepository.findByIdOrNull(refusjon.id)
-                ?: throw HttpClientErrorException(HttpStatus.BAD_REQUEST, "Prøver å oppdatere en refusjon som ikke finnes")
-        return refusjonRepository.save(refusjon)
+        return innloggetBruker.finnRefusjonsak(id) ?: throw HttpClientErrorException(HttpStatus.NO_CONTENT)
     }
 
     @ExceptionHandler

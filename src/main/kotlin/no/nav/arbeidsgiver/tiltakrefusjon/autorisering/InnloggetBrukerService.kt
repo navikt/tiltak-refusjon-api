@@ -3,7 +3,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon.autorisering
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.AbacTilgangsstyringService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Fnr
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonRepository
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.nydatamodell.RefusjonsakRepository
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -15,7 +15,7 @@ class InnloggetBrukerService(
         val graphApiService: GraphApiService,
         val altinnTilgangsstyringService: AltinnTilgangsstyringService,
         val abacTilgangsstyringService: AbacTilgangsstyringService,
-        val refusjonRepository: RefusjonRepository
+        val refusjonsakRepository: RefusjonsakRepository
 ) {
     var logger: Logger = LoggerFactory.getLogger(InnloggetBrukerService::class.java)
 
@@ -31,11 +31,11 @@ class InnloggetBrukerService(
         return when {
             erArbeidsgiver() -> {
                 val fnr = Fnr(context.tokenValidationContext.getClaims("tokenx").getStringClaim("pid"))
-                InnloggetArbeidsgiver(fnr.verdi, altinnTilgangsstyringService, refusjonRepository)
+                InnloggetArbeidsgiver(fnr.verdi, altinnTilgangsstyringService, refusjonsakRepository)
             }
             erSaksbehandler() -> {
                 val (onPremisesSamAccountName, displayName) = graphApiService.hent()
-                InnloggetSaksbehandler(onPremisesSamAccountName, displayName, abacTilgangsstyringService, refusjonRepository)
+                InnloggetSaksbehandler(onPremisesSamAccountName, displayName, abacTilgangsstyringService, refusjonsakRepository)
             }
             else -> {
                 throw RuntimeException("Feil ved token, kunne ikke identifisere arbeidsgiver eller saksbehandler")

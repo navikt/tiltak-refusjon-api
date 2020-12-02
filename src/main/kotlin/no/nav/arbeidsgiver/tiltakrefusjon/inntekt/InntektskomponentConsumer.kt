@@ -5,7 +5,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.request.Aktør
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.request.InntektRequest
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.response.ArbeidsInntektMaaned
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.response.InntektResponse
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Inntektslinje
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.nydatamodell.Inntektslinje
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.http.HttpEntity
@@ -16,7 +16,7 @@ import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.exchange
 import java.time.LocalDate
 import java.time.YearMonth
-import java.util.UUID
+import java.util.*
 
 
 @Service
@@ -58,7 +58,8 @@ class InntektskomponentConsumer(
                                 it.inntektType,
                                 it.beloep.toDouble(),
                                 YearMonth.parse(it.utbetaltIMaaned),
-                                dateFraOpptjenningsperiode, datoTilOpptjenningsperiode)
+                                dateFraOpptjenningsperiode,
+                                datoTilOpptjenningsperiode)
                 )
             }
         }

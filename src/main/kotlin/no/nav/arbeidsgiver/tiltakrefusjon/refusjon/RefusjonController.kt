@@ -35,16 +35,6 @@ class RefusjonController(
         return innloggetBruker.finnAlle()
     }
 
-    @PostMapping("/{refusjonId}/beregn")
-    fun hentBeregnetRefusjonForPeriodeDeltakerOgBedrift(@PathVariable refusjonId: String): Refusjonsberegner {
-        return refusjonsberegningService.hentGrunnlag(refusjonId)
-    }
-
-    @PostMapping("/beregn")
-    fun hentBeregnetRefusjonForPeriodeDeltakerOgBedrift(@RequestBody refusjonsberegningRequest: RefusjonsberegningRequest): Refusjonsberegner {
-        return refusjonsberegningService.hentGrunnlag(refusjonsberegningRequest)
-    }
-
     @GetMapping("/deltaker/{deltakerfnr}/bedrift/{bedriftnummer}/fra/{datoFom}/til/{datoTom}")
     fun hentRefusjonForPeriodeDeltakerOgBedrift(@PathVariable deltakerfnr: String, @PathVariable bedriftnummer: String, @PathVariable datoFom: String, @PathVariable datoTom: String): Refusjon? {
         return refusjonRepository.findOneByDeltakerFnrAndBedriftnummerAndFraDatoGreaterThanEqualAndTilDatoLessThanEqual(deltakerfnr, bedriftnummer, LocalDate.parse(datoFom), LocalDate.parse(datoTom))

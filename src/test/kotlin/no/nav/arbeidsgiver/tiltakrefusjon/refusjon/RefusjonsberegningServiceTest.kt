@@ -38,7 +38,8 @@ class RefusjonsberegningServiceTest(
                 tilskuddFom = LocalDate.of(2020, 10, 1),
                 tilskuddTom = LocalDate.of(2020, 11, 1),
                 tilskuddsperiodeId = "3",
-                veilederNavIdent = "X123456"
+                veilederNavIdent = "X123456",
+                lønnstilskuddsprosent = 60
         )
         refusjonsberegningService.opprettRefusjon(tilskuddMelding)
         val lagretRefusjon = refusjonsakRepository.findAllByDeltakerFnr(deltakerFnr)[0]
@@ -64,7 +65,8 @@ class RefusjonsberegningServiceTest(
                 tilskuddFom = LocalDate.of(2020, 9, 1),
                 tilskuddTom = LocalDate.of(2020, 10, 1),
                 tilskuddsperiodeId = "3",
-                veilederNavIdent = "X123456"
+                veilederNavIdent = "X123456",
+                lønnstilskuddsprosent = 60
         )
         val refusjonId = refusjonsberegningService.opprettRefusjon(tilskuddMelding)
         refusjonsberegningService.hentInntekterForRefusjon(refusjonId)

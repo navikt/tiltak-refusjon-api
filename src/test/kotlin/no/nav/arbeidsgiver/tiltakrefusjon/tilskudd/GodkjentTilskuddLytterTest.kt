@@ -39,7 +39,7 @@ class GodkjentTilskuddLytterTest {
                 Tiltakstype.VARIG_LONNSTILSKUDD, "Donald",
                 "Duck", "12345678901", "X123456",
                 "Duck Levering AS", "99999999", 12000,
-                LocalDate.now().minusDays(15), LocalDate.now(), 0.12, 0.02, 0.141)
+                LocalDate.now().minusDays(15), LocalDate.now(), 0.12, 0.02, 0.141, 60)
 
         // NÅR
         kafkaTemplate.send(Topics.REFUSJON, tilskuddMelding.avtaleId.toString(), tilskuddMelding)

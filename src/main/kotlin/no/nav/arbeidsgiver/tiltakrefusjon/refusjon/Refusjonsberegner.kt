@@ -1,40 +1,42 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.nydatamodell.Inntektsdag
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.nydatamodell.Inntektslinje
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.nydatamodell.Tilskuddsgrunnlag
 import java.time.LocalDate
 import kotlin.math.roundToInt
+import kotlin.streams.toList
 
-data class Refusjonsberegner(
-        val inntekter: List<Inntektslinje>,
-        val stillingsprosent: Int,
-        val datoRefusjonstart: LocalDate,
-        val datoRefusjonslutt: LocalDate,
-        val arbeidsgiveravgiftSats: Double,
-        val feriepengerSats: Double,
-        var beløp: Int? = 0
-) {
-    private val TJENESTEPENSJON_SATS = 0.02
+private fun inntektsdager(inntektslinje: Inntektslinje, tilskuddFom: LocalDate, tilskuddTom: LocalDate): List<Inntektsdag> {
+    val inntektFom = inntektslinje.opptjeningsperiodeFom ?: inntektslinje.måned.atDay(1)
+    val inntektTom = inntektslinje.opptjeningsperiodeTom ?: inntektslinje.måned.atEndOfMonth()
+    val antallDagerOpptjent = inntektFom.datesUntil(inntektTom.plusDays(1)).count().toInt()
+    var beløpPerDag = inntektslinje.beløp / antallDagerOpptjent
 
-    constructor(inntekter: List<Inntektslinje>, refusjon: Refusjon) : this(inntekter, refusjon.stillingsprosent, refusjon.fraDato, refusjon.tilDato, refusjon.satsArbeidsgiveravgift, refusjon.satsFeriepenger)
+    val overlappFom = maxOf(inntektFom, tilskuddFom)
+    val overlappTom = minOf(inntektTom, tilskuddTom)
 
-    init {
-        beløp = hentBeregnetGrunnlag()
+    if (overlappFom > overlappTom) {
+        return emptyList()
     }
 
-    private fun hentBeregnetGrunnlag(): Int {
-        return inntekter
-                .filter(Inntektslinje::erLønnsinntekt)
-                .map { it.tilDagsatsForPeriode(datoRefusjonstart, datoRefusjonslutt) }
-                .map { dagsats ->
-                    val beløpPerDag = dagsats.beløp
-                    val feriepengerPerDag = beløpPerDag * feriepengerSats
-                    val tjenestepensjonPerDag = (beløpPerDag + feriepengerPerDag) * TJENESTEPENSJON_SATS
-                    val arbeidsgiveravgiftPerDag = (beløpPerDag + tjenestepensjonPerDag + feriepengerPerDag) * arbeidsgiveravgiftSats
-                    val totalBeløpPerDag = beløpPerDag + tjenestepensjonPerDag + feriepengerPerDag + arbeidsgiveravgiftPerDag
+    return overlappFom.datesUntil(overlappTom.plusDays(1)).map { Inntektsdag(dato = it, beløp = beløpPerDag) }.toList()
+}
 
-                    totalBeløpPerDag.times(dagsats.dager)
-                }
-                .sum()
-                .times(stillingsprosent / 100.0)
-                .roundToInt()
-    }
+fun beregnRefusjonsbeløp(inntekter: List<Inntektslinje>,
+                         tilskuddsgrunnlag: Tilskuddsgrunnlag
+): Int {
+    val beløp = inntekter
+            .filter(Inntektslinje::erLønnsinntekt)
+            .flatMap { inntektsdager(it, tilskuddsgrunnlag.tilskuddFom, tilskuddsgrunnlag.tilskuddTom) }
+            .map { (_, beløpPerDag) ->
+                val feriepengerPerDag = beløpPerDag * tilskuddsgrunnlag.feriepengerSats
+                val tjenestepensjonPerDag = (beløpPerDag + feriepengerPerDag) * tilskuddsgrunnlag.otpSats
+                val arbeidsgiveravgiftPerDag = (beløpPerDag + tjenestepensjonPerDag + feriepengerPerDag) * tilskuddsgrunnlag.arbeidsgiveravgiftSats
+                val totalBeløpPerDag = beløpPerDag + tjenestepensjonPerDag + feriepengerPerDag + arbeidsgiveravgiftPerDag
+
+                totalBeløpPerDag
+            }
+            .sum() * (tilskuddsgrunnlag.lønnstilskuddsprosent.toDouble() / 100.0)
+    return beløp.roundToInt()
 }

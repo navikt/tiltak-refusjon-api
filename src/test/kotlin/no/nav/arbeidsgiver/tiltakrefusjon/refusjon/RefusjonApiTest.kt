@@ -160,30 +160,30 @@ class RefusjonApiTest(
 
 
     }
-
-    @Test
-    fun `hentBeregnetRefusjon() for deltaker, bedrift og periode`(){
-        // GITT
-        val bedriftnummer = "998877665"
-        val deltakerFnr = "28128521498"
-        val datoRefusjonPeriodeFom ="2020-09-01"
-        val datoRefusjonPeriodeTom = "2020-10-01"
-        val refusjonsberegningRequest = RefusjonsberegningRequest(deltakerFnr, bedriftnummer, datoRefusjonPeriodeFom, datoRefusjonPeriodeTom)
-
-        // NÅR
-        val request = post("$REQUEST_MAPPING/beregn")
-                .content( ObjectMapper().writeValueAsString(refusjonsberegningRequest))
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-
-        val json = sendRequest(request, arbGiverCookie)
-        val refusjonsgrunnlag = mapper.readValue(json, Refusjonsberegner::class.java)
-
-        // SÅ
-        assertNotNull(refusjonsgrunnlag!!)
-        assertEquals(3, refusjonsgrunnlag.inntekter.size)
-        assertEquals(refusjonsgrunnlag.beløp,11245)
-    }
+//
+//    @Test
+//    fun `hentBeregnetRefusjon() for deltaker, bedrift og periode`(){
+//        // GITT
+//        val bedriftnummer = "998877665"
+//        val deltakerFnr = "28128521498"
+//        val datoRefusjonPeriodeFom ="2020-09-01"
+//        val datoRefusjonPeriodeTom = "2020-10-01"
+//        val refusjonsberegningRequest = RefusjonsberegningRequest(deltakerFnr, bedriftnummer, datoRefusjonPeriodeFom, datoRefusjonPeriodeTom)
+//
+//        // NÅR
+//        val request = post("$REQUEST_MAPPING/beregn")
+//                .content( ObjectMapper().writeValueAsString(refusjonsberegningRequest))
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .accept(MediaType.APPLICATION_JSON)
+//
+//        val json = sendRequest(request, arbGiverCookie)
+//        val refusjonsgrunnlag = mapper.readValue(json, Refusjonsberegner::class.java)
+//
+//        // SÅ
+//        assertNotNull(refusjonsgrunnlag!!)
+//        assertEquals(3, refusjonsgrunnlag.inntekter.size)
+//        assertEquals(refusjonsgrunnlag.beløp,11245)
+//    }
 
 
     @Test

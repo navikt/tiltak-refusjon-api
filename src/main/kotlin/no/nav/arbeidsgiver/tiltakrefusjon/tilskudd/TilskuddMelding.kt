@@ -19,5 +19,6 @@ data class TilskuddMelding(
         val tilskuddTom: LocalDate,
         val feriepengerSats: Double,
         val otpSats: Double,
-        val arbeidsgiveravgiftSats: Double
+        val arbeidsgiveravgiftSats: Double,
+        val lønnstilskuddsprosent: Int
 )

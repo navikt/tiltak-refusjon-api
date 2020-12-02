@@ -2,8 +2,6 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import io.cucumber.datatable.DataTable
 import io.cucumber.java8.No
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.nydatamodell.Inntektslinje
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.nydatamodell.Tilskuddsgrunnlag
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Assume
 import java.time.LocalDate

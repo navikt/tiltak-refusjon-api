@@ -1,17 +1,14 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentConsumer
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.nydatamodell.*
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.nydatamodell.Inntektslinje
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskudd.TilskuddMelding
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
-import java.time.LocalDate
 
 @Service
-class RefusjonsberegningService(
+class RefusjonService(
         val inntektskomponentConsumer: InntektskomponentConsumer,
-        val refusjonsakRepository: RefusjonsakRepository
+        val refusjonRepository: RefusjonRepository
 ) {
     fun opprettRefusjon(tilskuddMelding: TilskuddMelding): String {
         val tilskuddsgrunnlag = Tilskuddsgrunnlag(
@@ -32,13 +29,13 @@ class RefusjonsberegningService(
                 tilskuddsbeløp = tilskuddMelding.tilskuddsbeløp,
                 lønnstilskuddsprosent = tilskuddMelding.lønnstilskuddsprosent
         )
-        val refusjonsak = Refusjonsak(tilskuddsgrunnlag = tilskuddsgrunnlag, deltakerFnr = tilskuddMelding.deltakerFnr, bedriftNr = tilskuddMelding.bedriftNr)
-        refusjonsakRepository.save(refusjonsak)
-        return refusjonsak.id
+        val refusjon = Refusjon(tilskuddsgrunnlag = tilskuddsgrunnlag, deltakerFnr = tilskuddMelding.deltakerFnr, bedriftNr = tilskuddMelding.bedriftNr)
+        refusjonRepository.save(refusjon)
+        return refusjon.id
     }
 
-    fun hentInntekterForRefusjon(refusjonsakId: String) {
-        val refusjon = refusjonsakRepository.findByIdOrNull(refusjonsakId) ?: throw RuntimeException()
+    fun hentInntekterForRefusjon(refusjonId: String) {
+        val refusjon = refusjonRepository.findByIdOrNull(refusjonId) ?: throw RuntimeException()
 
         val inntektsgrunnlag = Inntektsgrunnlag(
                 inntekter = inntektskomponentConsumer.hentInntekter(
@@ -50,6 +47,6 @@ class RefusjonsberegningService(
 
         refusjon.inntektsgrunnlag = inntektsgrunnlag
 
-        refusjonsakRepository.save(refusjon)
+        refusjonRepository.save(refusjon)
     }
 }

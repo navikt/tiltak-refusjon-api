@@ -1,40 +1,35 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBrukerService
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.nydatamodell.Refusjonsak
 import no.nav.security.token.support.core.api.Protected
 import no.nav.security.token.support.spring.validation.interceptor.JwtTokenUnauthorizedException
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpStatusCodeException
+import java.util.function.Predicate
 import javax.servlet.http.HttpServletResponse
 
-const val REQUEST_MAPPING = "/api/refusjon"
+const val REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON = "/api/saksbehandler/refusjon"
+
+data class HentSaksbehandlerRefusjonerQueryParametre(val bedriftNr: String? = null, val status: RefusjonStatus? = null, val tiltakstype: Tiltakstype? = null)
 
 @RestController
-@RequestMapping(REQUEST_MAPPING)
+@RequestMapping(REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON)
 @Protected
-class RefusjonController(
+class SaksbehandlerRefusjonController(
         val innloggetBrukerService: InnloggetBrukerService
 ) {
-
     @GetMapping
-    fun hentAlle(): List<Refusjonsak> {
-        val innloggetBruker = innloggetBrukerService.hentInnloggetBruker()
-        return innloggetBruker.finnAlle()
-    }
-
-    @GetMapping("/bedrift/{bedriftnummer}")
-    fun hentAlleMedBedriftnummer(@PathVariable bedriftnummer: String): List<Refusjonsak> {
-        val innloggetBruker = innloggetBrukerService.hentInnloggetBruker()
-        return innloggetBruker.finnAlleMedBedriftnummer(bedriftnummer)
+    fun hentAlle(queryParametre: HentSaksbehandlerRefusjonerQueryParametre): List<Refusjon> {
+        val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
+        return saksbehandler.finnAlle(queryParametre)
     }
 
     @GetMapping("/{id}")
-    fun hent(@PathVariable id: String): Refusjonsak? {
-        val innloggetBruker = innloggetBrukerService.hentInnloggetBruker()
-        return innloggetBruker.finnRefusjonsak(id) ?: throw HttpClientErrorException(HttpStatus.NO_CONTENT)
+    fun hent(@PathVariable id: String): Refusjon? {
+        val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
+        return saksbehandler.finnRefusjon(id) ?: throw HttpClientErrorException(HttpStatus.NO_CONTENT)
     }
 
     @ExceptionHandler

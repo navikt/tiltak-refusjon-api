@@ -1,3 +1,5 @@
+drop table refusjon;
+
 create table tilskuddsgrunnlag
 (
     id                      varchar primary key,
@@ -36,7 +38,7 @@ create table inntektslinje
     opptjeningsperiode_tom date
 );
 
-create table refusjonsak
+create table refusjon
 (
     id                        varchar primary key,
     tilskuddsgrunnlag_id      varchar references tilskuddsgrunnlag (id),

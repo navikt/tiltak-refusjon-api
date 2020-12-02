@@ -5,7 +5,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.request.Aktør
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.request.InntektRequest
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.response.ArbeidsInntektMaaned
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.response.InntektResponse
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.nydatamodell.Inntektslinje
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Inntektslinje
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.http.HttpEntity

@@ -1,6 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.tilskudd
 
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonsberegningService
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.any
@@ -26,7 +26,7 @@ class GodkjentTilskuddLytterTest {
     lateinit var kafkaTemplate: KafkaTemplate<String, TilskuddMelding>
 
     @MockBean
-    lateinit var refusjonsberegningService: RefusjonsberegningService
+    lateinit var refusjonService: RefusjonService
 
     @Autowired
     lateinit var godkjentTilskuddLytter: GodkjentTilskuddLytter
@@ -46,7 +46,7 @@ class GodkjentTilskuddLytterTest {
 
         // SÅ
         Thread.sleep(1000)
-        verify(refusjonsberegningService).opprettRefusjon(any<TilskuddMelding>() ?: tilskuddMelding)
+        verify(refusjonService).opprettRefusjon(any<TilskuddMelding>() ?: tilskuddMelding)
     }
 
 

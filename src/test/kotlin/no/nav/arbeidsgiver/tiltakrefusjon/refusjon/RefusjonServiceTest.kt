@@ -1,6 +1,5 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.nydatamodell.RefusjonsakRepository
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskudd.TilskuddMelding
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -13,11 +12,11 @@ import java.time.LocalDate
 @SpringBootTest
 @ActiveProfiles("local")
 @AutoConfigureWireMock(port = 8090)
-class RefusjonsberegningServiceTest(
+class RefusjonServiceTest(
         @Autowired
-        val refusjonsberegningService: RefusjonsberegningService,
+        val refusjonService: RefusjonService,
         @Autowired
-        val refusjonsakRepository: RefusjonsakRepository
+        val refusjonRepository: RefusjonRepository
 ) {
     @Test
     fun opprett() {
@@ -41,8 +40,8 @@ class RefusjonsberegningServiceTest(
                 veilederNavIdent = "X123456",
                 lønnstilskuddsprosent = 60
         )
-        refusjonsberegningService.opprettRefusjon(tilskuddMelding)
-        val lagretRefusjon = refusjonsakRepository.findAllByDeltakerFnr(deltakerFnr)[0]
+        refusjonService.opprettRefusjon(tilskuddMelding)
+        val lagretRefusjon = refusjonRepository.findAllByDeltakerFnr(deltakerFnr)[0]
         assertThat(lagretRefusjon.tilskuddsgrunnlag).isNotNull
     }
 
@@ -68,9 +67,9 @@ class RefusjonsberegningServiceTest(
                 veilederNavIdent = "X123456",
                 lønnstilskuddsprosent = 60
         )
-        val refusjonId = refusjonsberegningService.opprettRefusjon(tilskuddMelding)
-        refusjonsberegningService.hentInntekterForRefusjon(refusjonId)
-        val lagretRefusjon = refusjonsakRepository.findAllByDeltakerFnr(deltakerFnr)[0]
+        val refusjonId = refusjonService.opprettRefusjon(tilskuddMelding)
+        refusjonService.hentInntekterForRefusjon(refusjonId)
+        val lagretRefusjon = refusjonRepository.findAllByDeltakerFnr(deltakerFnr)[0]
         assertThat(lagretRefusjon.inntektsgrunnlag?.inntekter).isNotEmpty
     }
 }

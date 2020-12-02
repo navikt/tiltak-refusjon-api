@@ -1,4 +1,4 @@
-package no.nav.arbeidsgiver.tiltakrefusjon.refusjon.nydatamodell
+package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import com.github.guepardoapps.kulid.ULID
 import java.time.LocalDateTime

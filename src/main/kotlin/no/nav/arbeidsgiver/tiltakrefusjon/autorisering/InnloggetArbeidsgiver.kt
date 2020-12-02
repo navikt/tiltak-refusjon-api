@@ -3,35 +3,38 @@ package no.nav.arbeidsgiver.tiltakrefusjon.autorisering
 import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.nydatamodell.Refusjonsak
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.nydatamodell.RefusjonsakRepository
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 
 data class InnloggetArbeidsgiver(
         val identifikator: String,
         @JsonIgnore val altinnTilgangsstyringService: AltinnTilgangsstyringService,
-        @JsonIgnore val refusjonsakRepository: RefusjonsakRepository
-) : InnloggetBruker() {
+        @JsonIgnore val refusjonRepository: RefusjonRepository
+) {
 
     val organisasjoner: Set<Organisasjon> = altinnTilgangsstyringService.hentTilganger(identifikator)
 
-    override fun finnAlle(): List<Refusjonsak> {
-        throw TilgangskontrollException(HttpStatus.UNAUTHORIZED)
+    fun finnAlleMedBedriftnummer(bedriftnummer: String): List<Refusjon> {
+        sjekkHarTilgangTilRefusjonerForBedrift(bedriftnummer)
+        return refusjonRepository.findAllByBedriftNr(bedriftnummer)
     }
 
-    override fun finnAlleMedBedriftnummer(bedriftnummer: String): List<Refusjonsak> {
-        sjekkHarTilgangTilRefusjonsakerForBedrift(bedriftnummer)
-        return refusjonsakRepository.findAllByBedriftNr(bedriftnummer)
+    fun gjørInntektsoppslag(refusjonId: String) {
+        val refusjon: Refusjon = refusjonRepository.findByIdOrNull(refusjonId)
+                ?: throw TilgangskontrollException(HttpStatus.NOT_FOUND)
+        sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
+
     }
 
-    override fun finnRefusjonsak(id: String): Refusjonsak? {
-        val refusjon: Refusjonsak? = refusjonsakRepository.findByIdOrNull(id)
-        refusjon?.let { sjekkHarTilgangTilRefusjonsakerForBedrift(refusjon.bedriftNr) }
+    fun finnRefusjon(id: String): Refusjon? {
+        val refusjon: Refusjon? = refusjonRepository.findByIdOrNull(id)
+        refusjon?.let { sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr) }
         return refusjon
     }
 
-    private fun sjekkHarTilgangTilRefusjonsakerForBedrift(bedriftsnummer: String): Boolean {
+    private fun sjekkHarTilgangTilRefusjonerForBedrift(bedriftsnummer: String): Boolean {
         if (!organisasjoner.any { it.organizationNumber == bedriftsnummer }) {
             throw TilgangskontrollException(HttpStatus.UNAUTHORIZED)
         }

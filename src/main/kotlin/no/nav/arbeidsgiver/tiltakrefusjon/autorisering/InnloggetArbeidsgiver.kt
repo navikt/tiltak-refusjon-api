@@ -5,13 +5,15 @@ import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonRepository
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonService
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 
 data class InnloggetArbeidsgiver(
         val identifikator: String,
         @JsonIgnore val altinnTilgangsstyringService: AltinnTilgangsstyringService,
-        @JsonIgnore val refusjonRepository: RefusjonRepository
+        @JsonIgnore val refusjonRepository: RefusjonRepository,
+        @JsonIgnore val refusjonService: RefusjonService
 ) {
 
     val organisasjoner: Set<Organisasjon> = altinnTilgangsstyringService.hentTilganger(identifikator)
@@ -25,6 +27,7 @@ data class InnloggetArbeidsgiver(
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(refusjonId)
                 ?: throw TilgangskontrollException(HttpStatus.NOT_FOUND)
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
+        refusjonService.hentInntekterForRefusjon(refusjon)
     }
 
     fun finnRefusjon(id: String): Refusjon? {

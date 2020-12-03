@@ -14,6 +14,6 @@ data class Inntektsgrunnlag(
     val innhentetTidspunkt: LocalDateTime = LocalDateTime.now()
 
     init {
-        inntekter.forEach { it.inntektsgrunnlag = this }
+        inntekter.forEach { it.setInntektsgrunnlag(this) }
     }
 }

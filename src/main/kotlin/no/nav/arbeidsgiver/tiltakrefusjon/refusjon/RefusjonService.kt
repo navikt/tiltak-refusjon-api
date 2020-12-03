@@ -10,7 +10,7 @@ class RefusjonService(
         val inntektskomponentConsumer: InntektskomponentConsumer,
         val refusjonRepository: RefusjonRepository
 ) {
-    fun opprettRefusjon(tilskuddMelding: TilskuddMelding): String {
+    fun opprettRefusjon(tilskuddMelding: TilskuddMelding): Refusjon {
         val tilskuddsgrunnlag = Tilskuddsgrunnlag(
                 avtaleId = tilskuddMelding.avtaleId,
                 tilskuddsperiodeId = tilskuddMelding.tilskuddsperiodeId,
@@ -30,13 +30,10 @@ class RefusjonService(
                 lønnstilskuddsprosent = tilskuddMelding.lønnstilskuddsprosent
         )
         val refusjon = Refusjon(tilskuddsgrunnlag = tilskuddsgrunnlag, deltakerFnr = tilskuddMelding.deltakerFnr, bedriftNr = tilskuddMelding.bedriftNr)
-        refusjonRepository.save(refusjon)
-        return refusjon.id
+        return refusjonRepository.save(refusjon)
     }
 
-    fun hentInntekterForRefusjon(refusjonId: String) {
-        val refusjon = refusjonRepository.findByIdOrNull(refusjonId) ?: throw RuntimeException()
-
+    fun hentInntekterForRefusjon(refusjon: Refusjon) {
         val inntektsgrunnlag = Inntektsgrunnlag(
                 inntekter = inntektskomponentConsumer.hentInntekter(
                         refusjon.deltakerFnr,
@@ -46,6 +43,7 @@ class RefusjonService(
                 ))
 
         refusjon.inntektsgrunnlag = inntektsgrunnlag
+        refusjon.refusjonsbeløp = beregnRefusjonsbeløp(inntektsgrunnlag.inntekter, refusjon.tilskuddsgrunnlag)
 
         refusjonRepository.save(refusjon)
     }

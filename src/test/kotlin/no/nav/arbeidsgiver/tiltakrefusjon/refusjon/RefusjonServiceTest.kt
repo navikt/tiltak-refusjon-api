@@ -67,8 +67,8 @@ class RefusjonServiceTest(
                 veilederNavIdent = "X123456",
                 lønnstilskuddsprosent = 60
         )
-        val refusjonId = refusjonService.opprettRefusjon(tilskuddMelding)
-        refusjonService.hentInntekterForRefusjon(refusjonId)
+        val refusjon = refusjonService.opprettRefusjon(tilskuddMelding)
+        refusjonService.hentInntekterForRefusjon(refusjon)
         val lagretRefusjon = refusjonRepository.findAllByDeltakerFnr(deltakerFnr)[0]
         assertThat(lagretRefusjon.inntektsgrunnlag?.inntekter).isNotEmpty
     }

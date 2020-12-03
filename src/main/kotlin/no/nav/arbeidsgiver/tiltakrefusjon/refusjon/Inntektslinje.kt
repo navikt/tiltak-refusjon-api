@@ -1,5 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.github.guepardoapps.kulid.ULID
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -20,7 +21,11 @@ data class Inntektslinje(
 
     @ManyToOne
     @JoinColumn(name = "inntektsgrunnlag_id")
-    internal lateinit var inntektsgrunnlag: Inntektsgrunnlag
+    private lateinit var inntektsgrunnlag: Inntektsgrunnlag
+
+    internal fun setInntektsgrunnlag(inntektsgrunnlag: Inntektsgrunnlag) {
+        this.inntektsgrunnlag = inntektsgrunnlag
+    }
 
     @Transient
     val erLønnsinntekt = inntektType == "LOENNSINNTEKT" && beløp > 0.0

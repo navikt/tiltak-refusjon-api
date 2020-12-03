@@ -1,31 +1,51 @@
+create table tilskuddsgrunnlag
+(
+    id                      varchar primary key,
+    avtale_id               varchar,
+    tilskuddsperiode_id     varchar,
+    deltaker_fornavn        varchar,
+    deltaker_etternavn      varchar,
+    deltaker_fnr            varchar(11),
+    veileder_nav_ident      varchar,
+    bedrift_navn            varchar,
+    bedrift_nr              varchar(9),
+    tilskudd_fom            date,
+    tilskudd_tom            date,
+    feriepenger_sats        numeric(4, 3),
+    otp_sats                numeric(4, 3),
+    arbeidsgiveravgift_sats numeric(4, 3),
+    tiltakstype             varchar,
+    tilskuddsbeløp          numeric,
+    lønnstilskuddsprosent   integer
+);
+
+create table inntektsgrunnlag
+(
+    id                  varchar primary key,
+    innhentet_tidspunkt timestamp without time zone
+);
+
+create table inntektslinje
+(
+    id                     varchar primary key,
+    inntektsgrunnlag_id    varchar references inntektsgrunnlag (id),
+    inntekt_type           varchar,
+    beløp                  numeric,
+    måned                  varchar,
+    opptjeningsperiode_fom date,
+    opptjeningsperiode_tom date
+);
+
 create table refusjon
 (
     id                        varchar primary key,
-    deltaker                  varchar,
+    tilskuddsgrunnlag_id      varchar references tilskuddsgrunnlag (id),
+    inntektsgrunnlag_id       varchar references inntektsgrunnlag (id),
+    status                    varchar,
+    godkjent_av_arbeidsgiver  timestamp without time zone,
+    godkjent_av_saksbehandler timestamp without time zone,
+    refusjonsbeløp            numeric,
+    commit_hash               varchar,
     deltaker_fnr              varchar(11),
-    veileder                  varchar,
-    bedrift                   varchar,
-    bedriftnummer             varchar(9),
-    fra_dato                  date,
-    til_dato                  date,
-    stillingsprosent          numeric(4, 1),
-    feriedager                numeric(4, 1),
-    trekk_feriedager_beløp    numeric(8, 2),
-    feriepenger               numeric(8, 2),
-    sats_feriepenger          numeric(4, 3),
-    sykedager                 integer,
-    sykepenger                numeric(8, 2),
-    sats_otp                  numeric(4, 3),
-    beløp_otp                 numeric(8, 2),
-    arbeidsgiveravgift        numeric(8, 2),
-    sats_arbeidsgiveravgift   numeric(4, 3),
-    månedslønn                numeric(8, 2),
-    netto_månedslønn          numeric(8, 2),
-    sum_utgifter_arbeidsgiver numeric(8, 2),
-    sats_refusjon             numeric(3, 2),
-    refusjon_pr_måned         numeric(8, 2),
-    opprettet_tidspunkt       timestamp default (now()),
-    endret_tidspunkt          timestamp default (now()),
-    tiltakstype               varchar,
-    status                    varchar
+    bedrift_nr                varchar(9)
 );

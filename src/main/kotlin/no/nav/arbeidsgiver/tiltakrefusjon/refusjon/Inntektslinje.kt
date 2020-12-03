@@ -1,6 +1,5 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import com.github.guepardoapps.kulid.ULID
 import java.time.DayOfWeek
 import java.time.LocalDate

@@ -21,6 +21,7 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.ResultMatcher
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.nio.charset.StandardCharsets
 import java.util.*
@@ -244,7 +245,6 @@ class RefusjonApiTest(
         assertNull(liste.find { refusjon -> refusjon.deltakerFnr == fnrForPerson })
     }
 
-
     @Test
     fun `hent() - Arbeidsgiver henter refusjon med id`() {
         val id = refusjonRepository.findAll().find { it.deltakerFnr == "07098142678" }?.id
@@ -288,6 +288,17 @@ class RefusjonApiTest(
         mockMvc.perform(
                 get(REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON))
                 .andExpect(status().isUnauthorized)
+    }
+
+    @Test
+    fun `Arbeidsgiver kan gjøre inntektsoppslag, og hente refusjon med inntektsgrunnlag`() {
+        val id = refusjonRepository.findAll().find { it.deltakerFnr == "28128521498" }?.id
+
+        sendRequest(post("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id/inntektsoppslag"), arbGiverCookie)
+        val json = sendRequest(get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id"), arbGiverCookie)
+        val refusjon = mapper.readValue(json, Refusjon::class.java)
+        assertThat(refusjon.inntektsgrunnlag).isNotNull
+        assertThat(refusjon.refusjonsbeløp).isPositive
     }
 
     private fun sendRequest(request: MockHttpServletRequestBuilder, cookie: Cookie): String {

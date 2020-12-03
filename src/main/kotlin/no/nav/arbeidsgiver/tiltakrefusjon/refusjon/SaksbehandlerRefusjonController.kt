@@ -42,6 +42,6 @@ class SaksbehandlerRefusjonController(
             response.sendError(HttpStatus.UNAUTHORIZED.value(), e.message)
             return
         }
-        response.sendError(HttpStatus.SERVICE_UNAVAILABLE.value(), e.message)
+        response.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.message)
     }
 }

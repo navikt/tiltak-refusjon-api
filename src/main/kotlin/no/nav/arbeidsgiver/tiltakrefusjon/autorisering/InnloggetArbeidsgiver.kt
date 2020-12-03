@@ -25,7 +25,6 @@ data class InnloggetArbeidsgiver(
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(refusjonId)
                 ?: throw TilgangskontrollException(HttpStatus.NOT_FOUND)
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
-
     }
 
     fun finnRefusjon(id: String): Refusjon? {

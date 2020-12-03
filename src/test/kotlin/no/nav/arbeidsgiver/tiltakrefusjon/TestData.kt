@@ -81,8 +81,8 @@ fun `Inger Hagerup`(): Refusjon {
 }
 
 fun `Amalie Skram`(): Refusjon {
-    val deltakerFnr = "07049223190"
-    val bedriftNr = "998877665"
+    val deltakerFnr = "23119409195"
+    val bedriftNr = "955555555"
     return Refusjon(tilskuddsgrunnlag = etTilskuddsgrunnlag.copy(
             deltakerFornavn = "Amalie",
             deltakerEtternavn = "Skram",

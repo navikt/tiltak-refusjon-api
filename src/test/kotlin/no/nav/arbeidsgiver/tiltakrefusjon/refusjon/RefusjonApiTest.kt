@@ -6,6 +6,7 @@ import com.nimbusds.jwt.JWTClaimsSet
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjoner
 import no.nav.security.token.support.test.JwkGenerator
 import no.nav.security.token.support.test.JwtTokenGenerator
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -23,6 +24,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.nio.charset.StandardCharsets
 import java.util.*
+import java.util.function.Predicate
 import javax.servlet.http.Cookie
 
 
@@ -181,8 +183,8 @@ class RefusjonApiTest(
     @Test
     fun `hentAlle() er tilgjengelig for saksbehandler`() {
         val json = sendRequest(get(REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON), navCookie)
-        val liste = mapper.readValue(json, object : TypeReference<List<Refusjon?>?>() {})
-        assertFalse(liste!!.isEmpty())
+        val liste = mapper.readValue(json, object : TypeReference<List<Refusjon>>() {})
+        assertFalse(liste.isEmpty())
     }
 
     @Test
@@ -190,7 +192,7 @@ class RefusjonApiTest(
         val json = sendRequest(get(REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON), navCookie)
         val liste = mapper.readValue(json, object : TypeReference<List<Refusjon>>() {})
 
-        assertEquals(14, liste.size)
+        assertEquals(4, liste.size)
         assertNull(liste.find { it.deltakerFnr == "07098142678" })
     }
 
@@ -199,7 +201,7 @@ class RefusjonApiTest(
         mockMvc.perform(get(REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON).contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .cookie(arbGiverCookie))
-                .andExpect(status().isBadRequest)
+                .andExpect(status().is4xxClientError)
     }
 
     @Test
@@ -213,7 +215,7 @@ class RefusjonApiTest(
 
         // DA
         assertTrue(liste.all { it.bedriftNr == bedriftNr })
-        assertEquals(4, liste.size)
+        assertEquals(3, liste.size)
     }
 
     @Test
@@ -226,8 +228,8 @@ class RefusjonApiTest(
         val liste = mapper.readValue(json, object : TypeReference<List<Refusjon>>() {})
 
         // SÅ
-        assertTrue(liste.all { it.bedriftNr == bedriftNr })
-        assertEquals(4, liste.size)
+        assertThat(liste).allMatch { it.bedriftNr == bedriftNr }
+        assertEquals(3, liste.size)
     }
 
     @Test
@@ -254,14 +256,14 @@ class RefusjonApiTest(
 
     @Test
     fun `hent() - Arbeidsgiver mangler tilgang til refusjon med id`() {
-        val id = refusjonRepository.findAll().find { it.deltakerFnr == "07098142678" }?.id
+        val id = refusjonRepository.findAll().find { it.deltakerFnr == "23119409195" }?.id
 
         sendRequest(get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id"), arbGiverCookie, status().isUnauthorized)
     }
 
     @Test
     fun `hent() - Saksbehandler henter refusjon med id`() {
-        val id = refusjonRepository.findAll().find { it.deltakerFnr == "07098142678" }?.id
+        val id = refusjonRepository.findAll().find { it.deltakerFnr == "28128521498" }?.id
 
         val json = sendRequest(get("$REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON/$id"), navCookie)
         val refusjon = mapper.readValue(json, Refusjon::class.java)

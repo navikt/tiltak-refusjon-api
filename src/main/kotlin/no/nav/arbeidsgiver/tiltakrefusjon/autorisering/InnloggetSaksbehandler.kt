@@ -7,7 +7,6 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.web.client.HttpClientErrorException
-import java.util.function.Predicate
 
 data class InnloggetSaksbehandler(
         val ident: String,
@@ -16,9 +15,18 @@ data class InnloggetSaksbehandler(
         @JsonIgnore val refusjonRepository: RefusjonRepository
 ) {
 
-    fun finnAlle(hentSaksbehandlerRefusjonerQueryParametre: HentSaksbehandlerRefusjonerQueryParametre): List<Refusjon> {
-
-        return medLesetilgang(refusjonRepository.findAll())
+    fun finnAlle(queryParametre: HentSaksbehandlerRefusjonerQueryParametre): List<Refusjon> {
+        var liste = refusjonRepository.findAll()
+        if (queryParametre.bedriftNr != null) {
+            liste = liste.filter { queryParametre.bedriftNr == it.bedriftNr }
+        }
+        if (queryParametre.status != null) {
+            liste = liste.filter { queryParametre.status == it.status }
+        }
+        if (queryParametre.tiltakstype != null) {
+            liste = liste.filter { queryParametre.tiltakstype == it.tilskuddsgrunnlag.tiltakstype }
+        }
+        return medLesetilgang(liste)
     }
 
     fun finnRefusjon(id: String): Refusjon? {

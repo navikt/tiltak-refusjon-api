@@ -1,8 +1,10 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBrukerService
+import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.TilgangskontrollException
 import no.nav.security.token.support.core.api.Protected
 import no.nav.security.token.support.spring.validation.interceptor.JwtTokenUnauthorizedException
+import org.springframework.beans.BeanInstantiationException
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.client.HttpClientErrorException
@@ -11,7 +13,7 @@ import javax.servlet.http.HttpServletResponse
 
 const val REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON = "/api/arbeidsgiver/refusjon"
 
-data class HentArbeidsgiverRefusjonerQueryParametre(val bedriftNr: String, val status: RefusjonStatus? = null, val tiltakstype: Tiltakstype? = null)
+data class HentArbeidsgiverRefusjonerQueryParametre(val bedriftNr: String, val status: RefusjonStatus?, val tiltakstype: Tiltakstype?)
 
 @RestController
 @RequestMapping(REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON)
@@ -41,6 +43,10 @@ class ArbeidsgiverRefusjonController(
 
     @ExceptionHandler
     fun håndterException(e: Exception, response: HttpServletResponse) {
+        if (e is BeanInstantiationException && e.cause is IllegalArgumentException) {
+            response.sendError(HttpStatus.BAD_REQUEST.value())
+            return
+        }
         if (e is HttpStatusCodeException) {
             response.sendError(e.statusCode.value(), e.statusText)
             return
@@ -49,6 +55,6 @@ class ArbeidsgiverRefusjonController(
             response.sendError(HttpStatus.UNAUTHORIZED.value(), e.message)
             return
         }
-        response.sendError(HttpStatus.SERVICE_UNAVAILABLE.value(), e.message)
+        response.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.message)
     }
 }

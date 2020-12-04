@@ -1,7 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.autorisering
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.AbacTilgangsstyringService
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.HentSaksbehandlerRefusjonerQueryParametre
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonRepository
 import org.springframework.data.repository.findByIdOrNull
@@ -13,17 +13,23 @@ data class InnloggetSaksbehandler(
         val navn: String,
         @JsonIgnore val abacTilgangsstyringService: AbacTilgangsstyringService,
         @JsonIgnore val refusjonRepository: RefusjonRepository
-) : InnloggetBruker() {
+) {
 
-    override fun finnAlle(): List<Refusjon> {
-        return medLesetilgang(refusjonRepository.findAll())
+    fun finnAlle(queryParametre: HentSaksbehandlerRefusjonerQueryParametre): List<Refusjon> {
+        var liste = refusjonRepository.findAll()
+        if (queryParametre.bedriftNr != null) {
+            liste = liste.filter { queryParametre.bedriftNr == it.bedriftNr }
+        }
+        if (queryParametre.status != null) {
+            liste = liste.filter { queryParametre.status == it.status }
+        }
+        if (queryParametre.tiltakstype != null) {
+            liste = liste.filter { queryParametre.tiltakstype == it.tilskuddsgrunnlag.tiltakstype }
+        }
+        return medLesetilgang(liste)
     }
 
-    override fun finnAlleMedBedriftnummer(bedriftnummer: String): List<Refusjon> {
-        return medLesetilgang(refusjonRepository.findByBedriftnummer(bedriftnummer))
-    }
-
-    override fun finnRefusjon(id: String): Refusjon? {
+    fun finnRefusjon(id: String): Refusjon? {
         val refusjon = refusjonRepository.findByIdOrNull(id)
         return refusjon?.let { hvisLesetilgang(it) }
     }

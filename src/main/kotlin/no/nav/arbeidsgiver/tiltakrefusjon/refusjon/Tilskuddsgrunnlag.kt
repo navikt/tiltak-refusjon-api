@@ -1,24 +1,33 @@
-package no.nav.arbeidsgiver.tiltakrefusjon.tilskudd
+package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
+import com.github.guepardoapps.kulid.ULID
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
 import java.time.LocalDate
+import javax.persistence.Entity
+import javax.persistence.EnumType
+import javax.persistence.Enumerated
+import javax.persistence.Id
 
-data class TilskuddMelding(
+@Entity
+data class Tilskuddsgrunnlag(
         val avtaleId: String,
         val tilskuddsperiodeId: String,
-        val avtaleInnholdId: String,
-        val tiltakstype: Tiltakstype,
         val deltakerFornavn: String,
         val deltakerEtternavn: String,
         val deltakerFnr: String,
         val veilederNavIdent: String,
         val bedriftNavn: String,
         val bedriftNr: String,
-        val tilskuddsbeløp: Int,
         val tilskuddFom: LocalDate,
         val tilskuddTom: LocalDate,
         val feriepengerSats: Double,
         val otpSats: Double,
         val arbeidsgiveravgiftSats: Double,
+        @Enumerated(EnumType.STRING)
+        val tiltakstype: Tiltakstype,
+        val tilskuddsbeløp: Int,
         val lønnstilskuddsprosent: Int
-)
+) {
+    @Id
+    val id: String = ULID.random()
+}

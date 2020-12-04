@@ -16,7 +16,7 @@ import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.exchange
 import java.time.LocalDate
 import java.time.YearMonth
-import java.util.UUID
+import java.util.*
 
 
 @Service
@@ -58,7 +58,8 @@ class InntektskomponentConsumer(
                                 it.inntektType,
                                 it.beloep.toDouble(),
                                 YearMonth.parse(it.utbetaltIMaaned),
-                                dateFraOpptjenningsperiode, datoTilOpptjenningsperiode)
+                                dateFraOpptjenningsperiode,
+                                datoTilOpptjenningsperiode)
                 )
             }
         }

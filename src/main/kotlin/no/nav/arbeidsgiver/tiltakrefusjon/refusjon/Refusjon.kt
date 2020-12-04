@@ -1,40 +1,26 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
-import java.time.LocalDate
-import java.time.LocalDateTime
-import javax.persistence.Entity
-import javax.persistence.Id
+import com.github.guepardoapps.kulid.ULID
+import java.time.Instant
+import javax.persistence.*
 
 @Entity
 data class Refusjon(
-        @Id
-        val id: String,
-        val deltaker: String,
-        val tiltakstype: Tiltakstype,
-        val status: Status,
-        val deltakerFnr: String,
-        val veileder: String,
-        val bedrift: String,
-        val bedriftnummer: String,
-        var feriedager: Int,
-        val trekkFeriedagerBeløp: Int,
-        val sykedager: Int,
-        val sykepenger: Int,
-        val stillingsprosent: Int,
-        val månedslønn: Int,
-        val nettoMånedslønn: Int,
-        val satsOtp: Double,
-        val beløpOtp: Int,
-        val satsFeriepenger: Double,
-        val feriepenger: Int,
-        val satsArbeidsgiveravgift: Double,
-        val arbeidsgiveravgift: Int,
-        val sumUtgifterArbeidsgiver: Int,
-        val satsRefusjon: Double,
-        val refusjonPrMåned: Int,
-        val fraDato: LocalDate,
-        val tilDato: LocalDate,
-        val opprettetTidspunkt: LocalDateTime
-)
+        @OneToOne(orphanRemoval = true, cascade = [CascadeType.ALL])
+        val tilskuddsgrunnlag: Tilskuddsgrunnlag,
+        val bedriftNr: String,
+        val deltakerFnr: String
+) {
+    @Id
+    val id: String = ULID.random()
 
+    @OneToOne(orphanRemoval = true, cascade = [CascadeType.ALL])
+    var inntektsgrunnlag: Inntektsgrunnlag? = null
 
+    @Enumerated(EnumType.STRING)
+    var status: RefusjonStatus = RefusjonStatus.UBEHANDLET
+    var godkjentAvArbeidsgiver: Instant? = null
+    var godkjentAvSaksbehandler: Instant? = null
+    var refusjonsbeløp: Int? = null
+    var commitHash: String? = null
+}

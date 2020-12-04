@@ -1,5 +1,5 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
-enum class Status {
+enum class RefusjonStatus {
     BEHANDLET, UBEHANDLET
 }

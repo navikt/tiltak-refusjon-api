@@ -5,29 +5,34 @@ import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonRepository
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonService
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 
 data class InnloggetArbeidsgiver(
         val identifikator: String,
         @JsonIgnore val altinnTilgangsstyringService: AltinnTilgangsstyringService,
-        @JsonIgnore val refusjonRepository: RefusjonRepository
-) : InnloggetBruker() {
+        @JsonIgnore val refusjonRepository: RefusjonRepository,
+        @JsonIgnore val refusjonService: RefusjonService
+) {
 
     val organisasjoner: Set<Organisasjon> = altinnTilgangsstyringService.hentTilganger(identifikator)
 
-    override fun finnAlle(): List<Refusjon> {
-        throw TilgangskontrollException(HttpStatus.UNAUTHORIZED)
-    }
-
-    override fun finnAlleMedBedriftnummer(bedriftnummer: String): List<Refusjon> {
+    fun finnAlleMedBedriftnummer(bedriftnummer: String): List<Refusjon> {
         sjekkHarTilgangTilRefusjonerForBedrift(bedriftnummer)
-        return refusjonRepository.findByBedriftnummer(bedriftnummer)
+        return refusjonRepository.findAllByBedriftNr(bedriftnummer)
     }
 
-    override fun finnRefusjon(id: String): Refusjon? {
+    fun gjørInntektsoppslag(refusjonId: String) {
+        val refusjon: Refusjon = refusjonRepository.findByIdOrNull(refusjonId)
+                ?: throw TilgangskontrollException(HttpStatus.NOT_FOUND)
+        sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
+        refusjonService.hentInntekterForRefusjon(refusjon)
+    }
+
+    fun finnRefusjon(id: String): Refusjon? {
         val refusjon: Refusjon? = refusjonRepository.findByIdOrNull(id)
-        refusjon?.let { sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftnummer) }
+        refusjon?.let { sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr) }
         return refusjon
     }
 

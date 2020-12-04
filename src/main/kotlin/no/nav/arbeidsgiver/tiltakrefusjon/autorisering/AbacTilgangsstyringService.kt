@@ -1,4 +1,4 @@
-package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
+package no.nav.arbeidsgiver.tiltakrefusjon.autorisering
 
 import no.nav.common.abac.Pep
 import no.nav.common.abac.domain.AbacPersonId

@@ -1,5 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.tilskudd
 
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonService
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.any
 import org.mockito.Mockito.verify
@@ -11,7 +13,7 @@ import org.springframework.kafka.test.context.EmbeddedKafka
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import java.time.LocalDate
-import java.util.UUID
+import java.util.*
 
 @ActiveProfiles("local")
 @SpringBootTest(properties = ["tiltak-refusjon.kafka.enabled=true"])
@@ -24,30 +26,27 @@ class GodkjentTilskuddLytterTest {
     lateinit var kafkaTemplate: KafkaTemplate<String, TilskuddMelding>
 
     @MockBean
-    lateinit var beregningServiceMock: BeregningService
+    lateinit var refusjonService: RefusjonService
 
     @Autowired
     lateinit var godkjentTilskuddLytter: GodkjentTilskuddLytter
 
     @Test
-    fun `skal beregne tilskudd når melding blir lest fra topic`() {
-
-
+    fun `skal opprette refusjon når melding blir lest fra topic`() {
         // GITT
-        val tilskuddMelding = TilskuddMelding(UUID.randomUUID(),
-                UUID.randomUUID(), UUID.randomUUID(),
-                "VARLIG-LØNNSTILSKUDD", "Donald",
+        val tilskuddMelding = TilskuddMelding(UUID.randomUUID().toString(),
+                UUID.randomUUID().toString(), UUID.randomUUID().toString(),
+                Tiltakstype.VARIG_LONNSTILSKUDD, "Donald",
                 "Duck", "12345678901", "X123456",
                 "Duck Levering AS", "99999999", 12000,
-                LocalDate.now().minusDays(15), LocalDate.now())
+                LocalDate.now().minusDays(15), LocalDate.now(), 0.12, 0.02, 0.141, 60)
 
         // NÅR
-        kafkaTemplate.send(Topics.REFUSJON, tilskuddMelding.avtaleId.toString(), tilskuddMelding)
+        kafkaTemplate.send(Topics.REFUSJON, tilskuddMelding.tilskuddsperiodeId, tilskuddMelding)
 
         // SÅ
-
         Thread.sleep(1000)
-        verify(beregningServiceMock).bereg(any<TilskuddMelding>() ?: tilskuddMelding)
+        verify(refusjonService).opprettRefusjon(any<TilskuddMelding>() ?: tilskuddMelding)
     }
 
 

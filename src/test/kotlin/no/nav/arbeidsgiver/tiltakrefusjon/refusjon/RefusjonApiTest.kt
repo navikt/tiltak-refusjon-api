@@ -297,7 +297,7 @@ class RefusjonApiTest(
         val json = sendRequest(get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id"), arbGiverCookie)
         val refusjon = mapper.readValue(json, Refusjon::class.java)
         assertThat(refusjon.inntektsgrunnlag).isNotNull
-        assertThat(refusjon.refusjonsbeløp).isPositive
+        assertThat(refusjon.refusjonsbeløp).isPositive()
     }
 
     private fun sendRequest(request: MockHttpServletRequestBuilder, cookie: Cookie): String {

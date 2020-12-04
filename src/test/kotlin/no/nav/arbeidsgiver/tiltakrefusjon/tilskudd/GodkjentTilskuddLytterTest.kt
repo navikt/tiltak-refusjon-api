@@ -32,7 +32,7 @@ class GodkjentTilskuddLytterTest {
     lateinit var godkjentTilskuddLytter: GodkjentTilskuddLytter
 
     @Test
-    fun `skal beregne tilskudd når melding blir lest fra topic`() {
+    fun `skal opprette refusjon når melding blir lest fra topic`() {
         // GITT
         val tilskuddMelding = TilskuddMelding(UUID.randomUUID().toString(),
                 UUID.randomUUID().toString(), UUID.randomUUID().toString(),
@@ -42,7 +42,7 @@ class GodkjentTilskuddLytterTest {
                 LocalDate.now().minusDays(15), LocalDate.now(), 0.12, 0.02, 0.141, 60)
 
         // NÅR
-        kafkaTemplate.send(Topics.REFUSJON, tilskuddMelding.avtaleId.toString(), tilskuddMelding)
+        kafkaTemplate.send(Topics.REFUSJON, tilskuddMelding.tilskuddsperiodeId, tilskuddMelding)
 
         // SÅ
         Thread.sleep(1000)

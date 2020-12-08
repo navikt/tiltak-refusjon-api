@@ -2,25 +2,23 @@ package no.nav.arbeidsgiver.tiltakrefusjon.tilskudd
 
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
+import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.Test
-import org.mockito.Mockito.any
 import org.mockito.Mockito.verify
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.kafka.test.context.EmbeddedKafka
-import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import java.time.LocalDate
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 @ActiveProfiles("local")
 @SpringBootTest(properties = ["tiltak-refusjon.kafka.enabled=true"])
-@DirtiesContext
 @EmbeddedKafka(partitions = 1, topics = [Topics.REFUSJON])
 class GodkjentTilskuddLytterTest {
-
 
     @Autowired
     lateinit var kafkaTemplate: KafkaTemplate<String, TilskuddMelding>
@@ -45,9 +43,7 @@ class GodkjentTilskuddLytterTest {
         kafkaTemplate.send(Topics.REFUSJON, tilskuddMelding.tilskuddsperiodeId, tilskuddMelding)
 
         // SÅ
-        Thread.sleep(1000)
-        verify(refusjonService).opprettRefusjon(any<TilskuddMelding>() ?: tilskuddMelding)
+        await().atMost(5, TimeUnit.SECONDS).untilAsserted { verify(refusjonService).opprettRefusjon(tilskuddMelding) }
     }
-
 
 }

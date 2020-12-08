@@ -48,7 +48,7 @@ class RefusjonsberegningSteps : No {
                     inntekter = inntekstlinjer,
                     tilskuddsgrunnlag = tilskuddsgrunnlag
             )
-            assertThat(beregnet).isEqualByComparingTo(refusjon);
+            assertThat(beregnet.refusjonsbeløp).isEqualByComparingTo(refusjon);
         }
         Before("@skip_scenario") { _ ->
             Assume.assumeTrue("Ignorerer scenario", false)

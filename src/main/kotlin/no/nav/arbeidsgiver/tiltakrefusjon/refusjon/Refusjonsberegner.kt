@@ -20,7 +20,7 @@ private fun inntektsdager(inntektslinje: Inntektslinje, tilskuddFom: LocalDate, 
     return overlappFom.datesUntil(overlappTom.plusDays(1)).map { beløpPerDag }.toList()
 }
 
-fun beregnRefusjonsbeløp(inntekter: List<Inntektslinje>, tilskuddsgrunnlag: Tilskuddsgrunnlag): Int {
+fun beregnRefusjonsbeløp(inntekter: List<Inntektslinje>, tilskuddsgrunnlag: Tilskuddsgrunnlag): Beregning {
     val totalRefundertForHelePeriode = inntekter
             .filter(Inntektslinje::erLønnsinntekt)
             .flatMap { inntektsdager(it, tilskuddsgrunnlag.tilskuddFom, tilskuddsgrunnlag.tilskuddTom) }
@@ -33,5 +33,5 @@ fun beregnRefusjonsbeløp(inntekter: List<Inntektslinje>, tilskuddsgrunnlag: Til
                 totaltRefundertPerDag
             }
             .sum() * tilskuddsgrunnlag.lønnstilskuddsprosent.toDouble() / 100.0
-    return totalRefundertForHelePeriode.roundToInt()
+    return Beregning(refusjonsbeløp = totalRefundertForHelePeriode.roundToInt())
 }

@@ -41,6 +41,12 @@ class ArbeidsgiverRefusjonController(
         arbeidsgiver.gjørInntektsoppslag(id)
     }
 
+    @PostMapping("/{id}/godkjenn")
+    fun godkjenn(@PathVariable id: String) {
+        val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
+        arbeidsgiver.godkjenn(id)
+    }
+
     @ExceptionHandler
     fun håndterException(e: Exception, response: HttpServletResponse) {
         if (e is BeanInstantiationException && e.cause is IllegalArgumentException) {

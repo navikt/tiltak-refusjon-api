@@ -36,16 +36,22 @@ create table inntektslinje
     opptjeningsperiode_tom date
 );
 
+create table beregning
+(
+    id             varchar primary key,
+    refusjonsbeløp numeric,
+    commit_hash    varchar
+);
+
 create table refusjon
 (
     id                        varchar primary key,
     tilskuddsgrunnlag_id      varchar references tilskuddsgrunnlag (id),
     inntektsgrunnlag_id       varchar references inntektsgrunnlag (id),
+    beregning_id              varchar references beregning (id),
     status                    varchar,
     godkjent_av_arbeidsgiver  timestamp without time zone,
     godkjent_av_saksbehandler timestamp without time zone,
-    refusjonsbeløp            numeric,
-    commit_hash               varchar,
     deltaker_fnr              varchar(11),
     bedrift_nr                varchar(9)
 );

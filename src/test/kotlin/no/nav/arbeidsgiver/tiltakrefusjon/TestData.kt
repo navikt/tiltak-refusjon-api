@@ -1,9 +1,8 @@
 package no.nav.arbeidsgiver.tiltakrefusjon
 
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tilskuddsgrunnlag
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import java.time.LocalDate
+import java.time.YearMonth
 
 fun enRefusjon(): Refusjon {
     return `Alexander Kielland`()
@@ -91,3 +90,27 @@ fun `Amalie Skram`(): Refusjon {
             tilskuddsbeløp = 10579
     ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr)
 }
+
+fun Refusjon.medInntektsgrunnlag(inntektsgrunnlag: Inntektsgrunnlag = etInntektsgrunnlag()): Refusjon {
+    this.oppgiInntektsgrunnlag(inntektsgrunnlag)
+    return this
+}
+
+fun Refusjon.medGodkjennelseFraArbeidsgiver(): Refusjon {
+    this.godkjennForArbeidsgiver()
+    return this
+}
+
+fun Refusjon.medGodkjennelseFraSaksbehandler(): Refusjon {
+    this.godkjennForSaksbehandler()
+    return this
+}
+
+fun etInntektsgrunnlag() = Inntektsgrunnlag(
+        inntekter = listOf(Inntektslinje(
+                inntektType = "LOENNSINNTEKT",
+                beløp = 7777.0,
+                måned = YearMonth.of(2020, 10),
+                opptjeningsperiodeFom = null,
+                opptjeningsperiodeTom = null
+        )))

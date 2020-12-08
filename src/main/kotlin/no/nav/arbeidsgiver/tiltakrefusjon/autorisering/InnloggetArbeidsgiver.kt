@@ -27,7 +27,14 @@ data class InnloggetArbeidsgiver(
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(refusjonId)
                 ?: throw TilgangskontrollException(HttpStatus.NOT_FOUND)
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
-        refusjonService.hentInntekterForRefusjon(refusjon)
+        refusjonService.gjørInntektsoppslag(refusjon)
+    }
+
+    fun godkjenn(refusjonId: String) {
+        val refusjon: Refusjon = refusjonRepository.findByIdOrNull(refusjonId)
+                ?: throw TilgangskontrollException(HttpStatus.NOT_FOUND)
+        sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
+        refusjonService.godkjennForArbeidsgiver(refusjon)
     }
 
     fun finnRefusjon(id: String): Refusjon? {

@@ -68,7 +68,7 @@ class RefusjonServiceTest(
                 lønnstilskuddsprosent = 60
         )
         val refusjon = refusjonService.opprettRefusjon(tilskuddMelding)
-        refusjonService.hentInntekterForRefusjon(refusjon)
+        refusjonService.gjørInntektsoppslag(refusjon)
         val lagretRefusjon = refusjonRepository.findAllByDeltakerFnr(deltakerFnr)[0]
         assertThat(lagretRefusjon.inntektsgrunnlag?.inntekter).isNotEmpty
     }

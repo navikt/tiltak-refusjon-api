@@ -91,7 +91,7 @@ class RefusjonApiTest(
 
         // DA
         assertTrue(liste.all { it.bedriftNr == bedriftNr })
-        assertEquals(3, liste.size)
+        assertEquals(2, liste.size)
     }
 
     @Test
@@ -105,7 +105,7 @@ class RefusjonApiTest(
 
         // SÅ
         assertThat(liste).allMatch { it.bedriftNr == bedriftNr }
-        assertEquals(3, liste.size)
+        assertEquals(2, liste.size)
     }
 
     @Test

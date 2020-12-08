@@ -43,7 +43,7 @@ class GodkjentTilskuddLytterTest {
         kafkaTemplate.send(Topics.REFUSJON, tilskuddMelding.tilskuddsperiodeId, tilskuddMelding)
 
         // SÅ
-        await().atMost(5, TimeUnit.SECONDS).untilAsserted { verify(refusjonService).opprettRefusjon(tilskuddMelding) }
+        await().atMost(10, TimeUnit.SECONDS).untilAsserted { verify(refusjonService).opprettRefusjon(tilskuddMelding) }
     }
 
 }

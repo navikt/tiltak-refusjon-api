@@ -57,7 +57,7 @@ class RefusjonServiceTest(
                 arbeidsgiveravgiftSats = 0.101,
                 avtaleInnholdId = "2",
                 bedriftNavn = "Bedriften AS",
-                bedriftNr = "998877665",
+                bedriftNr = "999999999",
                 deltakerFnr = deltakerFnr,
                 feriepengerSats = 0.141,
                 otpSats = 0.02,

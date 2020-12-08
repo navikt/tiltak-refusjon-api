@@ -45,7 +45,7 @@ fun `Alexander Kielland`(): Refusjon {
 
 fun `Bjørnstjerne Bjørnson`(): Refusjon {
     val deltakerFnr = "28128521498"
-    val bedriftNr = "998877665"
+    val bedriftNr = "999999999"
     return Refusjon(tilskuddsgrunnlag = etTilskuddsgrunnlag.copy(
             deltakerFnr = deltakerFnr,
             bedriftNr = bedriftNr,

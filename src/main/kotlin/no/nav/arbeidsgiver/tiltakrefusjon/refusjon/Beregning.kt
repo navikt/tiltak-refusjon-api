@@ -6,6 +6,11 @@ import javax.persistence.Id
 
 @Entity
 data class Beregning(
+        val lønn: Int,
+        val feriepenger: Int,
+        val tjenestepensjon: Int,
+        val arbeidsgiveravgift: Int,
+        val sumUtgifter: Int,
         val refusjonsbeløp: Int,
         val commitHash: String = ""
 ) {

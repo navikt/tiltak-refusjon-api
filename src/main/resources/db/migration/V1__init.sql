@@ -38,9 +38,14 @@ create table inntektslinje
 
 create table beregning
 (
-    id             varchar primary key,
-    refusjonsbeløp numeric,
-    commit_hash    varchar
+    id                 varchar primary key,
+    lønn               numeric,
+    feriepenger        numeric,
+    tjenestepensjon    numeric,
+    arbeidsgiveravgift numeric,
+    sum_utgifter       numeric,
+    refusjonsbeløp     numeric,
+    commit_hash        varchar
 );
 
 create table refusjon

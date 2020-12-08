@@ -21,17 +21,22 @@ private fun inntektsdager(inntektslinje: Inntektslinje, tilskuddFom: LocalDate, 
 }
 
 fun beregnRefusjonsbeløp(inntekter: List<Inntektslinje>, tilskuddsgrunnlag: Tilskuddsgrunnlag): Beregning {
-    val totalRefundertForHelePeriode = inntekter
+    val lønn = inntekter
             .filter(Inntektslinje::erLønnsinntekt)
             .flatMap { inntektsdager(it, tilskuddsgrunnlag.tilskuddFom, tilskuddsgrunnlag.tilskuddTom) }
-            .map { beløpPerDag ->
-                val feriepengerPerDag = beløpPerDag * tilskuddsgrunnlag.feriepengerSats
-                val tjenestepensjonPerDag = (beløpPerDag + feriepengerPerDag) * tilskuddsgrunnlag.otpSats
-                val arbeidsgiveravgiftPerDag = (beløpPerDag + tjenestepensjonPerDag + feriepengerPerDag) * tilskuddsgrunnlag.arbeidsgiveravgiftSats
-                val totaltRefundertPerDag = beløpPerDag + tjenestepensjonPerDag + feriepengerPerDag + arbeidsgiveravgiftPerDag
+            .sum()
+    val feriepenger = lønn * tilskuddsgrunnlag.feriepengerSats
+    val tjenestepensjon = (lønn + feriepenger) * tilskuddsgrunnlag.otpSats
+    val arbeidsgiveravgift = (lønn + tjenestepensjon + feriepenger) * tilskuddsgrunnlag.arbeidsgiveravgiftSats
+    val sumUtgifter = lønn + tjenestepensjon + feriepenger + arbeidsgiveravgift
+    val refusjonsbeløp = sumUtgifter * (tilskuddsgrunnlag.lønnstilskuddsprosent / 100.0)
 
-                totaltRefundertPerDag
-            }
-            .sum() * tilskuddsgrunnlag.lønnstilskuddsprosent.toDouble() / 100.0
-    return Beregning(refusjonsbeløp = totalRefundertForHelePeriode.roundToInt())
+    return Beregning(
+            lønn = lønn.roundToInt(),
+            feriepenger = feriepenger.roundToInt(),
+            tjenestepensjon = tjenestepensjon.roundToInt(),
+            arbeidsgiveravgift = arbeidsgiveravgift.roundToInt(),
+            sumUtgifter = sumUtgifter.roundToInt(),
+            refusjonsbeløp = refusjonsbeløp.roundToInt(),
+    )
 }

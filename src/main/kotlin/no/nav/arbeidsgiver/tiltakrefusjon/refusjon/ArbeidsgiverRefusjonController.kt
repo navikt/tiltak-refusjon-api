@@ -1,5 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
+import no.nav.arbeidsgiver.tiltakrefusjon.UgyldigRequestException
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBrukerService
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.TilgangskontrollException
 import no.nav.security.token.support.core.api.Protected
@@ -13,7 +14,7 @@ import javax.servlet.http.HttpServletResponse
 
 const val REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON = "/api/arbeidsgiver/refusjon"
 
-data class HentArbeidsgiverRefusjonerQueryParametre(val bedriftNr: String, val status: RefusjonStatus?, val tiltakstype: Tiltakstype?)
+data class HentArbeidsgiverRefusjonerQueryParametre(val bedriftNr: String?, val status: RefusjonStatus?, val tiltakstype: Tiltakstype?)
 
 @RestController
 @RequestMapping(REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON)
@@ -23,6 +24,9 @@ class ArbeidsgiverRefusjonController(
 ) {
     @GetMapping
     fun hentAlle(queryParametre: HentArbeidsgiverRefusjonerQueryParametre): List<Refusjon> {
+        if (queryParametre.bedriftNr == null) {
+            throw UgyldigRequestException()
+        }
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
         return arbeidsgiver.finnAlleMedBedriftnummer(queryParametre.bedriftNr)
                 .filter { queryParametre.status == null || queryParametre.status == it.status }
@@ -32,7 +36,7 @@ class ArbeidsgiverRefusjonController(
     @GetMapping("/{id}")
     fun hent(@PathVariable id: String): Refusjon? {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-        return arbeidsgiver.finnRefusjon(id) ?: throw HttpClientErrorException(HttpStatus.NO_CONTENT)
+        return arbeidsgiver.finnRefusjon(id)
     }
 
     @PostMapping("/{id}/inntektsoppslag")

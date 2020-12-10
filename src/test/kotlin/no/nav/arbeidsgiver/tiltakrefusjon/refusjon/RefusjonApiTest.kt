@@ -3,6 +3,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.nimbusds.jwt.JWTClaimsSet
+import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjoner
 import no.nav.security.token.support.test.JwkGenerator
 import no.nav.security.token.support.test.JwtTokenGenerator
@@ -72,13 +73,11 @@ class RefusjonApiTest(
 
     @Test
     fun `hentAlle() er utilgjengelig for arbeidsgiver`() {
-        assertThrows<Exception> {
-            mockMvc.perform(get(REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .accept(MediaType.APPLICATION_JSON)
-                    .cookie(arbGiverCookie))
-                    .andExpect(status().isInternalServerError)
-        }
+        mockMvc.perform(get(REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .cookie(arbGiverCookie))
+                .andExpect(status().isBadRequest)
     }
 
     @Test
@@ -134,7 +133,7 @@ class RefusjonApiTest(
     fun `hent() - Arbeidsgiver mangler tilgang til refusjon med id`() {
         val id = refusjonRepository.findAll().find { it.deltakerFnr == "23119409195" }?.id
 
-        assertThrows<Exception> { sendRequest(get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id"), arbGiverCookie, status().isUnauthorized) }
+        sendRequest(get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id"), arbGiverCookie, status().isUnauthorized)
     }
 
     @Test
@@ -148,10 +147,8 @@ class RefusjonApiTest(
 
     @Test
     fun `hent() - Saksbehandler mangler tilgang til henter refusjon med id`() {
-        assertThrows<Exception> {
-            val id = refusjonRepository.findAll().find { it.deltakerFnr == "07098142678" }?.id
-            sendRequest(get("$REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON/$id"), navCookie, status().isUnauthorized)
-        }
+        val id = refusjonRepository.findAll().find { it.deltakerFnr == "07098142678" }?.id
+        sendRequest(get("$REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON/$id"), navCookie, status().isUnauthorized)
     }
 
     @Test

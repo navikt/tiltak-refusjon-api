@@ -2,13 +2,10 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBrukerService
 import no.nav.security.token.support.core.api.Protected
-import no.nav.security.token.support.spring.validation.interceptor.JwtTokenUnauthorizedException
-import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.*
-import org.springframework.web.client.HttpClientErrorException
-import org.springframework.web.client.HttpStatusCodeException
-import java.util.function.Predicate
-import javax.servlet.http.HttpServletResponse
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 
 const val REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON = "/api/saksbehandler/refusjon"
 
@@ -29,6 +26,6 @@ class SaksbehandlerRefusjonController(
     @GetMapping("/{id}")
     fun hent(@PathVariable id: String): Refusjon? {
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
-        return saksbehandler.finnRefusjon(id) ?: throw HttpClientErrorException(HttpStatus.NO_CONTENT)
+        return saksbehandler.finnRefusjon(id)
     }
 }

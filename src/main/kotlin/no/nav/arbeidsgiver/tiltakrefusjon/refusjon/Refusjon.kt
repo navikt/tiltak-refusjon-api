@@ -1,6 +1,8 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import com.github.guepardoapps.kulid.ULID
+import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
+import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.GodkjentAvArbeidsgiver
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.GodkjentAvSaksbehandler
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.InntekterInnhentet

@@ -15,7 +15,7 @@ class GraphApiServiceImpl(
         @Value("\${tiltak-refusjon.graph-api.uri}") val graphApiUri: URI
 ) : GraphApiService {
     override fun hent(): GraphApiService.GraphApiResponse {
-        return påVegneAvSaksbehandlerGraphRestTemplate.getForObject<GraphApiService.GraphApiResponse>(graphApiUri, GraphApiService.GraphApiResponse::class.java)
+        return påVegneAvSaksbehandlerGraphRestTemplate.getForObject(graphApiUri, GraphApiService.GraphApiResponse::class.java)
                 ?: throw RuntimeException("Feil ved graph api")
     }
 }

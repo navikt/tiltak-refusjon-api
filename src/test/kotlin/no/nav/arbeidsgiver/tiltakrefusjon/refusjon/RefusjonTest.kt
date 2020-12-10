@@ -1,19 +1,16 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
-import no.nav.arbeidsgiver.tiltakrefusjon.enRefusjon
-import no.nav.arbeidsgiver.tiltakrefusjon.medGodkjennelseFraArbeidsgiver
-import no.nav.arbeidsgiver.tiltakrefusjon.medGodkjennelseFraSaksbehandler
-import no.nav.arbeidsgiver.tiltakrefusjon.medInntektsgrunnlag
+import no.nav.arbeidsgiver.tiltakrefusjon.*
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 internal class RefusjonTest {
     // Godkjennelse arbeidsgiver
     @Test
     fun `kan ikke godkjenne for ag uten beregning`() {
         val refusjon = enRefusjon()
-        assertThatThrownBy { refusjon.godkjennForArbeidsgiver() }.isInstanceOf(FeilkodeException::class.java)
+        assertThrows<FeilkodeException> { refusjon.godkjennForArbeidsgiver() }
     }
 
     @Test
@@ -26,7 +23,7 @@ internal class RefusjonTest {
     @Test
     fun `kan ikke godkjenne for ag to ganger`() {
         val refusjon = enRefusjon().medInntektsgrunnlag().medGodkjennelseFraArbeidsgiver()
-        assertThatThrownBy { refusjon.godkjennForArbeidsgiver() }.isInstanceOf(FeilkodeException::class.java)
+        assertThrows<FeilkodeException> { refusjon.godkjennForArbeidsgiver() }
     }
 
     // Godkjennelse saksbehandler
@@ -43,6 +40,6 @@ internal class RefusjonTest {
                 .medInntektsgrunnlag()
                 .medGodkjennelseFraArbeidsgiver()
                 .medGodkjennelseFraSaksbehandler()
-        assertThatThrownBy { refusjon.godkjennForSaksbehandler() }.isInstanceOf(FeilkodeException::class.java)
+        assertThrows<FeilkodeException> { refusjon.godkjennForSaksbehandler() }
     }
 }

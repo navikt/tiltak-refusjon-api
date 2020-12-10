@@ -1,12 +1,11 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.autorisering
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import no.nav.arbeidsgiver.tiltakrefusjon.RessursFinnesIkkeException
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.HentSaksbehandlerRefusjonerQueryParametre
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonRepository
 import org.springframework.data.repository.findByIdOrNull
-import org.springframework.http.HttpStatus
-import org.springframework.web.client.HttpClientErrorException
 
 data class InnloggetSaksbehandler(
         val ident: String,
@@ -29,9 +28,9 @@ data class InnloggetSaksbehandler(
         return medLesetilgang(liste)
     }
 
-    fun finnRefusjon(id: String): Refusjon? {
-        val refusjon = refusjonRepository.findByIdOrNull(id)
-        return refusjon?.let { hvisLesetilgang(it) }
+    fun finnRefusjon(id: String): Refusjon {
+        val refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
+        return hvisLesetilgang(refusjon)
     }
 
     private fun medLesetilgang(refusjoner: List<Refusjon>): List<Refusjon> {
@@ -45,6 +44,6 @@ data class InnloggetSaksbehandler(
         if (abacTilgangsstyringService.harLeseTilgang(ident, refusjon.deltakerFnr)) {
             return refusjon
         }
-        throw HttpClientErrorException(HttpStatus.UNAUTHORIZED)
+        throw TilgangskontrollException()
     }
 }

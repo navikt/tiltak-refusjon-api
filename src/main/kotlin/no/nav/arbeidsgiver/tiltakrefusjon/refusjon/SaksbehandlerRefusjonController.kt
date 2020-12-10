@@ -31,17 +31,4 @@ class SaksbehandlerRefusjonController(
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
         return saksbehandler.finnRefusjon(id) ?: throw HttpClientErrorException(HttpStatus.NO_CONTENT)
     }
-
-    @ExceptionHandler
-    fun håndterException(e: Exception, response: HttpServletResponse) {
-        if (e is HttpStatusCodeException) {
-            response.sendError(e.statusCode.value(), e.statusText)
-            return
-        }
-        if (e is JwtTokenUnauthorizedException) {
-            response.sendError(HttpStatus.UNAUTHORIZED.value(), e.message)
-            return
-        }
-        response.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.message)
-    }
 }

@@ -7,11 +7,8 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjoner
 import no.nav.security.token.support.test.JwkGenerator
 import no.nav.security.token.support.test.JwtTokenGenerator
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
@@ -23,6 +20,7 @@ import org.springframework.test.web.servlet.ResultMatcher
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.header
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.nio.charset.StandardCharsets
 import java.util.*
@@ -74,10 +72,13 @@ class RefusjonApiTest(
 
     @Test
     fun `hentAlle() er utilgjengelig for arbeidsgiver`() {
-        mockMvc.perform(get(REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON).contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .cookie(arbGiverCookie))
-                .andExpect(status().is4xxClientError)
+        assertThrows<Exception> {
+            mockMvc.perform(get(REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .cookie(arbGiverCookie))
+                    .andExpect(status().isInternalServerError)
+        }
     }
 
     @Test
@@ -133,7 +134,7 @@ class RefusjonApiTest(
     fun `hent() - Arbeidsgiver mangler tilgang til refusjon med id`() {
         val id = refusjonRepository.findAll().find { it.deltakerFnr == "23119409195" }?.id
 
-        sendRequest(get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id"), arbGiverCookie, status().isUnauthorized)
+        assertThrows<Exception> { sendRequest(get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id"), arbGiverCookie, status().isUnauthorized) }
     }
 
     @Test
@@ -147,8 +148,10 @@ class RefusjonApiTest(
 
     @Test
     fun `hent() - Saksbehandler mangler tilgang til henter refusjon med id`() {
-        val id = refusjonRepository.findAll().find { it.deltakerFnr == "07098142678" }?.id
-        sendRequest(get("$REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON/$id"), navCookie, status().isUnauthorized)
+        assertThrows<Exception> {
+            val id = refusjonRepository.findAll().find { it.deltakerFnr == "07098142678" }?.id
+            sendRequest(get("$REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON/$id"), navCookie, status().isUnauthorized)
+        }
     }
 
     @Test
@@ -179,6 +182,20 @@ class RefusjonApiTest(
         sendRequest(post("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id/godkjenn"), arbGiverCookie)
         val refusjonEtterGodkjennelse = hentRefusjon(id)
         assertThat(refusjonEtterGodkjennelse.godkjentAvArbeidsgiver).isNotNull()
+    }
+
+    @Test
+    fun `feilkode setter riktig header og gir statuskode 400`() {
+        val id = refusjonRepository.findAll().find { it.deltakerFnr == "28128521498" }?.id
+
+        // Godkjenn
+        mockMvc.perform(
+                post("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id/godkjenn")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .cookie(arbGiverCookie))
+                .andExpect(status().isBadRequest)
+                .andExpect(header().string("feilkode", Feilkode.MANGLER_BEREGNING.toString()))
     }
 
     private fun hentRefusjon(id: String?): Refusjon {

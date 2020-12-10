@@ -46,21 +46,4 @@ class ArbeidsgiverRefusjonController(
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
         arbeidsgiver.godkjenn(id)
     }
-
-    @ExceptionHandler
-    fun håndterException(e: Exception, response: HttpServletResponse) {
-        if (e is BeanInstantiationException && e.cause is IllegalArgumentException) {
-            response.sendError(HttpStatus.BAD_REQUEST.value())
-            return
-        }
-        if (e is HttpStatusCodeException) {
-            response.sendError(e.statusCode.value(), e.statusText)
-            return
-        }
-        if (e is JwtTokenUnauthorizedException) {
-            response.sendError(HttpStatus.UNAUTHORIZED.value(), e.message)
-            return
-        }
-        response.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.message)
-    }
 }

@@ -4,8 +4,10 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import java.time.LocalDate
 import java.time.YearMonth
 
-fun enRefusjon(): Refusjon {
-    return `Alexander Kielland`()
+fun enRefusjon(tilskuddsgrunnlag: Tilskuddsgrunnlag = etTilskuddsgrunnlag): Refusjon {
+    val deltakerFnr = "07098142678"
+    val bedriftNr = "999999999"
+    return Refusjon(tilskuddsgrunnlag = tilskuddsgrunnlag, bedriftNr = bedriftNr, deltakerFnr = deltakerFnr)
 }
 
 fun refusjoner(): List<Refusjon> {

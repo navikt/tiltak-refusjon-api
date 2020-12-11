@@ -2,15 +2,16 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.*
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import java.time.LocalDate
 
 internal class RefusjonTest {
     // Godkjennelse arbeidsgiver
     @Test
     fun `kan ikke godkjenne for ag uten beregning`() {
         val refusjon = enRefusjon()
-        assertThrows<FeilkodeException> { refusjon.godkjennForArbeidsgiver() }
+        assertThatThrownBy { refusjon.godkjennForArbeidsgiver() }.hasFeilkode(Feilkode.UGYLDIG_STATUS)
     }
 
     @Test
@@ -18,12 +19,13 @@ internal class RefusjonTest {
         val refusjon = enRefusjon().medInntektsgrunnlag()
         refusjon.godkjennForArbeidsgiver()
         assertThat(refusjon.godkjentAvArbeidsgiver).isNotNull()
+        assertThat(refusjon.status).isEqualTo(RefusjonStatus.KRAV_FREMMET)
     }
 
     @Test
     fun `kan ikke godkjenne for ag to ganger`() {
         val refusjon = enRefusjon().medInntektsgrunnlag().medGodkjennelseFraArbeidsgiver()
-        assertThrows<FeilkodeException> { refusjon.godkjennForArbeidsgiver() }
+        assertThatThrownBy { refusjon.godkjennForArbeidsgiver() }.hasFeilkode(Feilkode.UGYLDIG_STATUS)
     }
 
     // Godkjennelse saksbehandler
@@ -32,6 +34,7 @@ internal class RefusjonTest {
         val refusjon = enRefusjon().medInntektsgrunnlag().medGodkjennelseFraArbeidsgiver()
         refusjon.godkjennForSaksbehandler()
         assertThat(refusjon.godkjentAvSaksbehandler).isNotNull()
+        assertThat(refusjon.status).isEqualTo(RefusjonStatus.BEHANDLET)
     }
 
     @Test
@@ -40,6 +43,14 @@ internal class RefusjonTest {
                 .medInntektsgrunnlag()
                 .medGodkjennelseFraArbeidsgiver()
                 .medGodkjennelseFraSaksbehandler()
-        assertThrows<FeilkodeException> { refusjon.godkjennForSaksbehandler() }
+        assertThatThrownBy { refusjon.godkjennForSaksbehandler() }.hasFeilkode(Feilkode.UGYLDIG_STATUS)
+    }
+
+    //Inntektsgrunnlag
+    @Test
+    fun `oppgir inntektsgrunnlag for tidlig`() {
+        val refusjon = enRefusjon(etTilskuddsgrunnlag.copy(tilskuddTom = LocalDate.now().plusDays(1)))
+        assertThatThrownBy { refusjon.oppgiInntektsgrunnlag(etInntektsgrunnlag()) }.hasFeilkode(Feilkode.INNTEKT_HENTET_FOR_TIDLIG)
     }
 }
+

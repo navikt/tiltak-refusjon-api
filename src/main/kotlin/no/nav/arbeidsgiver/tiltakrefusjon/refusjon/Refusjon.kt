@@ -8,6 +8,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.GodkjentAvSaksbehandle
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.InntekterInnhentet
 import org.springframework.data.domain.AbstractAggregateRoot
 import java.time.Instant
+import java.time.LocalDate
 import javax.persistence.*
 
 @Entity
@@ -27,35 +28,36 @@ data class Refusjon(
     var beregning: Beregning? = null
 
     @Enumerated(EnumType.STRING)
-    var status: RefusjonStatus = RefusjonStatus.UBEHANDLET
+    var status: RefusjonStatus = RefusjonStatus.NY
     var godkjentAvArbeidsgiver: Instant? = null
     var godkjentAvSaksbehandler: Instant? = null
 
+    private fun krevStatus(vararg gyldigeStatuser: RefusjonStatus) {
+        if (status !in gyldigeStatuser) throw FeilkodeException(Feilkode.UGYLDIG_STATUS)
+    }
+
     fun oppgiInntektsgrunnlag(inntektsgrunnlag: Inntektsgrunnlag) {
+        krevStatus(RefusjonStatus.NY, RefusjonStatus.BEREGNET)
+        if (tilskuddsgrunnlag.tilskuddTom.isAfter(LocalDate.now())) {
+            throw FeilkodeException(Feilkode.INNTEKT_HENTET_FOR_TIDLIG)
+        }
         this.inntektsgrunnlag = inntektsgrunnlag
         beregning = beregnRefusjonsbeløp(inntektsgrunnlag.inntekter, tilskuddsgrunnlag)
+        status = RefusjonStatus.BEREGNET
         registerEvent(InntekterInnhentet(this))
     }
 
     fun godkjennForArbeidsgiver() {
-        if (beregning == null) {
-            throw FeilkodeException(Feilkode.MANGLER_BEREGNING)
-        }
-        if (godkjentAvArbeidsgiver != null) {
-            throw FeilkodeException(Feilkode.KAN_IKKE_GODKJENNE_FLERE_GANGER)
-        }
+        krevStatus(RefusjonStatus.BEREGNET)
         godkjentAvArbeidsgiver = Instant.now()
+        status = RefusjonStatus.KRAV_FREMMET
         registerEvent(GodkjentAvArbeidsgiver(this))
     }
 
     fun godkjennForSaksbehandler() {
-        if (godkjentAvArbeidsgiver == null) {
-            throw FeilkodeException(Feilkode.MANGLER_ARBEIDSGIVERS_GODKJENNING)
-        }
-        if (godkjentAvSaksbehandler != null) {
-            throw FeilkodeException(Feilkode.KAN_IKKE_GODKJENNE_FLERE_GANGER)
-        }
+        krevStatus(RefusjonStatus.KRAV_FREMMET)
         godkjentAvSaksbehandler = Instant.now()
+        status = RefusjonStatus.BEHANDLET
         registerEvent(GodkjentAvSaksbehandler(this))
     }
 }

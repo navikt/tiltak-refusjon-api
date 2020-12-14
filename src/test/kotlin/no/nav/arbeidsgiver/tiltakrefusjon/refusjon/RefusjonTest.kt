@@ -2,7 +2,6 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.*
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
@@ -11,7 +10,7 @@ internal class RefusjonTest {
     @Test
     fun `kan ikke godkjenne for ag uten beregning`() {
         val refusjon = enRefusjon()
-        assertThatThrownBy { refusjon.godkjennForArbeidsgiver() }.hasFeilkode(Feilkode.UGYLDIG_STATUS)
+        assertFeilkode(Feilkode.UGYLDIG_STATUS) { refusjon.godkjennForArbeidsgiver() }
     }
 
     @Test
@@ -25,7 +24,7 @@ internal class RefusjonTest {
     @Test
     fun `kan ikke godkjenne for ag to ganger`() {
         val refusjon = enRefusjon().medInntektsgrunnlag().medGodkjennelseFraArbeidsgiver()
-        assertThatThrownBy { refusjon.godkjennForArbeidsgiver() }.hasFeilkode(Feilkode.UGYLDIG_STATUS)
+        assertFeilkode(Feilkode.UGYLDIG_STATUS) { refusjon.godkjennForArbeidsgiver() }
     }
 
     // Godkjennelse saksbehandler
@@ -43,14 +42,14 @@ internal class RefusjonTest {
                 .medInntektsgrunnlag()
                 .medGodkjennelseFraArbeidsgiver()
                 .medGodkjennelseFraSaksbehandler()
-        assertThatThrownBy { refusjon.godkjennForSaksbehandler() }.hasFeilkode(Feilkode.UGYLDIG_STATUS)
+        assertFeilkode(Feilkode.UGYLDIG_STATUS) { refusjon.godkjennForSaksbehandler() }
     }
 
     //Inntektsgrunnlag
     @Test
     fun `oppgir inntektsgrunnlag for tidlig`() {
         val refusjon = enRefusjon(etTilskuddsgrunnlag.copy(tilskuddTom = LocalDate.now().plusDays(1)))
-        assertThatThrownBy { refusjon.oppgiInntektsgrunnlag(etInntektsgrunnlag()) }.hasFeilkode(Feilkode.INNTEKT_HENTET_FOR_TIDLIG)
+        assertFeilkode(Feilkode.INNTEKT_HENTET_FOR_TIDLIG) { refusjon.oppgiInntektsgrunnlag(etInntektsgrunnlag()) }
     }
 }
 

@@ -1,7 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.guepardoapps.kulid.ULID
-import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
 import javax.persistence.*
@@ -26,8 +26,12 @@ data class Inntektslinje(
         this.inntektsgrunnlag = inntektsgrunnlag
     }
 
-    @Transient
-    val erLønnsinntekt = inntektType == "LOENNSINNTEKT" && beløp > 0.0
-}
+    @JsonProperty
+    fun erLønnsinntekt() = inntektType == "LOENNSINNTEKT" && beløp > 0.0
 
-fun erHverdag(dato: LocalDate) = dato.dayOfWeek != DayOfWeek.SATURDAY && dato.dayOfWeek != DayOfWeek.SUNDAY
+    @JsonProperty
+    fun inntektFordelesFom(): LocalDate = opptjeningsperiodeFom ?: måned.atDay(1)
+
+    @JsonProperty
+    fun inntektFordelesTom(): LocalDate = opptjeningsperiodeTom ?: måned.atEndOfMonth()
+}

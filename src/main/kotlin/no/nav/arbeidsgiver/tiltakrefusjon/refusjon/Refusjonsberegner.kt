@@ -5,13 +5,11 @@ import kotlin.math.roundToInt
 import kotlin.streams.toList
 
 private fun inntektsdager(inntektslinje: Inntektslinje, tilskuddFom: LocalDate, tilskuddTom: LocalDate): List<Double> {
-    val inntektFom = inntektslinje.opptjeningsperiodeFom ?: inntektslinje.måned.atDay(1)
-    val inntektTom = inntektslinje.opptjeningsperiodeTom ?: inntektslinje.måned.atEndOfMonth()
-    val antallDagerOpptjent = inntektFom.datesUntil(inntektTom.plusDays(1)).count().toInt()
-    var beløpPerDag = inntektslinje.beløp / antallDagerOpptjent
+    val antallDagerOpptjent = inntektslinje.inntektFordelesFom().datesUntil(inntektslinje.inntektFordelesTom().plusDays(1)).count().toInt()
+    val beløpPerDag = inntektslinje.beløp / antallDagerOpptjent
 
-    val overlappFom = maxOf(inntektFom, tilskuddFom)
-    val overlappTom = minOf(inntektTom, tilskuddTom)
+    val overlappFom = maxOf(inntektslinje.inntektFordelesFom(), tilskuddFom)
+    val overlappTom = minOf(inntektslinje.inntektFordelesTom(), tilskuddTom)
 
     if (overlappFom > overlappTom) {
         return emptyList()

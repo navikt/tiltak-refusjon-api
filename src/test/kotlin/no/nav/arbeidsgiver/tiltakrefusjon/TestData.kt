@@ -28,8 +28,8 @@ val etTilskuddsgrunnlag = Tilskuddsgrunnlag(
         feriepengerSats = 0.12,
         arbeidsgiveravgiftSats = 0.141,
         lønnstilskuddsprosent = 40,
-        tilskuddFom = LocalDate.parse("2020-09-01"),
-        tilskuddTom = LocalDate.parse("2020-10-31"),
+        tilskuddFom = LocalDate.now().minusMonths(4).withDayOfMonth(1),
+        tilskuddTom = LocalDate.now().minusMonths(3).withDayOfMonth(28),
         tilskuddsbeløp = 13579
 )
 

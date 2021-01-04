@@ -29,6 +29,9 @@ data class Refusjon(
 
     @Enumerated(EnumType.STRING)
     var status: RefusjonStatus = RefusjonStatus.NY
+
+    var fristForGodkjenning: LocalDate = tilskuddsgrunnlag.tilskuddTom.plusMonths(6)
+
     var godkjentAvArbeidsgiver: Instant? = null
     var godkjentAvSaksbehandler: Instant? = null
 
@@ -49,6 +52,9 @@ data class Refusjon(
 
     fun godkjennForArbeidsgiver() {
         krevStatus(RefusjonStatus.BEREGNET)
+        if (fristForGodkjenning.isBefore(LocalDate.now())) {
+            throw FeilkodeException(Feilkode.ETTER_FRIST)
+        }
         godkjentAvArbeidsgiver = Instant.now()
         status = RefusjonStatus.KRAV_FREMMET
         registerEvent(GodkjentAvArbeidsgiver(this))

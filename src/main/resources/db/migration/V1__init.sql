@@ -55,6 +55,7 @@ create table refusjon
     inntektsgrunnlag_id       varchar references inntektsgrunnlag (id),
     beregning_id              varchar references beregning (id),
     status                    varchar,
+    frist_for_godkjenning     date,
     godkjent_av_arbeidsgiver  timestamp without time zone,
     godkjent_av_saksbehandler timestamp without time zone,
     deltaker_fnr              varchar(11),

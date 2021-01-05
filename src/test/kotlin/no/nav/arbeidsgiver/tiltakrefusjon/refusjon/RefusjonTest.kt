@@ -39,17 +39,40 @@ internal class RefusjonTest {
     @Test
     fun `kan ikke godkjenne for saksbehandler to ganger`() {
         val refusjon = enRefusjon()
-                .medInntektsgrunnlag()
-                .medGodkjennelseFraArbeidsgiver()
-                .medGodkjennelseFraSaksbehandler()
+            .medInntektsgrunnlag()
+            .medGodkjennelseFraArbeidsgiver()
+            .medGodkjennelseFraSaksbehandler()
         assertFeilkode(Feilkode.UGYLDIG_STATUS) { refusjon.godkjennForSaksbehandler() }
     }
 
-    //Inntektsgrunnlag
     @Test
     fun `oppgir inntektsgrunnlag for tidlig`() {
         val refusjon = enRefusjon(etTilskuddsgrunnlag.copy(tilskuddTom = LocalDate.now().plusDays(1)))
         assertFeilkode(Feilkode.INNTEKT_HENTET_FOR_TIDLIG) { refusjon.oppgiInntektsgrunnlag(etInntektsgrunnlag()) }
+    }
+
+    @Test
+    fun `godkjenner rett før frist`() {
+        val refusjon = enRefusjon(
+            etTilskuddsgrunnlag.copy(
+                tilskuddFom = LocalDate.now().minusMonths(2),
+                tilskuddTom = LocalDate.now().minusMonths(2)
+            )
+        ).medInntektsgrunnlag()
+        refusjon.godkjennForArbeidsgiver()
+        assertThat(refusjon.godkjentAvArbeidsgiver).isNotNull()
+        assertThat(refusjon.status).isEqualTo(RefusjonStatus.KRAV_FREMMET)
+    }
+
+    @Test
+    fun `godkjenner etter frist`() {
+        val refusjon = enRefusjon(
+            etTilskuddsgrunnlag.copy(
+                tilskuddFom = LocalDate.now().minusMonths(2).minusDays(1),
+                tilskuddTom = LocalDate.now().minusMonths(2).minusDays(1)
+            )
+        ).medInntektsgrunnlag()
+        assertFeilkode(Feilkode.ETTER_FRIST) { refusjon.godkjennForArbeidsgiver() }
     }
 }
 

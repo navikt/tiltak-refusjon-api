@@ -6,6 +6,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.request.InntektRequest
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.response.ArbeidsInntektMaaned
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.response.InntektResponse
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Inntektslinje
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.ConditionalOnPropertyNotEmpty
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.http.HttpEntity
@@ -20,14 +21,15 @@ import java.util.*
 
 
 @Service
-class InntektskomponentConsumer(
+@ConditionalOnPropertyNotEmpty("tiltak-refusjon.inntektskomponenten.uri")
+class InntektskomponentServiceImpl(
         val inntektskomponentProperties: InntektskomponentProperties,
         @Qualifier("anonymProxyRestTemplate") val restTemplate: RestTemplate
-) {
+) : InntektskomponentService {
 
-    private val log = LoggerFactory.getLogger(InntektskomponentConsumer::class.java)
+    private val log = LoggerFactory.getLogger(InntektskomponentServiceImpl::class.java)
 
-    fun hentInntekter(fnr: String, bedriftnummerDetSøkesPå: String, datoFra: LocalDate, datoTil: LocalDate): List<Inntektslinje> {
+    override fun hentInntekter(fnr: String, bedriftnummerDetSøkesPå: String, datoFra: LocalDate, datoTil: LocalDate): List<Inntektslinje> {
         try {
             val requestEntity = lagRequest(fnr, YearMonth.from(datoFra), YearMonth.from(datoTil))
             val responseMedInntekterForDeltaker = restTemplate.exchange<InntektResponse>(inntektskomponentProperties.uri, HttpMethod.POST, requestEntity).body

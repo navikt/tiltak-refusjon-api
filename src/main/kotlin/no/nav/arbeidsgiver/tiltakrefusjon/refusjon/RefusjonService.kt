@@ -1,13 +1,13 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
-import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentConsumer
+import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskudd.TilskuddMelding
 import org.springframework.stereotype.Service
 
 @Service
 class RefusjonService(
-        val inntektskomponentConsumer: InntektskomponentConsumer,
-        val refusjonRepository: RefusjonRepository
+    val inntektskomponentService: InntektskomponentService,
+    val refusjonRepository: RefusjonRepository
 ) {
     fun opprettRefusjon(tilskuddMelding: TilskuddMelding): Refusjon {
         val tilskuddsgrunnlag = Tilskuddsgrunnlag(
@@ -34,7 +34,7 @@ class RefusjonService(
 
     fun gjørInntektsoppslag(refusjon: Refusjon) {
         val inntektsgrunnlag = Inntektsgrunnlag(
-                inntekter = inntektskomponentConsumer.hentInntekter(
+                inntekter = inntektskomponentService.hentInntekter(
                         refusjon.deltakerFnr,
                         refusjon.bedriftNr,
                         refusjon.tilskuddsgrunnlag.tilskuddFom,

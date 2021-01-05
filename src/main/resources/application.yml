@@ -93,7 +93,7 @@ tiltak-refusjon:
   kafka:
     enabled: true
   inntektskomponenten:
-    uri: http://localhost:8090/inntekskomponenten/hentinntektliste
+    uri: ''
     filter: KontrollArbeidsmarkedstiltakA-inntekt
     consumer-id: tiltak-refusjon-api
   altinn-tilgangstyring:

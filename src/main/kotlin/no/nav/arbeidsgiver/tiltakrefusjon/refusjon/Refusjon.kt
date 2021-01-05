@@ -30,7 +30,7 @@ data class Refusjon(
     @Enumerated(EnumType.STRING)
     var status: RefusjonStatus = RefusjonStatus.NY
 
-    var fristForGodkjenning: LocalDate = tilskuddsgrunnlag.tilskuddTom.plusMonths(6)
+    var fristForGodkjenning: LocalDate = tilskuddsgrunnlag.tilskuddTom.plusMonths(2)
 
     var godkjentAvArbeidsgiver: Instant? = null
     var godkjentAvSaksbehandler: Instant? = null

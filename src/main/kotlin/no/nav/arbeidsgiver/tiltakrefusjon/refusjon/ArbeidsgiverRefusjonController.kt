@@ -2,15 +2,8 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.UgyldigRequestException
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBrukerService
-import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.TilgangskontrollException
 import no.nav.security.token.support.core.api.Protected
-import no.nav.security.token.support.spring.validation.interceptor.JwtTokenUnauthorizedException
-import org.springframework.beans.BeanInstantiationException
-import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.client.HttpClientErrorException
-import org.springframework.web.client.HttpStatusCodeException
-import javax.servlet.http.HttpServletResponse
 
 const val REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON = "/api/arbeidsgiver/refusjon"
 
@@ -31,6 +24,12 @@ class ArbeidsgiverRefusjonController(
         return arbeidsgiver.finnAlleMedBedriftnummer(queryParametre.bedriftNr)
                 .filter { queryParametre.status == null || queryParametre.status == it.status }
                 .filter { queryParametre.tiltakstype == null || queryParametre.tiltakstype == it.tilskuddsgrunnlag.tiltakstype }
+    }
+
+    @GetMapping("/{refusjonId}/tidligere-refusjoner")
+    fun hentTidligereRefusjoner(@PathVariable refusjonId: String): List<Refusjon> {
+        val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
+        return arbeidsgiver.finnTidligereRefusjoner(refusjonId)
     }
 
     @GetMapping("/{id}")

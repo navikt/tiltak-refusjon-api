@@ -10,10 +10,10 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonService
 import org.springframework.data.repository.findByIdOrNull
 
 data class InnloggetArbeidsgiver(
-        val identifikator: String,
-        @JsonIgnore val altinnTilgangsstyringService: AltinnTilgangsstyringService,
-        @JsonIgnore val refusjonRepository: RefusjonRepository,
-        @JsonIgnore val refusjonService: RefusjonService
+    val identifikator: String,
+    @JsonIgnore val altinnTilgangsstyringService: AltinnTilgangsstyringService,
+    @JsonIgnore val refusjonRepository: RefusjonRepository,
+    @JsonIgnore val refusjonService: RefusjonService
 ) {
 
     val organisasjoner: Set<Organisasjon> = altinnTilgangsstyringService.hentTilganger(identifikator)
@@ -46,6 +46,13 @@ data class InnloggetArbeidsgiver(
             throw TilgangskontrollException()
         }
         return true
+    }
+
+    fun finnTidligereRefusjoner(refusjonId: String): List<Refusjon> {
+        val refusjon = refusjonRepository.findByIdOrNull(refusjonId) ?: throw TilgangskontrollException()
+        val refusjonerMedSammeAvtaleId = refusjonRepository.findAllByTilskuddsgrunnlag_AvtaleIdAndGodkjentAvArbeidsgiverIsNotNull(refusjon.tilskuddsgrunnlag.avtaleId)
+        refusjonerMedSammeAvtaleId.forEach { sjekkHarTilgangTilRefusjonerForBedrift(it.bedriftNr) }
+        return refusjonerMedSammeAvtaleId.filter { it.id != refusjon.id }
     }
 }
 

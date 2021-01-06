@@ -47,14 +47,14 @@ internal class RefusjonTest {
 
     @Test
     fun `oppgir inntektsgrunnlag for tidlig`() {
-        val refusjon = enRefusjon(etTilskuddsgrunnlag.copy(tilskuddTom = LocalDate.now().plusDays(1)))
+        val refusjon = enRefusjon(etTilskuddsgrunnlag().copy(tilskuddTom = LocalDate.now().plusDays(1)))
         assertFeilkode(Feilkode.INNTEKT_HENTET_FOR_TIDLIG) { refusjon.oppgiInntektsgrunnlag(etInntektsgrunnlag()) }
     }
 
     @Test
     fun `godkjenner rett før frist`() {
         val refusjon = enRefusjon(
-            etTilskuddsgrunnlag.copy(
+            etTilskuddsgrunnlag().copy(
                 tilskuddFom = LocalDate.now().minusMonths(2),
                 tilskuddTom = LocalDate.now().minusMonths(2)
             )
@@ -67,7 +67,7 @@ internal class RefusjonTest {
     @Test
     fun `godkjenner etter frist`() {
         val refusjon = enRefusjon(
-            etTilskuddsgrunnlag.copy(
+            etTilskuddsgrunnlag().copy(
                 tilskuddFom = LocalDate.now().minusMonths(2).minusDays(1),
                 tilskuddTom = LocalDate.now().minusMonths(2).minusDays(1)
             )

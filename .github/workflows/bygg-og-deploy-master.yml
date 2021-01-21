@@ -3,8 +3,7 @@ name: Bygg og deploy master
 on:
   push:
     branches:
-      - '*'
-      - '!master'
+      - 'master'
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

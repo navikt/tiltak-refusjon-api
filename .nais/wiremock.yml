@@ -1,12 +1,12 @@
 apiVersion: nais.io/v1alpha1
 kind: Application
 metadata:
-  name: refusjon-wiremock
+  name: tiltak-refusjon-api-wiremock
   namespace: {{namespace}}
   labels:
     team: arbeidsgiver
 spec:
-  image: docker.pkg.github.com/navikt/refusjon-api/wiremock:2.27.2
+  image: docker.pkg.github.com/navikt/tiltak-refusjon-api/wiremock:2.27.2
   replicas:
     min: 1
     max: 1
@@ -34,9 +34,9 @@ spec:
   - name: deploytrigger
     value: "{{deploytrigger}}"
   filesFrom:
-  - configmap: refusjon-wiremock
+  - configmap: tiltak-refusjon-api-wiremock
     mountPath: /home/wiremock/mappings
   accessPolicy:
     inbound:
       rules:
-      - application: refusjon-api
+      - application: tiltak-refusjon-api

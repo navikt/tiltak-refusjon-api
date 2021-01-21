@@ -6,7 +6,7 @@ on:
       - '!master'
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  IMAGE_BASE: docker.pkg.github.com/${{ github.repository }}/refusjon-api
+  IMAGE_BASE: docker.pkg.github.com/${{ github.repository }}/tiltak-refusjon-api
 
 jobs:
   bygg:
@@ -61,11 +61,11 @@ jobs:
       - name: Sjekk ut kode
         uses: actions/checkout@v2
 
-      - name: Generer refusjon-wiremock configmap
+      - name: Generer tiltak-refusjon-api-wiremock configmap
         run: |
           curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
           chmod +x ./kubectl
-          ./kubectl create configmap --dry-run=client -o yaml --from-file src/test/resources/mappings -n arbeidsgiver refusjon-wiremock > .nais/wiremock-mappings.yaml
+          ./kubectl create configmap --dry-run=client -o yaml --from-file src/test/resources/mappings -n arbeidsgiver tiltak-refusjon-api-wiremock > .nais/wiremock-mappings.yaml
           cat .nais/wiremock-mappings.yaml # debug
 
       - name: Deploy til labs

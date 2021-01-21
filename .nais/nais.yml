@@ -23,7 +23,7 @@ spec:
       rules:
         - application: tiltak-refusjon-innside
         - application: tiltak-refusjon-utside
-        - application: refusjon-wiremock
+        - application: tiltak-refusjon-api-wiremock
     outbound:
       external:
       {{#each host}}

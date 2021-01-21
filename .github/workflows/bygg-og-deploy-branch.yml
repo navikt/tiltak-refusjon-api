@@ -66,7 +66,7 @@ jobs:
           curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
           chmod +x ./kubectl
           ./kubectl create configmap --dry-run=client -o yaml --from-file src/test/resources/mappings -n arbeidsgiver refusjon-wiremock > .nais/wiremock-mappings.yaml
-          cat nais/wiremock-mappings.yaml # debug
+          cat .nais/wiremock-mappings.yaml # debug
 
       - name: Deploy til labs
         uses: nais/deploy/actions/deploy@v1

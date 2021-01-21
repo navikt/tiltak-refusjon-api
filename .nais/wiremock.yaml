@@ -34,9 +34,9 @@ spec:
   - name: deploytrigger
     value: "{{deploytrigger}}"
   filesFrom:
-  - configmap: refuson-wiremock
+  - configmap: refusjon-wiremock
     mountPath: /home/wiremock/mappings
   accessPolicy:
     inbound:
       rules:
-      - application: refuson-api
+      - application: refusjon-api

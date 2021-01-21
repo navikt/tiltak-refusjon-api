@@ -1,0 +1,42 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: refusjon-wiremock
+  namespace: {{namespace}}
+  labels:
+    team: arbeidsgiver
+spec:
+  image: docker.pkg.github.com/navikt/refusjon-api/wiremock:2.27.2
+  replicas:
+    min: 1
+    max: 1
+  port: 8080
+  liveness:
+    path: /graph-api
+    initialDelay: 1
+    timeout: 1
+    periodSeconds: 10
+    failureThreshold: 3
+  readiness:
+    path: /graph-api
+    initialDelay: 1
+    timeout: 1
+    periodSeconds: 10
+    failureThreshold: 3
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1000Mi
+    requests:
+      cpu: 500m
+      memory: 500Mi
+  env:
+  - name: deploytrigger
+    value: "{{deploytrigger}}"
+  filesFrom:
+  - configmap: refuson-wiremock
+    mountPath: /home/wiremock/mappings
+  accessPolicy:
+    inbound:
+      rules:
+      - application: refuson-api

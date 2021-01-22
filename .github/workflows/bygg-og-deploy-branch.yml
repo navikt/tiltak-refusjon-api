@@ -10,17 +10,36 @@ env:
 
 jobs:
   bygg:
-    name: Bygg branch og publiserer docker image
+    name: Bygg
     runs-on: ubuntu-latest
     steps:
       - run: echo "REPOSITORY_NAME=$(echo $GITHUB_REPOSITORY | awk -F / '{print $2}')" >> $GITHUB_ENV
       - run: echo "IMAGE_BASE=$(echo docker.pkg.github.com/$GITHUB_REPOSITORY/$REPOSITORY_NAME)" >> $GITHUB_ENV
       - run: echo "IMAGE=$(echo $IMAGE_BASE:${{ github.sha }})" >> $GITHUB_ENV
 
+      - name: Lukk deployment-issues
+        uses: actions/github-script@0.9.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: ['deploy']
+            }).then(response => {
+              response.data.forEach(issue => {
+                github.issues.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  state: 'closed'
+                });
+              });
+            });
+
       - name: Sjekk ut kode
         uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
 
       - name: Oppsett Java 11
         uses: actions/setup-java@v1
@@ -38,23 +57,10 @@ jobs:
       - name: Bygg og test med Maven
         run: mvn package -B -Dsurefire.useFile=false
 
-      - name: Sjekk om branch er oppdatert mot master
-        id: sjekk-mot-master
-        run: |
-          git fetch origin master
-          echo ::set-output name=oppdatert::$(git merge-base --is-ancestor origin/master $GITHUB_SHA && echo ja || echo nei)
-
-      - name: Sett variable
-        if: steps.sjekk-mot-master.outputs.oppdatert == 'ja'
-        id: variable
-        run: |
-          echo ::set-output name=branch::"$(echo ${GITHUB_REF#refs/heads/})"
-
       - name: Bygg, tag og push Docker-image
-        if: steps.sjekk-mot-master.outputs.oppdatert == 'ja'
         run: |
-          docker build --tag $IMAGE_BASE:$GITHUB_SHA .
-          echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u $GITHUB_REPOSITORY --password-stdin
+          docker build --tag $IMAGE --tag $IMAGE_BASE:latest .
+          echo $GITHUB_TOKEN | docker login docker.pkg.github.com -u $GITHUB_REPOSITORY --password-stdin
           docker push $IMAGE_BASE
 
   deploy-labs:
@@ -85,4 +91,3 @@ jobs:
           PRINT_PAYLOAD: true
           VAR: deploytrigger=${{ github.run_number }},namespace=arbeidsgiver,labs=true,kafka-pool=nav-dev
           VARS: .nais/labs.yml
-

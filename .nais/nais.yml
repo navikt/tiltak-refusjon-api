@@ -21,8 +21,6 @@ spec:
   accessPolicy:
     inbound:
       rules:
-        - application: tiltak-refusjon-innside
-        - application: tiltak-refusjon-utside
         - application: tiltak-refusjon-api-wiremock
     outbound:
       external:

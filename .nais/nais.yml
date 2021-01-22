@@ -18,10 +18,6 @@ spec:
   readiness:
     path: /internal/actuator/health
     initialDelay: 20
-  accessPolicy:
-    inbound:
-      rules:
-        - application: tiltak-refusjon-api-wiremock
     outbound:
       external:
       {{#each host}}

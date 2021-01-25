@@ -28,7 +28,7 @@ spec:
     application:
       enabled: true
       tenant: {{tenant}}
-  {{/unless}}
+
   tokenx:
     enabled: true
   gcp:
@@ -37,6 +37,7 @@ spec:
         databases:
           - name: tiltak-refusjon
             envVarPrefix: DB
+  {{/unless}}
   env:
     {{#each env}}
     - name: "{{@key}}"

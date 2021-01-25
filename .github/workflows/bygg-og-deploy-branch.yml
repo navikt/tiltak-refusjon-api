@@ -13,6 +13,10 @@ jobs:
     name: Bygg
     runs-on: ubuntu-latest
     steps:
+      - run: echo "REPOSITORY_NAME=$(echo $GITHUB_REPOSITORY | awk -F / '{print $2}')" >> $GITHUB_ENV
+      - run: echo "IMAGE_BASE=$(echo docker.pkg.github.com/$GITHUB_REPOSITORY/$REPOSITORY_NAME)" >> $GITHUB_ENV
+      - run: echo "IMAGE=$(echo $IMAGE_BASE:${{ github.sha }})" >> $GITHUB_ENV
+
       - name: Lukk deployment-issues
         uses: actions/github-script@0.9.0
         with:
@@ -64,6 +68,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: bygg
     steps:
+      - run: echo "REPOSITORY_NAME=$(echo $GITHUB_REPOSITORY | awk -F / '{print $2}')" >> $GITHUB_ENV
+      - run: echo "IMAGE_BASE=$(echo docker.pkg.github.com/$GITHUB_REPOSITORY/$REPOSITORY_NAME)" >> $GITHUB_ENV
+      - run: echo "IMAGE=$(echo $IMAGE_BASE:${{ github.sha }})" >> $GITHUB_ENV
+
       - name: Sjekk ut kode
         uses: actions/checkout@v2
 

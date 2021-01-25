@@ -83,3 +83,4 @@ jobs:
           RESOURCE: .nais/nais.yml,.nais/alerts.yml
           VARS: .nais/labs.yml
           PRINT_PAYLOAD: true
+

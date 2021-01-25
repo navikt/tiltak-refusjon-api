@@ -3,7 +3,8 @@ name: Bygg og deploy master
 on:
   push:
     branches:
-      - 'master'
+      - "*"
+      - '!master'
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -76,11 +77,18 @@ jobs:
       - name: Sjekk ut kode
         uses: actions/checkout@v2
 
+      - name: Generer tiltak-refusjon-api-wiremock configmap
+        run: |
+          curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x ./kubectl
+          ./kubectl create configmap --dry-run=client -o yaml --from-file src/test/resources/mappings -n arbeidsgiver tiltak-refusjon-api-wiremock > .nais/wiremock-mappings.yml
+          cat .nais/wiremock-mappings.yml # debug
+
       - name: Deploy til dev-gcp
         uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: labs-gcp
-          RESOURCE: .nais/nais.yml
+          RESOURCE: .nais/nais.yml,.nais/wiremock.yml,.nais/wiremock-mappings.yml
           VARS: .nais/labs.yml
           PRINT_PAYLOAD: true

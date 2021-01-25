@@ -13,6 +13,8 @@ spring:
     banner-mode: "console"
 
 tiltak-refusjon:
+  kafka:
+    enabled: false
   inntektskomponenten:
     fake: true
   altinn-tilgangstyring:

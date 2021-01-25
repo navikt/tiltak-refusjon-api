@@ -7,8 +7,6 @@ metadata:
     team: arbeidsgiver
 spec:
   image: {{image}}
-  kafka:
-    pool: {{kafka-pool}}
   env:
     {{#each env}}
     - name: "{{@key}}"
@@ -31,6 +29,9 @@ spec:
         - host: "{{this}}"
       {{/each}}
   {{#unless labs}}
+  kafka:
+    pool: {{kafka-pool}}
+
   envFrom:
     - secret: tiltak-refusjon-altinn
 

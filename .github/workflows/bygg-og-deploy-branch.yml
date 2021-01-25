@@ -1,9 +1,10 @@
-name: Bygg og deploy dev
+name: Bygg og deploy master
+
 on:
   push:
     branches:
-      - '*'
-      - '!master'
+      - 'master'
+
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   GITHUB_REPOSITORY: ${{ github.repository }}
@@ -75,7 +76,7 @@ jobs:
       - name: Sjekk ut kode
         uses: actions/checkout@v2
 
-      - name: Deploy til labs-gcp
+      - name: Deploy til dev-gcp
         uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}

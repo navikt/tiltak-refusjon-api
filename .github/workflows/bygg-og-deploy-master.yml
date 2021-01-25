@@ -82,5 +82,5 @@ jobs:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: labs-gcp
           RESOURCE: .nais/nais.yml,.nais/alerts.yml
-          VARS: .nais/labs.yml
+          VARS: .nais/dev.yml
           PRINT_PAYLOAD: true

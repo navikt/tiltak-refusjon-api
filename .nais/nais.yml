@@ -7,6 +7,11 @@ metadata:
     team: arbeidsgiver
 spec:
   image: {{image}}
+  env:
+    {{#each env}}
+    - name: "{{@key}}"
+        value: "{{this}}"
+    {{/each}}
   resources:
     limits:
       cpu: 1500m
@@ -25,7 +30,7 @@ spec:
       {{/each}}
   {{#unless labs}}
   kafka:
-    pool: {{kafka-pool }}
+    pool: {{kafka-pool}}
 
   envFrom:
     - secret: tiltak-refusjon-altinn
@@ -44,8 +49,3 @@ spec:
           - name: tiltak-refusjon
             envVarPrefix: DB
   {{/unless}}
-  env:
-    {{#each env}}
-    - name: "{{@key}}"
-      value: "{{this}}"
-    {{/each}}

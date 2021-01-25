@@ -7,7 +7,6 @@ on:
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   GITHUB_REPOSITORY: ${{ github.repository }}
-  docker_image: docker.pkg.github.com/${{ github.repository }}/tiltak-refusjon-api:${{ github.sha }}
 
 jobs:
   bygg:
@@ -15,8 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: echo "REPOSITORY_NAME=$(echo $GITHUB_REPOSITORY | awk -F / '{print $2}')" >> $GITHUB_ENV
-      - run: echo "IMAGE_BASE=$(echo docker.pkg.github.com/$GITHUB_REPOSITORY/tiltak-refusjon-api)" >> $GITHUB_ENV
-      - run: echo "IMAGE=$(echo $docker_image)" >> $GITHUB_ENV
+      - run: echo "IMAGE_BASE=$(echo docker.pkg.github.com/$GITHUB_REPOSITORY/$REPOSITORY_NAME)" >> $GITHUB_ENV
+      - run: echo "IMAGE=$(echo $IMAGE_BASE:${{ github.sha }})" >> $GITHUB_ENV
 
       - name: Lukk deployment-issues
         uses: actions/github-script@0.9.0
@@ -60,35 +59,27 @@ jobs:
 
       - name: Bygg, tag og push Docker-image
         run: |
-          docker build --tag ${docker_image} .
+          docker build --tag $IMAGE --tag $IMAGE_BASE:latest .
           echo $GITHUB_TOKEN | docker login docker.pkg.github.com -u $GITHUB_REPOSITORY --password-stdin
-          docker push ${docker_image}
+          docker push $IMAGE_BASE
 
-  deploy-labs:
-    name: Deploy til labs
+  deploy-dev:
+    name: Deploy til dev
     runs-on: ubuntu-latest
     needs: bygg
     steps:
       - run: echo "REPOSITORY_NAME=$(echo $GITHUB_REPOSITORY | awk -F / '{print $2}')" >> $GITHUB_ENV
-      - run: echo "IMAGE_BASE=$(echo docker.pkg.github.com/$GITHUB_REPOSITORY/tiltak-refusjon-api)" >> $GITHUB_ENV
-      - run: echo "IMAGE=$(echo $docker_image)" >> $GITHUB_ENV
+      - run: echo "IMAGE_BASE=$(echo docker.pkg.github.com/$GITHUB_REPOSITORY/$REPOSITORY_NAME)" >> $GITHUB_ENV
+      - run: echo "IMAGE=$(echo $IMAGE_BASE:${{ github.sha }})" >> $GITHUB_ENV
 
       - name: Sjekk ut kode
         uses: actions/checkout@v2
 
-      - name: Generer tiltak-refusjon-api-wiremock configmap
-        run: |
-          curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
-          chmod +x ./kubectl
-          ./kubectl create configmap --dry-run=client -o yaml --from-file src/test/resources/mappings -n arbeidsgiver tiltak-refusjon-api-wiremock > .nais/wiremock-mappings.yaml
-          cat .nais/wiremock-mappings.yaml # debug
-
-      - name: Deploy til labs
+      - name: Deploy til dev-gcp
         uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: labs-gcp
-          RESOURCE: .nais/nais.yml
-          PRINT_PAYLOAD: true
-          VAR: image=${{ env.docker_image }},deploytrigger=${{ github.run_number }},namespace=arbeidsgiver,labs=true,kafka-pool=nav-dev
+          RESOURCE: .nais/nais.yml,.nais/alerts.yml
           VARS: .nais/labs.yml
+          PRINT_PAYLOAD: true

@@ -24,6 +24,9 @@ spec:
         - host: "{{this}}"
       {{/each}}
   {{#unless labs}}
+  envFrom:
+    - secret: tiltak-refusjon-altinn
+
   azure:
     application:
       enabled: true
@@ -43,5 +46,3 @@ spec:
     - name: "{{@key}}"
       value: "{{this}}"
     {{/each}}
-  envFrom:
-    - secret: tiltak-refusjon-altinn

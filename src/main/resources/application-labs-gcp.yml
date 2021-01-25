@@ -12,8 +12,6 @@ spring:
   main:
     banner-mode: "console"
 
-
-
 tiltak-refusjon:
   inntektskomponenten:
     fake: true

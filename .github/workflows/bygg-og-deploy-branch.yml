@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: echo "REPOSITORY_NAME=$(echo $GITHUB_REPOSITORY | awk -F / '{print $2}')" >> $GITHUB_ENV
-      - run: echo "IMAGE_BASE=$(echo docker.pkg.github.com/$GITHUB_REPOSITORY/$REPOSITORY_NAME)" >> $GITHUB_ENV
+      - run: echo "IMAGE_BASE=$(echo docker.pkg.github.com/$GITHUB_REPOSITORY/tiltak-refusjon-api)" >> $GITHUB_ENV
       - run: echo "IMAGE=$(echo $docker_image)" >> $GITHUB_ENV
 
       - name: Lukk deployment-issues
@@ -70,7 +70,7 @@ jobs:
     needs: bygg
     steps:
       - run: echo "REPOSITORY_NAME=$(echo $GITHUB_REPOSITORY | awk -F / '{print $2}')" >> $GITHUB_ENV
-      - run: echo "IMAGE_BASE=$(echo docker.pkg.github.com/$GITHUB_REPOSITORY/$REPOSITORY_NAME)" >> $GITHUB_ENV
+      - run: echo "IMAGE_BASE=$(echo docker.pkg.github.com/$GITHUB_REPOSITORY/tiltak-refusjon-api)" >> $GITHUB_ENV
       - run: echo "IMAGE=$(echo $docker_image)" >> $GITHUB_ENV
 
       - name: Sjekk ut kode

@@ -1,3 +1,4 @@
 kafka-pool: nav-dev
+labs: true
 env:
   PROXY_CLIENT_ID: 32367bac-c59c-43ee-907d-d970e5579860

@@ -6,9 +6,9 @@ metadata:
   labels:
     team: arbeidsgiver
 spec:
+  image: {{image}}
   kafka:
     pool: {{kafka-pool}}
-  image: {{image}}
   env:
     {{#each env}}
     - name: "{{@key}}"

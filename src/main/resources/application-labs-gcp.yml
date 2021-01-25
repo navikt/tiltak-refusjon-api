@@ -12,11 +12,11 @@ spring:
   main:
     banner-mode: "console"
 
+
+
 tiltak-refusjon:
   inntektskomponenten:
-    uri: http://tiltak-refusjon-api-wiremock/inntektskomponenten-ws/rs/api/v1/hentinntektliste
-    filter: KontrollArbeidsmarkedstiltakA-inntekt
-    consumer-id: tiltak-refusjon-api
+    fake: true
   altinn-tilgangstyring:
     uri: http://tiltak-refusjon-api-wiremock/ekstern/altinn/api/serviceowner/reportees
     beOmRettighetBaseUrl: https://arbeidsgiver-q.nav.no/min-side-arbeidsgiver/?fragment=be-om-tilgang

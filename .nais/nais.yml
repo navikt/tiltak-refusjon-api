@@ -23,10 +23,12 @@ spec:
       {{#each host}}
         - host: "{{this}}"
       {{/each}}
+  {{#unless labs}}
   azure:
     application:
       enabled: true
       tenant: {{tenant}}
+  {{/unless}}
   tokenx:
     enabled: true
   gcp:

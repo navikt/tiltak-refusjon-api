@@ -16,6 +16,7 @@ tiltak-refusjon:
   kafka:
     enabled: false
   graph-api:
+    uri: ""
     fake: true
   inntektskomponenten:
     fake: true

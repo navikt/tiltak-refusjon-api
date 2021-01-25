@@ -15,6 +15,9 @@ spring:
 tiltak-refusjon:
   kafka:
     enabled: false
+    tiltak-refusjon:
+      graph-api:
+        fake: true
   inntektskomponenten:
     fake: true
   altinn-tilgangstyring:

@@ -92,4 +92,3 @@ jobs:
           PRINT_PAYLOAD: true
           VAR: image=${{ env.docker_image }},deploytrigger=${{ github.run_number }},namespace=arbeidsgiver,labs=true,kafka-pool=nav-dev
           VARS: .nais/labs.yml
-

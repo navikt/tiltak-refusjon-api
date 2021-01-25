@@ -6,8 +6,7 @@ on:
       - '!master'
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  IMAGE_BASE: docker.pkg.github.com/${{ github.repository }}/tiltak-refusjon-api
-  IMAGE: docker.pkg.github.com/${{ github.repository }}/tiltak-refusjon-api:${{ github.sha }}
+  docker_image: docker.pkg.github.com/${{ github.repository }}/tiltak-refusjon-api:${{ github.sha }}
 
 jobs:
   bygg:
@@ -56,9 +55,9 @@ jobs:
 
       - name: Bygg, tag og push Docker-image
         run: |
-          docker build --tag $IMAGE --tag $IMAGE_BASE:latest .
+          docker build --tag ${docker_image} .
           echo $GITHUB_TOKEN | docker login docker.pkg.github.com -u $GITHUB_REPOSITORY --password-stdin
-          docker push $IMAGE_BASE
+          docker push ${docker_image}
 
   deploy-labs:
     name: Deploy til labs
@@ -82,5 +81,5 @@ jobs:
           CLUSTER: labs-gcp
           RESOURCE: .nais/nais.yml
           PRINT_PAYLOAD: true
-          VAR: deploytrigger=${{ github.run_number }},namespace=arbeidsgiver,labs=true,kafka-pool=nav-dev
+          VAR: image=${{ env.docker_image }},deploytrigger=${{ github.run_number }},namespace=arbeidsgiver,labs=true,kafka-pool=nav-dev
           VARS: .nais/labs.yml

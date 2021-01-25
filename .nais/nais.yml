@@ -6,8 +6,6 @@ metadata:
   labels:
     team: arbeidsgiver
 spec:
-  kafka:
-    pool: {{kafka-pool}}
   image: {{image}}
   resources:
     limits:
@@ -18,12 +16,17 @@ spec:
   readiness:
     path: /internal/actuator/health
     initialDelay: 20
+
+  accessPolicy:
     outbound:
       external:
       {{#each host}}
         - host: "{{this}}"
       {{/each}}
   {{#unless labs}}
+  kafka:
+    pool: {{kafka-pool }}
+
   envFrom:
     - secret: tiltak-refusjon-altinn
 

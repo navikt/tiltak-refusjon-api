@@ -4,3 +4,7 @@ host:
   - tiltak-fakelogin.labs.nais.io
 env:
   PROXY_CLIENT_ID: 32367bac-c59c-43ee-907d-d970e5579860
+  AZURE_APP_WELL_KNOWN_URL: https://tiltak-fakelogin.labs.nais.io/metadata?issuer=aad
+  AZURE_APP_CLIENT_ID: aud-localhost
+  TOKEN_X_WELL_KNOWN_URL: https://tiltak-fakelogin.labs.nais.io/metadata?issuer=tokenx
+  TOKEN_X_CLIENT_ID: tokenx-token

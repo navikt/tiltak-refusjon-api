@@ -65,7 +65,7 @@ jobs:
           docker push $IMAGE_BASE
 
   deploy-dev:
-    name: Deploy til labs
+    name: Deploy til dev
     runs-on: ubuntu-latest
     needs: bygg
     steps:
@@ -76,19 +76,12 @@ jobs:
       - name: Sjekk ut kode
         uses: actions/checkout@v2
 
-      - name: Generer tiltak-refusjon-api-wiremock configmap
-        run: |
-          curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
-          chmod +x ./kubectl
-          ./kubectl create configmap --dry-run=client -o yaml --from-file src/test/resources/mappings -n arbeidsgiver tiltak-refusjon-api-wiremock > .nais/wiremock-mappings.yml
-          cat .nais/wiremock-mappings.yml # debug
-
       - name: Deploy til dev-gcp
         uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-          CLUSTER: labs-gcp
-          RESOURCE: .nais/nais.yml,.nais/wiremock.yml,.nais/wiremock-mappings.yml
-          VAR: deploytrigger=${{ github.run_number }}
-          VARS: .nais/labs.yml
+          CLUSTER: dev-gcp
+          RESOURCE: .nais/nais.yml,.nais/alerts.yml
+          VARS: .nais/dev.yml
           PRINT_PAYLOAD: true
+

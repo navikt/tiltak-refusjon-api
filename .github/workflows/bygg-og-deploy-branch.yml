@@ -90,5 +90,6 @@ jobs:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: labs-gcp
           RESOURCE: .nais/nais.yml,.nais/wiremock.yml,.nais/wiremock-mappings.yml
+          VAR: deploytrigger=${{ github.run_number }}
           VARS: .nais/labs.yml
           PRINT_PAYLOAD: true

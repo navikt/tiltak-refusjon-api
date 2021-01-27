@@ -28,10 +28,10 @@ spec:
         - application: tiltak-refusjon-innside
         - application: tiltak-refusjon-utside
     outbound:
+      {{#if labs}}
       rules:
-      {{#each outbound}}
-        - application: "{{this}}"
-      {{/each}}
+        - application: tiltak-fakelogin
+      {{/if}}
       external:
       {{#each host}}
         - host: "{{this}}"

@@ -23,6 +23,10 @@ spec:
     initialDelay: 20
 
   accessPolicy:
+    inbound:
+      rules:
+        - application: tiltak-refusjon-innside
+        - application: tiltak-refusjon-utside
     outbound:
       rules:
       {{#each outbound}}

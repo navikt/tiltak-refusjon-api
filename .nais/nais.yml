@@ -35,6 +35,7 @@ spec:
       {{#if labs}}
       rules:
         - application: tiltak-fakelogin
+        - application: tiltak-refusjon-api-wiremock
       {{/if}}
       external:
       {{#each host}}

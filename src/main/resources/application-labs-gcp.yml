@@ -33,11 +33,11 @@ tiltak-refusjon:
   inntektskomponenten:
     fake: true
   altinn-tilgangstyring:
-    uri: http://tiltak-refusjon-api-wiremock/ekstern/altinn/api/serviceowner/reportees
+    uri: http://tiltak-refusjon-api-wiremock/altinn-tilgangsstyring
     beOmRettighetBaseUrl: https://arbeidsgiver-q.nav.no/min-side-arbeidsgiver/?fragment=be-om-tilgang
     serviceCode: 4936
     serviceEdition: 1
   abac-tilgangstyring:
-    uri: http://tiltak-refusjon-api-wiremock/asm-pdp/authorize
+    uri: http://tiltak-refusjon-api-wiremock/abac-tilgangstyring
     username: TODO
     password: TODO

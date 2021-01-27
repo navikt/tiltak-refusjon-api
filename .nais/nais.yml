@@ -21,7 +21,11 @@ spec:
   readiness:
     path: /internal/actuator/health
     initialDelay: 20
-
+  {{#if labs }}
+  replicas:
+    min: 1
+    max: 1
+  {{/if}}
   accessPolicy:
     inbound:
       rules:

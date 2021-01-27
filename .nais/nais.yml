@@ -24,6 +24,10 @@ spec:
 
   accessPolicy:
     outbound:
+      rules:
+      {{#each outbound}}
+        - application: "{{this}}"
+      {{/each}}
       external:
       {{#each host}}
         - host: "{{this}}"

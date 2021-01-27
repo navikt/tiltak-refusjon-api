@@ -12,6 +12,18 @@ spring:
   main:
     banner-mode: "console"
 
+no.nav.security.jwt:
+  issuer:
+    aad:
+      discoveryurl: http://tiltak-fakelogin/metadata?issuer=aad
+      accepted_audience: aud-aad
+      cookie_name: aad-token
+    tokenx:
+      discoveryurl: http://tiltak-fakelogin/metadata?issuer=tokenx
+      accepted_audience: aud-tokenx
+      cookie_name: tokenx-token
+  client: null
+
 tiltak-refusjon:
   kafka:
     enabled: false

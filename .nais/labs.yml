@@ -3,4 +3,4 @@ host:
   - tiltak-fakelogin.labs.nais.io
 outbound:
   - tiltak-fakelogin
-env: {}
+env: []

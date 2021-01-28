@@ -6,7 +6,7 @@ import org.springframework.context.ApplicationListener
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
 
-@Profile("testdata")
+@Profile("testdata","labs-gcp")
 @Component
 class TestDataLaster(private val refusjonRepository: RefusjonRepository) : ApplicationListener<ApplicationReadyEvent> {
     override fun onApplicationEvent(event: ApplicationReadyEvent) {

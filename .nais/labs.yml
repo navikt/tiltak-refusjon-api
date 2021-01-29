@@ -30,4 +30,4 @@ spec:
         - application: tiltak-fakelogin
         - application: tiltak-refusjon-api-wiremock
       external:
-        - tiltak-fakelogin.labs.nais.io
+        - host: tiltak-fakelogin.labs.nais.io

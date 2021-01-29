@@ -29,5 +29,3 @@ spec:
       rules:
         - application: tiltak-fakelogin
         - application: tiltak-refusjon-api-wiremock
-      external:
-        - host: tiltak-fakelogin.labs.nais.io

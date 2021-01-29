@@ -1,4 +1,4 @@
-package no.nav.arbeidsgiver.tiltakrefusjon.tilskudd
+package no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode
 
 import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.common.serialization.StringSerializer
@@ -29,8 +29,8 @@ class AivenKafkaConfiguration {
     }
 
     @Bean
-    fun aivenKafkaTemplate(): KafkaTemplate<String, TilskuddMelding> {
-        val kafkaTemplate: KafkaTemplate<String, TilskuddMelding> = KafkaTemplate(DefaultKafkaProducerFactory(producerConfigs()))
+    fun aivenKafkaTemplate(): KafkaTemplate<String, TilskuddsperiodeGodkjentMelding> {
+        val kafkaTemplate: KafkaTemplate<String, TilskuddsperiodeGodkjentMelding> = KafkaTemplate(DefaultKafkaProducerFactory(producerConfigs()))
         kafkaTemplate.setMessageConverter(StringJsonMessageConverter())
         return kafkaTemplate
     }

@@ -1,6 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
-import no.nav.arbeidsgiver.tiltakrefusjon.tilskudd.TilskuddMelding
+import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -21,7 +21,7 @@ class RefusjonServiceTest(
     @Test
     fun opprett() {
         val deltakerFnr = "00000000000"
-        val tilskuddMelding = TilskuddMelding(
+        val tilskuddMelding = TilskuddsperiodeGodkjentMelding(
                 avtaleId = "1",
                 tilskuddsbeløp = 1000,
                 tiltakstype = Tiltakstype.VARIG_LONNSTILSKUDD,
@@ -48,7 +48,7 @@ class RefusjonServiceTest(
     @Test
     fun `henter inntekter for refusjon`() {
         val deltakerFnr = "28128521498"
-        val tilskuddMelding = TilskuddMelding(
+        val tilskuddMelding = TilskuddsperiodeGodkjentMelding(
                 avtaleId = "1",
                 tilskuddsbeløp = 1000,
                 tiltakstype = Tiltakstype.VARIG_LONNSTILSKUDD,

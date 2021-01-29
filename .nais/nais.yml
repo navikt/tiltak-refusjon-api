@@ -41,18 +41,15 @@ spec:
       {{#each host}}
         - host: "{{this}}"
       {{/each}}
-  {{#unless labs}}
   kafka:
     pool: {{kafka-pool}}
-
+  {{#unless labs}}
   envFrom:
     - secret: tiltak-refusjon-altinn
-
   azure:
     application:
       enabled: true
       tenant: {{tenant}}
-
   tokenx:
     enabled: true
   gcp:

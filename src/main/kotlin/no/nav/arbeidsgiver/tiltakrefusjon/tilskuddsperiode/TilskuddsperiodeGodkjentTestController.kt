@@ -1,4 +1,4 @@
-package no.nav.arbeidsgiver.tiltakrefusjon.tilskudd
+package no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode
 
 import lombok.RequiredArgsConstructor
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonService
@@ -12,10 +12,10 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequiredArgsConstructor
 @Protected
-class GodkjentTilskuddTestController(val beregningService: RefusjonService) {
+class TilskuddsperiodeGodkjentTestController(val beregningService: RefusjonService) {
 
     @PostMapping
-    fun consume(@RequestBody melding: TilskuddMelding) {
+    fun consume(@RequestBody melding: TilskuddsperiodeGodkjentMelding) {
         beregningService.opprettRefusjon(melding)
     }
 }

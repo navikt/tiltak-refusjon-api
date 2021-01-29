@@ -1,4 +1,4 @@
-package no.nav.arbeidsgiver.tiltakrefusjon.tilskudd
+package no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import lombok.RequiredArgsConstructor
@@ -10,11 +10,11 @@ import org.springframework.stereotype.Component
 @ConditionalOnProperty("tiltak-refusjon.kafka.enabled")
 @Component
 @RequiredArgsConstructor
-class GodkjentTilskuddLytter(val service: RefusjonService, val objectMapper: ObjectMapper) {
+class TilskuddsperiodeGodkjentLytter(val service: RefusjonService, val objectMapper: ObjectMapper) {
 
-    @KafkaListener(topics = [Topics.REFUSJON])
+    @KafkaListener(topics = [Topics.TILSKUDDSPERIODE_GODKJENT])
     fun consume(tilskuddMelding: String) {
-        val tilskuddMelding = objectMapper.readValue(tilskuddMelding, TilskuddMelding::class.java)
-        service.opprettRefusjon(tilskuddMelding)
+        val godkjentMelding = objectMapper.readValue(tilskuddMelding, TilskuddsperiodeGodkjentMelding::class.java)
+        service.opprettRefusjon(godkjentMelding)
     }
 }

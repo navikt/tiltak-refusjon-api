@@ -1,9 +1,9 @@
-package no.nav.arbeidsgiver.tiltakrefusjon.tilskudd
+package no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode
 
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
 import java.time.LocalDate
 
-data class TilskuddMelding(
+data class TilskuddsperiodeGodkjentMelding(
         val avtaleId: String,
         val tilskuddsperiodeId: String,
         val avtaleInnholdId: String,

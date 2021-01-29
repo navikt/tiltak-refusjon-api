@@ -1,4 +1,4 @@
-package no.nav.arbeidsgiver.tiltakrefusjon.tilskudd
+package no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode
 
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
@@ -17,22 +17,22 @@ import java.util.concurrent.TimeUnit
 
 @ActiveProfiles("local")
 @SpringBootTest(properties = ["tiltak-refusjon.kafka.enabled=true"])
-@EmbeddedKafka(partitions = 1, topics = [Topics.REFUSJON])
-class GodkjentTilskuddLytterTest {
+@EmbeddedKafka(partitions = 1, topics = [Topics.TILSKUDDSPERIODE_GODKJENT])
+class TilskuddsperiodeGodkjentLytterTest {
 
     @Autowired
-    lateinit var kafkaTemplate: KafkaTemplate<String, TilskuddMelding>
+    lateinit var kafkaTemplate: KafkaTemplate<String, TilskuddsperiodeGodkjentMelding>
 
     @MockBean
     lateinit var refusjonService: RefusjonService
 
     @Autowired
-    lateinit var godkjentTilskuddLytter: GodkjentTilskuddLytter
+    lateinit var tilskuddsperiodeGodkjentLytter: TilskuddsperiodeGodkjentLytter
 
     @Test
     fun `skal opprette refusjon når melding blir lest fra topic`() {
         // GITT
-        val tilskuddMelding = TilskuddMelding(UUID.randomUUID().toString(),
+        val tilskuddMelding = TilskuddsperiodeGodkjentMelding(UUID.randomUUID().toString(),
                 UUID.randomUUID().toString(), UUID.randomUUID().toString(),
                 Tiltakstype.VARIG_LONNSTILSKUDD, "Donald",
                 "Duck", "12345678901", "X123456",
@@ -40,7 +40,7 @@ class GodkjentTilskuddLytterTest {
                 LocalDate.now().minusDays(15), LocalDate.now(), 0.12, 0.02, 0.141, 60)
 
         // NÅR
-        kafkaTemplate.send(Topics.REFUSJON, tilskuddMelding.tilskuddsperiodeId, tilskuddMelding)
+        kafkaTemplate.send(Topics.TILSKUDDSPERIODE_GODKJENT, tilskuddMelding.tilskuddsperiodeId, tilskuddMelding)
 
         // SÅ
         await().atMost(10, TimeUnit.SECONDS).untilAsserted { verify(refusjonService).opprettRefusjon(tilskuddMelding) }

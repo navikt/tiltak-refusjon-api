@@ -1,4 +1,4 @@
-package no.nav.arbeidsgiver.tiltakrefusjon.tilskudd
+package no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode
 
 import lombok.extern.slf4j.Slf4j
 import org.apache.kafka.clients.CommonClientConfigs
@@ -54,7 +54,7 @@ class AivenKafkaConfiguration {
     }
 
     @Bean
-    fun aivenKafkaTemplate(): KafkaTemplate<String, TilskuddMelding> {
+    fun aivenKafkaTemplate(): KafkaTemplate<String, TilskuddsperiodeGodkjentMelding> {
         return KafkaTemplate(DefaultKafkaProducerFactory(producerConfigs()))
     }
 }

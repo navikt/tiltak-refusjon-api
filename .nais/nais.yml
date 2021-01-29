@@ -21,30 +21,16 @@ spec:
   readiness:
     path: /internal/actuator/health
     initialDelay: 20
-  {{#if labs }}
-  replicas:
-    min: 1
-    max: 1
-  {{/if}}
   accessPolicy:
     inbound:
       rules:
         - application: tiltak-refusjon-innside
         - application: tiltak-refusjon-utside
-        {{#if labs}}
-         - application: tiltaksgjennomforing-api
-        {{/if}}
     outbound:
-      {{#if labs}}
-      rules:
-        - application: tiltak-fakelogin
-        - application: tiltak-refusjon-api-wiremock
-      {{/if}}
       external:
       {{#each host}}
         - host: "{{this}}"
       {{/each}}
-  {{#unless labs}}
   kafka:
     pool: {{kafka-pool}}
   envFrom:
@@ -61,4 +47,3 @@ spec:
         databases:
           - name: tiltak-refusjon
             envVarPrefix: DB
-  {{/unless}}

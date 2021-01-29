@@ -1,6 +1,5 @@
 labs: true
 host:
   - tiltak-fakelogin.labs.nais.io
-kafka-pool: nav-dev
 env:
   LABS: "true"

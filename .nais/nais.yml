@@ -31,6 +31,9 @@ spec:
       rules:
         - application: tiltak-refusjon-innside
         - application: tiltak-refusjon-utside
+        {{#if labs}}
+         - application: tiltaksgjennomforing-api
+        {{/if}}
     outbound:
       {{#if labs}}
       rules:
@@ -41,9 +44,9 @@ spec:
       {{#each host}}
         - host: "{{this}}"
       {{/each}}
+  {{#unless labs}}
   kafka:
     pool: {{kafka-pool}}
-  {{#unless labs}}
   envFrom:
     - secret: tiltak-refusjon-altinn
   azure:

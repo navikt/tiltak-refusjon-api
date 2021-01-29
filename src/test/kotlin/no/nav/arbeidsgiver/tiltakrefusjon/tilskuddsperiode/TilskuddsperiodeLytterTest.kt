@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit
 @ActiveProfiles("local")
 @SpringBootTest(properties = ["tiltak-refusjon.kafka.enabled=true"])
 @EmbeddedKafka(partitions = 1, topics = [Topics.TILSKUDDSPERIODE_GODKJENT])
-class TilskuddsperiodeGodkjentLytterTest {
+class TilskuddsperiodeLytterTest {
 
     @Autowired
     lateinit var kafkaTemplate: KafkaTemplate<String, TilskuddsperiodeGodkjentMelding>
@@ -27,7 +27,7 @@ class TilskuddsperiodeGodkjentLytterTest {
     lateinit var refusjonService: RefusjonService
 
     @Autowired
-    lateinit var tilskuddsperiodeGodkjentLytter: TilskuddsperiodeGodkjentLytter
+    lateinit var tilskuddsperiodeLytter: TilskuddsperiodeKafkaLytter
 
     @Test
     fun `skal opprette refusjon når melding blir lest fra topic`() {

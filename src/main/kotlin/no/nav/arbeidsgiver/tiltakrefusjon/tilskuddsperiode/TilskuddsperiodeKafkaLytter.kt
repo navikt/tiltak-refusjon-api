@@ -10,10 +10,10 @@ import org.springframework.stereotype.Component
 @ConditionalOnProperty("tiltak-refusjon.kafka.enabled")
 @Component
 @RequiredArgsConstructor
-class TilskuddsperiodeGodkjentLytter(val service: RefusjonService, val objectMapper: ObjectMapper) {
+class TilskuddsperiodeKafkaLytter(val service: RefusjonService, val objectMapper: ObjectMapper) {
 
     @KafkaListener(topics = [Topics.TILSKUDDSPERIODE_GODKJENT])
-    fun consume(tilskuddMelding: String) {
+    fun tilskuddsperiodeGodkjent(tilskuddMelding: String) {
         val godkjentMelding = objectMapper.readValue(tilskuddMelding, TilskuddsperiodeGodkjentMelding::class.java)
         service.opprettRefusjon(godkjentMelding)
     }

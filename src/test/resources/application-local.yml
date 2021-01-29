@@ -36,6 +36,7 @@ no.nav.gcp.kafka.aiven:
 tiltak-refusjon:
   kafka:
     enabled: false
+    fake: true
   inntektskomponenten:
     fake: true
   altinn-tilgangstyring:

@@ -27,6 +27,7 @@ no.nav.security.jwt:
 tiltak-refusjon:
   kafka:
     enabled: false
+    fake: true
   graph-api:
     uri: ""
     fake: true

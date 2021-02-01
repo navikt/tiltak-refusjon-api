@@ -6,7 +6,9 @@ import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.GodkjentAvArbeidsgiver
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.GodkjentAvSaksbehandler
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.InntekterInnhentet
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonAnnullert
 import org.springframework.data.domain.AbstractAggregateRoot
+import java.sql.DriverManager
 import java.time.Instant
 import java.time.LocalDate
 import javax.persistence.*
@@ -65,5 +67,14 @@ data class Refusjon(
         godkjentAvSaksbehandler = Instant.now()
         status = RefusjonStatus.BEHANDLET
         registerEvent(GodkjentAvSaksbehandler(this))
+    }
+
+    fun annuller() {
+        if (status != RefusjonStatus.NY && status != RefusjonStatus.BEREGNET) {
+            println("Refusjon med id $id kan ikke annulleres. Ignorerer annullering.")
+        } else {
+            status = RefusjonStatus.ANNULLERT
+            registerEvent(RefusjonAnnullert(this))
+        }
     }
 }

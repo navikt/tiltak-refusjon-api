@@ -92,6 +92,9 @@ no.nav.security.jwt:
 tiltak-refusjon:
   kafka:
     enabled: true
+  kontoregister:
+    uri: ''
+    consumer-id: tiltak-refusjon-api
   inntektskomponenten:
     uri: ''
     filter: KontrollArbeidsmarkedstiltakA-inntekt

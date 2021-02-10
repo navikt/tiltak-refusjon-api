@@ -31,6 +31,8 @@ tiltak-refusjon:
   graph-api:
     uri: ""
     fake: true
+  kontoregister:
+    fake: true
   inntektskomponenten:
     fake: true
   altinn-tilgangstyring:

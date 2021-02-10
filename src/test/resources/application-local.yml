@@ -37,6 +37,8 @@ tiltak-refusjon:
   kafka:
     enabled: false
     fake: true
+  kontoregister:
+    fake: true
   inntektskomponenten:
     fake: true
   altinn-tilgangstyring:

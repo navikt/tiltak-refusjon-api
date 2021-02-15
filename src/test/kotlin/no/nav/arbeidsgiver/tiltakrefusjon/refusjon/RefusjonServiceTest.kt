@@ -61,8 +61,8 @@ class RefusjonServiceTest(
                 deltakerFnr = deltakerFnr,
                 feriepengerSats = 0.141,
                 otpSats = 0.02,
-                tilskuddFom = LocalDate.of(2020, 9, 1),
-                tilskuddTom = LocalDate.of(2020, 10, 1),
+                tilskuddFom = LocalDate.now().minusMonths(1),
+                tilskuddTom = LocalDate.now(),
                 tilskuddsperiodeId = "3",
                 veilederNavIdent = "X123456",
                 lønnstilskuddsprosent = 60

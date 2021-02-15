@@ -7,8 +7,8 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.GodkjentAvArbeidsgiver
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.GodkjentAvSaksbehandler
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.InntekterInnhentet
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonAnnullert
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.springframework.data.domain.AbstractAggregateRoot
-import java.sql.DriverManager
 import java.time.Instant
 import java.time.LocalDate
 import javax.persistence.*
@@ -43,8 +43,11 @@ data class Refusjon(
 
     fun oppgiInntektsgrunnlag(inntektsgrunnlag: Inntektsgrunnlag) {
         krevStatus(RefusjonStatus.NY, RefusjonStatus.BEREGNET)
-        if (tilskuddsgrunnlag.tilskuddTom.isAfter(LocalDate.now())) {
+        if (tilskuddsgrunnlag.tilskuddTom.isAfter(Now.localDate())) {
             throw FeilkodeException(Feilkode.INNTEKT_HENTET_FOR_TIDLIG)
+        }
+        if (fristForGodkjenning.isBefore(Now.localDate())) {
+            throw FeilkodeException(Feilkode.ETTER_FRIST)
         }
         this.inntektsgrunnlag = inntektsgrunnlag
         beregning = beregnRefusjonsbeløp(inntektsgrunnlag.inntekter, tilskuddsgrunnlag)
@@ -54,17 +57,17 @@ data class Refusjon(
 
     fun godkjennForArbeidsgiver() {
         krevStatus(RefusjonStatus.BEREGNET)
-        if (fristForGodkjenning.isBefore(LocalDate.now())) {
+        if (fristForGodkjenning.isBefore(Now.localDate())) {
             throw FeilkodeException(Feilkode.ETTER_FRIST)
         }
-        godkjentAvArbeidsgiver = Instant.now()
+        godkjentAvArbeidsgiver = Now.instant()
         status = RefusjonStatus.KRAV_FREMMET
         registerEvent(GodkjentAvArbeidsgiver(this))
     }
 
     fun godkjennForSaksbehandler() {
         krevStatus(RefusjonStatus.KRAV_FREMMET)
-        godkjentAvSaksbehandler = Instant.now()
+        godkjentAvSaksbehandler = Now.instant()
         status = RefusjonStatus.BEHANDLET
         registerEvent(GodkjentAvSaksbehandler(this))
     }

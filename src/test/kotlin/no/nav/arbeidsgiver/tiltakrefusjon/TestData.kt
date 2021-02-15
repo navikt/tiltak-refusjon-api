@@ -20,7 +20,7 @@ fun refusjoner(): List<Refusjon> {
             tilskuddsgrunnlag = it.tilskuddsgrunnlag.copy(
                 avtaleId = kiellandNy.tilskuddsgrunnlag.avtaleId,
                 tilskuddFom = tilskuddFom,
-                tilskuddTom = kiellandNy.tilskuddsgrunnlag.tilskuddTom.minusMonths(4)
+                tilskuddTom = kiellandNy.tilskuddsgrunnlag.tilskuddTom.minusMonths(1)
             )
         )
             .medInntektsgrunnlag(måned = YearMonth.of(tilskuddFom.year, tilskuddFom.month))

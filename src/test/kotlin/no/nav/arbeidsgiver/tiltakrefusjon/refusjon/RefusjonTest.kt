@@ -1,6 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.*
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -66,12 +67,15 @@ internal class RefusjonTest {
 
     @Test
     fun `godkjenner etter frist`() {
+        Now.fixedDate(LocalDate.now().minusDays(1));
+
         val refusjon = enRefusjon(
             etTilskuddsgrunnlag().copy(
                 tilskuddFom = LocalDate.now().minusMonths(2).minusDays(1),
                 tilskuddTom = LocalDate.now().minusMonths(2).minusDays(1)
             )
         ).medInntektsgrunnlag()
+        Now.resetClock();
         assertFeilkode(Feilkode.ETTER_FRIST) { refusjon.godkjennForArbeidsgiver() }
     }
 }

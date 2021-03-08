@@ -7,7 +7,7 @@ spring:
       ssl:
         keystore: null
         truststore: null
-    bootstrap-servers: ${spring.embedded.kafka.brokers}
+    bootstrap-servers: localhost:9092
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
@@ -48,8 +48,8 @@ no.nav.gcp.kafka.aiven:
 
 tiltak-refusjon:
   kafka:
-    enabled: false
-    fake: true
+    enabled: true
+    fake: false
   kontoregister:
     fake: true
   inntektskomponenten:
@@ -68,7 +68,7 @@ tiltak-refusjon:
     uri: ""
     fake: true
 server:
-  port: 8081
+  port: 8082
 
 wiremock:
   port: 8091

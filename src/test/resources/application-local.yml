@@ -8,8 +8,9 @@ spring:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       group-id: "tiltak"
-      auto-offset-reset: earliest
-      enable-auto-commit: false
+      auto-offset-reset: earliest # This flag tells Kafka where to start reading offsets in case you do not have any 'commit' yet. In others words, it will start either from the 'earliest' or from the 'latest' if you have not persisted any offset in Zookeeper yet (Manually or using enable.auto.commit flag).
+      enable-auto-commit: false # Wether that flag is true, then Kafka is able to commit the message you brought from Kafka using Zookeeper to persist the last 'offset' which it read. This approach is not the best to use when you want a more robust solution for a production system, because does not ensure that the records you brought were correctly processed (using the logic you wrote in your code). If this flag is false, Kafka will not know which was the last offset read so when you restart the process, it will start reading the 'earliest' or the 'latest' offset depending on the value of your next flag (auto.offset.reset).
+
   datasource:
     url: jdbc:h2:mem:db;DB_CLOSE_DELAY=-1;MODE=PostgreSQL
     username: sa

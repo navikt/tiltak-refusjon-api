@@ -17,6 +17,9 @@ class FakeInntektskomponentService : InntektskomponentService {
         datoFra: LocalDate,
         datoTil: LocalDate
     ): List<Inntektslinje> {
+        if (fnr == "07098142678") {
+            return emptyList()
+        }
         return datoFra.datesUntil(datoTil, Period.ofMonths(1)).map {
             val måned = YearMonth.of(it.year, it.month)
             Inntektslinje("LOENNSINNTEKT", 25000.0, måned, it, måned.atEndOfMonth())

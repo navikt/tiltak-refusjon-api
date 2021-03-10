@@ -15,10 +15,10 @@ import javax.persistence.*
 
 @Entity
 data class Refusjon(
-        @OneToOne(orphanRemoval = true, cascade = [CascadeType.ALL])
-        val tilskuddsgrunnlag: Tilskuddsgrunnlag,
-        val bedriftNr: String,
-        val deltakerFnr: String
+    @OneToOne(orphanRemoval = true, cascade = [CascadeType.ALL])
+    val tilskuddsgrunnlag: Tilskuddsgrunnlag,
+    val bedriftNr: String,
+    val deltakerFnr: String
 ) : AbstractAggregateRoot<Refusjon>() {
     @Id
     val id: String = ULID.random()
@@ -47,12 +47,13 @@ data class Refusjon(
             throw FeilkodeException(Feilkode.INNTEKT_HENTET_FOR_TIDLIG)
         }
         if (fristForGodkjenning.isBefore(Now.localDate())) {
-            throw FeilkodeException(Feilkode.ETTER_FRIST)
+            status = RefusjonStatus.UTGÅTT
+        } else {
+            status = RefusjonStatus.BEREGNET
+            beregning = beregnRefusjonsbeløp(inntektsgrunnlag.inntekter, tilskuddsgrunnlag)
+            this.inntektsgrunnlag = inntektsgrunnlag
+            registerEvent(InntekterInnhentet(this))
         }
-        this.inntektsgrunnlag = inntektsgrunnlag
-        beregning = beregnRefusjonsbeløp(inntektsgrunnlag.inntekter, tilskuddsgrunnlag)
-        status = RefusjonStatus.BEREGNET
-        registerEvent(InntekterInnhentet(this))
     }
 
     fun godkjennForArbeidsgiver() {

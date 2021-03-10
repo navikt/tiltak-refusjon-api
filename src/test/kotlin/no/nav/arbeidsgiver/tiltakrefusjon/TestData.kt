@@ -25,7 +25,6 @@ fun refusjoner(): List<Refusjon> {
         )
             .medInntektsgrunnlag(måned = YearMonth.of(tilskuddFom.year, tilskuddFom.month))
             .medGodkjennelseFraArbeidsgiver()
-            .medGodkjennelseFraSaksbehandler()
     }
     return listOf(
         kiellandNy,

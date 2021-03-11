@@ -8,4 +8,5 @@ enum class Feilkode {
     INNTEKT_HENTET_FOR_TIDLIG,
     UGYLDIG_STATUS,
     ETTER_FRIST,
+    INGEN_INNTEKTER,
 }

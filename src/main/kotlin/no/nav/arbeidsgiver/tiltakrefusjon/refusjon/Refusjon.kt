@@ -42,14 +42,13 @@ data class Refusjon(
     }
 
     fun oppgiInntektsgrunnlag(inntektsgrunnlag: Inntektsgrunnlag) {
-        krevStatus(RefusjonStatus.NY, RefusjonStatus.BEREGNET)
+        krevStatus(RefusjonStatus.NY)
         if (tilskuddsgrunnlag.tilskuddTom.isAfter(Now.localDate())) {
             throw FeilkodeException(Feilkode.INNTEKT_HENTET_FOR_TIDLIG)
         }
         if (fristForGodkjenning.isBefore(Now.localDate())) {
             status = RefusjonStatus.UTGÅTT
         } else {
-            status = RefusjonStatus.BEREGNET
             beregning = beregnRefusjonsbeløp(inntektsgrunnlag.inntekter, tilskuddsgrunnlag)
             this.inntektsgrunnlag = inntektsgrunnlag
             registerEvent(InntekterInnhentet(this))
@@ -57,24 +56,20 @@ data class Refusjon(
     }
 
     fun godkjennForArbeidsgiver() {
-        krevStatus(RefusjonStatus.BEREGNET)
+        krevStatus(RefusjonStatus.NY)
         if (fristForGodkjenning.isBefore(Now.localDate())) {
             throw FeilkodeException(Feilkode.ETTER_FRIST)
+        }
+        if (inntektsgrunnlag == null || inntektsgrunnlag!!.inntekter.isEmpty()) {
+            throw FeilkodeException(Feilkode.INGEN_INNTEKTER)
         }
         godkjentAvArbeidsgiver = Now.instant()
         status = RefusjonStatus.KRAV_FREMMET
         registerEvent(GodkjentAvArbeidsgiver(this))
     }
 
-    fun godkjennForSaksbehandler() {
-        krevStatus(RefusjonStatus.KRAV_FREMMET)
-        godkjentAvSaksbehandler = Now.instant()
-        status = RefusjonStatus.BEHANDLET
-        registerEvent(GodkjentAvSaksbehandler(this))
-    }
-
     fun annuller() {
-        if (status != RefusjonStatus.NY && status != RefusjonStatus.BEREGNET) {
+        if (status != RefusjonStatus.NY) {
             println("Refusjon med id $id kan ikke annulleres. Ignorerer annullering.")
         } else {
             status = RefusjonStatus.ANNULLERT

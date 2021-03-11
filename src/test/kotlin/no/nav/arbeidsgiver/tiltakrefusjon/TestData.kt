@@ -137,11 +137,6 @@ fun Refusjon.medGodkjennelseFraArbeidsgiver(): Refusjon {
     return this
 }
 
-fun Refusjon.medGodkjennelseFraSaksbehandler(): Refusjon {
-    this.godkjennForSaksbehandler()
-    return this
-}
-
 fun etInntektsgrunnlag(måned: YearMonth = YearMonth.of(2020, 10)) = Inntektsgrunnlag(
     inntekter = listOf(
         Inntektslinje(

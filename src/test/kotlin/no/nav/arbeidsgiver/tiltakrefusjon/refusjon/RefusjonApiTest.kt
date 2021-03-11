@@ -193,7 +193,7 @@ class RefusjonApiTest(
                         .accept(MediaType.APPLICATION_JSON)
                         .cookie(arbGiverCookie))
                 .andExpect(status().isBadRequest)
-                .andExpect(header().string("feilkode", Feilkode.UGYLDIG_STATUS.toString()))
+                .andExpect(header().string("feilkode", Feilkode.INGEN_INNTEKTER.toString()))
     }
 
     private fun hentRefusjon(id: String?): Refusjon {

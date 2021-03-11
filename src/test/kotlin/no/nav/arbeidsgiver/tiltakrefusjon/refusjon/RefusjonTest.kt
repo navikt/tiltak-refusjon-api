@@ -11,7 +11,7 @@ internal class RefusjonTest {
     @Test
     fun `kan ikke godkjenne for ag uten beregning`() {
         val refusjon = enRefusjon()
-        assertFeilkode(Feilkode.UGYLDIG_STATUS) { refusjon.godkjennForArbeidsgiver() }
+        assertFeilkode(Feilkode.INGEN_INNTEKTER) { refusjon.godkjennForArbeidsgiver() }
     }
 
     @Test
@@ -26,24 +26,6 @@ internal class RefusjonTest {
     fun `kan ikke godkjenne for ag to ganger`() {
         val refusjon = enRefusjon().medInntektsgrunnlag().medGodkjennelseFraArbeidsgiver()
         assertFeilkode(Feilkode.UGYLDIG_STATUS) { refusjon.godkjennForArbeidsgiver() }
-    }
-
-    // Godkjennelse saksbehandler
-    @Test
-    fun `kan godkjenne for saksbehandler med ag godkjennelse`() {
-        val refusjon = enRefusjon().medInntektsgrunnlag().medGodkjennelseFraArbeidsgiver()
-        refusjon.godkjennForSaksbehandler()
-        assertThat(refusjon.godkjentAvSaksbehandler).isNotNull()
-        assertThat(refusjon.status).isEqualTo(RefusjonStatus.BEHANDLET)
-    }
-
-    @Test
-    fun `kan ikke godkjenne for saksbehandler to ganger`() {
-        val refusjon = enRefusjon()
-            .medInntektsgrunnlag()
-            .medGodkjennelseFraArbeidsgiver()
-            .medGodkjennelseFraSaksbehandler()
-        assertFeilkode(Feilkode.UGYLDIG_STATUS) { refusjon.godkjennForSaksbehandler() }
     }
 
     @Test

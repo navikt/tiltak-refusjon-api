@@ -4,7 +4,6 @@ import com.github.guepardoapps.kulid.ULID
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.GodkjentAvArbeidsgiver
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.GodkjentAvSaksbehandler
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.InntekterInnhentet
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonAnnullert
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
@@ -67,7 +66,7 @@ data class Refusjon(
             throw FeilkodeException(Feilkode.INGEN_INNTEKTER)
         }
         godkjentAvArbeidsgiver = Now.instant()
-        status = RefusjonStatus.KRAV_FREMMET
+        status = RefusjonStatus.SENDT_KRAV
         registerEvent(GodkjentAvArbeidsgiver(this))
     }
 

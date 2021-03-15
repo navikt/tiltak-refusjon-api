@@ -24,7 +24,7 @@ fun refusjoner(): List<Refusjon> {
             )
         )
             .medInntektsgrunnlag(måned = YearMonth.of(tilskuddFom.year, tilskuddFom.month))
-            .medGodkjennelseFraArbeidsgiver()
+            .medSendtKravFraArbeidsgiver()
     }
     return listOf(
         kiellandNy,
@@ -130,10 +130,10 @@ fun Refusjon.medInntektsgrunnlag(måned: YearMonth = YearMonth.now(), inntektsgr
     return this
 }
 
-fun Refusjon.medGodkjennelseFraArbeidsgiver(): Refusjon {
+fun Refusjon.medSendtKravFraArbeidsgiver(): Refusjon {
 //    this.godkjennForArbeidsgiver()
     godkjentAvArbeidsgiver = Instant.now()
-    status = RefusjonStatus.KRAV_FREMMET
+    status = RefusjonStatus.SENDT_KRAV
     return this
 }
 

@@ -19,12 +19,12 @@ internal class RefusjonTest {
         val refusjon = enRefusjon().medInntektsgrunnlag()
         refusjon.godkjennForArbeidsgiver()
         assertThat(refusjon.godkjentAvArbeidsgiver).isNotNull()
-        assertThat(refusjon.status).isEqualTo(RefusjonStatus.KRAV_FREMMET)
+        assertThat(refusjon.status).isEqualTo(RefusjonStatus.SENDT_KRAV)
     }
 
     @Test
     fun `kan ikke godkjenne for ag to ganger`() {
-        val refusjon = enRefusjon().medInntektsgrunnlag().medGodkjennelseFraArbeidsgiver()
+        val refusjon = enRefusjon().medInntektsgrunnlag().medSendtKravFraArbeidsgiver()
         assertFeilkode(Feilkode.UGYLDIG_STATUS) { refusjon.godkjennForArbeidsgiver() }
     }
 
@@ -44,7 +44,7 @@ internal class RefusjonTest {
         ).medInntektsgrunnlag()
         refusjon.godkjennForArbeidsgiver()
         assertThat(refusjon.godkjentAvArbeidsgiver).isNotNull()
-        assertThat(refusjon.status).isEqualTo(RefusjonStatus.KRAV_FREMMET)
+        assertThat(refusjon.status).isEqualTo(RefusjonStatus.SENDT_KRAV)
     }
 
     @Test

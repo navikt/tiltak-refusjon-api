@@ -46,6 +46,9 @@ data class Refusjon(
         if (tilskuddsgrunnlag.tilskuddTom.isAfter(Now.localDate())) {
             throw FeilkodeException(Feilkode.INNTEKT_HENTET_FOR_TIDLIG)
         }
+        if (inntektsgrunnlag.inntekter.isEmpty()) {
+            throw FeilkodeException(Feilkode.INGEN_INNTEKTER)
+        }
         if (fristForGodkjenning.isBefore(Now.localDate())) {
             status = RefusjonStatus.UTGÅTT
         } else {

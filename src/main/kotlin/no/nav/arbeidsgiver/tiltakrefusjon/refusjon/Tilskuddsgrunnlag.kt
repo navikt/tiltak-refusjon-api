@@ -19,13 +19,13 @@ data class Tilskuddsgrunnlag(
         val bedriftNavn: String,
         val bedriftNr: String,
         val tilskuddFom: LocalDate,
-        val tilskuddTom: LocalDate,
+        var tilskuddTom: LocalDate,
         val feriepengerSats: Double,
         val otpSats: Double,
         val arbeidsgiveravgiftSats: Double,
         @Enumerated(EnumType.STRING)
         val tiltakstype: Tiltakstype,
-        val tilskuddsbeløp: Int,
+        var tilskuddsbeløp: Int,
         val lønnstilskuddsprosent: Int
 ) {
     @Id

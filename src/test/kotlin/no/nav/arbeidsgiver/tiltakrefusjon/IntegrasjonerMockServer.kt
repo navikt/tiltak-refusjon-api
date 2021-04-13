@@ -16,7 +16,7 @@ class IntegrasjonerMockServer() : DisposableBean{
             .options()
             .usingFilesUnderClasspath(".")
 //            .notifier(ConsoleNotifier(true))
-            .port(8090))
+            .port(8091))
 
     init {
         server.start()

@@ -2,13 +2,14 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeAnnullertMelding
+import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeForkortetMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
 import org.springframework.stereotype.Service
 
 @Service
 class RefusjonService(
     val inntektskomponentService: InntektskomponentService,
-    val refusjonRepository: RefusjonRepository
+    val refusjonRepository: RefusjonRepository,
 ) {
     fun opprettRefusjon(tilskuddsperiodeGodkjentMelding: TilskuddsperiodeGodkjentMelding): Refusjon {
         val tilskuddsgrunnlag = Tilskuddsgrunnlag(
@@ -58,10 +59,18 @@ class RefusjonService(
     }
 
     fun annullerRefusjon(melding: TilskuddsperiodeAnnullertMelding) {
-        val refusjoner = refusjonRepository.findAllByTilskuddsgrunnlag_TilskuddsperiodeId(melding.tilskuddsperiodeId)
-        refusjoner.forEach {
-            it.annuller()
+        val refusjon = refusjonRepository.findByTilskuddsgrunnlag_TilskuddsperiodeId(melding.tilskuddsperiodeId)
+        if (refusjon != null) {
+            refusjon.annuller()
+            refusjonRepository.save(refusjon)
         }
-        refusjonRepository.saveAll(refusjoner)
+    }
+
+    fun forkortRefusjon(melding: TilskuddsperiodeForkortetMelding) {
+        val refusjon = refusjonRepository.findByTilskuddsgrunnlag_TilskuddsperiodeId(melding.tilskuddsperiodeId)
+        if (refusjon != null) {
+            refusjon.forkort(melding.tilskuddTom, melding.tilskuddsbeløp)
+            refusjonRepository.save(refusjon)
+        }
     }
 }

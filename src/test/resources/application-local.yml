@@ -1,3 +1,5 @@
+
+
 spring:
   kafka:
     properties:
@@ -53,15 +55,17 @@ tiltak-refusjon:
   inntektskomponenten:
     fake: true
   altinn-tilgangstyring:
-    uri: http://localhost:8090/altinn-tilgangsstyring
+    uri: http://localhost:8091/altinn-tilgangsstyring
     proxyUri: http://localhost:9090/altinn-rettigheter-proxy/ekstern/altinn/api/serviceowner/reportees
     beOmRettighetBaseUrl: https://arbeidsgiver-q.nav.no/min-side-arbeidsgiver/?fragment=be-om-tilgang
     serviceCode: 4936
     serviceEdition: 1
   abac-tilgangstyring:
-    uri: http://localhost:8090/abac-tilgangstyring
+    uri: http://localhost:8091/abac-tilgangstyring
     username: na
     password: na
   graph-api:
     uri: ""
     fake: true
+server:
+  port: 8081

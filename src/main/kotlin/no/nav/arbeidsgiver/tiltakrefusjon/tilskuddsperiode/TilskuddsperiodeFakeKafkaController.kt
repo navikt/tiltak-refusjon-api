@@ -21,8 +21,13 @@ class TilskuddsperiodeFakeKafkaController(val refusjonService: RefusjonService) 
         refusjonService.opprettRefusjon(melding)
     }
 
-    @PostMapping("tilskuddsperiode-anullert")
+    @PostMapping("tilskuddsperiode-annullert")
     fun tilskuddsperiodeAnnullert(@RequestBody melding: TilskuddsperiodeAnnullertMelding) {
         refusjonService.annullerRefusjon(melding)
+    }
+
+    @PostMapping("tilskuddsperiode-forkortet")
+    fun tilskuddsperiodeForkortet(@RequestBody melding: TilskuddsperiodeForkortetMelding) {
+        refusjonService.forkortRefusjon(melding)
     }
 }

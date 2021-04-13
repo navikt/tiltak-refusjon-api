@@ -1,3 +1,5 @@
+@file:Suppress("FunctionName")
+
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import org.springframework.data.jpa.repository.JpaRepository
@@ -7,5 +9,5 @@ interface RefusjonRepository : JpaRepository<Refusjon, String>, JpaSpecification
     fun findAllByDeltakerFnr(deltakerFnr: String): List<Refusjon>
     fun findAllByBedriftNr(bedriftNr: String): List<Refusjon>
     fun findAllByTilskuddsgrunnlag_AvtaleIdAndGodkjentAvArbeidsgiverIsNotNull(avtaleId: String): List<Refusjon>
-    fun findAllByTilskuddsgrunnlag_TilskuddsperiodeId(tilskuddsperiodeId: String): List<Refusjon>
+    fun findByTilskuddsgrunnlag_TilskuddsperiodeId(tilskuddsperiodeId: String): Refusjon?
 }

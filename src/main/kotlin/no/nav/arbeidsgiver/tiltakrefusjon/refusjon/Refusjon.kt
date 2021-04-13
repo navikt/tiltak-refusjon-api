@@ -17,7 +17,7 @@ data class Refusjon(
     @OneToOne(orphanRemoval = true, cascade = [CascadeType.ALL])
     val tilskuddsgrunnlag: Tilskuddsgrunnlag,
     val bedriftNr: String,
-    val deltakerFnr: String
+    val deltakerFnr: String,
 ) : AbstractAggregateRoot<Refusjon>() {
     @Id
     val id: String = ULID.random()
@@ -75,6 +75,16 @@ data class Refusjon(
             println("Refusjon med id $id kan ikke annulleres. Ignorerer annullering.")
         } else {
             status = RefusjonStatus.ANNULLERT
+            registerEvent(RefusjonAnnullert(this))
+        }
+    }
+
+    fun forkort(tilskuddTom: LocalDate, tilskuddsbeløp: Int) {
+        if (status != RefusjonStatus.NY) {
+            println("Refusjon med id $id kan ikke forkortes. Ignorerer forkorting.")
+        } else {
+            tilskuddsgrunnlag.tilskuddTom = tilskuddTom
+            tilskuddsgrunnlag.tilskuddsbeløp = tilskuddsbeløp
             registerEvent(RefusjonAnnullert(this))
         }
     }

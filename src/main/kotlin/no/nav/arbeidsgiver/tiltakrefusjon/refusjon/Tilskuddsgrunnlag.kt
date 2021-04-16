@@ -26,7 +26,9 @@ data class Tilskuddsgrunnlag(
         @Enumerated(EnumType.STRING)
         val tiltakstype: Tiltakstype,
         var tilskuddsbeløp: Int,
-        val lønnstilskuddsprosent: Int
+        val lønnstilskuddsprosent: Int,
+        val avtaleNr: Int,
+        val løpenummer: Int
 ) {
     @Id
     val id: String = ULID.random()

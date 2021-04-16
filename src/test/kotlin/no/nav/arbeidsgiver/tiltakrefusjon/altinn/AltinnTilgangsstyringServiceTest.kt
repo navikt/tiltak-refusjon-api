@@ -15,7 +15,7 @@ import org.springframework.test.context.ActiveProfiles
 
 @SpringBootTest
 @ActiveProfiles("local")
-@AutoConfigureWireMock(port = 8090)
+@AutoConfigureWireMock(port = 8091)
 class AltinnTilgangsstyringServiceTest {
 
     @Autowired

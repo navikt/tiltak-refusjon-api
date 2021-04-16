@@ -20,5 +20,7 @@ data class TilskuddsperiodeGodkjentMelding(
         val feriepengerSats: Double,
         val otpSats: Double,
         val arbeidsgiveravgiftSats: Double,
-        val lønnstilskuddsprosent: Int
+        val lønnstilskuddsprosent: Int,
+        val avtaleNr: Int,
+        val løpenummer: Int
 )

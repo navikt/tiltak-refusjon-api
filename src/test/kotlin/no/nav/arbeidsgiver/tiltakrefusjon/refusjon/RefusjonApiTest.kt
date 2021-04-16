@@ -32,7 +32,7 @@ import javax.servlet.http.Cookie
 @SpringBootTest
 @ActiveProfiles("local")
 @AutoConfigureMockMvc
-@AutoConfigureWireMock(port = 8090)
+@AutoConfigureWireMock(port = 8091)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class RefusjonApiTest(
         @Autowired val refusjonRepository: RefusjonRepository,

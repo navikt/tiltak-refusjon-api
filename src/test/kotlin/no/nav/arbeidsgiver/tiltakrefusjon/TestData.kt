@@ -52,7 +52,9 @@ fun etTilskuddsgrunnlag() = Tilskuddsgrunnlag(
     lønnstilskuddsprosent = 40,
     tilskuddFom = LocalDate.now().minusMonths(3).withDayOfMonth(1),
     tilskuddTom = LocalDate.now().minusMonths(1).withDayOfMonth(20),
-    tilskuddsbeløp = 13579
+    tilskuddsbeløp = 13579,
+    avtaleNr = 3456,
+    løpenummer = 3
 )
 
 fun `Alexander Kielland`(): Refusjon {

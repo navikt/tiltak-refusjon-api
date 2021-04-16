@@ -28,7 +28,9 @@ class RefusjonService(
             arbeidsgiveravgiftSats = tilskuddsperiodeGodkjentMelding.arbeidsgiveravgiftSats,
             tiltakstype = tilskuddsperiodeGodkjentMelding.tiltakstype,
             tilskuddsbeløp = tilskuddsperiodeGodkjentMelding.tilskuddsbeløp,
-            lønnstilskuddsprosent = tilskuddsperiodeGodkjentMelding.lønnstilskuddsprosent
+            lønnstilskuddsprosent = tilskuddsperiodeGodkjentMelding.lønnstilskuddsprosent,
+            avtaleNr = tilskuddsperiodeGodkjentMelding.avtaleNr,
+            løpenummer = tilskuddsperiodeGodkjentMelding.løpenummer
         )
         val refusjon = Refusjon(
             tilskuddsgrunnlag = tilskuddsgrunnlag,

@@ -1,6 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import no.nav.arbeidsgiver.tiltakrefusjon.Topics
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonService
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.kafka.annotation.KafkaListener

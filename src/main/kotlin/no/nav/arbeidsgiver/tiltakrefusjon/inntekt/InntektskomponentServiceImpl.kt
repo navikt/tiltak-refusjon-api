@@ -33,7 +33,7 @@ class InntektskomponentServiceImpl(
         try {
             val requestEntity = lagRequest(fnr, YearMonth.from(datoFra), YearMonth.from(datoTil))
             val responseMedInntekterForDeltaker = restTemplate.exchange<InntektResponse>(inntektskomponentProperties.uri, HttpMethod.POST, requestEntity).body
-            val inntekter = responseMedInntekterForDeltaker?.arbeidsInntektMaaned ?: throw FantIngenInntektInformasjonException()
+            val inntekter = responseMedInntekterForDeltaker?.arbeidsInntektMaaned ?: throw FantIngenInntektException()
             return inntekterForBedrift(inntekter, bedriftnummerDetSøkesPå)
         } catch (ex: Exception) {
             log.warn("Kall til Inntektskomponenten feilet: {}", ex.message)

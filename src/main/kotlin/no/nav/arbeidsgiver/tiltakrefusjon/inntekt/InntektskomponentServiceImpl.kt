@@ -17,7 +17,7 @@ import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.exchange
 import java.time.LocalDate
 import java.time.YearMonth
-import java.util.*
+import java.util.UUID
 
 
 @Service
@@ -33,7 +33,7 @@ class InntektskomponentServiceImpl(
         try {
             val requestEntity = lagRequest(fnr, YearMonth.from(datoFra), YearMonth.from(datoTil))
             val responseMedInntekterForDeltaker = restTemplate.exchange<InntektResponse>(inntektskomponentProperties.uri, HttpMethod.POST, requestEntity).body
-            val inntekter = responseMedInntekterForDeltaker?.arbeidsInntektMaaned ?: throw HentingAvInntektException()
+            val inntekter = responseMedInntekterForDeltaker?.arbeidsInntektMaaned ?: throw FantIngenInntektInformasjonException()
             return inntekterForBedrift(inntekter, bedriftnummerDetSøkesPå)
         } catch (ex: Exception) {
             log.warn("Kall til Inntektskomponenten feilet: {}", ex.message)

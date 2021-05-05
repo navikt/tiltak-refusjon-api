@@ -36,8 +36,7 @@ class InntektskomponentServiceImpl(
             val inntekter = responseMedInntekterForDeltaker?.arbeidsInntektMaaned ?: throw FantIngenInntektException()
             return inntekterForBedrift(inntekter, bedriftnummerDetSøkesPå)
         } catch (ex: Exception) {
-            log.warn("Kall til Inntektskomponenten feilet: {}", ex.message)
-            throw HentingAvInntektException()
+            throw HentingAvInntektException("Kall til Inntektskomponenten feilet",ex)
         }
     }
 

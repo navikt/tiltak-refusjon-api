@@ -80,7 +80,7 @@ fun `Bjørnstjerne Bjørnson`(): Refusjon {
             bedriftNr = bedriftNr,
             deltakerFornavn = "Bjørnstjerne",
             deltakerEtternavn = "Bjørnson",
-            tilskuddsbeløp = 10579,
+            tilskuddsbeløp = 40579,
         ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
     )
 }

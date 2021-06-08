@@ -11,7 +11,9 @@ data class Beregning(
         val tjenestepensjon: Int,
         val arbeidsgiveravgift: Int,
         val sumUtgifter: Int,
+        val beregnetBeløp: Int,
         val refusjonsbeløp: Int,
+        val overTilskuddsbeløp: Boolean,
         val commitHash: String = ""
 ) {
     @Id

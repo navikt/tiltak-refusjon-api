@@ -47,3 +47,11 @@ Egenskap: Beregn refusjon for lønnstilskudd
       | LOENNSINNTEKT | 10000 | 2020-03 | 2020-04-04            | 2020-04-05            |
     Når lønnstilskudd på 40 prosent skal refunderes for periode "2020-04-01" til "2020-04-30" med arbeidsgiveravgift "0.141", feriepengersats "0.12", OTP-sats "0.02"
     Så beregnes refusjon til 5214 kr for periode
+
+  Scenario: Tjener mer enn tilskuddsbeløp, skal da avkorte refusjon
+    Gitt følgende opplysninger om inntekt
+      | inntektType   | beløp | måned   | opptjeningsperiodeFom | opptjeningsperiodeTom |
+      | LOENNSINNTEKT | 10000 | 2020-03 | 2020-04-01            | 2020-04-30            |
+    Når lønnstilskudd på 51 prosent skal refunderes for periode "2020-04-01" til "2020-04-30" med arbeidsgiveravgift "0.0", feriepengersats "0.0", OTP-sats "0.0"
+    Og tilskuddsbeløp er 5000 kr
+    Så beregnes refusjon til 5000 kr for periode

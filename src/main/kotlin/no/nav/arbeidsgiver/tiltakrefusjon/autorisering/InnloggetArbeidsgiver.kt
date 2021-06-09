@@ -38,6 +38,11 @@ data class InnloggetArbeidsgiver(
     fun finnRefusjon(id: String): Refusjon {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
+        try {
+            refusjonService.gjørInntektsoppslag(refusjon)
+        } catch (e: Exception) {
+            println("Feil ved henting av inntekt")
+        }
         return refusjon
     }
 

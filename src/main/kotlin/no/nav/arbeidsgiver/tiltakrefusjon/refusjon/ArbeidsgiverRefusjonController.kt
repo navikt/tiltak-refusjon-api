@@ -38,12 +38,6 @@ class ArbeidsgiverRefusjonController(
         return arbeidsgiver.finnRefusjon(id)
     }
 
-    @PostMapping("/{id}/inntektsoppslag")
-    fun gjørInntektsoppslag(@PathVariable id: String) {
-        val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-        arbeidsgiver.gjørInntektsoppslag(id)
-    }
-
     @PostMapping("/{id}/godkjenn")
     fun godkjenn(@PathVariable id: String) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()

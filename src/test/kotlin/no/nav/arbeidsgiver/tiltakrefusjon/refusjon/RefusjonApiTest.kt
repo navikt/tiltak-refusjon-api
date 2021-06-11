@@ -68,7 +68,7 @@ class RefusjonApiTest(
         val json = sendRequest(get(REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON), navCookie)
         val liste = mapper.readValue(json, object : TypeReference<List<Refusjon>>() {})
 
-        assertEquals(4, liste.size)
+        assertEquals(5, liste.size)
         assertNull(liste.find { it.deltakerFnr == "07098142678" })
     }
 
@@ -170,8 +170,7 @@ class RefusjonApiTest(
     fun `Arbeidsgiver kan gjøre inntektsoppslag, og hente refusjon med inntektsgrunnlag, og godkjenne`() {
         val id = refusjonRepository.findAll().find { it.deltakerFnr == "28128521498" }?.id
 
-        // Inntektsoppslag
-        sendRequest(post("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id/inntektsoppslag"), arbGiverCookie)
+        // Inntektsoppslag ved henting av refusjon
         val refusjonEtterInntektsgrunnlag = hentRefusjon(id)
         assertThat(refusjonEtterInntektsgrunnlag.inntektsgrunnlag).isNotNull
         assertThat(refusjonEtterInntektsgrunnlag.beregning?.refusjonsbeløp).isPositive()

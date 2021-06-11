@@ -115,3 +115,5 @@ tiltak-refusjon:
     apiGwApiKey: ${ALTINN_API_GW_API_KEY}
   graph-api:
     uri: "https://graph.microsoft.com/v1.0/me?$select=onPremisesSamAccountName,displayName"
+  statusjobb:
+    fixed-delay: 20000

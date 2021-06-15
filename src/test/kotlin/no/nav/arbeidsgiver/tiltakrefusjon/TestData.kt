@@ -26,9 +26,21 @@ fun refusjoner(): List<Refusjon> {
             .medInntektsgrunnlag(måned = YearMonth.of(tilskuddFom.year, tilskuddFom.month))
             .medSendtKravFraArbeidsgiver()
     }
+    val BjørnsonUtgått = `Bjørnstjerne Bjørnson`().let {
+        val tilskuddFom = LocalDate.now().minusMonths(2)
+        it.copy(
+            deltakerFnr = "12345678901",
+            tilskuddsgrunnlag = it.tilskuddsgrunnlag.copy(
+                avtaleId = `Bjørnstjerne Bjørnson`().tilskuddsgrunnlag.avtaleId,
+                tilskuddFom = tilskuddFom,
+                tilskuddTom = LocalDate.now().plusMonths(1)
+            )
+        )
+    }
     return listOf(
         kiellandNy,
         kiellandGammel,
+        BjørnsonUtgått,
         `Bjørnstjerne Bjørnson`(),
         `Nils Nilsen`(),
         `Inger Hagerup`(),

@@ -7,6 +7,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonRepository
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonService
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonStatus
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.web.bind.annotation.CookieValue
 import org.springframework.web.bind.annotation.GetMapping
@@ -27,12 +28,6 @@ data class InnloggetArbeidsgiver(
         return refusjonRepository.findAllByBedriftNr(bedriftnummer)
     }
 
-    fun gjørInntektsoppslag(refusjonId: String) {
-        val refusjon: Refusjon = refusjonRepository.findByIdOrNull(refusjonId) ?: throw RessursFinnesIkkeException()
-        sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
-        refusjonService.gjørInntektsoppslag(refusjon)
-    }
-
     fun godkjenn(refusjonId: String) {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(refusjonId) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
@@ -42,6 +37,13 @@ data class InnloggetArbeidsgiver(
     fun finnRefusjon(id: String): Refusjon {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
+        if (refusjon.status == RefusjonStatus.KLAR_FOR_INNSENDING) {
+            try {
+                refusjonService.gjørInntektsoppslag(refusjon)
+            } catch (e: Exception) {
+                println("Feil ved henting av inntekt")
+            }
+        }
         return refusjon
     }
 

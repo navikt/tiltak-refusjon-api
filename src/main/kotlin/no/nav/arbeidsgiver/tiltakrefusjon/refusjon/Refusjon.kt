@@ -6,6 +6,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.GodkjentAvArbeidsgiver
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.InntekterInnhentet
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonAnnullert
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonForkortet
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.springframework.data.domain.AbstractAggregateRoot
 import java.time.Instant
@@ -29,23 +30,45 @@ data class Refusjon(
     @OneToOne(orphanRemoval = true, cascade = [CascadeType.ALL])
     var beregning: Beregning? = null
 
-    @Enumerated(EnumType.STRING)
-    var status: RefusjonStatus = RefusjonStatus.NY
-
     var fristForGodkjenning: LocalDate = tilskuddsgrunnlag.tilskuddTom.plusMonths(2)
 
     var godkjentAvArbeidsgiver: Instant? = null
     var godkjentAvSaksbehandler: Instant? = null
 
+    @Enumerated(EnumType.STRING)
+    lateinit var status: RefusjonStatus
+
+    init {
+        oppdaterStatus()
+    }
+
     private fun krevStatus(vararg gyldigeStatuser: RefusjonStatus) {
         if (status !in gyldigeStatuser) throw FeilkodeException(Feilkode.UGYLDIG_STATUS)
     }
 
-    fun oppgiInntektsgrunnlag(inntektsgrunnlag: Inntektsgrunnlag) {
-        krevStatus(RefusjonStatus.NY)
-        if (tilskuddsgrunnlag.tilskuddTom.isAfter(Now.localDate())) {
-            throw FeilkodeException(Feilkode.INNTEKT_HENTET_FOR_TIDLIG)
+
+    fun oppdaterStatus() {
+        val statuserSomIkkeKanEndres =
+            listOf(RefusjonStatus.SENDT_KRAV, RefusjonStatus.ANNULLERT, RefusjonStatus.UTGÅTT, RefusjonStatus.UTBETALT)
+        if (::status.isInitialized && status in statuserSomIkkeKanEndres) return
+
+        val today = Now.localDate()
+        if (today.isAfter(fristForGodkjenning)) {
+            status = RefusjonStatus.UTGÅTT
+            return
         }
+
+        status = if (today.isAfter(tilskuddsgrunnlag.tilskuddTom)) {
+            RefusjonStatus.KLAR_FOR_INNSENDING
+        } else {
+            RefusjonStatus.FOR_TIDLIG
+        }
+
+    }
+
+    fun oppgiInntektsgrunnlag(inntektsgrunnlag: Inntektsgrunnlag) {
+        oppdaterStatus()
+        krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
         if (inntektsgrunnlag.inntekter.isEmpty()) {
             throw FeilkodeException(Feilkode.INGEN_INNTEKTER)
         }
@@ -59,10 +82,8 @@ data class Refusjon(
     }
 
     fun godkjennForArbeidsgiver() {
-        krevStatus(RefusjonStatus.NY)
-        if (fristForGodkjenning.isBefore(Now.localDate())) {
-            throw FeilkodeException(Feilkode.ETTER_FRIST)
-        }
+        oppdaterStatus()
+        krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
         if (inntektsgrunnlag == null || inntektsgrunnlag!!.inntekter.isEmpty()) {
             throw FeilkodeException(Feilkode.INGEN_INNTEKTER)
         }
@@ -72,21 +93,17 @@ data class Refusjon(
     }
 
     fun annuller() {
-        if (status != RefusjonStatus.NY) {
-            println("Refusjon med id $id kan ikke annulleres. Ignorerer annullering.")
-        } else {
-            status = RefusjonStatus.ANNULLERT
-            registerEvent(RefusjonAnnullert(this))
-        }
+        oppdaterStatus()
+        krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING, RefusjonStatus.FOR_TIDLIG)
+        status = RefusjonStatus.ANNULLERT
+        registerEvent(RefusjonAnnullert(this))
     }
 
     fun forkort(tilskuddTom: LocalDate, tilskuddsbeløp: Int) {
-        if (status != RefusjonStatus.NY) {
-            println("Refusjon med id $id kan ikke forkortes. Ignorerer forkorting.")
-        } else {
-            tilskuddsgrunnlag.tilskuddTom = tilskuddTom
-            tilskuddsgrunnlag.tilskuddsbeløp = tilskuddsbeløp
-            registerEvent(RefusjonAnnullert(this))
-        }
+        oppdaterStatus()
+        krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING, RefusjonStatus.FOR_TIDLIG)
+        tilskuddsgrunnlag.tilskuddTom = tilskuddTom
+        tilskuddsgrunnlag.tilskuddsbeløp = tilskuddsbeløp
+        registerEvent(RefusjonForkortet(this))
     }
 }

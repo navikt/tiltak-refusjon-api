@@ -10,4 +10,5 @@ interface RefusjonRepository : JpaRepository<Refusjon, String>, JpaSpecification
     fun findAllByBedriftNr(bedriftNr: String): List<Refusjon>
     fun findAllByTilskuddsgrunnlag_AvtaleIdAndGodkjentAvArbeidsgiverIsNotNull(avtaleId: String): List<Refusjon>
     fun findByTilskuddsgrunnlag_TilskuddsperiodeId(tilskuddsperiodeId: String): Refusjon?
+    fun findAllByStatus(status: RefusjonStatus): List<Refusjon>
 }

@@ -6,6 +6,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterkomponentService
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeAnnullertMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeForkortetMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.springframework.stereotype.Service
 
 @Service
@@ -46,6 +47,9 @@ class RefusjonService(
     }
 
     fun gjørInntektsoppslag(refusjon: Refusjon) {
+        if (refusjon.inntektsgrunnlag != null && refusjon.inntektsgrunnlag!!.innhentetTidspunkt.isAfter(Now.localDateTime().minusMinutes(1))) {
+            return
+        }
         val inntektsgrunnlag = Inntektsgrunnlag(
             inntekter = inntektskomponentService.hentInntekter(
                 refusjon.deltakerFnr,

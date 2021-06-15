@@ -11,7 +11,7 @@ import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock
 import org.springframework.test.context.ActiveProfiles
 
 @SpringBootTest(properties = [
-    "tiltak-refusjon.kontoregister.uri=http://localhost:8090/kontoregister/api/v1/hent-kontonr-org/",
+    "tiltak-refusjon.kontoregister.uri=http://localhost:8090/kontoregister/api/v1/hent-kontonummer-for-organisasjon/",
     "tiltak-refusjon.kontoregister.fake=false"
 ])
 @ActiveProfiles("local")

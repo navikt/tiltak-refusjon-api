@@ -18,6 +18,7 @@ data class Refusjon(
     val tilskuddsgrunnlag: Tilskuddsgrunnlag,
     val bedriftNr: String,
     val deltakerFnr: String,
+
 ) : AbstractAggregateRoot<Refusjon>() {
     @Id
     val id: String = ULID.random()

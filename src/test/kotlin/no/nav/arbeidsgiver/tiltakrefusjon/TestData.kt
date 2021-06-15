@@ -38,7 +38,7 @@ fun refusjoner(): List<Refusjon> {
 
 fun etTilskuddsgrunnlag() = Tilskuddsgrunnlag(
     avtaleId = ULID.random(),
-    tilskuddsperiodeId = "",
+    tilskuddsperiodeId = ULID.random(),
     deltakerFornavn = "",
     deltakerEtternavn = "",
     tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
@@ -54,7 +54,8 @@ fun etTilskuddsgrunnlag() = Tilskuddsgrunnlag(
     tilskuddTom = LocalDate.now().minusMonths(1).withDayOfMonth(20),
     tilskuddsbeløp = 13579,
     avtaleNr = 3456,
-    løpenummer = 3
+    løpenummer = 3,
+        bedriftKontonummer = "10000008162"
 )
 
 fun `Alexander Kielland`(): Refusjon {
@@ -66,7 +67,7 @@ fun `Alexander Kielland`(): Refusjon {
             bedriftNr = bedriftNr,
             deltakerFornavn = "Alexander",
             deltakerEtternavn = "Kielland",
-            tilskuddsbeløp = 13579
+            tilskuddsbeløp = 1357
         ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
     )
 }

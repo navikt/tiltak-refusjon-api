@@ -21,7 +21,7 @@ class KontoregisterkomponentServiceImpl(
 ) : KontoregisterkomponentService {
 
     //TODO: Bedre feilhåndtering om man får tilbake at bedriften ikke finnes i registeret. Se på wiremock kall med denne feilmeldingen.
-    override fun hentBankkontonummer(bedriftNr: String): String? {
+    override fun hentBankkontonummer(bedriftNr: String): String {
         val requestEntity = lagRequest()
         val responseMedKontonummerTilBedrift = restTemplate.exchange<KontoregisterResponse>(String.format("%s/%s", properties.uri, bedriftNr), HttpMethod.POST, requestEntity).body
         val kontonummer =  responseMedKontonummerTilBedrift?.kontonr ?: throw HentingAvBankkontonummerException();

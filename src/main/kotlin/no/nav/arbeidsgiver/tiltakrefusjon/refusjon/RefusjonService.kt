@@ -1,6 +1,8 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
+
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
+import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterkomponentService
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeAnnullertMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeForkortetMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
@@ -10,8 +12,10 @@ import org.springframework.stereotype.Service
 class RefusjonService(
     val inntektskomponentService: InntektskomponentService,
     val refusjonRepository: RefusjonRepository,
+    val kontoregisterkomponentService: KontoregisterkomponentService,
 ) {
     fun opprettRefusjon(tilskuddsperiodeGodkjentMelding: TilskuddsperiodeGodkjentMelding): Refusjon {
+        val bedriftKontonummer = kontoregisterkomponentService.hentBankkontonummer(tilskuddsperiodeGodkjentMelding.bedriftNr)
         val tilskuddsgrunnlag = Tilskuddsgrunnlag(
             avtaleId = tilskuddsperiodeGodkjentMelding.avtaleId,
             tilskuddsperiodeId = tilskuddsperiodeGodkjentMelding.tilskuddsperiodeId,
@@ -30,12 +34,13 @@ class RefusjonService(
             tilskuddsbeløp = tilskuddsperiodeGodkjentMelding.tilskuddsbeløp,
             lønnstilskuddsprosent = tilskuddsperiodeGodkjentMelding.lønnstilskuddsprosent,
             avtaleNr = tilskuddsperiodeGodkjentMelding.avtaleNr,
-            løpenummer = tilskuddsperiodeGodkjentMelding.løpenummer
+            løpenummer = tilskuddsperiodeGodkjentMelding.løpenummer,
+            bedriftKontonummer = bedriftKontonummer
         )
         val refusjon = Refusjon(
             tilskuddsgrunnlag = tilskuddsgrunnlag,
             deltakerFnr = tilskuddsperiodeGodkjentMelding.deltakerFnr,
-            bedriftNr = tilskuddsperiodeGodkjentMelding.bedriftNr
+            bedriftNr = tilskuddsperiodeGodkjentMelding.bedriftNr,
         )
         return refusjonRepository.save(refusjon)
     }

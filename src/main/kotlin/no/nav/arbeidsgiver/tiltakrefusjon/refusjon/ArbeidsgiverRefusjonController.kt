@@ -13,7 +13,7 @@ data class HentArbeidsgiverRefusjonerQueryParametre(val bedriftNr: String?, val 
 @RequestMapping(REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON)
 @Protected
 class ArbeidsgiverRefusjonController(
-        val innloggetBrukerService: InnloggetBrukerService
+        val innloggetBrukerService: InnloggetBrukerService,
 ) {
     @GetMapping
     fun hentAlle(queryParametre: HentArbeidsgiverRefusjonerQueryParametre): List<Refusjon> {

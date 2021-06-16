@@ -84,4 +84,14 @@ class RefusjonService(
             refusjonRepository.save(refusjon)
         }
     }
+
+    fun gjørBedriftKontonummeroppslag(refusjon: Refusjon) {
+        if (refusjon.inntektsgrunnlag != null && refusjon.inntektsgrunnlag!!.innhentetTidspunkt.isAfter(Now.localDateTime().minusMinutes(1))) {
+            return
+        }
+        val bedriftKontonummer = kontoregisterkomponentService.hentBankkontonummer(refusjon.bedriftNr)
+        val tilskuddsgrunnlagoppdatertKontonummer = refusjon.tilskuddsgrunnlag.copy(bedriftKontonummer = bedriftKontonummer)
+
+        refusjonRepository.save(refusjon.copy(tilskuddsgrunnlag = tilskuddsgrunnlagoppdatertKontonummer))
+    }
 }

@@ -67,7 +67,7 @@ fun etTilskuddsgrunnlag() = Tilskuddsgrunnlag(
     tilskuddsbeløp = 13579,
     avtaleNr = 3456,
     løpenummer = 3,
-        bedriftKontonummer = "10000008162"
+        bedriftKontonummer = "10000008177"
 )
 
 fun `Alexander Kielland`(): Refusjon {

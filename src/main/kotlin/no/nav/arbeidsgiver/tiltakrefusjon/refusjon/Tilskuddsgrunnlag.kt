@@ -29,7 +29,6 @@ data class Tilskuddsgrunnlag(
         val lønnstilskuddsprosent: Int,
         val avtaleNr: Int,
         val løpenummer: Int,
-        val bedriftKontonummer: String
 ) {
     @Id
     val id: String = ULID.random()

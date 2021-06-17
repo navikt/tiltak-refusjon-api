@@ -11,6 +11,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.springframework.data.domain.AbstractAggregateRoot
 import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalDateTime
 import javax.persistence.*
 
 @Entity
@@ -34,6 +35,9 @@ data class Refusjon(
 
     var godkjentAvArbeidsgiver: Instant? = null
     var godkjentAvSaksbehandler: Instant? = null
+
+    var bedriftKontonummer: String? = null
+    var innhentetBedriftKontonummerTidspunkt: LocalDateTime? = null
 
     @Enumerated(EnumType.STRING)
     lateinit var status: RefusjonStatus
@@ -87,6 +91,9 @@ data class Refusjon(
         if (inntektsgrunnlag == null || inntektsgrunnlag!!.inntekter.isEmpty()) {
             throw FeilkodeException(Feilkode.INGEN_INNTEKTER)
         }
+        if (bedriftKontonummer == null){
+            throw FeilkodeException(Feilkode.INGEN_BEDRIFTKONTONUMMER)
+        }
         godkjentAvArbeidsgiver = Now.instant()
         status = RefusjonStatus.SENDT_KRAV
         registerEvent(GodkjentAvArbeidsgiver(this))
@@ -106,4 +113,10 @@ data class Refusjon(
         tilskuddsgrunnlag.tilskuddsbeløp = tilskuddsbeløp
         registerEvent(RefusjonForkortet(this))
     }
+
+    fun oppgiBedriftKontonummer(bedrifKontonummer: String){
+        bedriftKontonummer = bedrifKontonummer
+        innhentetBedriftKontonummerTidspunkt = Now.localDateTime()
+    }
+
 }

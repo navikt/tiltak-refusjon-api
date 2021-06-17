@@ -16,7 +16,6 @@ class RefusjonService(
     val kontoregisterkomponentService: KontoregisterkomponentService,
 ) {
     fun opprettRefusjon(tilskuddsperiodeGodkjentMelding: TilskuddsperiodeGodkjentMelding): Refusjon {
-        val bedriftKontonummer = kontoregisterkomponentService.hentBankkontonummer(tilskuddsperiodeGodkjentMelding.bedriftNr)
         val tilskuddsgrunnlag = Tilskuddsgrunnlag(
             avtaleId = tilskuddsperiodeGodkjentMelding.avtaleId,
             tilskuddsperiodeId = tilskuddsperiodeGodkjentMelding.tilskuddsperiodeId,
@@ -36,7 +35,6 @@ class RefusjonService(
             lønnstilskuddsprosent = tilskuddsperiodeGodkjentMelding.lønnstilskuddsprosent,
             avtaleNr = tilskuddsperiodeGodkjentMelding.avtaleNr,
             løpenummer = tilskuddsperiodeGodkjentMelding.løpenummer,
-            bedriftKontonummer = bedriftKontonummer
         )
         val refusjon = Refusjon(
             tilskuddsgrunnlag = tilskuddsgrunnlag,
@@ -86,12 +84,11 @@ class RefusjonService(
     }
 
     fun gjørBedriftKontonummeroppslag(refusjon: Refusjon) {
-        if (refusjon.inntektsgrunnlag != null && refusjon.inntektsgrunnlag!!.innhentetTidspunkt.isAfter(Now.localDateTime().minusMinutes(1))) {
+        if (refusjon.innhentetBedriftKontonummerTidspunkt != null && refusjon.innhentetBedriftKontonummerTidspunkt!!.isAfter(Now.localDateTime().minusMinutes(1))) {
             return
         }
-        val bedriftKontonummer = kontoregisterkomponentService.hentBankkontonummer(refusjon.bedriftNr)
-        val tilskuddsgrunnlagoppdatertKontonummer = refusjon.tilskuddsgrunnlag.copy(bedriftKontonummer = bedriftKontonummer)
+        refusjon.oppgiBedriftKontonummer(kontoregisterkomponentService.hentBankkontonummer(refusjon.bedriftNr))
 
-        refusjonRepository.save(refusjon.copy(tilskuddsgrunnlag = tilskuddsgrunnlagoppdatertKontonummer))
+        refusjonRepository.save(refusjon)
     }
 }

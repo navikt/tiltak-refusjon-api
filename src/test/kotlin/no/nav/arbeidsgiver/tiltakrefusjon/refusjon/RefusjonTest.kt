@@ -112,6 +112,31 @@ internal class RefusjonTest {
 
     }
 
+    @Test
+    fun `Sjekker om bedriftKontonummerer er null`() {
+        val refusjon = enRefusjon(
+                etTilskuddsgrunnlag().copy(
+                        tilskuddFom = LocalDate.now().minusDays(1),
+                        tilskuddTom = LocalDate.now()
+                )
+        )
+        refusjon.oppgiBedriftKontonummer("10000008145")
+        assertThat(refusjon.bedriftKontonummer).isEqualTo("10000008145")
+    }
+
+    @Test
+    fun`ikke kunne sende inn refusjon uten kontonummer`(){
+        val refusjon = enRefusjon(
+                etTilskuddsgrunnlag().copy(
+                        tilskuddFom = LocalDate.now().minusDays(2),
+                        tilskuddTom = LocalDate.now().minusDays(1)
+                )
+        ).medInntektsgrunnlag()
+        assertFeilkode(Feilkode.INGEN_BEDRIFTKONTONUMMER) { refusjon.godkjennForArbeidsgiver() }
+        refusjon.oppgiBedriftKontonummer("10000008145")
+        refusjon.godkjennForArbeidsgiver()
+        assertThat(refusjon.status).isEqualTo(RefusjonStatus.SENDT_KRAV)
+    }
 
 }
 

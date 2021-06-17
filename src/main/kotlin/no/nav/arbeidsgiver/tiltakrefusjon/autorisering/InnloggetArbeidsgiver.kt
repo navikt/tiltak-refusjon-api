@@ -37,13 +37,13 @@ data class InnloggetArbeidsgiver(
     fun finnRefusjon(id: String): Refusjon {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
-        refusjonService.gjørBedriftKontonummeroppslag(refusjon)
         if (refusjon.status == RefusjonStatus.KLAR_FOR_INNSENDING) {
             try {
+                refusjonService.gjørBedriftKontonummeroppslag(refusjon)
                 refusjonService.gjørInntektsoppslag(refusjon)
 
             } catch (e: Exception) {
-                println("Feil ved henting av inntekt")
+                println("Feil ved henting av inntekt eller kontonummer")
             }
         }
         return refusjon

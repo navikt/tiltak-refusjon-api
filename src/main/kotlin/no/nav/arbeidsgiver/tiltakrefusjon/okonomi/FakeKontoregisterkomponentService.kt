@@ -9,6 +9,6 @@ class FakeKontoregisterkomponentService : KontoregisterkomponentService {
     override fun hentBankkontonummer(
         bedriftNr: String
     ): String {
-       return "10000008162";
+       return "10000008145";
     }
 }

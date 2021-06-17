@@ -2,6 +2,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.guepardoapps.kulid.ULID
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.YearMonthDateAttributeConverter
 import java.time.LocalDate
 import java.time.YearMonth
 import javax.persistence.*
@@ -11,6 +12,7 @@ import javax.persistence.*
 data class Inntektslinje(
         val inntektType: String,
         val beløp: Double,
+        @Convert(converter = YearMonthDateAttributeConverter::class)
         val måned: YearMonth,
         val opptjeningsperiodeFom: LocalDate?,
         val opptjeningsperiodeTom: LocalDate?

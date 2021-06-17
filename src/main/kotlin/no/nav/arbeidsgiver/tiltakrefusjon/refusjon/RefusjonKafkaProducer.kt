@@ -2,24 +2,23 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonGodkjentMelding.Companion.create
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
-import lombok.RequiredArgsConstructor
-import org.springframework.kafka.core.KafkaTemplate
-import org.springframework.transaction.event.TransactionalEventListener
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.GodkjentAvArbeidsgiver
 import no.nav.arbeidsgiver.tiltakrefusjon.Topics
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonGodkjentMelding.Companion.create
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.GodkjentAvArbeidsgiver
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.kafka.support.SendResult
 import org.springframework.stereotype.Component
+import org.springframework.transaction.event.TransactionalEventListener
 import org.springframework.util.concurrent.ListenableFutureCallback
 
 @ConditionalOnProperty("tiltak-refusjon.kafka.enabled")
 @Component
-@RequiredArgsConstructor
 class RefusjonKafkaProducer(val kafkaTemplate: KafkaTemplate<String, String>, val objectMapper: ObjectMapper) {
 
-    var log = LoggerFactory.getLogger(RefusjonKafkaProducer::class.java)
+    var log: Logger = LoggerFactory.getLogger(javaClass)
 
     @TransactionalEventListener
     fun refusjonGodkjent(event: GodkjentAvArbeidsgiver) {
@@ -28,7 +27,9 @@ class RefusjonKafkaProducer(val kafkaTemplate: KafkaTemplate<String, String>, va
         meldingSomString = try {
             objectMapper.writeValueAsString(melding)
         } catch (e: JsonProcessingException) {
-            log.error("Kunne ikke lage JSON for melding med id {} til topic {}", event.refusjon.id, Topics.REFUSJON_GODKJENT)
+            log.error("Kunne ikke lage JSON for melding med id {} til topic {}",
+                event.refusjon.id,
+                Topics.REFUSJON_GODKJENT)
             return
         }
         kafkaTemplate.send(Topics.REFUSJON_GODKJENT, event.refusjon.id, meldingSomString)

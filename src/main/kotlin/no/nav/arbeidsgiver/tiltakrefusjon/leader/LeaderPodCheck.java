@@ -24,7 +24,7 @@ public class LeaderPodCheck {
     private final String path;
     private final boolean enabled;
 
-    public LeaderPodCheck(ObjectMapper objectMapper, @Value("${ELECTOR_PATH : null}") String electorPath) {
+    public LeaderPodCheck(ObjectMapper objectMapper, @Value("${ELECTOR_PATH:}") String electorPath) {
         this.restTemplate = new RestTemplate();
         this.objectMapper = objectMapper;
         this.enabled = isNotBlank(electorPath);

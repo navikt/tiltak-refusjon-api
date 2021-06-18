@@ -1,9 +1,9 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.okonomi
 
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
@@ -20,23 +20,22 @@ import org.springframework.test.context.ActiveProfiles
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class KontoregisterServiceImplTest {
     @Autowired
-    lateinit var kontoregisterkomponentService: KontoregisterkomponentService
+    lateinit var kontoregisterService: KontoregisterService
 
     @Test
     fun `kall med kontonummer`() {
-        val kontonr = kontoregisterkomponentService.hentBankkontonummer(
-            "990983666"
+        val kontonr = kontoregisterService.hentBankkontonummer(
+                "990983666"
         )
-        assertThat(kontonr).isNotEmpty()
+        assertThat(kontonr).isNotEmpty
     }
 
     @Test
-    @Disabled
     fun `kall som returnerer at bedriften ikke finnes i register`() {
-        val kontonr = kontoregisterkomponentService.hentBankkontonummer(
-            "111234567"
-        )
-        assertThat(kontonr).isNotEmpty()
+        assertThrows<HentingAvBankkontonummerException> {
+            val kontonr = kontoregisterService.hentBankkontonummer(
+                    "111234567"
+            )
+        }
     }
-
 }

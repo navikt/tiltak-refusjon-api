@@ -9,4 +9,5 @@ enum class Feilkode {
     UGYLDIG_STATUS,
     ETTER_FRIST,
     INGEN_INNTEKTER,
+    INGEN_BEDRIFTKONTONUMMER,
 }

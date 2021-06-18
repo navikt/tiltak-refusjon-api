@@ -5,10 +5,10 @@ import org.springframework.stereotype.Service
 
 @Service
 @ConditionalOnProperty("tiltak-refusjon.kontoregister.fake")
-class FakeKontoregisterkomponentService : KontoregisterkomponentService {
+class FakeKontoregisterService : KontoregisterService {
     override fun hentBankkontonummer(
-        bedriftNr: String
+            bedriftNr: String
     ): String {
-       return "10000008162";
+       return "10000008145";
     }
 }

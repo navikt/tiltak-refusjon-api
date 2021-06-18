@@ -6,7 +6,7 @@ import java.net.URI
 
 @Component
 @ConfigurationProperties(prefix = "tiltak-refusjon.kontoregister")
-data class KontoregisterkomponentProperties(
+data class KontoregisterProperties(
         var uri: URI = URI(""),
         var consumerId: String = ""
 )

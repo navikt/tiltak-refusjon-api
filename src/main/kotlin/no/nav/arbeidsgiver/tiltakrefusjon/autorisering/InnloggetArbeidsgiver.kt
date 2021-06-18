@@ -8,18 +8,20 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonRepository
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonStatus
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.data.repository.findByIdOrNull
-import org.springframework.web.bind.annotation.CookieValue
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import java.util.*
 
 data class InnloggetArbeidsgiver(
-    val identifikator: String,
-    @JsonIgnore val altinnTilgangsstyringService: AltinnTilgangsstyringService,
-    @JsonIgnore val refusjonRepository: RefusjonRepository,
-    @JsonIgnore val refusjonService: RefusjonService
+        val identifikator: String,
+        @JsonIgnore val altinnTilgangsstyringService: AltinnTilgangsstyringService,
+        @JsonIgnore val refusjonRepository: RefusjonRepository,
+        @JsonIgnore val refusjonService: RefusjonService
+
 ) {
+
+    @JsonIgnore
+    val log: Logger = LoggerFactory.getLogger(javaClass)
 
     val organisasjoner: Set<Organisasjon> = altinnTilgangsstyringService.hentTilganger(identifikator)
 
@@ -37,13 +39,18 @@ data class InnloggetArbeidsgiver(
     fun finnRefusjon(id: String): Refusjon {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
-        if (refusjon.status == RefusjonStatus.KLAR_FOR_INNSENDING) {
+        if (refusjon.status == RefusjonStatus.FOR_TIDLIG || refusjon.status == RefusjonStatus.KLAR_FOR_INNSENDING) {
             try {
                 refusjonService.gjørBedriftKontonummeroppslag(refusjon)
-                refusjonService.gjørInntektsoppslag(refusjon)
-
             } catch (e: Exception) {
-                println("Feil ved henting av inntekt eller kontonummer")
+                log.error("Feil ved henting av kontonummer fra ${refusjon.id}", e)
+            }
+        }
+        if (refusjon.status == RefusjonStatus.KLAR_FOR_INNSENDING) {
+            try {
+                refusjonService.gjørInntektsoppslag(refusjon)
+            } catch (e: Exception) {
+                log.error("Feil ved henting av inntektoppslag fra ${refusjon.id}", e)
             }
         }
         return refusjon
@@ -63,4 +70,3 @@ data class InnloggetArbeidsgiver(
         return refusjonerMedSammeAvtaleId.filter { it.id != refusjon.id }
     }
 }
-

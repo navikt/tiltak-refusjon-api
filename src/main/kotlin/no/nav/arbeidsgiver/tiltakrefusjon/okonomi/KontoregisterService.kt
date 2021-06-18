@@ -1,7 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.okonomi
 
-interface KontoregisterkomponentService {
+interface KontoregisterService {
     fun hentBankkontonummer(
-        bedriftNr: String
+            bedriftNr: String
     ): String
 }

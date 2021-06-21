@@ -6,11 +6,15 @@ import io.cucumber.java.no.Gitt
 import io.cucumber.java.no.Når
 import io.cucumber.java.no.Og
 import io.cucumber.java.no.Så
+import io.cucumber.spring.CucumberContextConfiguration
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Assume
+import org.springframework.test.context.ContextConfiguration
 import java.time.LocalDate
 import java.time.YearMonth
 
+@CucumberContextConfiguration
+@ContextConfiguration
 class RefusjonsberegningSteps {
 
     lateinit var inntekstlinjer: List<Inntektslinje>

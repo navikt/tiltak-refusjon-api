@@ -40,4 +40,4 @@ data class Inntektslinje(
     fun inntektFordelesTom(): LocalDate = opptjeningsperiodeTom ?: måned.atEndOfMonth()
 }
 
-val inkluderteLønnsbeskrivelser = listOf("Fastlønn", "Timelønn", "Faste tillegg")
+val inkluderteLønnsbeskrivelser = listOf("fastloenn", "timeloenn", "fastTillegg")

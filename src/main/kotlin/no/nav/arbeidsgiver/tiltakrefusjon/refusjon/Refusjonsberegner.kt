@@ -21,7 +21,7 @@ private fun inntektsdager(inntektslinje: Inntektslinje, tilskuddFom: LocalDate, 
 
 fun beregnRefusjonsbeløp(inntekter: List<Inntektslinje>, tilskuddsgrunnlag: Tilskuddsgrunnlag): Beregning {
     val lønn = inntekter
-        .filter(Inntektslinje::erLønnsinntekt)
+        .filter(Inntektslinje::erMedIInntektsgrunnlag)
         .flatMap { inntektsdager(it, tilskuddsgrunnlag.tilskuddFom, tilskuddsgrunnlag.tilskuddTom) }
         .sum()
     val feriepenger = lønn * tilskuddsgrunnlag.feriepengerSats

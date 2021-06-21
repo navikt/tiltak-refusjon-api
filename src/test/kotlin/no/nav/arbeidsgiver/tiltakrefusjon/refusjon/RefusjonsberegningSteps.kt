@@ -25,10 +25,11 @@ class RefusjonsberegningSteps {
         inntekstlinjer = tabell.asMaps().map { map: MutableMap<String, String> ->
             Inntektslinje(
                 map["inntektType"]!!,
+                map["beskrivelse"]!!,
                 (map["beløp"])!!.toDouble(),
                 YearMonth.parse(map["måned"]),
                 map["opptjeningsperiodeFom"]?.let { LocalDate.parse(it) },
-                map["opptjeningsperiodeTom"]?.let { LocalDate.parse(it) }
+                map["opptjeningsperiodeTom"]?.let { LocalDate.parse(it) },
             )
         }
     }

@@ -10,12 +10,13 @@ import javax.persistence.*
 @Entity
 @Table(name = "inntektslinje")
 data class Inntektslinje(
-        val inntektType: String,
-        val beløp: Double,
-        @Convert(converter = YearMonthDateAttributeConverter::class)
-        val måned: YearMonth,
-        val opptjeningsperiodeFom: LocalDate?,
-        val opptjeningsperiodeTom: LocalDate?
+    val inntektType: String,
+    val beskrivelse: String?,
+    val beløp: Double,
+    @Convert(converter = YearMonthDateAttributeConverter::class)
+    val måned: YearMonth,
+    val opptjeningsperiodeFom: LocalDate?,
+    val opptjeningsperiodeTom: LocalDate?,
 ) {
     @Id
     val id: String = ULID.random()
@@ -29,7 +30,8 @@ data class Inntektslinje(
     }
 
     @JsonProperty
-    fun erLønnsinntekt() = inntektType == "LOENNSINNTEKT" && beløp > 0.0
+    fun erMedIInntektsgrunnlag() =
+        inntektType == "LOENNSINNTEKT" && beløp > 0.0 && inkluderteLønnsbeskrivelser.contains(beskrivelse)
 
     @JsonProperty
     fun inntektFordelesFom(): LocalDate = opptjeningsperiodeFom ?: måned.atDay(1)
@@ -37,3 +39,5 @@ data class Inntektslinje(
     @JsonProperty
     fun inntektFordelesTom(): LocalDate = opptjeningsperiodeTom ?: måned.atEndOfMonth()
 }
+
+val inkluderteLønnsbeskrivelser = listOf("Fastlønn", "Timelønn", "Faste tillegg")

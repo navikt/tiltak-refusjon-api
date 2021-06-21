@@ -20,9 +20,14 @@ class FakeInntektskomponentService : InntektskomponentService {
         if (fnr == "07098142678") {
             return emptyList()
         }
-        return datoFra.datesUntil(datoTil, Period.ofMonths(1)).map {
+
+        val inntektslinjer = ArrayList<Inntektslinje>()
+        datoFra.datesUntil(datoTil, Period.ofMonths(1)).forEach {
             val måned = YearMonth.of(it.year, it.month)
-            Inntektslinje("LOENNSINNTEKT", 25000.0, måned, it, måned.atEndOfMonth())
-        }.toList()
+            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "Timelønn", 25000.0, måned, it, måned.atEndOfMonth()))
+            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "Fastlønn", 10000.0, måned, it, måned.atEndOfMonth()))
+            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "Overtidsgodtgjørelse", 7683.0, måned, it, måned.atEndOfMonth()))
+        }
+        return inntektslinjer
     }
 }

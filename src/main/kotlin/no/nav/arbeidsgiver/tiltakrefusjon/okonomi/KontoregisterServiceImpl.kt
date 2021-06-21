@@ -27,9 +27,10 @@ class KontoregisterServiceImpl(
     override fun hentBankkontonummer(bedriftNr: String): String {
         val requestEntity = lagRequest()
         val url = "${properties.uri}/${bedriftNr}"
+        log.info("Kontoregister url: $url")
         var responseMedKontonummerTilBedrift: KontoregisterResponse?
         try {
-            responseMedKontonummerTilBedrift = restTemplate.exchange<KontoregisterResponse>(url, HttpMethod.POST, requestEntity).body
+            responseMedKontonummerTilBedrift = restTemplate.exchange<KontoregisterResponse>(url, HttpMethod.GET, requestEntity).body
         } catch (e: RestClientException) {
             log.warn("Kontoregister call feiler", e)
             throw HentingAvBankkontonummerException()

@@ -3,7 +3,7 @@
     {
       "priority": 1,
       "request": {
-        "method": "POST",
+        "method": "GET",
         "urlPath": "/kontoregister/api/v1/hent-kontonummer-for-organisasjon/990983666"
       },
       "response": {
@@ -24,7 +24,7 @@
     {
       "priority": 1,
       "request": {
-        "method": "POST",
+        "method": "GET",
         "urlPath": "/kontoregister/api/v1/hent-kontonummer-for-organisasjon/111234567"
       },
       "response": {

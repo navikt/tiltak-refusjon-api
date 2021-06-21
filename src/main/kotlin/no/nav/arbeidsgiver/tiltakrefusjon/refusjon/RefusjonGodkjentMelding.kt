@@ -20,7 +20,8 @@ data class RefusjonGodkjentMelding(
         val arbeidsgiveravgiftSats: Double,
         val lønnstilskuddsprosent: Int,
         val avtaleNr: Int,
-        val løpenummer: Int
+        val løpenummer: Int,
+        val bedriftKontonummer: String
 ){
         companion object{
                 @JvmStatic
@@ -39,7 +40,8 @@ data class RefusjonGodkjentMelding(
                                 refusjon.tilskuddsgrunnlag.arbeidsgiveravgiftSats,
                                 refusjon.tilskuddsgrunnlag.lønnstilskuddsprosent,
                                 refusjon.tilskuddsgrunnlag.avtaleNr,
-                                refusjon.tilskuddsgrunnlag.løpenummer
+                                refusjon.tilskuddsgrunnlag.løpenummer,
+                                refusjon.bedriftKontonummer!!
                         )
                 }
         }

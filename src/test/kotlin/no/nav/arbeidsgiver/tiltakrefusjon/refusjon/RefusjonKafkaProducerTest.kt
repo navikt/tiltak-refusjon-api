@@ -36,7 +36,8 @@ class RefusjonKafkaProducerTest {
         // GITT
         val refusjonGodkjent = RefusjonGodkjentMelding("avtaleid","tspid",Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
             "Donald","duck","212","z123","Duck co","123",
-        1000, LocalDate.now(), LocalDate.now().plusMonths(2),0.12,0.2,0.12,40,123,1)
+        1000, LocalDate.now(), LocalDate.now().plusMonths(2),0.12,0.2,0.12,40,123,1
+        ,"bedriftnr")
 
         every {
             refusjonService.godkjennForArbeidsgiver(any())

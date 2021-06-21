@@ -12,7 +12,8 @@ data class RefusjonGodkjentMelding(
         val veilederNavIdent: String,
         val bedriftNavn: String,
         val bedriftNr: String,
-        val tilskuddsbeløp: Int,
+        val beløp: Int,
+        val refusjonId: String,
         val tilskuddFom: LocalDate,
         val tilskuddTom: LocalDate,
         val feriepengerSats: Double,
@@ -21,8 +22,8 @@ data class RefusjonGodkjentMelding(
         val lønnstilskuddsprosent: Int,
         val avtaleNr: Int,
         val løpenummer: Int,
-        val bedriftKontonummer: String
-){
+        val bedriftKontonummer: String)
+        {
         companion object{
                 @JvmStatic
                 fun create(refusjon: Refusjon): RefusjonGodkjentMelding {
@@ -33,6 +34,7 @@ data class RefusjonGodkjentMelding(
                                 refusjon.tilskuddsgrunnlag.bedriftNavn,
                                 refusjon.tilskuddsgrunnlag.bedriftNr,
                                 refusjon.tilskuddsgrunnlag.tilskuddsbeløp,
+                                refusjon.id,
                                 refusjon.tilskuddsgrunnlag.tilskuddFom,
                                 refusjon.tilskuddsgrunnlag.tilskuddTom,
                                 refusjon.tilskuddsgrunnlag.feriepengerSats,

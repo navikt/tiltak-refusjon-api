@@ -45,7 +45,7 @@ class RefusjonService(
     }
 
     fun gjørInntektsoppslag(refusjon: Refusjon) {
-        if (refusjon.inntektsgrunnlag != null && refusjon.inntektsgrunnlag!!.innhentetTidspunkt.isAfter(Now.localDateTime().minusMinutes(1))) {
+        if (refusjon.inntektsgrunnlag != null && refusjon.inntektsgrunnlag!!.innhentetTidspunkt.plusMinutes(1).isAfter(Now.localDateTime())) {
             return
         }
         val inntektsgrunnlag = Inntektsgrunnlag(

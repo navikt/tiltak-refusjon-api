@@ -24,10 +24,11 @@ class FakeInntektskomponentService : InntektskomponentService {
         val inntektslinjer = ArrayList<Inntektslinje>()
         datoFra.datesUntil(datoTil, Period.ofMonths(1)).forEach {
             val måned = YearMonth.of(it.year, it.month)
-            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "timeloenn", 25000.0, måned, it, måned.atEndOfMonth()))
+            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "timeloenn", 250000.0, måned, it, måned.atEndOfMonth()))
             inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "fastloenn", 10000.0, måned, it, måned.atEndOfMonth()))
             inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "fastTillegg", 10000.0, måned, it, måned.atEndOfMonth()))
             inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "overtidsgodtgjoerelse", 7683.0, måned, it, måned.atEndOfMonth()))
+            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "loennUtbetaltAvVeldedigEllerAllmennyttigInstitusjonEllerOrganisasjon", 423.0, måned, it, måned.atEndOfMonth()))
         }
         return inntektslinjer
     }

@@ -158,11 +158,12 @@ fun Refusjon.medBedriftKontonummer(): Refusjon {
 fun etInntektsgrunnlag(måned: YearMonth = YearMonth.of(2020, 10)) = Inntektsgrunnlag(
         inntekter = listOf(
                 Inntektslinje(
-                        inntektType = "LOENNSINNTEKT",
-                        beløp = 7777.0,
-                        måned = måned,
-                        opptjeningsperiodeFom = null,
-                        opptjeningsperiodeTom = null
+                    inntektType = "LOENNSINNTEKT",
+                    beskrivelse = "",
+                    måned = måned,
+                    beløp = 7777.0,
+                    opptjeningsperiodeTom = null,
+                    opptjeningsperiodeFom = null
                 )
         )
 )

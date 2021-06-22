@@ -56,11 +56,13 @@ class InntektskomponentServiceImpl(
 
                 inntekterTotalt.add(
                         Inntektslinje(
-                                it.inntektType,
-                                it.beloep.toDouble(),
-                                YearMonth.parse(it.utbetaltIMaaned),
-                                dateFraOpptjenningsperiode,
-                                datoTilOpptjenningsperiode)
+                            it.inntektType,
+                            it.beskrivelse,
+                            it.beloep.toDouble(),
+                            YearMonth.parse(it.utbetaltIMaaned),
+                            datoTilOpptjenningsperiode,
+                            dateFraOpptjenningsperiode
+                        )
                 )
             }
         }

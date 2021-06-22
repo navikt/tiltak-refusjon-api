@@ -1,0 +1,1 @@
+alter table inntektslinje add column beskrivelse varchar;

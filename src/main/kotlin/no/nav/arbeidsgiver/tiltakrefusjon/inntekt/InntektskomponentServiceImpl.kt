@@ -66,7 +66,7 @@ class InntektskomponentServiceImpl(
                 )
             }
         }
-        log.info("**** INNTEKTER {}: {}",bedriftnummerDetSøkesPå, inntekterTotalt)
+        log.info("**** INNTEKTER {} ::: {} ::: {}",bedriftnummerDetSøkesPå, inntekterTotalt, månedsInntektList)
         return inntekterTotalt
     }
 

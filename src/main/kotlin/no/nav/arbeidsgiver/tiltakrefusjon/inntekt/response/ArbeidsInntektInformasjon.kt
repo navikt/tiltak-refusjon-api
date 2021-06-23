@@ -1,4 +1,4 @@
 data class ArbeidsInntektInformasjon(
-        val aarNaabed: String?,
+        val aarMaaned: String?,
         val inntektListe: MutableList<InntektListe>
 )

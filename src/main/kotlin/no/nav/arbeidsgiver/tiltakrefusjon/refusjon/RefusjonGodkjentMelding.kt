@@ -19,7 +19,7 @@ data class RefusjonGodkjentMelding(
         val feriepengerSats: Double,
         val otpSats: Double,
         val arbeidsgiveravgiftSats: Double,
-        val lønnstilskuddsprosent: Int,
+        val tilskuddsprosent: Int,
         val avtaleNr: Int,
         val løpenummer: Int,
         val bedriftKontonummer: String)

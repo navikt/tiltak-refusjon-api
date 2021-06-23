@@ -31,6 +31,7 @@ data class Refusjon(
     @OneToOne(orphanRemoval = true, cascade = [CascadeType.ALL])
     var beregning: Beregning? = null
 
+    // Fristen er satt til 2 mnd ihht økonomireglementet
     var fristForGodkjenning: LocalDate = tilskuddsgrunnlag.tilskuddTom.plusMonths(2)
 
     var godkjentAvArbeidsgiver: Instant? = null

@@ -1,4 +1,5 @@
-data class Tilleggsinformasjon(
+package no.nav.arbeidsgiver.tiltakrefusjon.inntekt.response
 
-        val kategori: String
+data class Tilleggsinformasjon(
+    val kategori: String,
 )

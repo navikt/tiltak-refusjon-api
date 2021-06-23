@@ -1,6 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.inntekt
 
-import InntektListe
+import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.response.InntektListe
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule

@@ -1,5 +1,6 @@
-data class Virksomhet(
+package no.nav.arbeidsgiver.tiltakrefusjon.inntekt.response
 
-        val identifikator: Int,
-        val aktoerType: String
+data class Virksomhet(
+    val identifikator: String,
+    val aktoerType: String,
 )

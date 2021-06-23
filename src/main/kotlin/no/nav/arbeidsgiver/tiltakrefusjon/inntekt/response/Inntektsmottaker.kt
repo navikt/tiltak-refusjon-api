@@ -1,5 +1,6 @@
-data class Inntektsmottaker(
+package no.nav.arbeidsgiver.tiltakrefusjon.inntekt.response
 
-        val identifikator: String,
-        val aktoerType: String
+data class Inntektsmottaker(
+    val identifikator: String,
+    val aktoerType: String,
 )

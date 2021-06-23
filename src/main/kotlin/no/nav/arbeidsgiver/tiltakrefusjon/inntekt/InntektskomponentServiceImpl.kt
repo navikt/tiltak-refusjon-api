@@ -60,8 +60,8 @@ class InntektskomponentServiceImpl(
                             it.beskrivelse,
                             it.beloep.toDouble(),
                             YearMonth.parse(it.utbetaltIMaaned),
-                            datoTilOpptjenningsperiode,
-                            dateFraOpptjenningsperiode
+                            dateFraOpptjenningsperiode,
+                            datoTilOpptjenningsperiode
                         )
                 )
             }

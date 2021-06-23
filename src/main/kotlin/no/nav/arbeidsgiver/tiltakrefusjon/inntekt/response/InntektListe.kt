@@ -21,4 +21,5 @@ data class InntektListe(
     val informasjonsstatus: String?,
     val beskrivelse: String?,
     val skatteOgAvgiftsregel: String?,
+    val antall: Int?
 )

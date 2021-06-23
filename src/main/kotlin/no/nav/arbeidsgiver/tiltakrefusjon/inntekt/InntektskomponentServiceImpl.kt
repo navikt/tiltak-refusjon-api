@@ -1,6 +1,9 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.inntekt
 
 import InntektListe
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.request.Aktør
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.request.InntektRequest
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.response.ArbeidsInntektMaaned
@@ -17,24 +20,31 @@ import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.exchange
 import java.time.LocalDate
 import java.time.YearMonth
-import java.util.UUID
+import java.util.*
 
 
 @Service
 @ConditionalOnPropertyNotEmpty("tiltak-refusjon.inntektskomponenten.uri")
 class InntektskomponentServiceImpl(
-        val inntektskomponentProperties: InntektskomponentProperties,
-        @Qualifier("anonymProxyRestTemplate") val restTemplate: RestTemplate
+    val inntektskomponentProperties: InntektskomponentProperties,
+    @Qualifier("anonymProxyRestTemplate") val restTemplate: RestTemplate,
 ) : InntektskomponentService {
 
     private val log = LoggerFactory.getLogger(InntektskomponentServiceImpl::class.java)
 
-    override fun hentInntekter(fnr: String, bedriftnummerDetSøkesPå: String, datoFra: LocalDate, datoTil: LocalDate): List<Inntektslinje> {
+    private val objectMapper = run {
+        val mapper = ObjectMapper()
+        mapper.registerModule(JavaTimeModule())
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+        mapper
+    }
+
+    override fun hentInntekter(fnr: String, bedriftnummerDetSøkesPå: String, datoFra: LocalDate, datoTil: LocalDate): Pair<List<Inntektslinje>, String> {
         try {
             val requestEntity = lagRequest(fnr, YearMonth.from(datoFra), YearMonth.from(datoTil))
             val responseMedInntekterForDeltaker = restTemplate.exchange<InntektResponse>(inntektskomponentProperties.uri, HttpMethod.POST, requestEntity).body
             val inntekter = responseMedInntekterForDeltaker?.arbeidsInntektMaaned ?: throw FantIngenInntektException()
-            return inntekterForBedrift(inntekter, bedriftnummerDetSøkesPå)
+            return Pair(inntekterForBedrift(inntekter, bedriftnummerDetSøkesPå), objectMapper.writeValueAsString(responseMedInntekterForDeltaker))
         } catch (ex: Exception) {
             throw HentingAvInntektException("Kall til Inntektskomponenten feilet",ex)
         }

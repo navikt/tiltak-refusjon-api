@@ -1,0 +1,1 @@
+alter table inntektsgrunnlag add column respons varchar default '';

@@ -8,7 +8,8 @@ import javax.persistence.*
 @Entity
 data class Inntektsgrunnlag(
         @OneToMany(mappedBy = "inntektsgrunnlag", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
-        val inntekter: List<Inntektslinje>
+        val inntekter: List<Inntektslinje>,
+        val respons: String
 ) {
     @Id
     val id: String = ULID.random()

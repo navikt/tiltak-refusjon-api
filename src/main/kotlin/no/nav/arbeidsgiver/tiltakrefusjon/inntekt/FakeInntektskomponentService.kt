@@ -16,9 +16,9 @@ class FakeInntektskomponentService : InntektskomponentService {
         bedriftnummerDetSøkesPå: String,
         datoFra: LocalDate,
         datoTil: LocalDate
-    ): List<Inntektslinje> {
+    ): Pair<List<Inntektslinje>, String> {
         if (fnr == "07098142678") {
-            return emptyList()
+            return Pair(emptyList(), "")
         }
 
         val inntektslinjer = ArrayList<Inntektslinje>()
@@ -30,6 +30,6 @@ class FakeInntektskomponentService : InntektskomponentService {
             inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "overtidsgodtgjoerelse", 7683.0, måned, it, måned.atEndOfMonth()))
             inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "loennUtbetaltAvVeldedigEllerAllmennyttigInstitusjonEllerOrganisasjon", 423.0, måned, it, måned.atEndOfMonth()))
         }
-        return inntektslinjer
+        return Pair(inntektslinjer, "fake respons")
     }
 }

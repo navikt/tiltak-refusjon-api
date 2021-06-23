@@ -48,13 +48,15 @@ class RefusjonService(
         if (refusjon.inntektsgrunnlag != null && refusjon.inntektsgrunnlag!!.innhentetTidspunkt.plusMinutes(1).isAfter(Now.localDateTime())) {
             return
         }
+        val inntektsoppslag = inntektskomponentService.hentInntekter(
+            refusjon.deltakerFnr,
+            refusjon.bedriftNr,
+            refusjon.tilskuddsgrunnlag.tilskuddFom,
+            refusjon.tilskuddsgrunnlag.tilskuddTom
+        )
         val inntektsgrunnlag = Inntektsgrunnlag(
-                inntekter = inntektskomponentService.hentInntekter(
-                        refusjon.deltakerFnr,
-                        refusjon.bedriftNr,
-                        refusjon.tilskuddsgrunnlag.tilskuddFom,
-                        refusjon.tilskuddsgrunnlag.tilskuddTom
-                )
+                inntekter = inntektsoppslag.first,
+                respons = inntektsoppslag.second
         )
 
         refusjon.oppgiInntektsgrunnlag(inntektsgrunnlag)

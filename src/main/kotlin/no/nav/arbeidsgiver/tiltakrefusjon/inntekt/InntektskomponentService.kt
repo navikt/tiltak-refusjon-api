@@ -9,5 +9,5 @@ interface InntektskomponentService {
         bedriftnummerDetSøkesPå: String,
         datoFra: LocalDate,
         datoTil: LocalDate
-    ): List<Inntektslinje>
+    ): Pair<List<Inntektslinje>, String>
 }

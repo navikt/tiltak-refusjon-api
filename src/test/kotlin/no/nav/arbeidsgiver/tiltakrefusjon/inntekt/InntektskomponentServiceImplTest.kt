@@ -30,7 +30,8 @@ class InntektskomponentServiceImplTest {
             LocalDate.of(2020, 9, 1),
             LocalDate.of(2020, 10, 1)
         )
-        assertThat(inntekter).hasSize(3)
+        assertThat(inntekter.first).hasSize(3)
+        assertThat(inntekter.second).containsSubsequence("arbeidsInntektMaaned") // Property på høyeste nivå i JSON-responsen
     }
 
     // TODO: Skriv flere tester som treffer feilsituasjoner

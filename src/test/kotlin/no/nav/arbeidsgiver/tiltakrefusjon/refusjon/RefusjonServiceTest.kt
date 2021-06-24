@@ -49,9 +49,9 @@ class RefusjonServiceTest(
     }
 
     @Test
-    fun `setter commitHash ved beregning`() {
+    fun `setter appImageId ved beregning`() {
         val refusjon = `Bjørnstjerne Bjørnson`()
         refusjonService.gjørInntektsoppslag(refusjon)
-        assertThat(refusjon.beregning?.commitHash).isEqualTo("test")
+        assertThat(refusjon.beregning?.appImageId).isEqualTo("test")
     }
 }

@@ -75,7 +75,7 @@ class RefusjonsberegningSteps {
         val beregnet = beregnRefusjonsbeløp(
             inntekter = inntekstlinjer,
             tilskuddsgrunnlag = tilskuddsgrunnlag,
-            commitHash = ""
+            appImageId = ""
         )
         assertThat(beregnet.refusjonsbeløp).isEqualByComparingTo(refusjon);
     }

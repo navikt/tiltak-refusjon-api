@@ -1,0 +1,1 @@
+alter table beregning rename column commit_hash to app_image_id;

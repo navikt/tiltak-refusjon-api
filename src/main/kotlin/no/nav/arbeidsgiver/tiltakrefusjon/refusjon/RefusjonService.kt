@@ -16,7 +16,7 @@ class RefusjonService(
         val refusjonRepository: RefusjonRepository,
         val kontoregisterService: KontoregisterService,
         @Value("\${NAIS_APP_IMAGE:}")
-        val commitHash: String
+        val appImageId: String
 ) {
     fun opprettRefusjon(tilskuddsperiodeGodkjentMelding: TilskuddsperiodeGodkjentMelding): Refusjon {
         val tilskuddsgrunnlag = Tilskuddsgrunnlag(
@@ -62,7 +62,7 @@ class RefusjonService(
                 respons = inntektsoppslag.second
         )
 
-        refusjon.oppgiInntektsgrunnlag(inntektsgrunnlag, commitHash)
+        refusjon.oppgiInntektsgrunnlag(inntektsgrunnlag, appImageId)
 
         refusjonRepository.save(refusjon)
     }

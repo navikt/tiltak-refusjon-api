@@ -74,7 +74,8 @@ class RefusjonsberegningSteps {
     fun så(refusjon: Int) {
         val beregnet = beregnRefusjonsbeløp(
             inntekter = inntekstlinjer,
-            tilskuddsgrunnlag = tilskuddsgrunnlag
+            tilskuddsgrunnlag = tilskuddsgrunnlag,
+            commitHash = ""
         )
         assertThat(beregnet.refusjonsbeløp).isEqualByComparingTo(refusjon);
     }

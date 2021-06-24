@@ -19,7 +19,7 @@ private fun inntektsdager(inntektslinje: Inntektslinje, tilskuddFom: LocalDate, 
     return overlappFom.datesUntil(overlappTom.plusDays(1)).map { beløpPerDag }.toList()
 }
 
-fun beregnRefusjonsbeløp(inntekter: List<Inntektslinje>, tilskuddsgrunnlag: Tilskuddsgrunnlag): Beregning {
+fun beregnRefusjonsbeløp(inntekter: List<Inntektslinje>, tilskuddsgrunnlag: Tilskuddsgrunnlag, commitHash: String): Beregning {
     val lønn = inntekter
         .filter(Inntektslinje::erMedIInntektsgrunnlag)
         .flatMap { inntektsdager(it, tilskuddsgrunnlag.tilskuddFom, tilskuddsgrunnlag.tilskuddTom) }
@@ -41,6 +41,7 @@ fun beregnRefusjonsbeløp(inntekter: List<Inntektslinje>, tilskuddsgrunnlag: Til
         sumUtgifter = sumUtgifter.roundToInt(),
         beregnetBeløp = beregnetBeløp.roundToInt(),
         refusjonsbeløp = refusjonsbeløp.roundToInt(),
-        overTilskuddsbeløp = overTilskuddsbeløp
+        overTilskuddsbeløp = overTilskuddsbeløp,
+        commitHash = commitHash
     )
 }

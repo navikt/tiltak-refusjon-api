@@ -7,6 +7,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeAnnul
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeForkortetMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 
 @Service
@@ -14,6 +15,8 @@ class RefusjonService(
         val inntektskomponentService: InntektskomponentService,
         val refusjonRepository: RefusjonRepository,
         val kontoregisterService: KontoregisterService,
+        @Value("\${NAIS_APP_IMAGE:}")
+        val commitHash: String
 ) {
     fun opprettRefusjon(tilskuddsperiodeGodkjentMelding: TilskuddsperiodeGodkjentMelding): Refusjon {
         val tilskuddsgrunnlag = Tilskuddsgrunnlag(
@@ -59,7 +62,7 @@ class RefusjonService(
                 respons = inntektsoppslag.second
         )
 
-        refusjon.oppgiInntektsgrunnlag(inntektsgrunnlag)
+        refusjon.oppgiInntektsgrunnlag(inntektsgrunnlag, commitHash)
 
         refusjonRepository.save(refusjon)
     }

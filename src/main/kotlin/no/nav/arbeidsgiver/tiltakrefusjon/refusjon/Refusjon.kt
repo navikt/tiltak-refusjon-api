@@ -71,7 +71,7 @@ data class Refusjon(
 
     }
 
-    fun oppgiInntektsgrunnlag(inntektsgrunnlag: Inntektsgrunnlag) {
+    fun oppgiInntektsgrunnlag(inntektsgrunnlag: Inntektsgrunnlag, commitHash: String) {
         oppdaterStatus()
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
         if (inntektsgrunnlag.inntekter.isEmpty()) {
@@ -80,7 +80,7 @@ data class Refusjon(
         if (fristForGodkjenning.isBefore(Now.localDate())) {
             status = RefusjonStatus.UTGÅTT
         } else {
-            beregning = beregnRefusjonsbeløp(inntektsgrunnlag.inntekter, tilskuddsgrunnlag)
+            beregning = beregnRefusjonsbeløp(inntektsgrunnlag.inntekter, tilskuddsgrunnlag, commitHash)
             this.inntektsgrunnlag = inntektsgrunnlag
             registerEvent(InntekterInnhentet(this))
         }

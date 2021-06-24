@@ -1,6 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.altinn
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategy.UpperCamelCaseStrategy
+import com.fasterxml.jackson.databind.PropertyNamingStrategies.UpperCamelCaseStrategy
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 
 @JsonNaming(UpperCamelCaseStrategy::class)

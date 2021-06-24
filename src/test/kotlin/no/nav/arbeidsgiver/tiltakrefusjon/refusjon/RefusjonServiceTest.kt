@@ -1,6 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
-import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBrukerService
+import no.nav.arbeidsgiver.tiltakrefusjon.`Bjørnstjerne Bjørnson`
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -10,7 +10,7 @@ import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock
 import org.springframework.test.context.ActiveProfiles
 import java.time.LocalDate
 
-@SpringBootTest
+@SpringBootTest(properties = ["NAIS_APP_IMAGE=test"])
 @ActiveProfiles("local")
 @AutoConfigureWireMock(port = 8090)
 class RefusjonServiceTest(
@@ -48,5 +48,10 @@ class RefusjonServiceTest(
         assertThat(lagretRefusjon.tilskuddsgrunnlag).isNotNull
     }
 
-
+    @Test
+    fun `setter commitHash ved beregning`() {
+        val refusjon = `Bjørnstjerne Bjørnson`()
+        refusjonService.gjørInntektsoppslag(refusjon)
+        assertThat(refusjon.beregning?.commitHash).isEqualTo("test")
+    }
 }

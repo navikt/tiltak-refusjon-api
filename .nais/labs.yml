@@ -22,7 +22,7 @@ spec:
   accessPolicy:
     inbound:
       rules:
-        - application: tiltak-refusjon-innside
+        - application: tiltak-refusjon-saksbehandler
         - application: tiltak-refusjon-utside
         - application: tiltaksgjennomforing-api
     outbound:

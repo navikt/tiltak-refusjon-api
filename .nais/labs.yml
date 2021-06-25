@@ -23,7 +23,7 @@ spec:
     inbound:
       rules:
         - application: tiltak-refusjon-saksbehandler
-        - application: tiltak-refusjon-utside
+        - application: tiltak-refusjon-arbeidsgiver
         - application: tiltaksgjennomforing-api
     outbound:
       rules:

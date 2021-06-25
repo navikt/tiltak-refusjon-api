@@ -13,7 +13,7 @@ import java.util.*
 @Service
 class AbacTilgangsstyringService(
     @Qualifier("anonymProxyRestTemplate") val restTemplate: RestTemplate,
-    val tilgangskontrollConfig: TilgangskontrollConfig,
+    val abacConfig: AbacConfig,
 ) {
 
     fun harLeseTilgang(navIdent: String, deltakerFnr: String): Boolean {
@@ -74,13 +74,13 @@ class AbacTilgangsstyringService(
         headers["Nav-Call-Id"] = UUID.randomUUID().toString()
         headers["Content-Type"] = "application/json"
         val request = HttpEntity(body, headers)
-        val abacResponse = restTemplate.postForObject<AbacResponse>(tilgangskontrollConfig.uri, request);
-        return abacResponse.response[0].decision == "Permit"
+        val abacResponse = restTemplate.postForObject<AbacResponse>(abacConfig.uri, request);
+        return abacResponse.response.decision == "Permit"
     }
 }
 
 @JsonNaming(PropertyNamingStrategies.UpperCamelCaseStrategy::class)
-data class AbacResponse(val response: List<AbacResponseResponse>)
+data class AbacResponse(val response: AbacResponseResponse)
 
 @JsonNaming(PropertyNamingStrategies.UpperCamelCaseStrategy::class)
 data class AbacResponseResponse(val decision: String)

@@ -107,11 +107,6 @@
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
         </dependency>
-        <dependency>
-            <groupId>no.nav.common</groupId>
-            <artifactId>abac</artifactId>
-            <version>2.2020.05.28_13.26-8e581baa1ccb</version>
-        </dependency>
         <!--Tokensupport -->
         <dependency>
             <groupId>no.nav.security</groupId>

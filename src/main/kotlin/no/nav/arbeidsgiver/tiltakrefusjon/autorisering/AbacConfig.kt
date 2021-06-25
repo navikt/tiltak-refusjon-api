@@ -5,6 +5,6 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 @ConfigurationProperties(prefix = "tiltak-refusjon.abac-tilgangstyring")
-class TilgangskontrollConfig {
+class AbacConfig {
     lateinit var uri: String
 }

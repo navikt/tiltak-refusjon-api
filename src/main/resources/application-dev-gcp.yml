@@ -12,4 +12,4 @@ tiltak-refusjon:
     serviceCode: 4936
     serviceEdition: 1
   abac-tilgangstyring:
-    uri: https://tiltak-proxy.dev-fss-pub.nais.io/asm-pdp/authorize
+    uri: https://tiltak-proxy.dev-fss-pub.nais.io/application/asm-pdp/authorize

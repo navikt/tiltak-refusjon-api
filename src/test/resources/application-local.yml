@@ -62,8 +62,6 @@ tiltak-refusjon:
     serviceEdition: 1
   abac-tilgangstyring:
     uri: http://localhost:${wiremock.port}/abac-tilgangstyring
-    username: na
-    password: na
   graph-api:
     uri: ""
     fake: true

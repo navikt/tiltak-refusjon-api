@@ -7,6 +7,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeAnnul
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeForkortetMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 
@@ -18,7 +19,11 @@ class RefusjonService(
         @Value("\${NAIS_APP_IMAGE:}")
         val appImageId: String
 ) {
+    val log = LoggerFactory.getLogger(javaClass)
+
     fun opprettRefusjon(tilskuddsperiodeGodkjentMelding: TilskuddsperiodeGodkjentMelding): Refusjon {
+        log.info("Oppretter refusjon for tilskuddsperiodeId ${tilskuddsperiodeGodkjentMelding.tilskuddsperiodeId}")
+
         val tilskuddsgrunnlag = Tilskuddsgrunnlag(
                 avtaleId = tilskuddsperiodeGodkjentMelding.avtaleId,
                 tilskuddsperiodeId = tilskuddsperiodeGodkjentMelding.tilskuddsperiodeId,
@@ -73,18 +78,24 @@ class RefusjonService(
     }
 
     fun annullerRefusjon(melding: TilskuddsperiodeAnnullertMelding) {
+        log.info("Annullerer refusjon med tilskuddsperiodeId ${melding.tilskuddsperiodeId}")
         val refusjon = refusjonRepository.findByTilskuddsgrunnlag_TilskuddsperiodeId(melding.tilskuddsperiodeId)
         if (refusjon != null) {
             refusjon.annuller()
             refusjonRepository.save(refusjon)
+        } else {
+            log.warn("Kunne ikke annullere refusjon med tilskuddsperiodeId ${melding.tilskuddsperiodeId}, fant ikke refusjonen")
         }
     }
 
     fun forkortRefusjon(melding: TilskuddsperiodeForkortetMelding) {
+        log.info("Forkorter refusjon med tilskuddsperiodeId ${melding.tilskuddsperiodeId} til dato ${melding.tilskuddTom} med nytt beløp ${melding.tilskuddsbeløp}")
         val refusjon = refusjonRepository.findByTilskuddsgrunnlag_TilskuddsperiodeId(melding.tilskuddsperiodeId)
         if (refusjon != null) {
             refusjon.forkort(melding.tilskuddTom, melding.tilskuddsbeløp)
             refusjonRepository.save(refusjon)
+        } else {
+            log.warn("Kunne ikke forkorte refusjon med tilskuddsperiodeId ${melding.tilskuddsperiodeId}, fant ikke refusjonen")
         }
     }
 

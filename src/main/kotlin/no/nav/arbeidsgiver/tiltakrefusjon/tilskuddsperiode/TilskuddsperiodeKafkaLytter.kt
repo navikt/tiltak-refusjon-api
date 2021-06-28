@@ -23,7 +23,7 @@ class TilskuddsperiodeKafkaLytter(val service: RefusjonService, val objectMapper
         service.annullerRefusjon(annullertMelding)
     }
 
-    @KafkaListener(topics = [Topics.TILSKUDDSPERIODE_ANNULLERT])
+    @KafkaListener(topics = [Topics.TILSKUDDSPERIODE_FORKORTET])
     fun tilskuddsperiodeForkortet(tilskuddMelding: String) {
         val forkortetMelding = objectMapper.readValue(tilskuddMelding, TilskuddsperiodeForkortetMelding::class.java)
         service.forkortRefusjon(forkortetMelding)

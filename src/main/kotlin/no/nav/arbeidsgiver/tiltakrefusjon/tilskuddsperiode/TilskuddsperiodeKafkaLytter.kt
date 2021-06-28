@@ -16,4 +16,16 @@ class TilskuddsperiodeKafkaLytter(val service: RefusjonService, val objectMapper
         val godkjentMelding = objectMapper.readValue(tilskuddMelding, TilskuddsperiodeGodkjentMelding::class.java)
         service.opprettRefusjon(godkjentMelding)
     }
+
+    @KafkaListener(topics = [Topics.TILSKUDDSPERIODE_ANNULLERT])
+    fun tilskuddsperiodeAnnullert(tilskuddMelding: String) {
+        val annullertMelding = objectMapper.readValue(tilskuddMelding, TilskuddsperiodeAnnullertMelding::class.java)
+        service.annullerRefusjon(annullertMelding)
+    }
+
+    @KafkaListener(topics = [Topics.TILSKUDDSPERIODE_ANNULLERT])
+    fun tilskuddsperiodeForkortet(tilskuddMelding: String) {
+        val forkortetMelding = objectMapper.readValue(tilskuddMelding, TilskuddsperiodeForkortetMelding::class.java)
+        service.forkortRefusjon(forkortetMelding)
+    }
 }

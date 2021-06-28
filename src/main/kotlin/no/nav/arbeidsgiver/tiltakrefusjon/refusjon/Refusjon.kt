@@ -112,6 +112,7 @@ data class Refusjon(
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING, RefusjonStatus.FOR_TIDLIG)
         tilskuddsgrunnlag.tilskuddTom = tilskuddTom
         tilskuddsgrunnlag.tilskuddsbeløp = tilskuddsbeløp
+        oppdaterStatus()
         registerEvent(RefusjonForkortet(this))
     }
 

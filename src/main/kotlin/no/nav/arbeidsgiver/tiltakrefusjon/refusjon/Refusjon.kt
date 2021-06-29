@@ -3,10 +3,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 import com.github.guepardoapps.kulid.ULID
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.GodkjentAvArbeidsgiver
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.InntekterInnhentet
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonAnnullert
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonForkortet
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.*
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.springframework.data.domain.AbstractAggregateRoot
 import java.time.Instant
@@ -105,6 +102,10 @@ data class Refusjon(
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING, RefusjonStatus.FOR_TIDLIG)
         status = RefusjonStatus.ANNULLERT
         registerEvent(RefusjonAnnullert(this))
+    }
+
+    fun refusjonKlar() {
+        registerEvent(RefusjonKlar(this))
     }
 
     fun forkort(tilskuddTom: LocalDate, tilskuddsbeløp: Int) {

@@ -32,6 +32,7 @@ class StatusJobb(val refusjonRepository: RefusjonRepository, val leaderPodCheck:
                 if (Now.localDate().isAfter(it.tilskuddsgrunnlag.tilskuddTom)) {
                     it.status = RefusjonStatus.KLAR_FOR_INNSENDING
                     antallEndretTilForTidlig++
+                    it.refusjonKlar()
                     refusjonRepository.save(it)
                 }
             } catch (e: Exception) {

@@ -15,20 +15,20 @@ class RefusjonVarselProducer(val kafkaTemplate: KafkaTemplate<String, RefusjonKl
 
     @TransactionalEventListener
     fun refusjonKlar(event: RefusjonKlar){
-        val melding = RefusjonKlarMelding(event.refusjon.tilskuddsgrunnlag.avtaleId)
-        kafkaTemplate.send(Topics.TILTAK_VARSEL, event.refusjon.tilskuddsgrunnlag.avtaleId, melding)
+        val melding = RefusjonKlarMelding(event.refusjon.tilskuddsgrunnlag.avtaleId, VarselType.KLAR)
+        kafkaTemplate.send(Topics.TILTAK_VARSEL, "${event.refusjon.id}-KLAR", melding)
             .addCallback(object : ListenableFutureCallback<SendResult<String?, RefusjonKlarMelding?>?> {
 
                 override fun onFailure(ex: Throwable) {
                     log.warn(
                         "Melding med id {} kunne ikke sendes til Kafka topic {}",
                         event.refusjon.tilskuddsgrunnlag.avtaleId,
-                        Topics.REFUSJON_GODKJENT
+                        Topics.TILTAK_VARSEL
                     )
                 }
 
                 override fun onSuccess(p0: SendResult<String?, RefusjonKlarMelding?>?) {
-                    log.info("Melding med id {} sendt til Kafka topic {}", event.refusjon.tilskuddsgrunnlag.avtaleId, Topics.REFUSJON_GODKJENT)
+                    log.info("Melding med id {} sendt til Kafka topic {}", event.refusjon.tilskuddsgrunnlag.avtaleId, Topics.TILTAK_VARSEL)
                 }
             })
 

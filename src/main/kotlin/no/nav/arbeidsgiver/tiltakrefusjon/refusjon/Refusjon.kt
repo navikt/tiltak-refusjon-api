@@ -18,7 +18,7 @@ data class Refusjon(
     val bedriftNr: String,
     val deltakerFnr: String,
 
-) : AbstractAggregateRoot<Refusjon>() {
+    ) : AbstractAggregateRoot<Refusjon>() {
     @Id
     val id: String = ULID.random()
 
@@ -89,7 +89,7 @@ data class Refusjon(
         if (inntektsgrunnlag == null || inntektsgrunnlag!!.inntekter.isEmpty()) {
             throw FeilkodeException(Feilkode.INGEN_INNTEKTER)
         }
-        if (bedriftKontonummer == null){
+        if (bedriftKontonummer == null) {
             throw FeilkodeException(Feilkode.INGEN_BEDRIFTKONTONUMMER)
         }
         godkjentAvArbeidsgiver = Now.instant()
@@ -104,8 +104,12 @@ data class Refusjon(
         registerEvent(RefusjonAnnullert(this))
     }
 
-    fun refusjonKlar() {
-        registerEvent(RefusjonKlar(this))
+    fun gjørKlarTilInnsending() {
+        krevStatus(RefusjonStatus.FOR_TIDLIG)
+        if (Now.localDate().isAfter(tilskuddsgrunnlag.tilskuddTom)) {
+            status = RefusjonStatus.KLAR_FOR_INNSENDING
+            registerEvent(RefusjonKlar(this))
+        }
     }
 
     fun forkort(tilskuddTom: LocalDate, tilskuddsbeløp: Int) {
@@ -117,7 +121,7 @@ data class Refusjon(
         registerEvent(RefusjonForkortet(this))
     }
 
-    fun oppgiBedriftKontonummer(bedrifKontonummer: String){
+    fun oppgiBedriftKontonummer(bedrifKontonummer: String) {
         bedriftKontonummer = bedrifKontonummer
         innhentetBedriftKontonummerTidspunkt = Now.localDateTime()
     }

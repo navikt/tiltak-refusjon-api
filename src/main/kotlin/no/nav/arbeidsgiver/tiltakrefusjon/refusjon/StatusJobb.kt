@@ -26,13 +26,12 @@ class StatusJobb(val refusjonRepository: RefusjonRepository, val leaderPodCheck:
 
     fun sjekkOmKlarForInnsending() {
         val refusjoner = refusjonRepository.findAllByStatus(RefusjonStatus.FOR_TIDLIG)
-        var antallEndretTilForTidlig: Int = 0;
+        var antallEndretTilKlarForInnsending: Int = 0;
         refusjoner.forEach {
             try {
                 if (Now.localDate().isAfter(it.tilskuddsgrunnlag.tilskuddTom)) {
-                    it.status = RefusjonStatus.KLAR_FOR_INNSENDING
-                    antallEndretTilForTidlig++
-                    it.refusjonKlar()
+                    it.gjørKlarTilInnsending()
+                    antallEndretTilKlarForInnsending++
                     refusjonRepository.save(it)
                 }
             } catch (e: Exception) {
@@ -40,7 +39,7 @@ class StatusJobb(val refusjonRepository: RefusjonRepository, val leaderPodCheck:
             }
 
         }
-        logger.info("Endret til KLAR_FOR_INNSENDING på $antallEndretTilForTidlig refusjoner")
+        logger.info("Endret til KLAR_FOR_INNSENDING på $antallEndretTilKlarForInnsending refusjoner")
     }
 
     fun sjekkOmUtgått() {

@@ -9,15 +9,15 @@ import org.springframework.kafka.support.SendResult
 import org.springframework.transaction.event.TransactionalEventListener
 import org.springframework.util.concurrent.ListenableFutureCallback
 
-class RefusjonVarselProducer(val kafkaTemplate: KafkaTemplate<String, RefusjonKlarMelding>, val objectMapper: ObjectMapper) {
+class RefusjonVarselProducer(val kafkaTemplate: KafkaTemplate<String, RefusjonVarselMelding>, val objectMapper: ObjectMapper) {
 
     val log = LoggerFactory.getLogger(RefusjonVarselProducer::class.java)
 
     @TransactionalEventListener
     fun refusjonKlar(event: RefusjonKlar){
-        val melding = RefusjonKlarMelding(event.refusjon.tilskuddsgrunnlag.avtaleId, VarselType.KLAR)
+        val melding = RefusjonVarselMelding(event.refusjon.tilskuddsgrunnlag.avtaleId, VarselType.KLAR)
         kafkaTemplate.send(Topics.TILTAK_VARSEL, "${event.refusjon.id}-KLAR", melding)
-            .addCallback(object : ListenableFutureCallback<SendResult<String?, RefusjonKlarMelding?>?> {
+            .addCallback(object : ListenableFutureCallback<SendResult<String?, RefusjonVarselMelding?>?> {
 
                 override fun onFailure(ex: Throwable) {
                     log.warn(
@@ -27,7 +27,7 @@ class RefusjonVarselProducer(val kafkaTemplate: KafkaTemplate<String, RefusjonKl
                     )
                 }
 
-                override fun onSuccess(p0: SendResult<String?, RefusjonKlarMelding?>?) {
+                override fun onSuccess(p0: SendResult<String?, RefusjonVarselMelding?>?) {
                     log.info("Melding med id {} sendt til Kafka topic {}", event.refusjon.tilskuddsgrunnlag.avtaleId, Topics.TILTAK_VARSEL)
                 }
             })

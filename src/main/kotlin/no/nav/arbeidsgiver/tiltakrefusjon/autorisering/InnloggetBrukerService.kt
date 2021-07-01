@@ -18,7 +18,7 @@ class InnloggetBrukerService(
         val refusjonRepository: RefusjonRepository,
         val refusjonService: RefusjonService
 ) {
-    var logger: Logger = LoggerFactory.getLogger(InnloggetBrukerService::class.java)
+    var logger: Logger = LoggerFactory.getLogger(javaClass)
 
     fun erArbeidsgiver(): Boolean {
         return context.tokenValidationContext.hasTokenFor("tokenx")

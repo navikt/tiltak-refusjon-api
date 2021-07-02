@@ -16,6 +16,15 @@ data class InnloggetSaksbehandler(
 
     fun finnAlle(queryParametre: HentSaksbehandlerRefusjonerQueryParametre): List<Refusjon> {
         var liste = refusjonRepository.findAll()
+        if (!queryParametre.enhet.isNullOrBlank()) {
+            liste = liste.filter { queryParametre.enhet == it.tilskuddsgrunnlag.enhet }
+        }
+        if (!queryParametre.veilederNavIdent.isNullOrBlank()) {
+            liste = liste.filter { queryParametre.veilederNavIdent == it.tilskuddsgrunnlag.veilederNavIdent }
+        }
+        if (!queryParametre.deltakerFnr.isNullOrBlank()) {
+            liste = liste.filter { queryParametre.deltakerFnr == it.deltakerFnr }
+        }
         if (!queryParametre.bedriftNr.isNullOrBlank()) {
             liste = liste.filter { queryParametre.bedriftNr == it.bedriftNr }
         }

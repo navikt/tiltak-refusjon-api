@@ -1,0 +1,1 @@
+alter table tilskuddsgrunnlag add column enhet varchar;

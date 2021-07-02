@@ -43,6 +43,7 @@ class RefusjonService(
                 lønnstilskuddsprosent = tilskuddsperiodeGodkjentMelding.lønnstilskuddsprosent,
                 avtaleNr = tilskuddsperiodeGodkjentMelding.avtaleNr,
                 løpenummer = tilskuddsperiodeGodkjentMelding.løpenummer,
+                enhet = tilskuddsperiodeGodkjentMelding.enhet,
         )
         val refusjon = Refusjon(
                 tilskuddsgrunnlag = tilskuddsgrunnlag,

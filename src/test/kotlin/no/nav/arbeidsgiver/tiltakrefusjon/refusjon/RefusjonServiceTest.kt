@@ -45,7 +45,8 @@ class RefusjonServiceTest(
             veilederNavIdent = "X123456",
             lønnstilskuddsprosent = 60,
             avtaleNr = 3456,
-            løpenummer = 3
+            løpenummer = 3,
+            enhet = "1000"
         )
         refusjonService.opprettRefusjon(tilskuddMelding)
         var lagretRefusjon = refusjonRepository.findAllByDeltakerFnr(deltakerFnr)[0]

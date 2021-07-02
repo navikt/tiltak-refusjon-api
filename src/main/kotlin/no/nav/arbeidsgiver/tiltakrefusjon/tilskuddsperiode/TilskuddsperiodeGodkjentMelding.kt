@@ -22,5 +22,6 @@ data class TilskuddsperiodeGodkjentMelding(
         val arbeidsgiveravgiftSats: Double,
         val lønnstilskuddsprosent: Int,
         val avtaleNr: Int,
-        val løpenummer: Int
+        val løpenummer: Int,
+        val enhet: String,
 )

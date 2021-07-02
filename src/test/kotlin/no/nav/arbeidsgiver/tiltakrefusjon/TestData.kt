@@ -67,6 +67,7 @@ fun etTilskuddsgrunnlag() = Tilskuddsgrunnlag(
     tilskuddsbeløp = 13579,
     avtaleNr = 3456,
     løpenummer = 3,
+    enhet = "1000"
 )
 
 fun `Alexander Kielland`(): Refusjon {

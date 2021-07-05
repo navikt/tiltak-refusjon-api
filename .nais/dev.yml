@@ -6,4 +6,4 @@ tenant: trygdeetaten.no
 slack_alert_channel: arbeidsgiver-notifications-test
 kafka-pool: nav-dev
 env:
-  PROXY_CLIENT_ID: dev-gcp.arbeidsgiver.tiltak-refusjon-api
+  PROXY_CLIENT_ID: dev-fss.arbeidsgiver.tiltak-proxy

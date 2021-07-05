@@ -6,4 +6,4 @@ tenant: nav.no
 slack_alert_channel: arbeidsgiver-tiltak-alerts
 kafka-pool: nav-prod
 env:
-  PROXY_CLIENT_ID: prod-gcp.arbeidsgiver.tiltak-refusjon-api
+  PROXY_CLIENT_ID: prod-fss.arbeidsgiver.tiltak-proxy

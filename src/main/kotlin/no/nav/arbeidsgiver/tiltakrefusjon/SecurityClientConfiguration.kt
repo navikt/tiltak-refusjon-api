@@ -15,7 +15,7 @@ import org.springframework.web.client.RestTemplate
 
 @EnableOAuth2Client(cacheEnabled = true)
 @Configuration
-@Profile("dev-gcp")
+@Profile("dev-gcp", "prod-gcp")
 class SecurityClientConfiguration(
         val restTemplateBuilder: RestTemplateBuilder,
         val clientConfigurationProperties: ClientConfigurationProperties,

@@ -5,13 +5,20 @@ import no.nav.arbeidsgiver.tiltakrefusjon.Topics
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonService
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.kafka.annotation.KafkaListener
+import org.springframework.kafka.annotation.PartitionOffset
+import org.springframework.kafka.annotation.TopicPartition
 import org.springframework.stereotype.Component
 
 @ConditionalOnProperty("tiltak-refusjon.kafka.enabled")
 @Component
 class TilskuddsperiodeKafkaLytter(val service: RefusjonService, val objectMapper: ObjectMapper) {
 
-    @KafkaListener(topics = [Topics.TILSKUDDSPERIODE_GODKJENT])
+    @KafkaListener(
+        topics = [Topics.TILSKUDDSPERIODE_GODKJENT],
+        topicPartitions = [
+            TopicPartition(topic = Topics.TILSKUDDSPERIODE_GODKJENT, partitionOffsets = [PartitionOffset(partition = "0", initialOffset = "0")])
+        ]
+    )
     fun tilskuddsperiodeGodkjent(tilskuddMelding: String) {
         val godkjentMelding = objectMapper.readValue(tilskuddMelding, TilskuddsperiodeGodkjentMelding::class.java)
         service.opprettRefusjon(godkjentMelding)

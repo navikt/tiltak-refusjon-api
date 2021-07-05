@@ -12,7 +12,7 @@ import java.net.URI
 @Service
 class AltinnTilgangsstyringService(
     val altinnTilgangsstyringProperties: AltinnTilgangsstyringProperties,
-    @Qualifier("påVegneAvArbeidsgiverProxyRestTemplate")
+    @Qualifier("påVegneAvArbeidsgiverAltinnRestTemplate")
     val restTemplate: RestTemplate,
 ) {
 

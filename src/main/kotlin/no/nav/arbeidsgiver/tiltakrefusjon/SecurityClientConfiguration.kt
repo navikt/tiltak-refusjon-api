@@ -29,7 +29,7 @@ class SecurityClientConfiguration(
     fun påVegneAvSaksbehandlerProxyRestTemplate() = restTemplateForRegistration("aad")
 
     @Bean
-    fun påVegneAvArbeidsgiverProxyRestTemplate() = restTemplateForRegistration("tokenx")
+    fun påVegneAvArbeidsgiverAltinnRestTemplate() = restTemplateForRegistration("tokenx-altinn")
 
     @Bean
     fun anonymProxyRestTemplate() = restTemplateForRegistration("aad-anonym")

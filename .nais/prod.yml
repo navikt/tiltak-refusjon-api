@@ -1,0 +1,10 @@
+host:
+  - api-gw.oera.no
+  - tiltak-proxy.prod-fss-pub.nais.io
+  - graph.microsoft.com
+  - login.microsoftonline.com
+tenant: nav.no
+slack_alert_channel: arbeidsgiver-tiltak-alerts
+kafka-pool: nav-prod
+env:
+  PROXY_CLIENT_ID: prod-gcp.arbeidsgiver.tiltak-refusjon-api

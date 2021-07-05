@@ -31,6 +31,8 @@ spec:
       {{#each host}}
         - host: "{{this}}"
       {{/each}}
+      rules:
+        - application: altinn-rettigheter-proxy
   kafka:
     pool: {{kafka-pool}}
   envFrom:

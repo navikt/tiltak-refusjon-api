@@ -1,0 +1,15 @@
+tiltak-refusjon:
+  kontoregister:
+    uri: https://tiltak-proxy.prod-fss-pub.nais.io/kontoregister/api/v1/hent-kontonummer-for-organisasjon
+    consumer-id: tiltak-refusjon-api
+  inntektskomponenten:
+    uri: https://tiltak-proxy.prod-fss-pub.nais.io/inntektskomponenten-ws/rs/api/v1/hentinntektliste
+    filter: KontrollArbeidsmarkedstiltakA-inntekt
+    consumer-id: tiltak-refusjon-api
+  altinn-tilgangstyring:
+    uri: http://altinn-rettigheter-proxy/ekstern/altinn/api/serviceowner/reportees
+    beOmRettighetBaseUrl: https://arbeidsgiver.nav.no/min-side-arbeidsgiver/?fragment=be-om-tilgang
+    serviceCode: 4936
+    serviceEdition: 1
+  abac-tilgangstyring:
+    uri: https://tiltak-proxy.prod-fss-pub.nais.io/application/asm-pdp/authorize

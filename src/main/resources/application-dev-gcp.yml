@@ -7,7 +7,7 @@ tiltak-refusjon:
     filter: KontrollArbeidsmarkedstiltakA-inntekt
     consumer-id: tiltak-refusjon-api
   altinn-tilgangstyring:
-    uri: http://altinn-rettigheter-proxy/ekstern/altinn/api/serviceowner/reportees
+    uri: http://altinn-rettigheter-proxy/altinn-rettigheter-proxy/ekstern/altinn/api/serviceowner/reportees
     beOmRettighetBaseUrl: https://arbeidsgiver-q.nav.no/min-side-arbeidsgiver/?fragment=be-om-tilgang
     serviceCode: 4936
     serviceEdition: 1

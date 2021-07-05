@@ -49,3 +49,4 @@ spec:
         databases:
           - name: tiltak-refusjon
             envVarPrefix: DB
+

@@ -74,4 +74,36 @@ class RefusjonServiceTest(
         refusjonService.gjørInntektsoppslag(refusjon)
         assertThat(refusjon.beregning?.appImageId).isEqualTo("test")
     }
+
+    @Test
+    fun `kaller opprett på samme melding flere ganger, skal bare lagre den ene`() {
+        val deltakerFnr = "00000000000"
+        val tilskuddMelding = TilskuddsperiodeGodkjentMelding(
+            avtaleId = "1",
+            tilskuddsbeløp = 1000,
+            tiltakstype = Tiltakstype.SOMMERJOBB,
+            deltakerEtternavn = "Mus",
+            deltakerFornavn = "Mikke",
+            arbeidsgiveravgiftSats = 0.101,
+            avtaleInnholdId = "2",
+            bedriftNavn = "Bedriften AS",
+            bedriftNr = "999999999",
+            deltakerFnr = deltakerFnr,
+            feriepengerSats = 0.141,
+            otpSats = 0.02,
+            tilskuddFom = Now.localDate().minusWeeks(4).plusDays(1),
+            tilskuddTom = Now.localDate(),
+            tilskuddsperiodeId = "3",
+            veilederNavIdent = "X123456",
+            lønnstilskuddsprosent = 60,
+            avtaleNr = 3456,
+            løpenummer = 3,
+            enhet = "1000"
+        )
+        refusjonService.opprettRefusjon(tilskuddMelding)
+        refusjonService.opprettRefusjon(tilskuddMelding)
+
+        assertThat(refusjonRepository.findAll().filter { it.tilskuddsgrunnlag.tilskuddsperiodeId == tilskuddMelding.tilskuddsperiodeId }).hasSize(1)
+
+    }
 }

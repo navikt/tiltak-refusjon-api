@@ -11,11 +11,21 @@ data class InnloggetSaksbehandler(
     val identifikator: String,
     val navn: String,
     @JsonIgnore val abacTilgangsstyringService: AbacTilgangsstyringService,
-    @JsonIgnore val refusjonRepository: RefusjonRepository
+    @JsonIgnore val refusjonRepository: RefusjonRepository,
 ) {
 
     fun finnAlle(queryParametre: HentSaksbehandlerRefusjonerQueryParametre): List<Refusjon> {
-        var liste = refusjonRepository.findAll()
+        var liste =
+            if (!queryParametre.bedriftNr.isNullOrBlank()) {
+                refusjonRepository.findAllByBedriftNr(queryParametre.bedriftNr)
+            } else if (!queryParametre.veilederNavIdent.isNullOrBlank()) {
+                refusjonRepository.findAllByTilskuddsgrunnlag_VeilederNavIdent(queryParametre.veilederNavIdent)
+            } else if (!queryParametre.deltakerFnr.isNullOrBlank()) {
+                refusjonRepository.findAllByDeltakerFnr(queryParametre.deltakerFnr)
+            } else {
+                refusjonRepository.findAll()
+            }
+
         if (!queryParametre.enhet.isNullOrBlank()) {
             liste = liste.filter { queryParametre.enhet == it.tilskuddsgrunnlag.enhet }
         }
@@ -44,9 +54,9 @@ data class InnloggetSaksbehandler(
 
     private fun medLesetilgang(refusjoner: List<Refusjon>): List<Refusjon> {
         return refusjoner
-                .filter {
-                    abacTilgangsstyringService.harLeseTilgang(identifikator, it.deltakerFnr)
-                }
+            .filter {
+                abacTilgangsstyringService.harLeseTilgang(identifikator, it.deltakerFnr)
+            }
     }
 
     private fun hvisLesetilgang(refusjon: Refusjon): Refusjon {

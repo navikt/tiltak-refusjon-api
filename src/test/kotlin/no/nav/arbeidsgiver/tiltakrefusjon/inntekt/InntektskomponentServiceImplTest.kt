@@ -34,5 +34,17 @@ class InntektskomponentServiceImplTest {
         assertThat(inntekter.second).containsSubsequence("arbeidsInntektMaaned") // Property på høyeste nivå i JSON-responsen
     }
 
+    @Test
+    fun `kall med respons uten inntekt`() {
+        val inntekter = inntektskomponentService.hentInntekter(
+            "25119525430",
+            "999999999",
+            LocalDate.of(2020, 9, 1),
+            LocalDate.of(2020, 10, 1)
+        )
+        assertThat(inntekter.first).hasSize(0)
+        assertThat(inntekter.second).containsSubsequence("arbeidsInntektMaaned") // Property på høyeste nivå i JSON-responsen
+    }
+
     // TODO: Skriv flere tester som treffer feilsituasjoner
 }

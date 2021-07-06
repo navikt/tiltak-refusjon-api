@@ -15,7 +15,7 @@ import org.springframework.web.client.RestTemplate
 
 @EnableOAuth2Client(cacheEnabled = true)
 @Configuration
-@Profile("dev-gcp")
+@Profile("dev-gcp", "prod-gcp")
 class SecurityClientConfiguration(
         val restTemplateBuilder: RestTemplateBuilder,
         val clientConfigurationProperties: ClientConfigurationProperties,
@@ -29,7 +29,7 @@ class SecurityClientConfiguration(
     fun påVegneAvSaksbehandlerProxyRestTemplate() = restTemplateForRegistration("aad")
 
     @Bean
-    fun påVegneAvArbeidsgiverProxyRestTemplate() = restTemplateForRegistration("tokenx")
+    fun påVegneAvArbeidsgiverAltinnRestTemplate() = restTemplateForRegistration("tokenx-altinn")
 
     @Bean
     fun anonymProxyRestTemplate() = restTemplateForRegistration("aad-anonym")

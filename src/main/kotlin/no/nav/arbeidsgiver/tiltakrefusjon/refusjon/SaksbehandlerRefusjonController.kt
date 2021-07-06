@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController
 
 const val REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON = "/api/saksbehandler/refusjon"
 
-data class HentSaksbehandlerRefusjonerQueryParametre(val bedriftNr: String? = null, val status: RefusjonStatus? = null, val tiltakstype: Tiltakstype? = null)
+data class HentSaksbehandlerRefusjonerQueryParametre(val veilederNavIdent: String? = null, val enhet: String? = null, val deltakerFnr: String? = null, val bedriftNr: String? = null, val status: RefusjonStatus? = null, val tiltakstype: Tiltakstype? = null)
 
 @RestController
 @RequestMapping(REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON)

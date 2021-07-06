@@ -1,5 +1,4 @@
 host:
-  - api-gw-q0.oera.no
   - tiltak-proxy.dev-fss-pub.nais.io
   - graph.microsoft.com
   - login.microsoftonline.com
@@ -7,4 +6,4 @@ tenant: trygdeetaten.no
 slack_alert_channel: arbeidsgiver-notifications-test
 kafka-pool: nav-dev
 env:
-  PROXY_CLIENT_ID: 32367bac-c59c-43ee-907d-d970e5579860
+  PROXY_CLIENT_ID: dev-fss.arbeidsgiver.tiltak-proxy

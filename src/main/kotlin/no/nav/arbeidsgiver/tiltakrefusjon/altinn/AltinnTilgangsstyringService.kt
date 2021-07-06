@@ -1,5 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.altinn
 
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
@@ -9,19 +10,22 @@ import org.springframework.web.util.UriComponentsBuilder
 import java.net.URI
 
 @Service
-class AltinnTilgangsstyringService(val altinnTilgangsstyringProperties: AltinnTilgangsstyringProperties) {
+class AltinnTilgangsstyringService(
+    val altinnTilgangsstyringProperties: AltinnTilgangsstyringProperties,
+    @Qualifier("påVegneAvArbeidsgiverAltinnRestTemplate")
+    val restTemplate: RestTemplate,
+) {
 
     private val ALTINN_ORG_PAGE_SIZE = 999
-    private val restTemplate: RestTemplate = RestTemplate()
 
     fun hentTilganger(fnr: String): Set<Organisasjon> {
         try {
             return restTemplate.exchange(
-                    lagAltinnUrl(fnr),
-                    HttpMethod.GET,
-                    getAuthHeadersForAltinn(),
-                    Array<Organisasjon>::class.java).body?.toSet()
-                    ?: return emptySet()
+                lagAltinnUrl(fnr),
+                HttpMethod.GET,
+                getAuthHeadersForAltinn(),
+                Array<Organisasjon>::class.java).body?.toSet()
+                ?: return emptySet()
         } catch (exception: RuntimeException) {
             throw AltinnFeilException("Altinn feil", exception)
         }
@@ -29,19 +33,18 @@ class AltinnTilgangsstyringService(val altinnTilgangsstyringProperties: AltinnTi
 
     private fun lagAltinnUrl(fnr: String): URI {
         return UriComponentsBuilder.fromUri(altinnTilgangsstyringProperties.uri)
-                .queryParam("ForceEIAuthentication")
-                .queryParam("subject", fnr)
-                .queryParam("serviceCode", altinnTilgangsstyringProperties.serviceCode)
-                .queryParam("serviceEdition", altinnTilgangsstyringProperties.serviceEdition)
-                .queryParam("\$top", ALTINN_ORG_PAGE_SIZE)
-                .queryParam("\$filter", "Type+ne+'Person'")
-                .build()
-                .toUri()
+            .queryParam("ForceEIAuthentication")
+            .queryParam("subject", fnr)
+            .queryParam("serviceCode", altinnTilgangsstyringProperties.serviceCode)
+            .queryParam("serviceEdition", altinnTilgangsstyringProperties.serviceEdition)
+            .queryParam("\$top", ALTINN_ORG_PAGE_SIZE)
+            .queryParam("\$filter", "Type+ne+'Person'")
+            .build()
+            .toUri()
     }
 
-    private fun getAuthHeadersForAltinn(): HttpEntity<HttpHeaders?>? {
+    private fun getAuthHeadersForAltinn(): HttpEntity<HttpHeaders?> {
         val headers = HttpHeaders()
-        headers["X-NAV-APIKEY"] = altinnTilgangsstyringProperties.apiGwApiKey
         headers["APIKEY"] = altinnTilgangsstyringProperties.altinnApiKey
         return HttpEntity(headers)
     }

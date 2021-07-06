@@ -11,19 +11,25 @@ import org.springframework.stereotype.Component
 @Component
 class TilskuddsperiodeKafkaLytter(val service: RefusjonService, val objectMapper: ObjectMapper) {
 
-    @KafkaListener(topics = [Topics.TILSKUDDSPERIODE_GODKJENT])
+    @KafkaListener(
+        topics = [Topics.TILSKUDDSPERIODE_GODKJENT]
+    )
     fun tilskuddsperiodeGodkjent(tilskuddMelding: String) {
         val godkjentMelding = objectMapper.readValue(tilskuddMelding, TilskuddsperiodeGodkjentMelding::class.java)
         service.opprettRefusjon(godkjentMelding)
     }
 
-    @KafkaListener(topics = [Topics.TILSKUDDSPERIODE_ANNULLERT])
+    @KafkaListener(
+        topics = [Topics.TILSKUDDSPERIODE_ANNULLERT],
+    )
     fun tilskuddsperiodeAnnullert(tilskuddMelding: String) {
         val annullertMelding = objectMapper.readValue(tilskuddMelding, TilskuddsperiodeAnnullertMelding::class.java)
         service.annullerRefusjon(annullertMelding)
     }
 
-    @KafkaListener(topics = [Topics.TILSKUDDSPERIODE_FORKORTET])
+    @KafkaListener(
+        topics = [Topics.TILSKUDDSPERIODE_FORKORTET],
+    )
     fun tilskuddsperiodeForkortet(tilskuddMelding: String) {
         val forkortetMelding = objectMapper.readValue(tilskuddMelding, TilskuddsperiodeForkortetMelding::class.java)
         service.forkortRefusjon(forkortetMelding)

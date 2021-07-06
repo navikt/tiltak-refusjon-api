@@ -8,15 +8,24 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonRepository
 import org.springframework.data.repository.findByIdOrNull
 
 data class InnloggetSaksbehandler(
-        val ident: String,
-        val navn: String,
-        @JsonIgnore val abacTilgangsstyringService: AbacTilgangsstyringService,
-        @JsonIgnore val refusjonRepository: RefusjonRepository
+    val identifikator: String,
+    val navn: String,
+    @JsonIgnore val abacTilgangsstyringService: AbacTilgangsstyringService,
+    @JsonIgnore val refusjonRepository: RefusjonRepository
 ) {
 
     fun finnAlle(queryParametre: HentSaksbehandlerRefusjonerQueryParametre): List<Refusjon> {
         var liste = refusjonRepository.findAll()
-        if (queryParametre.bedriftNr != null) {
+        if (!queryParametre.enhet.isNullOrBlank()) {
+            liste = liste.filter { queryParametre.enhet == it.tilskuddsgrunnlag.enhet }
+        }
+        if (!queryParametre.veilederNavIdent.isNullOrBlank()) {
+            liste = liste.filter { queryParametre.veilederNavIdent == it.tilskuddsgrunnlag.veilederNavIdent }
+        }
+        if (!queryParametre.deltakerFnr.isNullOrBlank()) {
+            liste = liste.filter { queryParametre.deltakerFnr == it.deltakerFnr }
+        }
+        if (!queryParametre.bedriftNr.isNullOrBlank()) {
             liste = liste.filter { queryParametre.bedriftNr == it.bedriftNr }
         }
         if (queryParametre.status != null) {
@@ -36,12 +45,12 @@ data class InnloggetSaksbehandler(
     private fun medLesetilgang(refusjoner: List<Refusjon>): List<Refusjon> {
         return refusjoner
                 .filter {
-                    abacTilgangsstyringService.harLeseTilgang(ident, it.deltakerFnr)
+                    abacTilgangsstyringService.harLeseTilgang(identifikator, it.deltakerFnr)
                 }
     }
 
     private fun hvisLesetilgang(refusjon: Refusjon): Refusjon {
-        if (abacTilgangsstyringService.harLeseTilgang(ident, refusjon.deltakerFnr)) {
+        if (abacTilgangsstyringService.harLeseTilgang(identifikator, refusjon.deltakerFnr)) {
             return refusjon
         }
         throw TilgangskontrollException()

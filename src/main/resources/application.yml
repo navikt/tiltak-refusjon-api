@@ -15,7 +15,7 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
     consumer:
-      group-id: "tiltak-refusjon-api"
+      group-id: "tiltak-refusjon-api-4"
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 
@@ -90,15 +90,15 @@ no.nav.security.jwt:
           client-id: ${AZURE_APP_CLIENT_ID}
           client-secret: ${AZURE_APP_CLIENT_SECRET}
           client-auth-method: client_secret_basic
-      tokenx:
-        token-endpoint-url: https://tokendings.dev-gcp.nais.io/token
+      tokenx-altinn:
+        token-endpoint-url: https://tokendings.${NAIS_CLUSTER_NAME}.nais.io/token
         grant-type: urn:ietf:params:oauth:grant-type:token-exchange
         authentication:
           client-id: ${TOKEN_X_CLIENT_ID}
           client-jwk: /var/run/secrets/nais.io/jwker/TOKEN_X_PRIVATE_JWK
           client-auth-method: private_key_jwt
         token-exchange:
-          audience: "dev-fss:arbeidsgiver:tiltak-proxy"
+          audience: ${NAIS_CLUSTER_NAME}:arbeidsgiver:altinn-rettigheter-proxy
 
 tiltak-refusjon:
   kafka:

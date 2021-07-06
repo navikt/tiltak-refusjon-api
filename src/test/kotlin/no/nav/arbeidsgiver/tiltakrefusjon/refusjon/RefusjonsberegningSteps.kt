@@ -61,7 +61,8 @@ class RefusjonsberegningSteps {
             tilskuddsbeløp = 10000000,
             lønnstilskuddsprosent = angittLonnstilskuddProsent,
             avtaleNr = 3456,
-            løpenummer = 3
+            løpenummer = 3,
+            enhet = "1000"
         )
     }
 

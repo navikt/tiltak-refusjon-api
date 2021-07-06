@@ -38,13 +38,26 @@ class TilskuddsperiodeLytterTest {
     fun `skal opprette refusjon når melding blir lest fra topic`() {
         // GITT
         val tilskuddMelding = TilskuddsperiodeGodkjentMelding(
-            UUID.randomUUID().toString(),
-            UUID.randomUUID().toString(), UUID.randomUUID().toString(),
-            Tiltakstype.VARIG_LONNSTILSKUDD, "Donald",
-            "Duck", "12345678901", "X123456",
-            "Duck Levering AS", "99999999", 12000,
-            LocalDate.now().minusDays(15), LocalDate.now(), 0.12, 0.02, 0.141, 60, 3456,
-            3
+            avtaleId = UUID.randomUUID().toString(),
+            tilskuddsperiodeId = UUID.randomUUID().toString(),
+            avtaleInnholdId = UUID.randomUUID().toString(),
+            tiltakstype = Tiltakstype.VARIG_LONNSTILSKUDD,
+            deltakerFornavn = "Donald",
+            deltakerEtternavn = "Duck",
+            deltakerFnr = "12345678901",
+            veilederNavIdent = "X123456",
+            bedriftNavn = "Duck Levering AS",
+            bedriftNr = "99999999",
+            tilskuddsbeløp = 12000,
+            tilskuddFom = LocalDate.now().minusDays(15),
+            tilskuddTom = LocalDate.now(),
+            feriepengerSats = 0.12,
+            otpSats = 0.02,
+            arbeidsgiveravgiftSats = 0.141,
+            lønnstilskuddsprosent = 60,
+            avtaleNr = 3456,
+            løpenummer = 3,
+            enhet = "1000"
         )
 
         // NÅR

@@ -21,8 +21,13 @@ class RefusjonService(
 ) {
     val log = LoggerFactory.getLogger(javaClass)
 
-    fun opprettRefusjon(tilskuddsperiodeGodkjentMelding: TilskuddsperiodeGodkjentMelding): Refusjon {
+    fun opprettRefusjon(tilskuddsperiodeGodkjentMelding: TilskuddsperiodeGodkjentMelding) {
         log.info("Oppretter refusjon for tilskuddsperiodeId ${tilskuddsperiodeGodkjentMelding.tilskuddsperiodeId}")
+
+        if (refusjonRepository.findByTilskuddsgrunnlag_TilskuddsperiodeId(tilskuddsperiodeGodkjentMelding.tilskuddsperiodeId) != null) {
+            log.warn("Refusjon finnes allerede for tilskuddsperiode med id ${tilskuddsperiodeGodkjentMelding.tilskuddsperiodeId}")
+            return;
+        }
 
         val tilskuddsgrunnlag = Tilskuddsgrunnlag(
                 avtaleId = tilskuddsperiodeGodkjentMelding.avtaleId,
@@ -43,13 +48,15 @@ class RefusjonService(
                 lønnstilskuddsprosent = tilskuddsperiodeGodkjentMelding.lønnstilskuddsprosent,
                 avtaleNr = tilskuddsperiodeGodkjentMelding.avtaleNr,
                 løpenummer = tilskuddsperiodeGodkjentMelding.løpenummer,
+                enhet = tilskuddsperiodeGodkjentMelding.enhet,
         )
         val refusjon = Refusjon(
                 tilskuddsgrunnlag = tilskuddsgrunnlag,
                 deltakerFnr = tilskuddsperiodeGodkjentMelding.deltakerFnr,
                 bedriftNr = tilskuddsperiodeGodkjentMelding.bedriftNr,
         )
-        return refusjonRepository.save(refusjon)
+
+        refusjonRepository.save(refusjon)
     }
 
     fun gjørInntektsoppslag(refusjon: Refusjon) {

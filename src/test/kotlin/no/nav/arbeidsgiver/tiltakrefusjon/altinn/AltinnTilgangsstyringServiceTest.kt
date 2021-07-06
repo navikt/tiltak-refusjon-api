@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock
 import org.springframework.test.context.ActiveProfiles
+import org.springframework.web.client.RestTemplate
 
 
 @SpringBootTest
@@ -30,7 +31,7 @@ class AltinnTilgangsstyringServiceTest {
         every { context.tokenValidationContext.getClaims(any()).getStringClaim("pid") } returns fnr.verdi
 
         // NÅR
-        val organisasjoner: Set<Organisasjon>? = altinnTilgangsstyringService.hentTilganger(fnr.verdi)
+        val organisasjoner: Set<Organisasjon> = altinnTilgangsstyringService.hentTilganger(fnr.verdi)
 
         // SÅ
         assertThat(organisasjoner).hasSize(8)
@@ -40,7 +41,7 @@ class AltinnTilgangsstyringServiceTest {
     fun `skal kaste en Altinnfeil om personen ikke finnes`(@Autowired altinnTilgangsstyringProperties: AltinnTilgangsstyringProperties) {
         // GITT
         altinnTilgangsstyringProperties.serviceCode = 4936
-        val fnr = Fnr("01234567890")
+        val fnr = Fnr("21234567890")
         every { context.tokenValidationContext.getClaims(any()).getStringClaim("pid") } returns fnr.verdi
 
         // NÅR
@@ -53,12 +54,12 @@ class AltinnTilgangsstyringServiceTest {
     fun `skal returnere en tom liste med organisasjoner om personen ikke har tilgang`(@Autowired altinnTilgangsstyringProperties: AltinnTilgangsstyringProperties) {
         // GITT
         altinnTilgangsstyringProperties.serviceCode = 5516
-        altinnTilgangsstyringService = AltinnTilgangsstyringService(altinnTilgangsstyringProperties)
-        val fnr = Fnr("01234567890")
+        altinnTilgangsstyringService = AltinnTilgangsstyringService(altinnTilgangsstyringProperties, RestTemplate())
+        val fnr = Fnr("21234567890")
         every { context.tokenValidationContext.getClaims(any()).getStringClaim("pid") } returns fnr.verdi
 
         // NÅR
-        val organisasjoner: Set<Organisasjon>? = altinnTilgangsstyringService.hentTilganger(fnr.verdi)
+        val organisasjoner: Set<Organisasjon> = altinnTilgangsstyringService.hentTilganger(fnr.verdi)
 
         // SÅ
         assertThat(organisasjoner).hasSize(0)
@@ -68,13 +69,13 @@ class AltinnTilgangsstyringServiceTest {
     fun `skal kasten en exception om feil serviceCode er gitt`(@Autowired altinnTilgangsstyringProperties: AltinnTilgangsstyringProperties) {
         // GITT
         altinnTilgangsstyringProperties.serviceCode = 0
-        altinnTilgangsstyringService = AltinnTilgangsstyringService(altinnTilgangsstyringProperties)
-        val fnr = Fnr("01234567890")
+        altinnTilgangsstyringService = AltinnTilgangsstyringService(altinnTilgangsstyringProperties, RestTemplate())
+        val fnr = Fnr("21234567890")
         every { context.tokenValidationContext.getClaims(any()).getStringClaim("pid") } returns fnr.verdi
 
         // NÅR
         assertThrows<AltinnFeilException> {
-            val organisasjoner: Set<Organisasjon>? = altinnTilgangsstyringService.hentTilganger(fnr.verdi)
+            val organisasjoner: Set<Organisasjon> = altinnTilgangsstyringService.hentTilganger(fnr.verdi)
         }
     }
 

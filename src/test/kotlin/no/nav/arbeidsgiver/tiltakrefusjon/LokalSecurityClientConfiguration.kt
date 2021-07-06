@@ -13,7 +13,7 @@ class LokalSecurityClientConfiguration(val restTemplateBuilder: RestTemplateBuil
     fun påVegneAvSaksbehandlerProxyRestTemplate() = restTemplateBuilder.build()
 
     @Bean
-    fun påVegneAvArbeidsgiverProxyRestTemplate() = restTemplateBuilder.build()
+    fun påVegneAvArbeidsgiverAltinnRestTemplate() = restTemplateBuilder.build()
 
     @Bean
     fun anonymProxyRestTemplate() = restTemplateBuilder.build()

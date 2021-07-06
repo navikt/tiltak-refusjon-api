@@ -5,8 +5,6 @@ import no.nav.arbeidsgiver.tiltakrefusjon.Topics
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonService
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.kafka.annotation.KafkaListener
-import org.springframework.kafka.annotation.PartitionOffset
-import org.springframework.kafka.annotation.TopicPartition
 import org.springframework.stereotype.Component
 
 @ConditionalOnProperty("tiltak-refusjon.kafka.enabled")
@@ -14,12 +12,7 @@ import org.springframework.stereotype.Component
 class TilskuddsperiodeKafkaLytter(val service: RefusjonService, val objectMapper: ObjectMapper) {
 
     @KafkaListener(
-        topics = [Topics.TILSKUDDSPERIODE_GODKJENT],
-        topicPartitions = [
-            TopicPartition(topic = Topics.TILSKUDDSPERIODE_GODKJENT, partitionOffsets = [PartitionOffset(partition = "0", initialOffset = "0")])
-        ],
-        concurrency = "1",
-        groupId = "tiltak-refusjon-api-4"
+        topics = [Topics.TILSKUDDSPERIODE_GODKJENT]
     )
     fun tilskuddsperiodeGodkjent(tilskuddMelding: String) {
         val godkjentMelding = objectMapper.readValue(tilskuddMelding, TilskuddsperiodeGodkjentMelding::class.java)
@@ -28,10 +21,6 @@ class TilskuddsperiodeKafkaLytter(val service: RefusjonService, val objectMapper
 
     @KafkaListener(
         topics = [Topics.TILSKUDDSPERIODE_ANNULLERT],
-        topicPartitions = [
-            TopicPartition(topic = Topics.TILSKUDDSPERIODE_ANNULLERT, partitionOffsets = [PartitionOffset(partition = "0", initialOffset = "0")])
-        ],
-        groupId = "tiltak-refusjon-api-3"
     )
     fun tilskuddsperiodeAnnullert(tilskuddMelding: String) {
         val annullertMelding = objectMapper.readValue(tilskuddMelding, TilskuddsperiodeAnnullertMelding::class.java)
@@ -40,10 +29,6 @@ class TilskuddsperiodeKafkaLytter(val service: RefusjonService, val objectMapper
 
     @KafkaListener(
         topics = [Topics.TILSKUDDSPERIODE_FORKORTET],
-        topicPartitions = [
-            TopicPartition(topic = Topics.TILSKUDDSPERIODE_FORKORTET, partitionOffsets = [PartitionOffset(partition = "0", initialOffset = "0")])
-        ],
-        groupId = "tiltak-refusjon-api-3"
     )
     fun tilskuddsperiodeForkortet(tilskuddMelding: String) {
         val forkortetMelding = objectMapper.readValue(tilskuddMelding, TilskuddsperiodeForkortetMelding::class.java)

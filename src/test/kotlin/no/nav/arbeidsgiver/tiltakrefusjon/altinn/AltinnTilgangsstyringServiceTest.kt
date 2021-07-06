@@ -41,7 +41,7 @@ class AltinnTilgangsstyringServiceTest {
     fun `skal kaste en Altinnfeil om personen ikke finnes`(@Autowired altinnTilgangsstyringProperties: AltinnTilgangsstyringProperties) {
         // GITT
         altinnTilgangsstyringProperties.serviceCode = 4936
-        val fnr = Fnr("01234567890")
+        val fnr = Fnr("21234567890")
         every { context.tokenValidationContext.getClaims(any()).getStringClaim("pid") } returns fnr.verdi
 
         // NÅR
@@ -55,7 +55,7 @@ class AltinnTilgangsstyringServiceTest {
         // GITT
         altinnTilgangsstyringProperties.serviceCode = 5516
         altinnTilgangsstyringService = AltinnTilgangsstyringService(altinnTilgangsstyringProperties, RestTemplate())
-        val fnr = Fnr("01234567890")
+        val fnr = Fnr("21234567890")
         every { context.tokenValidationContext.getClaims(any()).getStringClaim("pid") } returns fnr.verdi
 
         // NÅR
@@ -70,7 +70,7 @@ class AltinnTilgangsstyringServiceTest {
         // GITT
         altinnTilgangsstyringProperties.serviceCode = 0
         altinnTilgangsstyringService = AltinnTilgangsstyringService(altinnTilgangsstyringProperties, RestTemplate())
-        val fnr = Fnr("01234567890")
+        val fnr = Fnr("21234567890")
         every { context.tokenValidationContext.getClaims(any()).getStringClaim("pid") } returns fnr.verdi
 
         // NÅR

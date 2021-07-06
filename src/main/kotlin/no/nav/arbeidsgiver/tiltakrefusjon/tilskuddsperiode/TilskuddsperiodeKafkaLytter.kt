@@ -17,7 +17,9 @@ class TilskuddsperiodeKafkaLytter(val service: RefusjonService, val objectMapper
         topics = [Topics.TILSKUDDSPERIODE_GODKJENT],
         topicPartitions = [
             TopicPartition(topic = Topics.TILSKUDDSPERIODE_GODKJENT, partitionOffsets = [PartitionOffset(partition = "0", initialOffset = "0")])
-        ]
+        ],
+        concurrency = "1",
+        groupId = "tiltak-refusjon-api-4"
     )
     fun tilskuddsperiodeGodkjent(tilskuddMelding: String) {
         val godkjentMelding = objectMapper.readValue(tilskuddMelding, TilskuddsperiodeGodkjentMelding::class.java)
@@ -28,7 +30,8 @@ class TilskuddsperiodeKafkaLytter(val service: RefusjonService, val objectMapper
         topics = [Topics.TILSKUDDSPERIODE_ANNULLERT],
         topicPartitions = [
             TopicPartition(topic = Topics.TILSKUDDSPERIODE_ANNULLERT, partitionOffsets = [PartitionOffset(partition = "0", initialOffset = "0")])
-        ]
+        ],
+        groupId = "tiltak-refusjon-api-3"
     )
     fun tilskuddsperiodeAnnullert(tilskuddMelding: String) {
         val annullertMelding = objectMapper.readValue(tilskuddMelding, TilskuddsperiodeAnnullertMelding::class.java)
@@ -39,7 +42,8 @@ class TilskuddsperiodeKafkaLytter(val service: RefusjonService, val objectMapper
         topics = [Topics.TILSKUDDSPERIODE_FORKORTET],
         topicPartitions = [
             TopicPartition(topic = Topics.TILSKUDDSPERIODE_FORKORTET, partitionOffsets = [PartitionOffset(partition = "0", initialOffset = "0")])
-        ]
+        ],
+        groupId = "tiltak-refusjon-api-3"
     )
     fun tilskuddsperiodeForkortet(tilskuddMelding: String) {
         val forkortetMelding = objectMapper.readValue(tilskuddMelding, TilskuddsperiodeForkortetMelding::class.java)

@@ -32,12 +32,6 @@ data class Inntektslinje(
     @JsonProperty
     fun erMedIInntektsgrunnlag() =
         inntektType == "LOENNSINNTEKT" && beløp > 0.0 && inkluderteLønnsbeskrivelser.contains(beskrivelse)
-
-    @JsonProperty
-    fun inntektFordelesFom(): LocalDate = opptjeningsperiodeFom ?: måned.atDay(1)
-
-    @JsonProperty
-    fun inntektFordelesTom(): LocalDate = opptjeningsperiodeTom ?: måned.atEndOfMonth()
 }
 
 val inkluderteLønnsbeskrivelser = listOf("fastloenn", "timeloenn", "fastTillegg")

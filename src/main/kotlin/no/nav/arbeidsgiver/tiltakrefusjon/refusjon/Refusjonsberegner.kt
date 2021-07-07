@@ -2,28 +2,43 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import java.time.LocalDate
 import kotlin.math.roundToInt
-import kotlin.streams.toList
 
-private fun inntektsdager(inntektslinje: Inntektslinje, tilskuddFom: LocalDate, tilskuddTom: LocalDate): List<Double> {
-    val antallDagerOpptjent =
-        inntektslinje.inntektFordelesFom().datesUntil(inntektslinje.inntektFordelesTom().plusDays(1)).count().toInt()
-    val beløpPerDag = inntektslinje.beløp / antallDagerOpptjent
+private fun beløpPerInntektslinje(
+    inntektslinje: Inntektslinje,
+    tilskuddFom: LocalDate,
+    tilskuddTom: LocalDate,
+): Double {
+    if (inntektslinje.opptjeningsperiodeFom == null || inntektslinje.opptjeningsperiodeTom == null)
+        return if (erMånedIPeriode(inntektslinje.måned, tilskuddFom, tilskuddTom)) {
+            inntektslinje.beløp
+        } else {
+            0.0
+        }
 
-    val overlappFom = maxOf(inntektslinje.inntektFordelesFom(), tilskuddFom)
-    val overlappTom = minOf(inntektslinje.inntektFordelesTom(), tilskuddTom)
-
-    if (overlappFom > overlappTom) {
-        return emptyList()
+    if (inntektslinje.opptjeningsperiodeTom < tilskuddFom) {
+        return 0.0;
     }
 
-    return overlappFom.datesUntil(overlappTom.plusDays(1)).map { beløpPerDag }.toList()
+    val antallDagerSkalFordelesPå = antallDager(inntektslinje.opptjeningsperiodeFom, inntektslinje.opptjeningsperiodeTom)
+    var dagsats = inntektslinje.beløp / antallDagerSkalFordelesPå
+
+
+    return dagsats * antallDager(maxOf(tilskuddFom, inntektslinje.opptjeningsperiodeFom), minOf(tilskuddTom, inntektslinje.opptjeningsperiodeTom))
 }
 
-fun beregnRefusjonsbeløp(inntekter: List<Inntektslinje>, tilskuddsgrunnlag: Tilskuddsgrunnlag, appImageId: String): Beregning {
+private fun antallDager(
+    fom: LocalDate,
+    tom: LocalDate,
+) = fom.datesUntil(tom.plusDays(1)).count().toInt()
+
+fun beregnRefusjonsbeløp(
+    inntekter: List<Inntektslinje>,
+    tilskuddsgrunnlag: Tilskuddsgrunnlag,
+    appImageId: String,
+): Beregning {
     val lønn = inntekter
         .filter(Inntektslinje::erMedIInntektsgrunnlag)
-        .flatMap { inntektsdager(it, tilskuddsgrunnlag.tilskuddFom, tilskuddsgrunnlag.tilskuddTom) }
-        .sum()
+        .sumOf { beløpPerInntektslinje(it, tilskuddsgrunnlag.tilskuddFom, tilskuddsgrunnlag.tilskuddTom) }
     val feriepenger = lønn * tilskuddsgrunnlag.feriepengerSats
     val tjenestepensjon = (lønn + feriepenger) * tilskuddsgrunnlag.otpSats
     val arbeidsgiveravgift = (lønn + tjenestepensjon + feriepenger) * tilskuddsgrunnlag.arbeidsgiveravgiftSats

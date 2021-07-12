@@ -22,22 +22,12 @@ data class InnloggetSaksbehandler(
                 refusjonRepository.findAllByTilskuddsgrunnlag_VeilederNavIdent(queryParametre.veilederNavIdent)
             } else if (!queryParametre.deltakerFnr.isNullOrBlank()) {
                 refusjonRepository.findAllByDeltakerFnr(queryParametre.deltakerFnr)
+            } else if (!queryParametre.enhet.isNullOrBlank()) {
+                refusjonRepository.findAllByTilskuddsgrunnlag_Enhet(queryParametre.enhet)
             } else {
-                refusjonRepository.findAll()
+                emptyList()
             }
 
-        if (!queryParametre.enhet.isNullOrBlank()) {
-            liste = liste.filter { queryParametre.enhet == it.tilskuddsgrunnlag.enhet }
-        }
-        if (!queryParametre.veilederNavIdent.isNullOrBlank()) {
-            liste = liste.filter { queryParametre.veilederNavIdent == it.tilskuddsgrunnlag.veilederNavIdent }
-        }
-        if (!queryParametre.deltakerFnr.isNullOrBlank()) {
-            liste = liste.filter { queryParametre.deltakerFnr == it.deltakerFnr }
-        }
-        if (!queryParametre.bedriftNr.isNullOrBlank()) {
-            liste = liste.filter { queryParametre.bedriftNr == it.bedriftNr }
-        }
         if (queryParametre.status != null) {
             liste = liste.filter { queryParametre.status == it.status }
         }

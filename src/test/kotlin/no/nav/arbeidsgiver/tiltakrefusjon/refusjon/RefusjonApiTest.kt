@@ -58,14 +58,14 @@ class RefusjonApiTest(
 
     @Test
     fun `hentAlle() er tilgjengelig for saksbehandler`() {
-        val json = sendRequest(get(REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON), navCookie)
+        val json = sendRequest(get("$REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON?enhet=1000"), navCookie)
         val liste = mapper.readValue(json, object : TypeReference<List<Refusjon>>() {})
         assertFalse(liste.isEmpty())
     }
 
     @Test
     fun `hentAlle() - Saksbehandler har ikke leserettighet til en refusjon`() {
-        val json = sendRequest(get(REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON), navCookie)
+        val json = sendRequest(get("$REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON?enhet=1000"), navCookie)
         val liste = mapper.readValue(json, object : TypeReference<List<Refusjon>>() {})
 
         assertEquals(5, liste.size)

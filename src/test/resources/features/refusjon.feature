@@ -12,9 +12,19 @@ Egenskap: Beregn refusjon for lønnstilskudd
     Gitt følgende opplysninger om inntekt
       | inntektType   | beskrivelse | beløp | måned   | opptjeningsperiodeFom | opptjeningsperiodeTom |
       | LOENNSINNTEKT | fastloenn   | 10000 | 2020-03 | 2020-03-20            | 2020-04-10            |
-      | LOENNSINNTEKT | fastloenn   | 10000 | 2020-04 |                       |                       |
-    Når lønnstilskudd på 40 prosent skal refunderes for periode "2020-03-20" til "2020-04-10" med arbeidsgiveravgift "0.141", feriepengersats "0.12", OTP-sats "0.02"
-    Så beregnes refusjon til 6952 kr for periode
+      | LOENNSINNTEKT | fastloenn   | 5000  | 2020-03 |                       |                       |
+      | LOENNSINNTEKT | fastloenn   | 5000  | 2020-04 |                       |                       |
+    Når lønnstilskudd på 60 prosent skal refunderes for periode "2020-03-20" til "2020-04-10" med arbeidsgiveravgift "0.141", feriepengersats "0.12", OTP-sats "0.02"
+    Så beregnes refusjon til 15642 kr for periode
+
+  Scenario: Inntekt uten opptjeningsperiode, utenfor tilskuddsperiode
+    Gitt følgende opplysninger om inntekt
+      | inntektType   | beskrivelse | beløp | måned   | opptjeningsperiodeFom | opptjeningsperiodeTom |
+      | LOENNSINNTEKT | fastloenn   | 10000 | 2020-03 | 2020-03-20            | 2020-04-10            |
+      | LOENNSINNTEKT | fastloenn   | 5000  | 2020-02 |                       |                       |
+      | LOENNSINNTEKT | fastloenn   | 5000  | 2020-05 |                       |                       |
+    Når lønnstilskudd på 60 prosent skal refunderes for periode "2020-03-20" til "2020-04-10" med arbeidsgiveravgift "0.141", feriepengersats "0.12", OTP-sats "0.02"
+    Så beregnes refusjon til 7821 kr for periode
 
   Scenario: To inntekter i hele tilskuddsperioden
     Gitt følgende opplysninger om inntekt
@@ -33,10 +43,18 @@ Egenskap: Beregn refusjon for lønnstilskudd
     Når lønnstilskudd på 60 prosent skal refunderes for periode "2020-01-04" til "2020-04-30" med arbeidsgiveravgift "0.141", feriepengersats "0.12", OTP-sats "0.02"
     Så beregnes refusjon til 23463 kr for periode
 
-  Scenario: Inntekt utenfor tilskuddsperiode, og ytelse
+  Scenario: Inntekt før tilskuddsperiode, og ytelse
     Gitt følgende opplysninger om inntekt
       | inntektType   | beskrivelse | beløp | måned   | opptjeningsperiodeFom | opptjeningsperiodeTom |
       | LOENNSINNTEKT | fastloenn   | 7000  | 2019-01 | 2019-01-01            | 2019-01-31            |
+      | YTELSE        | fastloenn   | 2000  | 2020-01 |                       |                       |
+    Når lønnstilskudd på 60 prosent skal refunderes for periode "2020-01-01" til "2020-01-31" med arbeidsgiveravgift "0.141", feriepengersats "0.12", OTP-sats "0.02"
+    Så beregnes refusjon til 0 kr for periode
+
+  Scenario: Inntekt etter tilskuddsperiode, og ytelse
+    Gitt følgende opplysninger om inntekt
+      | inntektType   | beskrivelse | beløp | måned   | opptjeningsperiodeFom | opptjeningsperiodeTom |
+      | LOENNSINNTEKT | fastloenn   | 7000  | 2020-02 | 2020-02-01            | 2020-02-28            |
       | YTELSE        | fastloenn   | 2000  | 2020-01 |                       |                       |
     Når lønnstilskudd på 60 prosent skal refunderes for periode "2020-01-01" til "2020-01-31" med arbeidsgiveravgift "0.141", feriepengersats "0.12", OTP-sats "0.02"
     Så beregnes refusjon til 0 kr for periode

@@ -71,16 +71,12 @@ data class Refusjon(
     fun oppgiInntektsgrunnlag(inntektsgrunnlag: Inntektsgrunnlag, appImageId: String) {
         oppdaterStatus()
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
-        if (inntektsgrunnlag.inntekter.isEmpty()) {
-            throw FeilkodeException(Feilkode.INGEN_INNTEKTER)
-        }
-        if (fristForGodkjenning.isBefore(Now.localDate())) {
-            status = RefusjonStatus.UTGÅTT
-        } else {
+
+        if (inntektsgrunnlag.inntekter.isNotEmpty()) {
             beregning = beregnRefusjonsbeløp(inntektsgrunnlag.inntekter, tilskuddsgrunnlag, appImageId)
-            this.inntektsgrunnlag = inntektsgrunnlag
-            registerEvent(InntekterInnhentet(this))
         }
+        this.inntektsgrunnlag = inntektsgrunnlag
+        registerEvent(InntekterInnhentet(this))
     }
 
     fun godkjennForArbeidsgiver() {

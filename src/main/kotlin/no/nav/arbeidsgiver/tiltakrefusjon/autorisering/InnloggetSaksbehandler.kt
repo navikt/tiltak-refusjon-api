@@ -11,23 +11,23 @@ data class InnloggetSaksbehandler(
     val identifikator: String,
     val navn: String,
     @JsonIgnore val abacTilgangsstyringService: AbacTilgangsstyringService,
-    @JsonIgnore val refusjonRepository: RefusjonRepository
+    @JsonIgnore val refusjonRepository: RefusjonRepository,
 ) {
 
     fun finnAlle(queryParametre: HentSaksbehandlerRefusjonerQueryParametre): List<Refusjon> {
-        var liste = refusjonRepository.findAll()
-        if (!queryParametre.enhet.isNullOrBlank()) {
-            liste = liste.filter { queryParametre.enhet == it.tilskuddsgrunnlag.enhet }
-        }
-        if (!queryParametre.veilederNavIdent.isNullOrBlank()) {
-            liste = liste.filter { queryParametre.veilederNavIdent == it.tilskuddsgrunnlag.veilederNavIdent }
-        }
-        if (!queryParametre.deltakerFnr.isNullOrBlank()) {
-            liste = liste.filter { queryParametre.deltakerFnr == it.deltakerFnr }
-        }
-        if (!queryParametre.bedriftNr.isNullOrBlank()) {
-            liste = liste.filter { queryParametre.bedriftNr == it.bedriftNr }
-        }
+        var liste =
+            if (!queryParametre.bedriftNr.isNullOrBlank()) {
+                refusjonRepository.findAllByBedriftNr(queryParametre.bedriftNr)
+            } else if (!queryParametre.veilederNavIdent.isNullOrBlank()) {
+                refusjonRepository.findAllByTilskuddsgrunnlag_VeilederNavIdent(queryParametre.veilederNavIdent)
+            } else if (!queryParametre.deltakerFnr.isNullOrBlank()) {
+                refusjonRepository.findAllByDeltakerFnr(queryParametre.deltakerFnr)
+            } else if (!queryParametre.enhet.isNullOrBlank()) {
+                refusjonRepository.findAllByTilskuddsgrunnlag_Enhet(queryParametre.enhet)
+            } else {
+                emptyList()
+            }
+
         if (queryParametre.status != null) {
             liste = liste.filter { queryParametre.status == it.status }
         }
@@ -44,9 +44,9 @@ data class InnloggetSaksbehandler(
 
     private fun medLesetilgang(refusjoner: List<Refusjon>): List<Refusjon> {
         return refusjoner
-                .filter {
-                    abacTilgangsstyringService.harLeseTilgang(identifikator, it.deltakerFnr)
-                }
+            .filter {
+                abacTilgangsstyringService.harLeseTilgang(identifikator, it.deltakerFnr)
+            }
     }
 
     private fun hvisLesetilgang(refusjon: Refusjon): Refusjon {

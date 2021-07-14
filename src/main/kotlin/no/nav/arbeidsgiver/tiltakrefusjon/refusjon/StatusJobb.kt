@@ -9,7 +9,10 @@ import org.springframework.stereotype.Component
 
 @Component
 @EnableScheduling
-class StatusJobb(val refusjonRepository: RefusjonRepository, val leaderPodCheck: LeaderPodCheck) {
+class StatusJobb(
+    val refusjonRepository: RefusjonRepository,
+    val leaderPodCheck: LeaderPodCheck,
+) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
 
@@ -22,7 +25,6 @@ class StatusJobb(val refusjonRepository: RefusjonRepository, val leaderPodCheck:
         sjekkOmUtgått()
         sjekkOmKlarForInnsending()
     }
-
 
     fun sjekkOmKlarForInnsending() {
         val refusjoner = refusjonRepository.findAllByStatus(RefusjonStatus.FOR_TIDLIG)

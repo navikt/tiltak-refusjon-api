@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.scheduling.annotation.EnableScheduling
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
+import java.time.Duration
 
 @Component
 @EnableScheduling
@@ -22,31 +23,35 @@ class VarslingJobb(
     @Scheduled(fixedDelayString = "\${tiltak-refusjon.varslingsjobb.fixed-delay}")
     fun sjekkForVarsing() {
         if (!leaderPodCheck.isLeaderPod()) {
-            logger.info("Pod er ikke leader, så kjører ikke jobb for å finne refusjoner med statusendring")
+            logger.info("Pod er ikke leader, så kjører ikke jobb for å finne refusjoner som skal varsles")
             return
         }
 
         val refusjoner = refusjonRepository.findAllByStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
         refusjoner.forEach { refusjon ->
             val varslerForRefusjon = varslingRepository.findAllByRefusjonId(refusjon.id)
-            val reVarslerForEfsujon = varslerForRefusjon.filter { it.varselType === VarselType.REVARSEL }
 
-            if (varslerForRefusjon.isEmpty()) {
+            if (varslerForRefusjon.none { it.varselType === VarselType.KLAR }) {
                 // Første varsel
                 refusjonVarselProducer.sendVarsel(refusjon, VarselType.KLAR)
             }
 
-            if (refusjon.fristForGodkjenning.isBefore(Now.localDate().plusWeeks(2)) && reVarslerForEfsujon.isEmpty()) {
-                // Under 2 uker til frist
-                val nyesteVarsling = varslerForRefusjon.maxByOrNull { it.varselTidspunkt }
+            val finnesIngenRevarslerForRefusjon = varslerForRefusjon.none { it.varselType === VarselType.REVARSEL }
+            val kortTidTilRefusjonenGårUt = refusjon.fristForGodkjenning.isBefore(Now.localDate().plusWeeks(2))
 
-                val finnesIngenFerskeVarsling =
-                    nyesteVarsling != null && nyesteVarsling.varselTidspunkt.isBefore(Now.localDateTime().minusDays(3))
+            if (kortTidTilRefusjonenGårUt && finnesIngenRevarslerForRefusjon) {
+                val nyesteVarsling = varslerForRefusjon.maxByOrNull { it.varselTidspunkt }
+                val finnesIngenFerskeVarsling = dagerSidenForrigeVarsel(varslerForRefusjon) > 3
                 if (finnesIngenFerskeVarsling) {
                     refusjonVarselProducer.sendVarsel(refusjon, VarselType.REVARSEL)
                 }
             }
         }
+    }
+
+    fun dagerSidenForrigeVarsel(varslinger: List<Varsling>): Long {
+        val nyesteVarsling = varslinger.maxByOrNull { it.varselTidspunkt } ?: return Long.MAX_VALUE
+        return Duration.between(nyesteVarsling.varselTidspunkt, Now.localDateTime()).toDays()
     }
 
 }

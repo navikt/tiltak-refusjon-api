@@ -7,13 +7,17 @@ import org.springframework.web.bind.annotation.*
 
 const val REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON = "/api/arbeidsgiver/refusjon"
 
-data class HentArbeidsgiverRefusjonerQueryParametre(val bedriftNr: String?, val status: RefusjonStatus?, val tiltakstype: Tiltakstype?)
+data class HentArbeidsgiverRefusjonerQueryParametre(
+    val bedriftNr: String?,
+    val status: RefusjonStatus?,
+    val tiltakstype: Tiltakstype?,
+)
 
 @RestController
 @RequestMapping(REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON)
 @Protected
 class ArbeidsgiverRefusjonController(
-        val innloggetBrukerService: InnloggetBrukerService,
+    val innloggetBrukerService: InnloggetBrukerService,
 ) {
     @GetMapping
     fun hentAlle(queryParametre: HentArbeidsgiverRefusjonerQueryParametre): List<Refusjon> {
@@ -22,8 +26,8 @@ class ArbeidsgiverRefusjonController(
         }
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
         return arbeidsgiver.finnAlleMedBedriftnummer(queryParametre.bedriftNr)
-                .filter { queryParametre.status == null || queryParametre.status == it.status }
-                .filter { queryParametre.tiltakstype == null || queryParametre.tiltakstype == it.tilskuddsgrunnlag.tiltakstype }
+            .filter { queryParametre.status == null || queryParametre.status == it.status }
+            .filter { queryParametre.tiltakstype == null || queryParametre.tiltakstype == it.tilskuddsgrunnlag.tiltakstype }
     }
 
     @GetMapping("/{refusjonId}/tidligere-refusjoner")

@@ -24,7 +24,7 @@ class VarslingJobb(
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @Scheduled(fixedDelayString = "\${tiltak-refusjon.varslingsjobb.fixed-delay}")
-    fun sjekkForVarsing() {
+    fun sjekkForVarsling() {
         if (!leaderPodCheck.isLeaderPod()) {
             logger.info("Pod er ikke leader, så kjører ikke jobb for å finne refusjoner som skal varsles")
             return

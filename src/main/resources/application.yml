@@ -117,3 +117,5 @@ tiltak-refusjon:
     uri: "https://graph.microsoft.com/v1.0/me?$select=onPremisesSamAccountName,displayName"
   statusjobb:
     fixed-delay: 60000
+  varslingsjobb:
+    fixed-delay: 60000

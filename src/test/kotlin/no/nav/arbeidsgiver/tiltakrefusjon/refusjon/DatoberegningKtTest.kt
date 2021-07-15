@@ -1,5 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.erMånedIPeriode
 import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.Test
 import java.time.YearMonth

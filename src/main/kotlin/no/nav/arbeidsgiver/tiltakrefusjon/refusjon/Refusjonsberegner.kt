@@ -1,5 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.erMånedIPeriode
 import java.time.LocalDate
 import kotlin.math.roundToInt
 

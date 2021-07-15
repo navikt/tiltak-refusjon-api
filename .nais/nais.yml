@@ -37,6 +37,7 @@ spec:
     pool: {{kafka-pool}}
   envFrom:
     - secret: tiltak-refusjon-altinn
+    - secret: tiltak-refusjon-varsling
   azure:
     application:
       enabled: true

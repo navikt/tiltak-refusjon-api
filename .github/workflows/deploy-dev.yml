@@ -1,4 +1,4 @@
-name: Bygg og deploy master til dev-gcp
+name: Bygg og deploy branch til dev-gcp
 
 on: workflow_dispatch
 

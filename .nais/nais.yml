@@ -51,4 +51,6 @@ spec:
         databases:
           - name: tiltak-refusjon
             envVarPrefix: DB
-
+  prometheus:
+    enabled: true
+    path: /internal/actuator/prometheus

@@ -44,6 +44,7 @@ spec:
       tenant: {{tenant}}
   tokenx:
     enabled: true
+  leaderElection: true
   gcp:
     sqlInstances:
       - type: POSTGRES_11

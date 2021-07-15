@@ -35,8 +35,8 @@ class VarslingJobb(
             val varslerForRefusjon = varslingRepository.findAllByRefusjonId(refusjon.id)
 
             if (varslerForRefusjon.none { it.varselType === VarselType.KLAR }) {
-                // Første varsel
                 refusjonVarselProducer.sendVarsel(refusjon, VarselType.KLAR)
+                return
             }
 
             val kortTidTilRefusjonenGårUt = refusjon.fristForGodkjenning.isBefore(Now.localDate().plusWeeks(2))

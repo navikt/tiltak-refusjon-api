@@ -17,17 +17,22 @@ class RefusjonVarselProducer(
     val varslingRepository: VarslingRepository
 ) {
 
-    val log = LoggerFactory.getLogger(RefusjonVarselProducer::class.java)
+    private val log = LoggerFactory.getLogger(javaClass)
 
     fun sendVarsel(refusjon: Refusjon, varselType: VarselType) {
-        log.info("prosesserer $varselType melding for sending på topic ${Topics.TILTAK_VARSEL}")
-        val melding = RefusjonVarselMelding(refusjon.tilskuddsgrunnlag.avtaleId, varselType)
-        kafkaTemplate.send(Topics.TILTAK_VARSEL, "${refusjon.id}-$varselType", melding)
+        log.info("Prosesserer $varselType melding for sending på topic ${Topics.TILTAK_VARSEL}")
+        val melding = RefusjonVarselMelding(
+            avtaleId = refusjon.tilskuddsgrunnlag.avtaleId,
+            tilskuddsperiodeId = refusjon.tilskuddsgrunnlag.tilskuddsperiodeId,
+            varselType = varselType
+        )
+        val meldingId = "${refusjon.id}-$varselType"
+        kafkaTemplate.send(Topics.TILTAK_VARSEL, meldingId, melding)
             .addCallback(object : ListenableFutureCallback<SendResult<String?, RefusjonVarselMelding?>?> {
                 override fun onFailure(ex: Throwable) {
                     log.warn(
                         "Melding med id {} kunne ikke sendes til Kafka topic {}",
-                        refusjon.tilskuddsgrunnlag.avtaleId,
+                        meldingId,
                         Topics.TILTAK_VARSEL
                     )
                 }
@@ -35,7 +40,7 @@ class RefusjonVarselProducer(
                 override fun onSuccess(p0: SendResult<String?, RefusjonVarselMelding?>?) {
                     log.info(
                         "Melding med id {} sendt til Kafka topic {}",
-                        refusjon.tilskuddsgrunnlag.avtaleId,
+                        meldingId,
                         Topics.TILTAK_VARSEL
                     )
                     val varsling = Varsling(refusjon.id, varselType, LocalDateTime.now())

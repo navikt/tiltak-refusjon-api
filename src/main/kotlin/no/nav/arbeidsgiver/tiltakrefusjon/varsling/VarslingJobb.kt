@@ -19,6 +19,7 @@ class VarslingJobb(
     val varslingRepository: VarslingRepository,
     val refusjonVarselProducer: RefusjonVarselProducer,
     val leaderPodCheck: LeaderPodCheck,
+    val varslingProperties: VarslingProperties,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -29,7 +30,7 @@ class VarslingJobb(
             return
         }
 
-        val refusjoner = refusjonRepository.findAllByStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
+        val refusjoner = refusjonRepository.findAllByStatus(RefusjonStatus.KLAR_FOR_INNSENDING).filter { varslingProperties.earlyBirds.contains(it.id) }
         refusjoner.forEach { refusjon ->
             val varslerForRefusjon = varslingRepository.findAllByRefusjonId(refusjon.id)
 
@@ -38,15 +39,12 @@ class VarslingJobb(
                 refusjonVarselProducer.sendVarsel(refusjon, VarselType.KLAR)
             }
 
-            val finnesIngenRevarslerForRefusjon = varslerForRefusjon.none { it.varselType === VarselType.REVARSEL }
             val kortTidTilRefusjonenGårUt = refusjon.fristForGodkjenning.isBefore(Now.localDate().plusWeeks(2))
+            val finnesIngenRevarslerForRefusjon = varslerForRefusjon.none { it.varselType === VarselType.REVARSEL }
+            val finnesIngenFerskVarsling = dagerSidenForrigeVarsel(varslerForRefusjon) > 3
 
-            if (kortTidTilRefusjonenGårUt && finnesIngenRevarslerForRefusjon) {
-                val nyesteVarsling = varslerForRefusjon.maxByOrNull { it.varselTidspunkt }
-                val finnesIngenFerskeVarsling = dagerSidenForrigeVarsel(varslerForRefusjon) > 3
-                if (finnesIngenFerskeVarsling) {
-                    refusjonVarselProducer.sendVarsel(refusjon, VarselType.REVARSEL)
-                }
+            if (kortTidTilRefusjonenGårUt && finnesIngenRevarslerForRefusjon && finnesIngenFerskVarsling) {
+                refusjonVarselProducer.sendVarsel(refusjon, VarselType.REVARSEL)
             }
         }
     }

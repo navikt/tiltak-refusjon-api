@@ -1,4 +1,4 @@
-package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
+package no.nav.arbeidsgiver.tiltakrefusjon.varsling
 
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor

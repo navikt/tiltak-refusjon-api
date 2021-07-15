@@ -1,5 +1,8 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.altinn
 
+import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
+import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
@@ -16,6 +19,8 @@ class AltinnTilgangsstyringService(
     val restTemplate: RestTemplate,
 ) {
 
+    private val logger = LoggerFactory.getLogger(javaClass)
+
     private val ALTINN_ORG_PAGE_SIZE = 999
 
     fun hentTilganger(fnr: String): Set<Organisasjon> {
@@ -27,7 +32,8 @@ class AltinnTilgangsstyringService(
                 Array<Organisasjon>::class.java).body?.toSet()
                 ?: return emptySet()
         } catch (exception: RuntimeException) {
-            throw AltinnFeilException("Altinn feil", exception)
+            logger.error("Feil med Altinn", exception)
+            throw FeilkodeException(Feilkode.ALTINN)
         }
     }
 

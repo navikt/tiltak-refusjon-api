@@ -1,4 +1,4 @@
-package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
+package no.nav.arbeidsgiver.tiltakrefusjon.utils
 
 import java.time.LocalDate
 import java.time.YearMonth

@@ -1,7 +1,7 @@
-package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
+package no.nav.arbeidsgiver.tiltakrefusjon.varsling
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.arbeidsgiver.tiltakrefusjon.Topics
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.kafka.core.KafkaTemplate

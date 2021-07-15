@@ -1,4 +1,4 @@
-package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
+package no.nav.arbeidsgiver.tiltakrefusjon.varsling
 
 data class RefusjonVarselMelding(val avtaleId: String, val varselType: VarselType)
 

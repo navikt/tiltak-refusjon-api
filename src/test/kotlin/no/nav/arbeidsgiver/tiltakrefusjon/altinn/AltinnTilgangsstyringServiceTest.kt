@@ -2,11 +2,12 @@ package no.nav.arbeidsgiver.tiltakrefusjon.altinn
 
 import io.mockk.every
 import io.mockk.mockk
+import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
+import no.nav.arbeidsgiver.tiltakrefusjon.assertFeilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Fnr
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock
@@ -45,7 +46,7 @@ class AltinnTilgangsstyringServiceTest {
         every { context.tokenValidationContext.getClaims(any()).getStringClaim("pid") } returns fnr.verdi
 
         // NÅR
-        assertThrows<AltinnFeilException> {
+        assertFeilkode(Feilkode.ALTINN) {
             altinnTilgangsstyringService.hentTilganger(fnr.verdi)
         }
     }
@@ -74,8 +75,8 @@ class AltinnTilgangsstyringServiceTest {
         every { context.tokenValidationContext.getClaims(any()).getStringClaim("pid") } returns fnr.verdi
 
         // NÅR
-        assertThrows<AltinnFeilException> {
-            val organisasjoner: Set<Organisasjon> = altinnTilgangsstyringService.hentTilganger(fnr.verdi)
+        assertFeilkode(Feilkode.ALTINN) {
+            altinnTilgangsstyringService.hentTilganger(fnr.verdi)
         }
     }
 

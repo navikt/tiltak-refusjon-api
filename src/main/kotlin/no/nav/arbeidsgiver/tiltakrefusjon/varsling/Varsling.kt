@@ -1,4 +1,4 @@
-package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
+package no.nav.arbeidsgiver.tiltakrefusjon.varsling
 
 import com.github.guepardoapps.kulid.ULID
 import java.time.LocalDateTime

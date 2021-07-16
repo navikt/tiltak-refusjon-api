@@ -31,12 +31,12 @@ class VarslingJobb(
         }
 
         val refusjoner = refusjonRepository.findAllByStatus(RefusjonStatus.KLAR_FOR_INNSENDING).filter { varslingProperties.earlyBirds.contains(it.id) }
-        refusjoner.forEach { refusjon ->
+        for (refusjon in refusjoner) {
             val varslerForRefusjon = varslingRepository.findAllByRefusjonId(refusjon.id)
 
             if (varslerForRefusjon.none { it.varselType === VarselType.KLAR }) {
                 refusjonVarselProducer.sendVarsel(refusjon, VarselType.KLAR)
-                return
+                continue
             }
 
             val kortTidTilRefusjonenGårUt = refusjon.fristForGodkjenning.isBefore(Now.localDate().plusWeeks(2))

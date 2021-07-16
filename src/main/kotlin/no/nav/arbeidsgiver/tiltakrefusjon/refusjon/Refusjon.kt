@@ -1,5 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.guepardoapps.kulid.ULID
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
@@ -9,6 +10,7 @@ import org.springframework.data.domain.AbstractAggregateRoot
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.YearMonth
 import javax.persistence.*
 
 @Entity
@@ -42,6 +44,15 @@ data class Refusjon(
 
     init {
         oppdaterStatus()
+    }
+
+    @JsonProperty
+    fun harInntektIAlleMåneder(): Boolean {
+        val måneder = inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.map { it.måned }?.sorted()
+        val tilskuddFom = tilskuddsgrunnlag.tilskuddFom
+        val tilskuddTom = tilskuddsgrunnlag.tilskuddTom
+        return !måneder.isNullOrEmpty() && måneder.first() == YearMonth.from(tilskuddFom) && måneder.last() == YearMonth.from(
+            tilskuddTom)
     }
 
     private fun krevStatus(vararg gyldigeStatuser: RefusjonStatus) {

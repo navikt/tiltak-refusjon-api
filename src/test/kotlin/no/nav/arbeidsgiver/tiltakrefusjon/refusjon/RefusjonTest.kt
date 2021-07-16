@@ -5,6 +5,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
+import java.time.YearMonth
 
 internal class RefusjonTest {
     // Godkjennelse arbeidsgiver
@@ -141,5 +142,51 @@ internal class RefusjonTest {
         assertThat(refusjon.status).isEqualTo(RefusjonStatus.SENDT_KRAV)
     }
 
+    @Test
+    internal fun `har inntekt for alle måneder`() {
+        val refusjon = enRefusjon(
+            etTilskuddsgrunnlag().copy(
+                tilskuddFom = LocalDate.now().minusDays(2),
+                tilskuddTom = LocalDate.now().minusDays(1)
+            )
+        ).medInntektsgrunnlag(YearMonth.now(), Inntektsgrunnlag(inntekter = listOf(Inntektslinje("LOENNSINNTEKT", "fastloenn", 99.0, YearMonth.now(), null, null)), respons = ""))
+        assertThat(refusjon.harInntektIAlleMåneder()).isTrue()
+    }
+
+    @Test
+    internal fun `har ikke inntekt for alle måneder`() {
+        val refusjon = enRefusjon(
+            etTilskuddsgrunnlag().copy(
+                tilskuddFom = LocalDate.now().minusMonths(1).minusDays(2),
+                tilskuddTom = LocalDate.now().minusDays(1)
+            )
+        ).medInntektsgrunnlag(YearMonth.now(), Inntektsgrunnlag(inntekter = listOf(
+            Inntektslinje("LOENNSINNTEKT", "fastloenn", 99.0, YearMonth.now(), null, null),
+            Inntektslinje("LOENNSINNTEKT", "feriepenger", 99.0, YearMonth.now().minusMonths(1), null, null)
+        ), respons = ""))
+        assertThat(refusjon.harInntektIAlleMåneder()).isFalse()
+    }
+
+    @Test
+    internal fun `har ingen inntekt for alle måneder`() {
+        val refusjon = enRefusjon(
+            etTilskuddsgrunnlag().copy(
+                tilskuddFom = LocalDate.now().minusMonths(1).minusDays(2),
+                tilskuddTom = LocalDate.now().minusDays(1)
+            )
+        ).medInntektsgrunnlag(YearMonth.now(), Inntektsgrunnlag(inntekter = listOf(), respons = ""))
+        assertThat(refusjon.harInntektIAlleMåneder()).isFalse()
+    }
+
+    @Test
+    internal fun `har ikke gjort inntektsoppslag`() {
+        val refusjon = enRefusjon(
+            etTilskuddsgrunnlag().copy(
+                tilskuddFom = LocalDate.now().minusMonths(1).minusDays(2),
+                tilskuddTom = LocalDate.now().minusDays(1)
+            )
+        )
+        assertThat(refusjon.harInntektIAlleMåneder()).isFalse()
+    }
 }
 

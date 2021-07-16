@@ -1,0 +1,1 @@
+update refusjon set frist_for_godkjenning = '2021-09-16' where frist_for_godkjenning < '2021-09-16' and status = 'KLAR_FOR_INNSENDING';

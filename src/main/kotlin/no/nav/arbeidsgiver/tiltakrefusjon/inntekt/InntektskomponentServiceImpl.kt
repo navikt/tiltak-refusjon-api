@@ -1,12 +1,12 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.inntekt
 
-import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.response.InntektListe
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.request.Aktør
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.request.InntektRequest
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.response.ArbeidsInntektMaaned
+import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.response.InntektListe
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.response.InntektResponse
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Inntektslinje
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.ConditionalOnPropertyNotEmpty
@@ -30,7 +30,7 @@ class InntektskomponentServiceImpl(
     @Qualifier("anonymProxyRestTemplate") val restTemplate: RestTemplate,
 ) : InntektskomponentService {
 
-    private val log = LoggerFactory.getLogger(InntektskomponentServiceImpl::class.java)
+    private val log = LoggerFactory.getLogger(javaClass)
 
     private val objectMapper = run {
         val mapper = ObjectMapper()
@@ -39,32 +39,45 @@ class InntektskomponentServiceImpl(
         mapper
     }
 
-    override fun hentInntekter(fnr: String, bedriftnummerDetSøkesPå: String, datoFra: LocalDate, datoTil: LocalDate): Pair<List<Inntektslinje>, String> {
+    override fun hentInntekter(
+        fnr: String,
+        bedriftnummerDetSøkesPå: String,
+        datoFra: LocalDate,
+        datoTil: LocalDate,
+    ): Pair<List<Inntektslinje>, String> {
         try {
             val requestEntity = lagRequest(fnr, YearMonth.from(datoFra), YearMonth.from(datoTil))
-            val responseMedInntekterForDeltaker = restTemplate.exchange<InntektResponse>(inntektskomponentProperties.uri, HttpMethod.POST, requestEntity).body
+            val responseMedInntekterForDeltaker =
+                restTemplate.exchange<InntektResponse>(inntektskomponentProperties.uri,
+                    HttpMethod.POST,
+                    requestEntity).body
             val inntekter = responseMedInntekterForDeltaker?.arbeidsInntektMaaned ?: throw FantIngenInntektException()
-            return Pair(inntekterForBedrift(inntekter, bedriftnummerDetSøkesPå), objectMapper.writeValueAsString(responseMedInntekterForDeltaker))
+            return Pair(inntekterForBedrift(inntekter, bedriftnummerDetSøkesPå),
+                objectMapper.writeValueAsString(responseMedInntekterForDeltaker))
         } catch (ex: Exception) {
-            throw HentingAvInntektException("Kall til Inntektskomponenten feilet",ex)
+            throw HentingAvInntektException("Kall til Inntektskomponenten feilet", ex)
         }
     }
 
-    private fun inntekterForBedrift(månedsInntektList: List<ArbeidsInntektMaaned>?, bedriftnummerDetSøkesPå: String): List<Inntektslinje> {
+    private fun inntekterForBedrift(
+        månedsInntektList: List<ArbeidsInntektMaaned>?,
+        bedriftnummerDetSøkesPå: String,
+    ): List<Inntektslinje> {
         val inntekterTotalt = mutableListOf<Inntektslinje>()
         månedsInntektList?.forEach { inntektMaaned ->
             val arbeidsinntektListe: List<InntektListe>? = inntektMaaned.arbeidsInntektInformasjon?.inntektListe
-            arbeidsinntektListe?.filter { it.virksomhet?.identifikator.toString() == bedriftnummerDetSøkesPå }?.forEach {
-                var dateFraOpptjenningsperiode: LocalDate? = null
-                var datoTilOpptjenningsperiode: LocalDate? = null
-                if (!it.opptjeningsperiodeFom.isNullOrEmpty()) {
-                    dateFraOpptjenningsperiode = LocalDate.parse(it.opptjeningsperiodeFom)
-                }
-                if (!it.opptjeningsperiodeTom.isNullOrEmpty()) {
-                    datoTilOpptjenningsperiode = LocalDate.parse(it.opptjeningsperiodeTom)
-                }
+            arbeidsinntektListe?.filter { it.virksomhet?.identifikator.toString() == bedriftnummerDetSøkesPå }
+                ?.forEach {
+                    var dateFraOpptjenningsperiode: LocalDate? = null
+                    var datoTilOpptjenningsperiode: LocalDate? = null
+                    if (!it.opptjeningsperiodeFom.isNullOrEmpty()) {
+                        dateFraOpptjenningsperiode = LocalDate.parse(it.opptjeningsperiodeFom)
+                    }
+                    if (!it.opptjeningsperiodeTom.isNullOrEmpty()) {
+                        datoTilOpptjenningsperiode = LocalDate.parse(it.opptjeningsperiodeTom)
+                    }
 
-                inntekterTotalt.add(
+                    inntekterTotalt.add(
                         Inntektslinje(
                             it.inntektType,
                             it.beskrivelse,
@@ -73,10 +86,9 @@ class InntektskomponentServiceImpl(
                             dateFraOpptjenningsperiode,
                             datoTilOpptjenningsperiode
                         )
-                )
-            }
+                    )
+                }
         }
-        log.info("**** INNTEKTER {} ::: {} ::: {}",bedriftnummerDetSøkesPå, inntekterTotalt, månedsInntektList)
         return inntekterTotalt
     }
 

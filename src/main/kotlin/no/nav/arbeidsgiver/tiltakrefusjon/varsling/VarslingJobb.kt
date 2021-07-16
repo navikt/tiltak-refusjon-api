@@ -30,7 +30,7 @@ class VarslingJobb(
             return
         }
 
-        val refusjoner = refusjonRepository.findAllByStatus(RefusjonStatus.KLAR_FOR_INNSENDING).filter { varslingProperties.earlyBirds.contains(it.id) }
+        val refusjoner = refusjonRepository.findAllByStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
         for (refusjon in refusjoner) {
             val varslerForRefusjon = varslingRepository.findAllByRefusjonId(refusjon.id)
 

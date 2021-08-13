@@ -8,8 +8,9 @@ private fun beløpPerInntektslinje(
     inntektslinje: Inntektslinje,
     tilskuddFom: LocalDate,
     tilskuddTom: LocalDate,
+    tiltakstype: Tiltakstype,
 ): Double {
-    if (inntektslinje.opptjeningsperiodeFom == null || inntektslinje.opptjeningsperiodeTom == null)
+    if (inntektslinje.opptjeningsperiodeFom == null || inntektslinje.opptjeningsperiodeTom == null || tiltakstype == Tiltakstype.SOMMERJOBB)
         return if (erMånedIPeriode(inntektslinje.måned, tilskuddFom, tilskuddTom)) {
             inntektslinje.beløp
         } else {
@@ -39,7 +40,7 @@ fun beregnRefusjonsbeløp(
 ): Beregning {
     val lønn = inntekter
         .filter(Inntektslinje::erMedIInntektsgrunnlag)
-        .sumOf { beløpPerInntektslinje(it, tilskuddsgrunnlag.tilskuddFom, tilskuddsgrunnlag.tilskuddTom) }
+        .sumOf { beløpPerInntektslinje(it, tilskuddsgrunnlag.tilskuddFom, tilskuddsgrunnlag.tilskuddTom, tilskuddsgrunnlag.tiltakstype) }
     val feriepenger = lønn * tilskuddsgrunnlag.feriepengerSats
     val tjenestepensjon = (lønn + feriepenger) * tilskuddsgrunnlag.otpSats
     val arbeidsgiveravgift = (lønn + tjenestepensjon + feriepenger) * tilskuddsgrunnlag.arbeidsgiveravgiftSats

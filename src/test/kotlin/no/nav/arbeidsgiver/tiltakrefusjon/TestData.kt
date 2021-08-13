@@ -44,7 +44,10 @@ fun refusjoner(): List<Refusjon> {
         `Bjørnstjerne Bjørnson`(),
         `Nils Nilsen`(),
         `Inger Hagerup`(),
-        `Amalie Skram`()
+        `Amalie Skram`(),
+            `Ole Brum`(),
+            `Nasse Nøff`(),
+            `Kalle Kanin`()
     )
 }
 
@@ -139,6 +142,64 @@ fun `Amalie Skram`(): Refusjon {
         ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
     )
 }
+
+fun `Ole Brum`(): Refusjon {
+    val deltakerFnr = "04069318938"
+    val bedriftNr = "955555555"
+    return Refusjon(
+            tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
+                    deltakerFornavn = "Ole",
+                    deltakerEtternavn = "Brum",
+                    deltakerFnr = deltakerFnr,
+                    bedriftNr = bedriftNr,
+                    tilskuddsbeløp = 10579,
+                    veilederNavIdent = "X123456",
+                    enhet = "1000" ,
+                    tiltakstype = Tiltakstype.SOMMERJOBB,
+            ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
+    )
+}
+
+fun `Nasse Nøff`(): Refusjon {
+    val deltakerFnr = "23099813938"
+    val bedriftNr = "955555555"
+    var refusjon = Refusjon(
+            tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
+                    deltakerFornavn = "Nasse",
+                    deltakerEtternavn = "Nøff",
+                    deltakerFnr = deltakerFnr,
+                    bedriftNr = bedriftNr,
+                    tilskuddsbeløp = 10579,
+                    veilederNavIdent = "X123456",
+                    enhet = "1000" ,
+                    tiltakstype = Tiltakstype.SOMMERJOBB,
+            ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
+    )
+    refusjon.status = RefusjonStatus.UTBETALT
+    return refusjon
+}
+
+fun `Kalle Kanin`(): Refusjon {
+    val deltakerFnr = "01099410392"
+    val bedriftNr = "955555555"
+    var refusjon = Refusjon(
+            tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
+                    deltakerFornavn = "Kalle",
+                    deltakerEtternavn = "Kanin",
+                    deltakerFnr = deltakerFnr,
+                    bedriftNr = bedriftNr,
+                    tilskuddsbeløp = 10579,
+                    veilederNavIdent = "X123456",
+                    enhet = "1000" ,
+                    tiltakstype = Tiltakstype.SOMMERJOBB,
+            ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
+    )
+    refusjon.status = RefusjonStatus.SENDT_KRAV
+    refusjon.inntektsgrunnlag = etInntektsgrunnlag(måned = YearMonth.of(2021, 1))
+    return refusjon
+}
+
+
 
 fun Refusjon.medInntektsgrunnlag(
     måned: YearMonth = YearMonth.now(),

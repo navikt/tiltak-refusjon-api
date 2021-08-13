@@ -33,7 +33,7 @@ class RefusjonServiceTest(
             deltakerEtternavn = "Mus",
             deltakerFornavn = "Mikke",
             arbeidsgiveravgiftSats = 0.101,
-             avtaleInnholdId = "2",
+                avtaleInnholdId = "2",
             bedriftNavn = "Bedriften AS",
             bedriftNr = "999999999",
             deltakerFnr = deltakerFnr,

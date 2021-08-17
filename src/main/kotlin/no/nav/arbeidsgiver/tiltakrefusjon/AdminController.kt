@@ -14,6 +14,12 @@ class AdminController(val service: RefusjonService, val objectMapper: ObjectMapp
     var logger = LoggerFactory.getLogger(javaClass)
 
     @Unprotected
+    @PostMapping
+    fun hjem():String{
+        return "Hei fra Refusjon-api controller"
+    }
+
+    @Unprotected
     @PostMapping("/retry/refusjon/opprett/")
     fun opprettRefusjon(@RequestBody jsonMelding:String): String {
         logger.info("Bruker ADMIN RETRY Controller for opprett refusjon: {}", jsonMelding)

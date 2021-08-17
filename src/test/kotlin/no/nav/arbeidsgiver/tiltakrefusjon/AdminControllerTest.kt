@@ -24,6 +24,11 @@ internal class AdminControllerTest {
     @Autowired
     lateinit var objectMapper: ObjectMapper
 
+    @Test
+    fun `test hjem endepunkt returnerer en velkommen tekst`(){
+        assert(adminController.hjem().isNotEmpty())
+    }
+
 
     @Test
     fun `behandle godkjent tilskuddsperiode`(){

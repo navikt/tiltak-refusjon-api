@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-class AdminController(val service: RefusjonService, val objectMapper: ObjectMapper) {
+class RetryController(val service: RefusjonService, val objectMapper: ObjectMapper) {
     var logger = LoggerFactory.getLogger(javaClass)
 
     @Unprotected

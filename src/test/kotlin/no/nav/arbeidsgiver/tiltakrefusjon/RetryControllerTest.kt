@@ -15,10 +15,10 @@ import org.springframework.test.context.ActiveProfiles
 @ActiveProfiles("local")
 @SpringBootTest
 @DirtiesContext
-internal class AdminControllerTest {
+internal class RetryControllerTest {
 
     @Autowired
-    lateinit var adminController: AdminController
+    lateinit var retryController: RetryController
     @MockkBean
     lateinit var refusjonService: RefusjonService
     @Autowired
@@ -26,7 +26,7 @@ internal class AdminControllerTest {
 
     @Test
     fun `test hjem endepunkt returnerer en velkommen tekst`(){
-        assert(adminController.hjem().isNotEmpty())
+        assert(retryController.hjem().isNotEmpty())
     }
 
 
@@ -45,7 +45,7 @@ internal class AdminControllerTest {
             refusjonService.opprettRefusjon(any())
         } returns Unit
 
-        adminController.opprettRefusjon(godkjentTilskuddsperiodeMelding)
+        retryController.opprettRefusjon(godkjentTilskuddsperiodeMelding)
 
         verify {
             refusjonService.opprettRefusjon(match<TilskuddsperiodeGodkjentMelding>{

@@ -9,15 +9,16 @@ import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkj
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 
 @Service
 class RefusjonService(
-        val inntektskomponentService: InntektskomponentService,
-        val refusjonRepository: RefusjonRepository,
-        val kontoregisterService: KontoregisterService,
-        @Value("\${NAIS_APP_IMAGE:}")
-        val appImageId: String
+    val inntektskomponentService: InntektskomponentService,
+    val refusjonRepository: RefusjonRepository,
+    val kontoregisterService: KontoregisterService,
+    @Value("\${NAIS_APP_IMAGE:}")
+    val appImageId: String,
 ) {
     val log = LoggerFactory.getLogger(javaClass)
 
@@ -30,37 +31,39 @@ class RefusjonService(
         }
 
         val tilskuddsgrunnlag = Tilskuddsgrunnlag(
-                avtaleId = tilskuddsperiodeGodkjentMelding.avtaleId,
-                tilskuddsperiodeId = tilskuddsperiodeGodkjentMelding.tilskuddsperiodeId,
-                deltakerFornavn = tilskuddsperiodeGodkjentMelding.deltakerFornavn,
-                deltakerEtternavn = tilskuddsperiodeGodkjentMelding.deltakerEtternavn,
-                deltakerFnr = tilskuddsperiodeGodkjentMelding.deltakerFnr,
-                veilederNavIdent = tilskuddsperiodeGodkjentMelding.veilederNavIdent,
-                bedriftNavn = tilskuddsperiodeGodkjentMelding.bedriftNavn,
-                bedriftNr = tilskuddsperiodeGodkjentMelding.bedriftNr,
-                tilskuddFom = tilskuddsperiodeGodkjentMelding.tilskuddFom,
-                tilskuddTom = tilskuddsperiodeGodkjentMelding.tilskuddTom,
-                feriepengerSats = tilskuddsperiodeGodkjentMelding.feriepengerSats,
-                otpSats = tilskuddsperiodeGodkjentMelding.otpSats,
-                arbeidsgiveravgiftSats = tilskuddsperiodeGodkjentMelding.arbeidsgiveravgiftSats,
-                tiltakstype = tilskuddsperiodeGodkjentMelding.tiltakstype,
-                tilskuddsbeløp = tilskuddsperiodeGodkjentMelding.tilskuddsbeløp,
-                lønnstilskuddsprosent = tilskuddsperiodeGodkjentMelding.lønnstilskuddsprosent,
-                avtaleNr = tilskuddsperiodeGodkjentMelding.avtaleNr,
-                løpenummer = tilskuddsperiodeGodkjentMelding.løpenummer,
-                enhet = tilskuddsperiodeGodkjentMelding.enhet,
+            avtaleId = tilskuddsperiodeGodkjentMelding.avtaleId,
+            tilskuddsperiodeId = tilskuddsperiodeGodkjentMelding.tilskuddsperiodeId,
+            deltakerFornavn = tilskuddsperiodeGodkjentMelding.deltakerFornavn,
+            deltakerEtternavn = tilskuddsperiodeGodkjentMelding.deltakerEtternavn,
+            deltakerFnr = tilskuddsperiodeGodkjentMelding.deltakerFnr,
+            veilederNavIdent = tilskuddsperiodeGodkjentMelding.veilederNavIdent,
+            bedriftNavn = tilskuddsperiodeGodkjentMelding.bedriftNavn,
+            bedriftNr = tilskuddsperiodeGodkjentMelding.bedriftNr,
+            tilskuddFom = tilskuddsperiodeGodkjentMelding.tilskuddFom,
+            tilskuddTom = tilskuddsperiodeGodkjentMelding.tilskuddTom,
+            feriepengerSats = tilskuddsperiodeGodkjentMelding.feriepengerSats,
+            otpSats = tilskuddsperiodeGodkjentMelding.otpSats,
+            arbeidsgiveravgiftSats = tilskuddsperiodeGodkjentMelding.arbeidsgiveravgiftSats,
+            tiltakstype = tilskuddsperiodeGodkjentMelding.tiltakstype,
+            tilskuddsbeløp = tilskuddsperiodeGodkjentMelding.tilskuddsbeløp,
+            lønnstilskuddsprosent = tilskuddsperiodeGodkjentMelding.lønnstilskuddsprosent,
+            avtaleNr = tilskuddsperiodeGodkjentMelding.avtaleNr,
+            løpenummer = tilskuddsperiodeGodkjentMelding.løpenummer,
+            enhet = tilskuddsperiodeGodkjentMelding.enhet,
         )
         val refusjon = Refusjon(
-                tilskuddsgrunnlag = tilskuddsgrunnlag,
-                deltakerFnr = tilskuddsperiodeGodkjentMelding.deltakerFnr,
-                bedriftNr = tilskuddsperiodeGodkjentMelding.bedriftNr,
+            tilskuddsgrunnlag = tilskuddsgrunnlag,
+            deltakerFnr = tilskuddsperiodeGodkjentMelding.deltakerFnr,
+            bedriftNr = tilskuddsperiodeGodkjentMelding.bedriftNr,
         )
 
         refusjonRepository.save(refusjon)
     }
 
     fun gjørInntektsoppslag(refusjon: Refusjon) {
-        if (refusjon.inntektsgrunnlag != null && refusjon.inntektsgrunnlag!!.innhentetTidspunkt.plusMinutes(1).isAfter(Now.localDateTime())) {
+        if (refusjon.inntektsgrunnlag != null && refusjon.inntektsgrunnlag!!.innhentetTidspunkt.plusMinutes(1)
+                .isAfter(Now.localDateTime())
+        ) {
             return
         }
         val inntektsoppslag = inntektskomponentService.hentInntekter(
@@ -70,11 +73,20 @@ class RefusjonService(
             refusjon.tilskuddsgrunnlag.tilskuddTom
         )
         val inntektsgrunnlag = Inntektsgrunnlag(
-                inntekter = inntektsoppslag.first,
-                respons = inntektsoppslag.second
+            inntekter = inntektsoppslag.first,
+            respons = inntektsoppslag.second
         )
 
-        refusjon.oppgiInntektsgrunnlag(inntektsgrunnlag, appImageId)
+        val tidligereUtbetalt =
+            if (refusjon.korreksjonAvId != null) {
+                val refusjonSomBleKorrigert = refusjonRepository.findByIdOrNull(refusjon.korreksjonAvId)!!
+                refusjonSomBleKorrigert.beregning!!.refusjonsbeløp + (refusjonSomBleKorrigert.beregning!!.tidligereUtbetalt
+                    ?: 0)
+            } else 0
+
+        refusjon.oppgiInntektsgrunnlag(inntektsgrunnlag,
+            appImageId,
+            tidligereUtbetalt)
 
         refusjonRepository.save(refusjon)
     }
@@ -107,7 +119,9 @@ class RefusjonService(
     }
 
     fun gjørBedriftKontonummeroppslag(refusjon: Refusjon) {
-        if (refusjon.innhentetBedriftKontonummerTidspunkt != null && refusjon.innhentetBedriftKontonummerTidspunkt!!.isAfter(Now.localDateTime().minusMinutes(1))) {
+        if (refusjon.innhentetBedriftKontonummerTidspunkt != null && refusjon.innhentetBedriftKontonummerTidspunkt!!.isAfter(
+                Now.localDateTime().minusMinutes(1))
+        ) {
             return
         }
         refusjon.oppgiBedriftKontonummer(kontoregisterService.hentBankkontonummer(refusjon.bedriftNr))

@@ -74,6 +74,14 @@ Egenskap: Beregn refusjon for lønnstilskudd
     Og tilskuddsbeløp er 5000 kr
     Så beregnes refusjon til 5000 kr for periode
 
+  Scenario: Er korreksjon, skal da avkorte refusjon
+    Gitt følgende opplysninger om inntekt
+      | inntektType   | beskrivelse | beløp | måned   | opptjeningsperiodeFom | opptjeningsperiodeTom |
+      | LOENNSINNTEKT | fastloenn   | 10000 | 2020-03 | 2020-04-01            | 2020-04-30            |
+    Når lønnstilskudd på 51 prosent skal refunderes for periode "2020-04-01" til "2020-04-30" med arbeidsgiveravgift "0.0", feriepengersats "0.0", OTP-sats "0.0"
+    Og tilskuddsbeløp er 5000 kr
+    Og tidligere utbetalt er 4999 kr
+    Så beregnes refusjon til 1 kr for periode
 
   Scenario: Skal filtrere ut riktige lønnsinntekter
     Gitt følgende opplysninger om inntekt

@@ -149,7 +149,7 @@ fun Refusjon.medInntektsgrunnlag(
     måned: YearMonth = YearMonth.now(),
     inntektsgrunnlag: Inntektsgrunnlag = etInntektsgrunnlag(måned = måned),
 ): Refusjon {
-    this.oppgiInntektsgrunnlag(inntektsgrunnlag, "")
+    this.oppgiInntektsgrunnlag(inntektsgrunnlag, "", 0)
     return this
 }
 

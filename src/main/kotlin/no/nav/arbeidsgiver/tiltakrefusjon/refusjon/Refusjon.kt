@@ -19,7 +19,7 @@ data class Refusjon(
     val tilskuddsgrunnlag: Tilskuddsgrunnlag,
     val bedriftNr: String,
     val deltakerFnr: String,
-
+    val korreksjonAvId: String? = null
     ) : AbstractAggregateRoot<Refusjon>() {
     @Id
     val id: String = ULID.random()
@@ -41,6 +41,8 @@ data class Refusjon(
 
     @Enumerated(EnumType.STRING)
     lateinit var status: RefusjonStatus
+
+    var korrigeresAvId: String? = null
 
     init {
         oppdaterStatus()
@@ -79,12 +81,13 @@ data class Refusjon(
 
     }
 
-    fun oppgiInntektsgrunnlag(inntektsgrunnlag: Inntektsgrunnlag, appImageId: String) {
+    fun oppgiInntektsgrunnlag(inntektsgrunnlag: Inntektsgrunnlag, appImageId: String, tidligereUtbetalt: Int) {
         oppdaterStatus()
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
 
         if (inntektsgrunnlag.inntekter.isNotEmpty()) {
-            beregning = beregnRefusjonsbeløp(inntektsgrunnlag.inntekter, tilskuddsgrunnlag, appImageId)
+            beregning = beregnRefusjonsbeløp(inntektsgrunnlag.inntekter, tilskuddsgrunnlag, appImageId,
+                tidligereUtbetalt)
         }
         this.inntektsgrunnlag = inntektsgrunnlag
         registerEvent(InntekterInnhentet(this))
@@ -133,4 +136,10 @@ data class Refusjon(
         innhentetBedriftKontonummerTidspunkt = Now.localDateTime()
     }
 
+    fun lagKorreksjon(): Refusjon {
+        krevStatus(RefusjonStatus.UTBETALT, RefusjonStatus.SENDT_KRAV, RefusjonStatus.UTGÅTT)
+        val korreksjon = Refusjon(this.tilskuddsgrunnlag, this.bedriftNr, this.deltakerFnr, this.id)
+        this.korrigeresAvId = korreksjon.id
+        return korreksjon
+    }
 }

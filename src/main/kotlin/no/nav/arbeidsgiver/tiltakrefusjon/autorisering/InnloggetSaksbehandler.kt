@@ -57,4 +57,12 @@ data class InnloggetSaksbehandler(
         }
         throw TilgangskontrollException()
     }
+
+    fun korriger(id: String): Refusjon {
+        val gammel = finnRefusjon(id)
+        val ny = gammel.lagKorreksjon()
+        refusjonRepository.save(ny)
+        refusjonRepository.save(gammel)
+        return ny
+    }
 }

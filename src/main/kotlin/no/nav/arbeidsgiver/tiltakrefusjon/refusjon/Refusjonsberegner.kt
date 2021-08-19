@@ -37,6 +37,7 @@ fun beregnRefusjonsbeløp(
     inntekter: List<Inntektslinje>,
     tilskuddsgrunnlag: Tilskuddsgrunnlag,
     appImageId: String,
+    tidligereUtbetalt: Int,
 ): Beregning {
     val lønn = inntekter
         .filter(Inntektslinje::erMedIInntektsgrunnlag)
@@ -48,7 +49,7 @@ fun beregnRefusjonsbeløp(
     var beregnetBeløp = sumUtgifter * (tilskuddsgrunnlag.lønnstilskuddsprosent / 100.0)
 
     val overTilskuddsbeløp = beregnetBeløp > tilskuddsgrunnlag.tilskuddsbeløp
-    val refusjonsbeløp = if (overTilskuddsbeløp) tilskuddsgrunnlag.tilskuddsbeløp.toDouble() else beregnetBeløp
+    val refusjonsbeløp = (if (overTilskuddsbeløp) tilskuddsgrunnlag.tilskuddsbeløp.toDouble() else beregnetBeløp) - tidligereUtbetalt
 
     return Beregning(
         lønn = lønn.roundToInt(),
@@ -59,6 +60,7 @@ fun beregnRefusjonsbeløp(
         beregnetBeløp = beregnetBeløp.roundToInt(),
         refusjonsbeløp = refusjonsbeløp.roundToInt(),
         overTilskuddsbeløp = overTilskuddsbeløp,
+        tidligereUtbetalt = tidligereUtbetalt,
         appImageId = appImageId
     )
 }

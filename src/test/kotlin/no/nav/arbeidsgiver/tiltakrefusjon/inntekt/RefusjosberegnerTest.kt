@@ -81,7 +81,7 @@ class RefusjosberegnerTest {
             40000
         )
         var beregning: Beregning? = null
-        beregning = beregnRefusjonsbeløp(inntektsgrunnlag.inntekter, tilskuddsgrunnlagSommerJobb, "appImageId")
+        beregning = beregnRefusjonsbeløp(inntektsgrunnlag.inntekter, tilskuddsgrunnlagSommerJobb, "appImageId", 0)
         val beregnetBeløpHeleInntektsgrunnlaget: Int = 20856
         assertThat(beregning.refusjonsbeløp == beregnetBeløpHeleInntektsgrunnlaget)
 
@@ -98,7 +98,7 @@ class RefusjosberegnerTest {
             40000
         )
         var beregning: Beregning? = null
-        beregning = beregnRefusjonsbeløp(inntektsgrunnlag.inntekter, tilskuddsgrunnlagSommerJobb, "appImageId")
+        beregning = beregnRefusjonsbeløp(inntektsgrunnlag.inntekter, tilskuddsgrunnlagSommerJobb, "appImageId", 0)
         val beregnetBeløpAvAntallDagerJobbetInnenforInntektsgrunnlaget: Int = 15810
         assertThat(beregning.refusjonsbeløp == beregnetBeløpAvAntallDagerJobbetInnenforInntektsgrunnlaget)
     }

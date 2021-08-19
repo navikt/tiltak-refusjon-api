@@ -11,7 +11,7 @@ data class Inntektsgrunnlag(
         @OneToMany(mappedBy = "inntektsgrunnlag", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
         val inntekter: List<Inntektslinje>,
         @JsonIgnore
-        val respons: String
+        val respons: String?
 ) {
     @Id
     val id: String = ULID.random()

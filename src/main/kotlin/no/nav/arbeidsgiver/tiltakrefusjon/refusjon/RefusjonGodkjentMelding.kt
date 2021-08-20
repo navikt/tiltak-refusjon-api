@@ -33,7 +33,7 @@ data class RefusjonGodkjentMelding(
                                 refusjon.tilskuddsgrunnlag.veilederNavIdent,
                                 refusjon.tilskuddsgrunnlag.bedriftNavn,
                                 refusjon.tilskuddsgrunnlag.bedriftNr,
-                                refusjon.tilskuddsgrunnlag.tilskuddsbeløp,
+                                refusjon.beregning!!.refusjonsbeløp,
                                 refusjon.id,
                                 refusjon.tilskuddsgrunnlag.tilskuddFom,
                                 refusjon.tilskuddsgrunnlag.tilskuddTom,

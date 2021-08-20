@@ -24,6 +24,8 @@ data class InnloggetSaksbehandler(
                 refusjonRepository.findAllByDeltakerFnr(queryParametre.deltakerFnr)
             } else if (!queryParametre.enhet.isNullOrBlank()) {
                 refusjonRepository.findAllByTilskuddsgrunnlag_Enhet(queryParametre.enhet)
+            } else if (queryParametre.avtaleNr !== null) {
+                refusjonRepository.findAllByTilskuddsgrunnlag_AvtaleNr(queryParametre.avtaleNr);
             } else {
                 emptyList()
             }

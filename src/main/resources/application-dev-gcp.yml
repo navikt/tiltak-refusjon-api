@@ -11,5 +11,6 @@ tiltak-refusjon:
     beOmRettighetBaseUrl: https://arbeidsgiver-q.nav.no/min-side-arbeidsgiver/?fragment=be-om-tilgang
     serviceCode: 4936
     serviceEdition: 1
+    antall: 3
   abac-tilgangstyring:
     uri: https://tiltak-proxy.dev-fss-pub.nais.io/application/asm-pdp/authorize

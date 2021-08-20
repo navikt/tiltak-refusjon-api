@@ -18,19 +18,18 @@ class AltinnTilgangsstyringService(
     @Qualifier("påVegneAvArbeidsgiverAltinnRestTemplate")
     val restTemplate: RestTemplate,
 ) {
-
     private val logger = LoggerFactory.getLogger(javaClass)
-
-    private val ALTINN_ORG_PAGE_SIZE = 3
 
     fun hentTilganger(fnr: String): Set<Organisasjon> {
         val organisasjoner = HashSet<Organisasjon>()
-        var merÅHente = true;
+        var merÅHente = true
         var i = 0;
         while (merÅHente) {
-            val nyeOrg = hentFraAltinn(fnr, ALTINN_ORG_PAGE_SIZE * i++)
+            val skip = altinnTilgangsstyringProperties.antall * i++
+            logger.info("Henter organisasjoner fra Altinn, skip: $skip")
+            val nyeOrg = hentFraAltinn(fnr, skip)
             organisasjoner.addAll(nyeOrg)
-            merÅHente = nyeOrg.size >= ALTINN_ORG_PAGE_SIZE
+            merÅHente = nyeOrg.size >= altinnTilgangsstyringProperties.antall
         }
         return organisasjoner
     }
@@ -38,7 +37,7 @@ class AltinnTilgangsstyringService(
     private fun hentFraAltinn(fnr: String, skip: Int): Set<Organisasjon> {
         try {
             return restTemplate.exchange(
-                lagAltinnUrl(fnr, ALTINN_ORG_PAGE_SIZE, skip),
+                lagAltinnUrl(fnr, skip),
                 HttpMethod.GET,
                 getAuthHeadersForAltinn(),
                 Array<Organisasjon>::class.java).body?.toSet()
@@ -49,13 +48,13 @@ class AltinnTilgangsstyringService(
         }
     }
 
-    private fun lagAltinnUrl(fnr: String, top: Int, skip: Int): URI {
+    private fun lagAltinnUrl(fnr: String, skip: Int): URI {
         return UriComponentsBuilder.fromUri(altinnTilgangsstyringProperties.uri)
             .queryParam("ForceEIAuthentication")
             .queryParam("subject", fnr)
             .queryParam("serviceCode", altinnTilgangsstyringProperties.serviceCode)
             .queryParam("serviceEdition", altinnTilgangsstyringProperties.serviceEdition)
-            .queryParam("\$top", top)
+            .queryParam("\$top", altinnTilgangsstyringProperties.antall)
             .queryParam("\$skip", skip)
             .queryParam("\$filter", "Type+ne+'Person'")
             .build()

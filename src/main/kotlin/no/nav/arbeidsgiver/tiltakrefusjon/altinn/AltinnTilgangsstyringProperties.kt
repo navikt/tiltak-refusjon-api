@@ -11,5 +11,6 @@ data class AltinnTilgangsstyringProperties(
         var altinnApiKey: String = "",
         var beOmRettighetBaseUrl: String = "",
         var serviceCode: Int = 0,
-        var serviceEdition: Int = 0
+        var serviceEdition: Int = 0,
+        var antall: Int = 500
 )

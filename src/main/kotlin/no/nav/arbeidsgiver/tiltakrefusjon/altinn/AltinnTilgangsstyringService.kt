@@ -21,7 +21,7 @@ class AltinnTilgangsstyringService(
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    private val ALTINN_ORG_PAGE_SIZE = 500
+    private val ALTINN_ORG_PAGE_SIZE = 3
 
     fun hentTilganger(fnr: String): Set<Organisasjon> {
         val organisasjoner = HashSet<Organisasjon>()

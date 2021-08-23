@@ -37,11 +37,18 @@ fun refusjoner(): List<Refusjon> {
             )
         )
     }
+    val bjørnsonSendtKrav = `Bjørnstjerne Bjørnson`().let {
+        it.medInntektsgrunnlag(måned = YearMonth.of(it.tilskuddsgrunnlag.tilskuddFom.year, it.tilskuddsgrunnlag.tilskuddFom.month))
+        it.medBedriftKontonummer()
+        it.medSendtKravFraArbeidsgiver()
+    }
+
     return listOf(
         kiellandNy,
         kiellandGammel,
         BjørnsonUtgått,
         `Bjørnstjerne Bjørnson`(),
+        bjørnsonSendtKrav,
         `Nils Nilsen`(),
         `Inger Hagerup`(),
         `Amalie Skram`()
@@ -167,7 +174,7 @@ fun etInntektsgrunnlag(måned: YearMonth = YearMonth.of(2020, 10)) = Inntektsgru
     inntekter = listOf(
         Inntektslinje(
             inntektType = "LOENNSINNTEKT",
-            beskrivelse = "",
+            beskrivelse = "timeloenn",
             måned = måned,
             beløp = 7777.0,
             opptjeningsperiodeTom = null,

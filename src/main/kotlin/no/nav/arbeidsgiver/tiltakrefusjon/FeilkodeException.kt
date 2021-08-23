@@ -10,5 +10,6 @@ enum class Feilkode {
     ETTER_FRIST,
     INGEN_INNTEKTER,
     INGEN_BEDRIFTKONTONUMMER,
-    ALTINN
+    ALTINN,
+    HAR_KORREKSJON
 }

@@ -67,6 +67,11 @@ data class Refusjon(
             listOf(RefusjonStatus.SENDT_KRAV, RefusjonStatus.ANNULLERT, RefusjonStatus.UTGÅTT, RefusjonStatus.UTBETALT)
         if (::status.isInitialized && status in statuserSomIkkeKanEndres) return
 
+        if (korreksjonAvId != null) {
+            status = RefusjonStatus.MANUELL_KORREKSJON
+            return
+        }
+
         val today = Now.localDate()
         if (today.isAfter(fristForGodkjenning)) {
             status = RefusjonStatus.UTGÅTT
@@ -83,7 +88,7 @@ data class Refusjon(
 
     fun oppgiInntektsgrunnlag(inntektsgrunnlag: Inntektsgrunnlag, appImageId: String, tidligereUtbetalt: Int) {
         oppdaterStatus()
-        krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
+        krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING, RefusjonStatus.MANUELL_KORREKSJON)
 
         if (inntektsgrunnlag.inntekter.isNotEmpty()) {
             beregning = beregnRefusjonsbeløp(inntektsgrunnlag.inntekter, tilskuddsgrunnlag, appImageId,

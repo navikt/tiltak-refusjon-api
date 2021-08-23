@@ -2,9 +2,9 @@ package no.nav.arbeidsgiver.tiltakrefusjon.autorisering
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.arbeidsgiver.tiltakrefusjon.RessursFinnesIkkeException
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.HentSaksbehandlerRefusjonerQueryParametre
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonRepository
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.data.repository.findByIdOrNull
 
 data class InnloggetSaksbehandler(
@@ -12,7 +12,10 @@ data class InnloggetSaksbehandler(
     val navn: String,
     @JsonIgnore val abacTilgangsstyringService: AbacTilgangsstyringService,
     @JsonIgnore val refusjonRepository: RefusjonRepository,
+    @JsonIgnore val refusjonService: RefusjonService,
 ) {
+    @JsonIgnore
+    val log: Logger = LoggerFactory.getLogger(javaClass)
 
     fun finnAlle(queryParametre: HentSaksbehandlerRefusjonerQueryParametre): List<Refusjon> {
         var liste =
@@ -25,7 +28,7 @@ data class InnloggetSaksbehandler(
             } else if (!queryParametre.enhet.isNullOrBlank()) {
                 refusjonRepository.findAllByTilskuddsgrunnlag_Enhet(queryParametre.enhet)
             } else if (queryParametre.avtaleNr !== null) {
-                refusjonRepository.findAllByTilskuddsgrunnlag_AvtaleNr(queryParametre.avtaleNr);
+                refusjonRepository.findAllByTilskuddsgrunnlag_AvtaleNr(queryParametre.avtaleNr)
             } else {
                 emptyList()
             }
@@ -41,7 +44,15 @@ data class InnloggetSaksbehandler(
 
     fun finnRefusjon(id: String): Refusjon {
         val refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
-        return hvisLesetilgang(refusjon)
+        sjekkLesetilgang(refusjon)
+        if (refusjon.status == RefusjonStatus.MANUELL_KORREKSJON) {
+            try {
+                refusjonService.gjørInntektsoppslag(refusjon)
+            } catch (e: Exception) {
+                log.error("Feil ved henting av inntekt for ${refusjon.id}", e)
+            }
+        }
+        return refusjon
     }
 
     private fun medLesetilgang(refusjoner: List<Refusjon>): List<Refusjon> {
@@ -51,11 +62,10 @@ data class InnloggetSaksbehandler(
             }
     }
 
-    private fun hvisLesetilgang(refusjon: Refusjon): Refusjon {
-        if (abacTilgangsstyringService.harLeseTilgang(identifikator, refusjon.deltakerFnr)) {
-            return refusjon
+    private fun sjekkLesetilgang(refusjon: Refusjon) {
+        if (!abacTilgangsstyringService.harLeseTilgang(identifikator, refusjon.deltakerFnr)) {
+            throw TilgangskontrollException()
         }
-        throw TilgangskontrollException()
     }
 
     fun korriger(id: String): Refusjon {

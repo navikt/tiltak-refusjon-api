@@ -46,7 +46,7 @@ data class InnloggetArbeidsgiver(
                 log.error("Feil ved henting av kontonummer fra ${refusjon.id}", e)
             }
         }
-        if (refusjon.status == RefusjonStatus.KLAR_FOR_INNSENDING) {
+        if (refusjon.status == RefusjonStatus.KLAR_FOR_INNSENDING || refusjon.status == RefusjonStatus.MANUELL_KORREKSJON) {
             try {
                 refusjonService.gjørInntektsoppslag(refusjon)
             } catch (e: Exception) {

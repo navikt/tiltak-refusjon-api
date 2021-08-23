@@ -79,7 +79,8 @@ fun `Alexander Kielland`(): Refusjon {
             bedriftNr = bedriftNr,
             deltakerFornavn = "Alexander",
             deltakerEtternavn = "Kielland",
-            tilskuddsbeløp = 1357
+            tilskuddsbeløp = 1357,
+            veilederNavIdent = "Z123456"
         ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
     )
 }
@@ -94,6 +95,7 @@ fun `Bjørnstjerne Bjørnson`(): Refusjon {
             deltakerFornavn = "Bjørnstjerne",
             deltakerEtternavn = "Bjørnson",
             tilskuddsbeløp = 20579,
+            veilederNavIdent = "X123456"
         ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
     )
 }
@@ -107,7 +109,8 @@ fun `Nils Nilsen`(): Refusjon {
             bedriftNr = bedriftNr,
             deltakerFornavn = "Nils",
             deltakerEtternavn = "Nilsen",
-            tilskuddsbeløp = 10579
+            tilskuddsbeløp = 10579,
+            veilederNavIdent = "X123456"
         ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
     )
 }
@@ -121,7 +124,8 @@ fun `Inger Hagerup`(): Refusjon {
             deltakerEtternavn = "Hagerup",
             deltakerFnr = deltakerFnr,
             bedriftNr = bedriftNr,
-            tilskuddsbeløp = 10579
+            tilskuddsbeløp = 10579,
+            veilederNavIdent = "X123456"
         ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
     )
 }
@@ -135,7 +139,8 @@ fun `Amalie Skram`(): Refusjon {
             deltakerEtternavn = "Skram",
             deltakerFnr = deltakerFnr,
             bedriftNr = bedriftNr,
-            tilskuddsbeløp = 10579
+            tilskuddsbeløp = 10579,
+            veilederNavIdent = "X123456"
         ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
     )
 }

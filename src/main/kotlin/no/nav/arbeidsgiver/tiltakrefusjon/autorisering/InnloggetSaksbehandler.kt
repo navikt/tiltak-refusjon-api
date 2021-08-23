@@ -1,6 +1,8 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.autorisering
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
+import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.RessursFinnesIkkeException
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import org.slf4j.Logger
@@ -74,5 +76,17 @@ data class InnloggetSaksbehandler(
         refusjonRepository.save(ny)
         refusjonRepository.save(gammel)
         return ny
+    }
+
+    fun slettKorreksjon(id: String): Refusjon {
+        val korreksjon = finnRefusjon(id)
+        if (!korreksjon.kanSlettes()) {
+            throw FeilkodeException(Feilkode.UGYLDIG_STATUS)
+        }
+        val opprinneligRefusjon = refusjonRepository.findByIdOrNull(korreksjon.korreksjonAvId)!!
+        opprinneligRefusjon.korrigeresAvId = null
+        refusjonRepository.save(opprinneligRefusjon)
+        refusjonRepository.delete(korreksjon)
+        return korreksjon
     }
 }

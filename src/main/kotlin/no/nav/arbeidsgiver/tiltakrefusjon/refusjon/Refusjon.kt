@@ -146,9 +146,13 @@ data class Refusjon(
         if (korrigeresAvId != null) {
             throw FeilkodeException(Feilkode.HAR_KORREKSJON)
         }
-        val korreksjon = Refusjon(this.tilskuddsgrunnlag, this.bedriftNr, this.deltakerFnr, this.id)
+        val korreksjon = Refusjon(Tilskuddsgrunnlag(this.tilskuddsgrunnlag), this.bedriftNr, this.deltakerFnr, this.id)
         korreksjon.bedriftKontonummer = this.bedriftKontonummer
         this.korrigeresAvId = korreksjon.id
         return korreksjon
+    }
+
+    fun kanSlettes(): Boolean {
+        return status == RefusjonStatus.MANUELL_KORREKSJON
     }
 }

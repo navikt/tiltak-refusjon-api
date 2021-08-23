@@ -27,7 +27,7 @@ data class InnloggetArbeidsgiver(
 
     fun finnAlleMedBedriftnummer(bedriftnummer: String): List<Refusjon> {
         sjekkHarTilgangTilRefusjonerForBedrift(bedriftnummer)
-        return refusjonRepository.findAllByBedriftNr(bedriftnummer)
+        return refusjonRepository.findAllByBedriftNr(bedriftnummer).filter { it.status != RefusjonStatus.MANUELL_KORREKSJON }
     }
 
     fun godkjenn(refusjonId: String) {

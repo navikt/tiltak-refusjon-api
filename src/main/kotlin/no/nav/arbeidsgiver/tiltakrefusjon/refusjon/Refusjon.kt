@@ -155,6 +155,17 @@ data class Refusjon(
             throw FeilkodeException(Feilkode.INGEN_KORREKSJONSGRUNNER)
         }
         val korreksjon = Refusjon(Tilskuddsgrunnlag(this.tilskuddsgrunnlag), this.bedriftNr, this.deltakerFnr, this.id)
+        val kopiAvInntektsgrunnlag = Inntektsgrunnlag(
+            inntekter = this.inntektsgrunnlag!!.inntekter.map {
+                Inntektslinje(it.inntektType,
+                    it.beskrivelse,
+                    it.beløp,
+                    it.måned,
+                    it.opptjeningsperiodeFom,
+                    it.opptjeningsperiodeTom)
+            }, respons = this.inntektsgrunnlag!!.respons)
+        kopiAvInntektsgrunnlag.innhentetTidspunkt = this.inntektsgrunnlag!!.innhentetTidspunkt
+        korreksjon.inntektsgrunnlag = kopiAvInntektsgrunnlag
         korreksjon.bedriftKontonummer = this.bedriftKontonummer
         korreksjon.korreksjonsgrunner.addAll(korreksjonsgrunner)
         this.korrigeresAvId = korreksjon.id

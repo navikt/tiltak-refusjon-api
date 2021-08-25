@@ -47,7 +47,7 @@ data class InnloggetSaksbehandler(
     fun finnRefusjon(id: String): Refusjon {
         val refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(refusjon)
-        if (refusjon.status == RefusjonStatus.MANUELL_KORREKSJON) {
+        if (refusjon.status == RefusjonStatus.MANUELL_KORREKSJON && refusjon.korreksjonsgrunner.contains(Korreksjonsgrunn.HENT_INNTEKTER_PÅ_NYTT)) {
             try {
                 refusjonService.gjørInntektsoppslag(refusjon)
             } catch (e: Exception) {
@@ -72,10 +72,7 @@ data class InnloggetSaksbehandler(
 
     fun korriger(id: String, korreksjonsgrunner: Set<Korreksjonsgrunn>): Refusjon {
         val gammel = finnRefusjon(id)
-        val ny = gammel.lagKorreksjon(korreksjonsgrunner)
-        refusjonRepository.save(ny)
-        refusjonRepository.save(gammel)
-        return ny
+        return refusjonService.korriger(gammel, korreksjonsgrunner)
     }
 
     fun slettKorreksjon(id: String): Refusjon {

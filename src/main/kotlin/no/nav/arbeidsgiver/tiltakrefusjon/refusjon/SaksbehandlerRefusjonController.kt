@@ -2,6 +2,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBrukerService
 import no.nav.security.token.support.core.api.Protected
+import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.web.bind.annotation.*
 
 const val REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON = "/api/saksbehandler/refusjon"
@@ -10,7 +11,7 @@ data class HentSaksbehandlerRefusjonerQueryParametre(val veilederNavIdent: Strin
 
 @RestController
 @RequestMapping(REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON)
-@Protected
+@ProtectedWithClaims(issuer = "aad")
 class SaksbehandlerRefusjonController(
         val innloggetBrukerService: InnloggetBrukerService
 ) {

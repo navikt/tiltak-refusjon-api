@@ -22,12 +22,12 @@ class RefusjonService(
 ) {
     val log = LoggerFactory.getLogger(javaClass)
 
-    fun opprettRefusjon(tilskuddsperiodeGodkjentMelding: TilskuddsperiodeGodkjentMelding) {
+    fun opprettRefusjon(tilskuddsperiodeGodkjentMelding: TilskuddsperiodeGodkjentMelding): Refusjon? {
         log.info("Oppretter refusjon for tilskuddsperiodeId ${tilskuddsperiodeGodkjentMelding.tilskuddsperiodeId}")
 
         if (refusjonRepository.findByTilskuddsgrunnlag_TilskuddsperiodeId(tilskuddsperiodeGodkjentMelding.tilskuddsperiodeId) != null) {
             log.warn("Refusjon finnes allerede for tilskuddsperiode med id ${tilskuddsperiodeGodkjentMelding.tilskuddsperiodeId}")
-            return;
+            return null;
         }
 
         val tilskuddsgrunnlag = Tilskuddsgrunnlag(
@@ -57,7 +57,7 @@ class RefusjonService(
             bedriftNr = tilskuddsperiodeGodkjentMelding.bedriftNr,
         )
 
-        refusjonRepository.save(refusjon)
+        return refusjonRepository.save(refusjon)
     }
 
     fun gjørInntektsoppslag(refusjon: Refusjon) {
@@ -138,5 +138,12 @@ class RefusjonService(
         refusjon.oppgiBedriftKontonummer(kontoregisterService.hentBankkontonummer(refusjon.bedriftNr))
 
         refusjonRepository.save(refusjon)
+    }
+
+    fun korriger(gammel: Refusjon, korreksjonsgrunner: Set<Korreksjonsgrunn>): Refusjon {
+        val ny = gammel.lagKorreksjon(korreksjonsgrunner)
+        refusjonRepository.save(ny)
+        refusjonRepository.save(gammel)
+        return ny
     }
 }

@@ -68,7 +68,7 @@ class RefusjonApiTest(
         val json = sendRequest(get("$REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON?enhet=1000"), navCookie)
         val liste = mapper.readValue(json, object : TypeReference<List<Refusjon>>() {})
 
-        assertEquals(5, liste.size)
+        assertEquals(6, liste.size)
         assertNull(liste.find { it.deltakerFnr == "07098142678" })
     }
 

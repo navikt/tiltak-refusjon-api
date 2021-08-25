@@ -15,20 +15,14 @@ import org.springframework.test.context.ActiveProfiles
 @ActiveProfiles("local")
 @SpringBootTest
 @DirtiesContext
-internal class RetryControllerTest {
+internal class AdminControllerTest {
 
     @Autowired
-    lateinit var retryController: RetryController
+    lateinit var retryController: AdminController
     @MockkBean
     lateinit var refusjonService: RefusjonService
     @Autowired
     lateinit var objectMapper: ObjectMapper
-
-    @Test
-    fun `test hjem endepunkt returnerer en velkommen tekst`(){
-        assert(retryController.hjem().isNotEmpty())
-    }
-
 
     @Test
     fun `behandle godkjent tilskuddsperiode`(){
@@ -43,12 +37,12 @@ internal class RetryControllerTest {
 
         every {
             refusjonService.opprettRefusjon(any())
-        } returns Unit
+        } returns enRefusjon()
 
-        retryController.opprettRefusjon(godkjentTilskuddsperiodeMelding)
+        retryController.opprettRefusjon(objectMapper.readValue(godkjentTilskuddsperiodeMelding, TilskuddsperiodeGodkjentMelding::class.java))
 
         verify {
-            refusjonService.opprettRefusjon(match<TilskuddsperiodeGodkjentMelding>{
+            refusjonService.opprettRefusjon(match {
                 it.avtaleId == "77ef828e-426f-4587-b662-f4b94667b1ee"
             })
         }

@@ -11,6 +11,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
+import java.util.*
 import javax.persistence.*
 
 @Entity
@@ -19,8 +20,8 @@ data class Refusjon(
     val tilskuddsgrunnlag: Tilskuddsgrunnlag,
     val bedriftNr: String,
     val deltakerFnr: String,
-
-    ) : AbstractAggregateRoot<Refusjon>() {
+    val korreksjonAvId: String? = null,
+) : AbstractAggregateRoot<Refusjon>() {
     @Id
     val id: String = ULID.random()
 
@@ -41,6 +42,12 @@ data class Refusjon(
 
     @Enumerated(EnumType.STRING)
     lateinit var status: RefusjonStatus
+
+    var korrigeresAvId: String? = null
+
+    @Enumerated(EnumType.STRING)
+    @ElementCollection(fetch = FetchType.EAGER)
+    val korreksjonsgrunner: MutableSet<Korreksjonsgrunn> = EnumSet.noneOf(Korreksjonsgrunn::class.java)
 
     init {
         oppdaterStatus()
@@ -65,6 +72,11 @@ data class Refusjon(
             listOf(RefusjonStatus.SENDT_KRAV, RefusjonStatus.ANNULLERT, RefusjonStatus.UTGÅTT, RefusjonStatus.UTBETALT)
         if (::status.isInitialized && status in statuserSomIkkeKanEndres) return
 
+        if (korreksjonAvId != null) {
+            status = RefusjonStatus.MANUELL_KORREKSJON
+            return
+        }
+
         val today = Now.localDate()
         if (today.isAfter(fristForGodkjenning)) {
             status = RefusjonStatus.UTGÅTT
@@ -79,12 +91,13 @@ data class Refusjon(
 
     }
 
-    fun oppgiInntektsgrunnlag(inntektsgrunnlag: Inntektsgrunnlag, appImageId: String) {
+    fun oppgiInntektsgrunnlag(inntektsgrunnlag: Inntektsgrunnlag, appImageId: String, tidligereUtbetalt: Int) {
         oppdaterStatus()
-        krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
+        krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING, RefusjonStatus.MANUELL_KORREKSJON)
 
         if (inntektsgrunnlag.inntekter.isNotEmpty()) {
-            beregning = beregnRefusjonsbeløp(inntektsgrunnlag.inntekter, tilskuddsgrunnlag, appImageId)
+            beregning = beregnRefusjonsbeløp(inntektsgrunnlag.inntekter, tilskuddsgrunnlag, appImageId,
+                tidligereUtbetalt)
         }
         this.inntektsgrunnlag = inntektsgrunnlag
         registerEvent(InntekterInnhentet(this))
@@ -133,4 +146,33 @@ data class Refusjon(
         innhentetBedriftKontonummerTidspunkt = Now.localDateTime()
     }
 
+    fun lagKorreksjon(korreksjonsgrunner: Set<Korreksjonsgrunn>): Refusjon {
+        krevStatus(RefusjonStatus.UTBETALT, RefusjonStatus.SENDT_KRAV, RefusjonStatus.UTGÅTT)
+        if (korrigeresAvId != null) {
+            throw FeilkodeException(Feilkode.HAR_KORREKSJON)
+        }
+        if (korreksjonsgrunner.isEmpty()) {
+            throw FeilkodeException(Feilkode.INGEN_KORREKSJONSGRUNNER)
+        }
+        val korreksjon = Refusjon(Tilskuddsgrunnlag(this.tilskuddsgrunnlag), this.bedriftNr, this.deltakerFnr, this.id)
+        val kopiAvInntektsgrunnlag = Inntektsgrunnlag(
+            inntekter = this.inntektsgrunnlag!!.inntekter.map {
+                Inntektslinje(it.inntektType,
+                    it.beskrivelse,
+                    it.beløp,
+                    it.måned,
+                    it.opptjeningsperiodeFom,
+                    it.opptjeningsperiodeTom)
+            }, respons = this.inntektsgrunnlag!!.respons)
+        kopiAvInntektsgrunnlag.innhentetTidspunkt = this.inntektsgrunnlag!!.innhentetTidspunkt
+        korreksjon.inntektsgrunnlag = kopiAvInntektsgrunnlag
+        korreksjon.bedriftKontonummer = this.bedriftKontonummer
+        korreksjon.korreksjonsgrunner.addAll(korreksjonsgrunner)
+        this.korrigeresAvId = korreksjon.id
+        return korreksjon
+    }
+
+    fun kanSlettes(): Boolean {
+        return status == RefusjonStatus.MANUELL_KORREKSJON
+    }
 }

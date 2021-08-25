@@ -15,7 +15,7 @@ data class Inntektsgrunnlag(
 ) {
     @Id
     val id: String = ULID.random()
-    val innhentetTidspunkt: LocalDateTime = Now.localDateTime();
+    var innhentetTidspunkt: LocalDateTime = Now.localDateTime();
 
     init {
         inntekter.forEach { it.setInntektsgrunnlag(this) }

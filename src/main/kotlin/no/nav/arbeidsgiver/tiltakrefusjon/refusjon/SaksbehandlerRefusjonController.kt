@@ -2,10 +2,8 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBrukerService
 import no.nav.security.token.support.core.api.Protected
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import no.nav.security.token.support.core.api.ProtectedWithClaims
+import org.springframework.web.bind.annotation.*
 
 const val REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON = "/api/saksbehandler/refusjon"
 
@@ -13,7 +11,7 @@ data class HentSaksbehandlerRefusjonerQueryParametre(val veilederNavIdent: Strin
 
 @RestController
 @RequestMapping(REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON)
-@Protected
+@ProtectedWithClaims(issuer = "aad")
 class SaksbehandlerRefusjonController(
         val innloggetBrukerService: InnloggetBrukerService
 ) {
@@ -27,5 +25,17 @@ class SaksbehandlerRefusjonController(
     fun hent(@PathVariable id: String): Refusjon? {
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
         return saksbehandler.finnRefusjon(id)
+    }
+
+    @PostMapping("/{id}/korriger")
+    fun korriger(@PathVariable id: String, @RequestBody request: KorrigerRequest): Refusjon {
+        val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
+        return saksbehandler.korriger(id, request.korreksjonsgrunner)
+    }
+
+    @PostMapping("/{id}/slett-korreksjon")
+    fun slettKorreksjon(@PathVariable id: String): Refusjon {
+        val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
+        return saksbehandler.slettKorreksjon(id)
     }
 }

@@ -19,6 +19,7 @@ class RefusjonsberegningSteps {
 
     lateinit var inntekstlinjer: List<Inntektslinje>
     lateinit var tilskuddsgrunnlag: Tilskuddsgrunnlag
+    var tidligereUtbetalt: Int = 0
 
     @Gitt("følgende opplysninger om inntekt")
     fun gitt(tabell: DataTable) {
@@ -67,8 +68,13 @@ class RefusjonsberegningSteps {
     }
 
     @Og("tilskuddsbeløp er {int} kr")
-    fun og(tilskuddsbeløp: Int) {
+    fun ogTilskuddsbeløp(tilskuddsbeløp: Int) {
         tilskuddsgrunnlag.tilskuddsbeløp = tilskuddsbeløp
+    }
+
+    @Og("tidligere utbetalt er {int} kr")
+    fun ogTidligereUtbetalt(refusjonsbeløp: Int) {
+        tidligereUtbetalt = refusjonsbeløp
     }
 
     @Så("beregnes refusjon til {int} kr for periode")
@@ -76,7 +82,8 @@ class RefusjonsberegningSteps {
         val beregnet = beregnRefusjonsbeløp(
             inntekter = inntekstlinjer,
             tilskuddsgrunnlag = tilskuddsgrunnlag,
-            appImageId = ""
+            appImageId = "",
+            tidligereUtbetalt
         )
         assertThat(beregnet.refusjonsbeløp).isEqualByComparingTo(refusjon);
     }

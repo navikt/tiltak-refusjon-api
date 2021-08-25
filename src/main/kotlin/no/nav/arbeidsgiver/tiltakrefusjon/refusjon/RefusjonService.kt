@@ -9,75 +9,98 @@ import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkj
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 
 @Service
 class RefusjonService(
-        val inntektskomponentService: InntektskomponentService,
-        val refusjonRepository: RefusjonRepository,
-        val kontoregisterService: KontoregisterService,
-        @Value("\${NAIS_APP_IMAGE:}")
-        val appImageId: String
+    val inntektskomponentService: InntektskomponentService,
+    val refusjonRepository: RefusjonRepository,
+    val kontoregisterService: KontoregisterService,
+    @Value("\${NAIS_APP_IMAGE:}")
+    val appImageId: String,
 ) {
     val log = LoggerFactory.getLogger(javaClass)
 
-    fun opprettRefusjon(tilskuddsperiodeGodkjentMelding: TilskuddsperiodeGodkjentMelding) {
+    fun opprettRefusjon(tilskuddsperiodeGodkjentMelding: TilskuddsperiodeGodkjentMelding): Refusjon? {
         log.info("Oppretter refusjon for tilskuddsperiodeId ${tilskuddsperiodeGodkjentMelding.tilskuddsperiodeId}")
 
         if (refusjonRepository.findByTilskuddsgrunnlag_TilskuddsperiodeId(tilskuddsperiodeGodkjentMelding.tilskuddsperiodeId) != null) {
             log.warn("Refusjon finnes allerede for tilskuddsperiode med id ${tilskuddsperiodeGodkjentMelding.tilskuddsperiodeId}")
-            return;
+            return null;
         }
 
         val tilskuddsgrunnlag = Tilskuddsgrunnlag(
-                avtaleId = tilskuddsperiodeGodkjentMelding.avtaleId,
-                tilskuddsperiodeId = tilskuddsperiodeGodkjentMelding.tilskuddsperiodeId,
-                deltakerFornavn = tilskuddsperiodeGodkjentMelding.deltakerFornavn,
-                deltakerEtternavn = tilskuddsperiodeGodkjentMelding.deltakerEtternavn,
-                deltakerFnr = tilskuddsperiodeGodkjentMelding.deltakerFnr,
-                veilederNavIdent = tilskuddsperiodeGodkjentMelding.veilederNavIdent,
-                bedriftNavn = tilskuddsperiodeGodkjentMelding.bedriftNavn,
-                bedriftNr = tilskuddsperiodeGodkjentMelding.bedriftNr,
-                tilskuddFom = tilskuddsperiodeGodkjentMelding.tilskuddFom,
-                tilskuddTom = tilskuddsperiodeGodkjentMelding.tilskuddTom,
-                feriepengerSats = tilskuddsperiodeGodkjentMelding.feriepengerSats,
-                otpSats = tilskuddsperiodeGodkjentMelding.otpSats,
-                arbeidsgiveravgiftSats = tilskuddsperiodeGodkjentMelding.arbeidsgiveravgiftSats,
-                tiltakstype = tilskuddsperiodeGodkjentMelding.tiltakstype,
-                tilskuddsbeløp = tilskuddsperiodeGodkjentMelding.tilskuddsbeløp,
-                lønnstilskuddsprosent = tilskuddsperiodeGodkjentMelding.lønnstilskuddsprosent,
-                avtaleNr = tilskuddsperiodeGodkjentMelding.avtaleNr,
-                løpenummer = tilskuddsperiodeGodkjentMelding.løpenummer,
-                enhet = tilskuddsperiodeGodkjentMelding.enhet,
+            avtaleId = tilskuddsperiodeGodkjentMelding.avtaleId,
+            tilskuddsperiodeId = tilskuddsperiodeGodkjentMelding.tilskuddsperiodeId,
+            deltakerFornavn = tilskuddsperiodeGodkjentMelding.deltakerFornavn,
+            deltakerEtternavn = tilskuddsperiodeGodkjentMelding.deltakerEtternavn,
+            deltakerFnr = tilskuddsperiodeGodkjentMelding.deltakerFnr,
+            veilederNavIdent = tilskuddsperiodeGodkjentMelding.veilederNavIdent,
+            bedriftNavn = tilskuddsperiodeGodkjentMelding.bedriftNavn,
+            bedriftNr = tilskuddsperiodeGodkjentMelding.bedriftNr,
+            tilskuddFom = tilskuddsperiodeGodkjentMelding.tilskuddFom,
+            tilskuddTom = tilskuddsperiodeGodkjentMelding.tilskuddTom,
+            feriepengerSats = tilskuddsperiodeGodkjentMelding.feriepengerSats,
+            otpSats = tilskuddsperiodeGodkjentMelding.otpSats,
+            arbeidsgiveravgiftSats = tilskuddsperiodeGodkjentMelding.arbeidsgiveravgiftSats,
+            tiltakstype = tilskuddsperiodeGodkjentMelding.tiltakstype,
+            tilskuddsbeløp = tilskuddsperiodeGodkjentMelding.tilskuddsbeløp,
+            lønnstilskuddsprosent = tilskuddsperiodeGodkjentMelding.lønnstilskuddsprosent,
+            avtaleNr = tilskuddsperiodeGodkjentMelding.avtaleNr,
+            løpenummer = tilskuddsperiodeGodkjentMelding.løpenummer,
+            enhet = tilskuddsperiodeGodkjentMelding.enhet,
         )
         val refusjon = Refusjon(
-                tilskuddsgrunnlag = tilskuddsgrunnlag,
-                deltakerFnr = tilskuddsperiodeGodkjentMelding.deltakerFnr,
-                bedriftNr = tilskuddsperiodeGodkjentMelding.bedriftNr,
+            tilskuddsgrunnlag = tilskuddsgrunnlag,
+            deltakerFnr = tilskuddsperiodeGodkjentMelding.deltakerFnr,
+            bedriftNr = tilskuddsperiodeGodkjentMelding.bedriftNr,
         )
 
-        refusjonRepository.save(refusjon)
+        return refusjonRepository.save(refusjon)
     }
 
     fun gjørInntektsoppslag(refusjon: Refusjon) {
-        if (refusjon.inntektsgrunnlag != null && refusjon.inntektsgrunnlag!!.innhentetTidspunkt.plusMinutes(1).isAfter(Now.localDateTime())) {
+        if (refusjon.inntektsgrunnlag != null && refusjon.inntektsgrunnlag!!.innhentetTidspunkt.plusMinutes(1)
+                .isAfter(Now.localDateTime())
+        ) {
             return
         }
+
         val inntektsoppslag = inntektskomponentService.hentInntekter(
-            refusjon.deltakerFnr,
-            refusjon.bedriftNr,
-            refusjon.tilskuddsgrunnlag.tilskuddFom,
-            refusjon.tilskuddsgrunnlag.tilskuddTom
+            fnr = refusjon.deltakerFnr,
+            bedriftnummerDetSøkesPå = refusjon.bedriftNr,
+            datoFra = refusjon.tilskuddsgrunnlag.tilskuddFom,
+            datoTil = if (refusjon.korreksjonsgrunner.contains(Korreksjonsgrunn.INNTEKTER_RAPPORTERT_UTENFOR_OPPTJENINGSPERIODE))
+                refusjon.tilskuddsgrunnlag.tilskuddTom.plusMonths(1)
+            else
+                refusjon.tilskuddsgrunnlag.tilskuddTom
         )
         val inntektsgrunnlag = Inntektsgrunnlag(
-                inntekter = inntektsoppslag.first,
-                respons = inntektsoppslag.second
+            inntekter = inntektsoppslag.first,
+            respons = inntektsoppslag.second
         )
 
-        refusjon.oppgiInntektsgrunnlag(inntektsgrunnlag, appImageId)
+        val tidligereUtbetalt = beregnTidligereUtbetaltBeløp(refusjon)
+
+        refusjon.oppgiInntektsgrunnlag(inntektsgrunnlag,
+            appImageId,
+            tidligereUtbetalt)
 
         refusjonRepository.save(refusjon)
     }
+
+    private fun beregnTidligereUtbetaltBeløp(refusjon: Refusjon) =
+        if (refusjon.korreksjonAvId !== null) {
+            if (refusjon.korreksjonsgrunner.contains(Korreksjonsgrunn.UTBETALT_HELE_TILSKUDDSBELØP)) {
+                refusjon.tilskuddsgrunnlag.tilskuddsbeløp
+            } else {
+                val opprinneligRefusjon = refusjonRepository.findByIdOrNull(refusjon.korreksjonAvId)!!
+                opprinneligRefusjon.beregning!!.refusjonsbeløp
+            }
+        } else {
+            0
+        }
 
     fun godkjennForArbeidsgiver(refusjon: Refusjon) {
         refusjon.godkjennForArbeidsgiver()
@@ -107,11 +130,20 @@ class RefusjonService(
     }
 
     fun gjørBedriftKontonummeroppslag(refusjon: Refusjon) {
-        if (refusjon.innhentetBedriftKontonummerTidspunkt != null && refusjon.innhentetBedriftKontonummerTidspunkt!!.isAfter(Now.localDateTime().minusMinutes(1))) {
+        if (refusjon.innhentetBedriftKontonummerTidspunkt != null && refusjon.innhentetBedriftKontonummerTidspunkt!!.isAfter(
+                Now.localDateTime().minusMinutes(1))
+        ) {
             return
         }
         refusjon.oppgiBedriftKontonummer(kontoregisterService.hentBankkontonummer(refusjon.bedriftNr))
 
         refusjonRepository.save(refusjon)
+    }
+
+    fun korriger(gammel: Refusjon, korreksjonsgrunner: Set<Korreksjonsgrunn>): Refusjon {
+        val ny = gammel.lagKorreksjon(korreksjonsgrunner)
+        refusjonRepository.save(ny)
+        refusjonRepository.save(gammel)
+        return ny
     }
 }

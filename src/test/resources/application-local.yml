@@ -64,6 +64,8 @@ tiltak-refusjon:
   graph-api:
     uri: ""
     fake: true
+  unleash:
+    mock: true
 server:
   port: 8081
 

@@ -44,3 +44,5 @@ tiltak-refusjon:
     uri: http://tiltak-refusjon-api-wiremock/abac-tilgangstyring
     username: TODO
     password: TODO
+  unleash:
+    mock: true

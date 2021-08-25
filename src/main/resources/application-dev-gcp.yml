@@ -13,3 +13,6 @@ tiltak-refusjon:
     serviceEdition: 1
   abac-tilgangstyring:
     uri: https://tiltak-proxy.dev-fss-pub.nais.io/application/asm-pdp/authorize
+  unleash:
+    enabled: true
+    unleash-uri: https://unleash.nais.io/api/

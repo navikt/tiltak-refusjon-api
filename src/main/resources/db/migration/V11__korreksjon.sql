@@ -8,5 +8,3 @@ create table refusjon_korreksjonsgrunner
     korreksjonsgrunner varchar,
     primary key (refusjon_id, korreksjonsgrunner)
 );
-
-alter table inntektslinje add column er_i_periode boolean default null;

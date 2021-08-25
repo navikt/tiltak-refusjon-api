@@ -202,20 +202,20 @@ internal class RefusjonTest {
     @Test
     internal fun `korreksjon`() {
         val refusjon = enRefusjon().medInntektsgrunnlag().medBedriftKontonummer().medSendtKravFraArbeidsgiver()
-        val korreksjon = refusjon.lagKorreksjon()
-        assertThat(refusjon.tilskuddsgrunnlag.id).isEqualTo(korreksjon.tilskuddsgrunnlag.id)
+        val korreksjon = refusjon.lagKorreksjon(emptySet())
+        assertThat(refusjon.tilskuddsgrunnlag).isEqualTo(korreksjon.tilskuddsgrunnlag)
         assertThat(refusjon.korrigeresAvId).isEqualTo(korreksjon.id)
         assertThat(korreksjon.korreksjonAvId).isEqualTo(refusjon.id)
         assertThat(korreksjon.status).isEqualTo(RefusjonStatus.MANUELL_KORREKSJON)
 
         // Kan kun ha en korreksjon av refusjonen
-        assertFeilkode(Feilkode.HAR_KORREKSJON, refusjon::lagKorreksjon)
+        assertFeilkode(Feilkode.HAR_KORREKSJON) { refusjon.lagKorreksjon(emptySet()) }
     }
 
     @Test
     internal fun `korreksjon av uriktig status`() {
         val refusjon = enRefusjon().medInntektsgrunnlag().medBedriftKontonummer()
-        assertFeilkode(Feilkode.UGYLDIG_STATUS, refusjon::lagKorreksjon)
+        assertFeilkode(Feilkode.UGYLDIG_STATUS) { refusjon.lagKorreksjon(emptySet()) }
     }
 }
 

@@ -11,6 +11,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
+import java.util.*
 import javax.persistence.*
 
 @Entity
@@ -19,8 +20,8 @@ data class Refusjon(
     val tilskuddsgrunnlag: Tilskuddsgrunnlag,
     val bedriftNr: String,
     val deltakerFnr: String,
-    val korreksjonAvId: String? = null
-    ) : AbstractAggregateRoot<Refusjon>() {
+    val korreksjonAvId: String? = null,
+) : AbstractAggregateRoot<Refusjon>() {
     @Id
     val id: String = ULID.random()
 
@@ -43,6 +44,10 @@ data class Refusjon(
     lateinit var status: RefusjonStatus
 
     var korrigeresAvId: String? = null
+
+    @Enumerated(EnumType.STRING)
+    @ElementCollection(fetch = FetchType.EAGER)
+    val korreksjonsgrunner: MutableSet<Korreksjonsgrunn> = EnumSet.noneOf(Korreksjonsgrunn::class.java)
 
     init {
         oppdaterStatus()
@@ -141,13 +146,17 @@ data class Refusjon(
         innhentetBedriftKontonummerTidspunkt = Now.localDateTime()
     }
 
-    fun lagKorreksjon(): Refusjon {
+    fun lagKorreksjon(korreksjonsgrunner: Set<Korreksjonsgrunn>): Refusjon {
         krevStatus(RefusjonStatus.UTBETALT, RefusjonStatus.SENDT_KRAV, RefusjonStatus.UTGÅTT)
         if (korrigeresAvId != null) {
             throw FeilkodeException(Feilkode.HAR_KORREKSJON)
         }
+        if (korreksjonsgrunner.isEmpty()) {
+            throw FeilkodeException(Feilkode.INGEN_KORREKSJONSGRUNNER)
+        }
         val korreksjon = Refusjon(Tilskuddsgrunnlag(this.tilskuddsgrunnlag), this.bedriftNr, this.deltakerFnr, this.id)
         korreksjon.bedriftKontonummer = this.bedriftKontonummer
+        korreksjon.korreksjonsgrunner.addAll(korreksjonsgrunner)
         this.korrigeresAvId = korreksjon.id
         return korreksjon
     }

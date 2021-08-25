@@ -27,9 +27,9 @@ class SaksbehandlerRefusjonController(
     }
 
     @PostMapping("/{id}/korriger")
-    fun korriger(@PathVariable id: String): Refusjon {
+    fun korriger(@PathVariable id: String, @RequestBody request: KorrigerRequest): Refusjon {
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
-        return saksbehandler.korriger(id)
+        return saksbehandler.korriger(id, request.korreksjonsgrunner)
     }
 
     @PostMapping("/{id}/slett-korreksjon")

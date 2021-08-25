@@ -66,23 +66,22 @@ class RefusjonService(
         ) {
             return
         }
+
         val inntektsoppslag = inntektskomponentService.hentInntekter(
-            refusjon.deltakerFnr,
-            refusjon.bedriftNr,
-            refusjon.tilskuddsgrunnlag.tilskuddFom,
-            refusjon.tilskuddsgrunnlag.tilskuddTom
+            fnr = refusjon.deltakerFnr,
+            bedriftnummerDetSøkesPå = refusjon.bedriftNr,
+            datoFra = refusjon.tilskuddsgrunnlag.tilskuddFom,
+            datoTil = if (refusjon.korreksjonsgrunner.contains(Korreksjonsgrunn.INNTEKTER_RAPPORTERT_UTENFOR_OPPTJENINGSPERIODE))
+                refusjon.tilskuddsgrunnlag.tilskuddTom.plusMonths(1)
+            else
+                refusjon.tilskuddsgrunnlag.tilskuddTom
         )
         val inntektsgrunnlag = Inntektsgrunnlag(
             inntekter = inntektsoppslag.first,
             respons = inntektsoppslag.second
         )
 
-        val tidligereUtbetalt =
-            if (refusjon.korreksjonAvId != null) {
-                val refusjonSomBleKorrigert = refusjonRepository.findByIdOrNull(refusjon.korreksjonAvId)!!
-                refusjonSomBleKorrigert.beregning!!.refusjonsbeløp + (refusjonSomBleKorrigert.beregning!!.tidligereUtbetalt
-                    ?: 0)
-            } else 0
+        val tidligereUtbetalt = beregnTidligereUtbetaltBeløp(refusjon)
 
         refusjon.oppgiInntektsgrunnlag(inntektsgrunnlag,
             appImageId,
@@ -90,6 +89,18 @@ class RefusjonService(
 
         refusjonRepository.save(refusjon)
     }
+
+    private fun beregnTidligereUtbetaltBeløp(refusjon: Refusjon) =
+        if (refusjon.korreksjonAvId !== null) {
+            if (refusjon.korreksjonsgrunner.contains(Korreksjonsgrunn.UTBETALT_HELE_TILSKUDDSBELØP)) {
+                refusjon.tilskuddsgrunnlag.tilskuddsbeløp
+            } else {
+                val opprinneligRefusjon = refusjonRepository.findByIdOrNull(refusjon.korreksjonAvId)!!
+                opprinneligRefusjon.beregning!!.refusjonsbeløp
+            }
+        } else {
+            0
+        }
 
     fun godkjennForArbeidsgiver(refusjon: Refusjon) {
         refusjon.godkjennForArbeidsgiver()

@@ -70,9 +70,9 @@ data class InnloggetSaksbehandler(
         }
     }
 
-    fun korriger(id: String): Refusjon {
+    fun korriger(id: String, korreksjonsgrunner: Set<Korreksjonsgrunn>): Refusjon {
         val gammel = finnRefusjon(id)
-        val ny = gammel.lagKorreksjon()
+        val ny = gammel.lagKorreksjon(korreksjonsgrunner)
         refusjonRepository.save(ny)
         refusjonRepository.save(gammel)
         return ny

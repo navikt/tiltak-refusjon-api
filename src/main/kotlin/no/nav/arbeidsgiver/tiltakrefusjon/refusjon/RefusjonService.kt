@@ -142,9 +142,13 @@ class RefusjonService(
 
     fun korriger(gammel: Refusjon, korreksjonsgrunner: Set<Korreksjonsgrunn>): Refusjon {
         val ny = gammel.lagKorreksjon(korreksjonsgrunner)
-        gjørBeregning(ny)
         refusjonRepository.save(ny)
         refusjonRepository.save(gammel)
+        if (korreksjonsgrunner.contains(Korreksjonsgrunn.HENT_INNTEKTER_PÅ_NYTT)) {
+            gjørInntektsoppslag(ny)
+        } else {
+            gjørBeregning(ny)
+        }
         return ny
     }
 }

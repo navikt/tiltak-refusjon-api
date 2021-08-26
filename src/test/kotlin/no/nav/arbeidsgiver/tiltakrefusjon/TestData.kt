@@ -157,6 +157,7 @@ fun Refusjon.medInntektsgrunnlag(
     inntektsgrunnlag: Inntektsgrunnlag = etInntektsgrunnlag(måned = måned),
 ): Refusjon {
     this.oppgiInntektsgrunnlag(inntektsgrunnlag)
+    this.gjørBeregning("", 0)
     return this
 }
 

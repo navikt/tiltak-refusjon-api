@@ -157,9 +157,6 @@ data class Refusjon(
         if (korrigeresAvId != null) {
             throw FeilkodeException(Feilkode.HAR_KORREKSJON)
         }
-        if (korreksjonsgrunner.isEmpty()) {
-            throw FeilkodeException(Feilkode.INGEN_KORREKSJONSGRUNNER)
-        }
         val korreksjon = Refusjon(Tilskuddsgrunnlag(this.tilskuddsgrunnlag), this.bedriftNr, this.deltakerFnr, this.id)
         val kopiAvInntektsgrunnlag = Inntektsgrunnlag(
             inntekter = this.inntektsgrunnlag!!.inntekter.map {

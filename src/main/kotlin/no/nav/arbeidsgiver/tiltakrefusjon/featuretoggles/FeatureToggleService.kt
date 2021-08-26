@@ -6,18 +6,17 @@ import no.finn.unleash.Variant
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBrukerService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import java.util.function.Function
 import java.util.stream.Collectors
 
 @Service
 class FeatureToggleService @Autowired constructor(
     private val unleash: Unleash,
-    private val innloggetBrukerService: InnloggetBrukerService
+    private val innloggetBrukerService: InnloggetBrukerService,
 ) {
     fun hentFeatureToggles(features: List<String?>): Map<String?, Boolean> {
         return features.stream().collect(Collectors.toMap(
-            Function { feature: String? -> feature },
-            Function { feature: String? -> isEnabled(feature) }
+            { feature: String? -> feature },
+            { feature: String? -> isEnabled(feature) }
         ))
     }
 

@@ -33,9 +33,7 @@ internal class RefusjonTest {
     fun `oppgir inntektsgrunnlag for tidlig`() {
         val refusjon = enRefusjon(etTilskuddsgrunnlag().copy(tilskuddTom = LocalDate.now().plusDays(1)))
         assertFeilkode(Feilkode.UGYLDIG_STATUS) {
-            refusjon.oppgiInntektsgrunnlag(etInntektsgrunnlag(),
-                "",
-                0)
+            refusjon.oppgiInntektsgrunnlag(etInntektsgrunnlag())
         }
     }
 

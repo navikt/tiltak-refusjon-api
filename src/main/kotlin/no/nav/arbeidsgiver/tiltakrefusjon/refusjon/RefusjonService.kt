@@ -80,13 +80,13 @@ class RefusjonService(
             inntekter = inntektsoppslag.first,
             respons = inntektsoppslag.second
         )
+        refusjon.oppgiInntektsgrunnlag(inntektsgrunnlag)
+        gjørBeregning(refusjon)
+    }
 
+    fun gjørBeregning(refusjon: Refusjon) {
         val tidligereUtbetalt = beregnTidligereUtbetaltBeløp(refusjon)
-
-        refusjon.oppgiInntektsgrunnlag(inntektsgrunnlag,
-            appImageId,
-            tidligereUtbetalt)
-
+        refusjon.gjørBeregning(appImageId, tidligereUtbetalt)
         refusjonRepository.save(refusjon)
     }
 
@@ -142,6 +142,7 @@ class RefusjonService(
 
     fun korriger(gammel: Refusjon, korreksjonsgrunner: Set<Korreksjonsgrunn>): Refusjon {
         val ny = gammel.lagKorreksjon(korreksjonsgrunner)
+        gjørBeregning(ny)
         refusjonRepository.save(ny)
         refusjonRepository.save(gammel)
         return ny

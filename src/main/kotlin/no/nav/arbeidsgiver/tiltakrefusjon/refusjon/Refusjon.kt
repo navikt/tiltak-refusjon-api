@@ -91,16 +91,22 @@ data class Refusjon(
 
     }
 
-    fun oppgiInntektsgrunnlag(inntektsgrunnlag: Inntektsgrunnlag, appImageId: String, tidligereUtbetalt: Int) {
+    fun oppgiInntektsgrunnlag(inntektsgrunnlag: Inntektsgrunnlag) {
         oppdaterStatus()
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING, RefusjonStatus.MANUELL_KORREKSJON)
-
-        if (inntektsgrunnlag.inntekter.isNotEmpty()) {
-            beregning = beregnRefusjonsbeløp(inntektsgrunnlag.inntekter, tilskuddsgrunnlag, appImageId,
-                tidligereUtbetalt)
-        }
         this.inntektsgrunnlag = inntektsgrunnlag
         registerEvent(InntekterInnhentet(this))
+    }
+
+    fun gjørBeregning(
+        appImageId: String,
+        tidligereUtbetalt: Int,
+    ) {
+        if (inntektsgrunnlag?.inntekter?.isNotEmpty() == true) {
+            beregning = beregnRefusjonsbeløp(inntektsgrunnlag!!.inntekter, tilskuddsgrunnlag, appImageId,
+                tidligereUtbetalt)
+            registerEvent(BeregningUtført(this))
+        }
     }
 
     fun godkjennForArbeidsgiver() {

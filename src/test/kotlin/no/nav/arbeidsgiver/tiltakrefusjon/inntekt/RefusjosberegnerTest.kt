@@ -31,7 +31,7 @@ class RefusjosberegnerTest {
         tiltakstype: Tiltakstype,
         tilskuddsbeløp: Int
     ): Tilskuddsgrunnlag {
-        var tilskuddsgrunnlag: Tilskuddsgrunnlag = Tilskuddsgrunnlag(
+        val tilskuddsgrunnlag = Tilskuddsgrunnlag(
             avtaleId = ULID.random(),
             tilskuddsperiodeId = ULID.random(),
             deltakerFornavn = "",
@@ -55,7 +55,7 @@ class RefusjosberegnerTest {
         return tilskuddsgrunnlag
     }
 
-    fun `lag en inntektslinje`(
+    private fun `lag en inntektslinje`(
         beløp: Double,
         måned: YearMonth,
         opptjeningsperiodeFom: LocalDate,
@@ -71,7 +71,6 @@ class RefusjosberegnerTest {
         )
     }
 
-
     @Test
     fun `beregning av sommerjobb, skal ikke beregne på dagsats`() {
         val tilskuddsgrunnlagSommerJobb = `lag et tilskuddsgrunnlag`(
@@ -80,13 +79,9 @@ class RefusjosberegnerTest {
             Tiltakstype.SOMMERJOBB,
             40000
         )
-        var beregning: Beregning? = null
-        beregning = beregnRefusjonsbeløp(inntektsgrunnlag.inntekter, tilskuddsgrunnlagSommerJobb, "appImageId", 0)
-        val beregnetBeløpHeleInntektsgrunnlaget: Int = 20856
-        assertThat(beregning.refusjonsbeløp == beregnetBeløpHeleInntektsgrunnlaget)
-
-
-
+        val beregning = beregnRefusjonsbeløp(inntektsgrunnlag.inntekter, tilskuddsgrunnlagSommerJobb, "appImageId", 0)
+        val beregnetBeløpHeleInntektsgrunnlaget = 20856
+        assertThat(beregning.refusjonsbeløp).isEqualTo(beregnetBeløpHeleInntektsgrunnlaget)
     }
 
     @Test
@@ -97,9 +92,8 @@ class RefusjosberegnerTest {
             Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
             40000
         )
-        var beregning: Beregning? = null
-        beregning = beregnRefusjonsbeløp(inntektsgrunnlag.inntekter, tilskuddsgrunnlagSommerJobb, "appImageId", 0)
-        val beregnetBeløpAvAntallDagerJobbetInnenforInntektsgrunnlaget: Int = 15810
-        assertThat(beregning.refusjonsbeløp == beregnetBeløpAvAntallDagerJobbetInnenforInntektsgrunnlaget)
+        val beregning = beregnRefusjonsbeløp(inntektsgrunnlag.inntekter, tilskuddsgrunnlagSommerJobb, "appImageId", 0)
+        val beregnetBeløpAvAntallDagerJobbetInnenforInntektsgrunnlaget = 15810
+        assertThat(beregning.refusjonsbeløp).isEqualTo(beregnetBeløpAvAntallDagerJobbetInnenforInntektsgrunnlaget)
     }
 }

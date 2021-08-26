@@ -9,10 +9,12 @@ import javax.persistence.*
 @Entity
 data class Inntektsgrunnlag(
         @OneToMany(mappedBy = "inntektsgrunnlag", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
-        val inntekter: List<Inntektslinje>,
+        val inntekter: Set<Inntektslinje>,
         @JsonIgnore
         val respons: String?
 ) {
+    constructor(inntekter: List<Inntektslinje>, respons: String?) : this(inntekter.toSet(), respons)
+
     @Id
     val id: String = ULID.random()
     var innhentetTidspunkt: LocalDateTime = Now.localDateTime();

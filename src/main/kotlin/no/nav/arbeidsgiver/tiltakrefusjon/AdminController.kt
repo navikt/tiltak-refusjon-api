@@ -26,7 +26,7 @@ class AdminController(val service: RefusjonService, val refusjonRepository: Refu
 
     @Unprotected
     @PostMapping("opprett-refusjoner")
-    fun opprettRefusjoner(@RequestBody jsonMeldinger: List<TilskuddsperiodeGodkjentMelding>): Refusjon? {
+    fun opprettRefusjoner(@RequestBody jsonMeldinger: List<TilskuddsperiodeGodkjentMelding>) {
         jsonMeldinger.forEach {
             logger.info("Bruker AdminController for å opprette refusjon med tilskuddsperiodeId {}",
                 it.tilskuddsperiodeId)

@@ -4,6 +4,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Korreksjonsgrunn
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonRepository
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonService
+import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeForkortetMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
 import no.nav.security.token.support.core.api.Unprotected
 import org.slf4j.LoggerFactory
@@ -32,6 +33,14 @@ class AdminController(val service: RefusjonService, val refusjonRepository: Refu
                 it.tilskuddsperiodeId)
             service.opprettRefusjon(it)
         }
+    }
+
+    @Unprotected
+    @PostMapping("forkort-tilskuddsperiode")
+    fun forkortTilskuddsperiode(@RequestBody jsonMelding: TilskuddsperiodeForkortetMelding) {
+        logger.info("Bruker AdminController for å forkorte tilskuddsperiode med tilskuddsperiodeId {}",
+            jsonMelding.tilskuddsperiodeId)
+        service.forkortRefusjon(jsonMelding)
     }
 
     @Unprotected

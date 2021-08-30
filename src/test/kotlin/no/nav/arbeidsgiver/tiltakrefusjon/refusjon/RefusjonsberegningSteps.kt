@@ -35,7 +35,7 @@ class RefusjonsberegningSteps {
         }
     }
 
-    @Når("lønnstilskudd på {int} prosent skal refunderes for periode {string} til {string} med arbeidsgiveravgift {string}, feriepengersats {string}, OTP-sats {string}")
+    @Når("sommerjobb på {int} prosent skal refunderes for periode {string} til {string} med arbeidsgiveravgift {string}, feriepengersats {string}, OTP-sats {string}")
     fun når(
         angittLonnstilskuddProsent: Int,
         startDatoString: String,
@@ -53,7 +53,7 @@ class RefusjonsberegningSteps {
             veilederNavIdent = "",
             bedriftNr = "",
             bedriftNavn = "",
-            tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
+            tiltakstype = Tiltakstype.SOMMERJOBB,
             tilskuddFom = LocalDate.parse(startDatoString),
             tilskuddTom = LocalDate.parse(sluttDatoString),
             feriepengerSats = feriesats.toDouble(),

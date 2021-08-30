@@ -8,6 +8,21 @@ Egenskap: Beregn refusjon for sommerjobb
     Når sommerjobb på 60 prosent skal refunderes for periode "2020-01-01" til "2020-01-31" med arbeidsgiveravgift "0.141", feriepengersats "0.12", OTP-sats "0.02"
     Så beregnes refusjon til 15642 kr for periode
 
+  Scenario: Inntekt etter tilskuddsperiode, ved korreksjon
+    Gitt følgende opplysninger om inntekt
+      | inntektType   | beskrivelse | beløp | måned   | opptjeningsperiodeFom | opptjeningsperiodeTom |
+      | LOENNSINNTEKT | fastloenn   | 20000 | 2020-02 |                       |                       |
+    Når sommerjobb på 60 prosent skal refunderes for periode "2020-01-01" til "2020-01-31" med arbeidsgiveravgift "0.141", feriepengersats "0.12", OTP-sats "0.02"
+    Og korreksjonsgrunn "INNTEKTER_RAPPORTERT_ETTER_TILSKUDDSPERIODE" er valgt
+    Så beregnes refusjon til 15642 kr for periode
+
+  Scenario: Inntekt etter tilskuddsperiode, ikke korreksjon
+    Gitt følgende opplysninger om inntekt
+      | inntektType   | beskrivelse | beløp | måned   | opptjeningsperiodeFom | opptjeningsperiodeTom |
+      | LOENNSINNTEKT | fastloenn   | 20000 | 2020-02 |                       |                       |
+    Når sommerjobb på 60 prosent skal refunderes for periode "2020-01-01" til "2020-01-31" med arbeidsgiveravgift "0.141", feriepengersats "0.12", OTP-sats "0.02"
+    Så beregnes refusjon til 0 kr for periode
+
   Scenario: Inntekt med og uten opptjeningsperiode
     Gitt følgende opplysninger om inntekt
       | inntektType   | beskrivelse | beløp | måned   | opptjeningsperiodeFom | opptjeningsperiodeTom |

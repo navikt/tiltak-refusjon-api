@@ -6,18 +6,18 @@ import kotlin.math.roundToInt
 
 private fun beløpPerInntektslinje(
     inntektslinje: Inntektslinje,
-    tilskuddFom: LocalDate,
-    tilskuddTom: LocalDate,
+    fom: LocalDate,
+    tom: LocalDate,
     tiltakstype: Tiltakstype,
 ): Double {
     if (inntektslinje.opptjeningsperiodeFom == null || inntektslinje.opptjeningsperiodeTom == null || tiltakstype == Tiltakstype.SOMMERJOBB)
-        return if (erMånedIPeriode(inntektslinje.måned, tilskuddFom, tilskuddTom)) {
+        return if (erMånedIPeriode(inntektslinje.måned, fom, tom)) {
             inntektslinje.beløp
         } else {
             0.0
         }
 
-    if (inntektslinje.opptjeningsperiodeTom < tilskuddFom) {
+    if (inntektslinje.opptjeningsperiodeTom < fom) {
         return 0.0;
     }
 
@@ -25,7 +25,7 @@ private fun beløpPerInntektslinje(
     var dagsats = inntektslinje.beløp / antallDagerSkalFordelesPå
 
 
-    return dagsats * antallDager(maxOf(tilskuddFom, inntektslinje.opptjeningsperiodeFom), minOf(tilskuddTom, inntektslinje.opptjeningsperiodeTom))
+    return dagsats * antallDager(maxOf(fom, inntektslinje.opptjeningsperiodeFom), minOf(tom, inntektslinje.opptjeningsperiodeTom))
 }
 
 private fun antallDager(
@@ -38,10 +38,11 @@ fun beregnRefusjonsbeløp(
     tilskuddsgrunnlag: Tilskuddsgrunnlag,
     appImageId: String,
     tidligereUtbetalt: Int,
+    korreksjonsgrunner: Set<Korreksjonsgrunn>,
 ): Beregning {
     val lønn = inntekter
         .filter(Inntektslinje::erMedIInntektsgrunnlag)
-        .sumOf { beløpPerInntektslinje(it, tilskuddsgrunnlag.tilskuddFom, tilskuddsgrunnlag.tilskuddTom, tilskuddsgrunnlag.tiltakstype) }
+        .sumOf { beløpPerInntektslinje(it, tilskuddsgrunnlag.tilskuddFom, if (korreksjonsgrunner.contains(Korreksjonsgrunn.INNTEKTER_RAPPORTERT_ETTER_TILSKUDDSPERIODE)) tilskuddsgrunnlag.tilskuddTom.plusMonths(1) else tilskuddsgrunnlag.tilskuddTom, tilskuddsgrunnlag.tiltakstype) }
     val feriepenger = lønn * tilskuddsgrunnlag.feriepengerSats
     val tjenestepensjon = (lønn + feriepenger) * tilskuddsgrunnlag.otpSats
     val arbeidsgiveravgift = (lønn + tjenestepensjon + feriepenger) * tilskuddsgrunnlag.arbeidsgiveravgiftSats

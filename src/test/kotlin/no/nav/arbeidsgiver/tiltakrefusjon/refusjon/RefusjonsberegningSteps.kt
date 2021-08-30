@@ -20,6 +20,7 @@ class RefusjonsberegningSteps {
     lateinit var inntekstlinjer: List<Inntektslinje>
     lateinit var tilskuddsgrunnlag: Tilskuddsgrunnlag
     var tidligereUtbetalt: Int = 0
+    var korreksjonsgrunner = mutableSetOf<Korreksjonsgrunn>()
 
     @Gitt("følgende opplysninger om inntekt")
     fun gitt(tabell: DataTable) {
@@ -77,13 +78,19 @@ class RefusjonsberegningSteps {
         tidligereUtbetalt = refusjonsbeløp
     }
 
+    @Og("korreksjonsgrunn {string} er valgt")
+    fun ogkorreksjonsgrunn(korreksjonsgrunn: String) {
+        korreksjonsgrunner.add(Korreksjonsgrunn.valueOf(korreksjonsgrunn))
+    }
+
     @Så("beregnes refusjon til {int} kr for periode")
     fun så(refusjon: Int) {
         val beregnet = beregnRefusjonsbeløp(
             inntekter = inntekstlinjer,
             tilskuddsgrunnlag = tilskuddsgrunnlag,
             appImageId = "",
-            tidligereUtbetalt
+            tidligereUtbetalt,
+            korreksjonsgrunner
         )
         assertThat(beregnet.refusjonsbeløp).isEqualByComparingTo(refusjon);
     }

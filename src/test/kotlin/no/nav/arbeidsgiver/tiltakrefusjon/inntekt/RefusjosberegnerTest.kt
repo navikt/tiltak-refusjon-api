@@ -79,7 +79,11 @@ class RefusjosberegnerTest {
             Tiltakstype.SOMMERJOBB,
             40000
         )
-        val beregning = beregnRefusjonsbeløp(inntektsgrunnlag.inntekter.toList(), tilskuddsgrunnlagSommerJobb, "appImageId", 0)
+        val beregning = beregnRefusjonsbeløp(inntektsgrunnlag.inntekter.toList(),
+            tilskuddsgrunnlagSommerJobb,
+            "appImageId",
+            0,
+            emptySet())
         val beregnetBeløpHeleInntektsgrunnlaget = 20856
         assertThat(beregning.refusjonsbeløp).isEqualTo(beregnetBeløpHeleInntektsgrunnlaget)
     }
@@ -92,7 +96,11 @@ class RefusjosberegnerTest {
             Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
             40000
         )
-        val beregning = beregnRefusjonsbeløp(inntektsgrunnlag.inntekter.toList(), tilskuddsgrunnlagSommerJobb, "appImageId", 0)
+        val beregning = beregnRefusjonsbeløp(inntektsgrunnlag.inntekter.toList(),
+            tilskuddsgrunnlagSommerJobb,
+            "appImageId",
+            0,
+            emptySet())
         val beregnetBeløpAvAntallDagerJobbetInnenforInntektsgrunnlaget = 15810
         assertThat(beregning.refusjonsbeløp).isEqualTo(beregnetBeløpAvAntallDagerJobbetInnenforInntektsgrunnlaget)
     }

@@ -104,7 +104,8 @@ data class Refusjon(
     ) {
         if (inntektsgrunnlag?.inntekter?.isNotEmpty() == true) {
             beregning = beregnRefusjonsbeløp(inntektsgrunnlag!!.inntekter.toList(), tilskuddsgrunnlag, appImageId,
-                tidligereUtbetalt)
+                tidligereUtbetalt,
+                korreksjonsgrunner)
             registerEvent(BeregningUtført(this))
         }
     }

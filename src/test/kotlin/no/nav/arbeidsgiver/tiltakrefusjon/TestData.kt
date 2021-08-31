@@ -2,6 +2,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon
 
 import com.github.guepardoapps.kulid.ULID
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import java.time.LocalDate
 import java.time.YearMonth
 
@@ -27,13 +28,13 @@ fun refusjoner(): List<Refusjon> {
             .medSendtKravFraArbeidsgiver()
     }
     val BjørnsonUtgått = `Bjørnstjerne Bjørnson`().let {
-        val tilskuddFom = LocalDate.now().minusMonths(2)
+        val tilskuddFom = Now.localDate().minusMonths(2)
         it.copy(
             deltakerFnr = "12345678901",
             tilskuddsgrunnlag = it.tilskuddsgrunnlag.copy(
                 avtaleId = `Bjørnstjerne Bjørnson`().tilskuddsgrunnlag.avtaleId,
                 tilskuddFom = tilskuddFom,
-                tilskuddTom = LocalDate.now().plusMonths(1)
+                tilskuddTom = Now.localDate().plusMonths(1)
             )
         )
     }
@@ -69,8 +70,8 @@ fun etTilskuddsgrunnlag() = Tilskuddsgrunnlag(
     feriepengerSats = 0.12,
     arbeidsgiveravgiftSats = 0.141,
     lønnstilskuddsprosent = 40,
-    tilskuddFom = LocalDate.now().minusMonths(3).withDayOfMonth(1),
-    tilskuddTom = LocalDate.now().minusMonths(1).withDayOfMonth(20),
+    tilskuddFom = Now.localDate().minusMonths(3).withDayOfMonth(1),
+    tilskuddTom = Now.localDate().minusMonths(1).withDayOfMonth(20),
     tilskuddsbeløp = 13579,
     avtaleNr = 3456,
     løpenummer = 3,
@@ -153,7 +154,7 @@ fun `Amalie Skram`(): Refusjon {
 }
 
 fun Refusjon.medInntektsgrunnlag(
-    måned: YearMonth = YearMonth.now(),
+    måned: YearMonth = Now.yearMonth(),
     inntektsgrunnlag: Inntektsgrunnlag = etInntektsgrunnlag(måned = måned),
 ): Refusjon {
     this.oppgiInntektsgrunnlag(inntektsgrunnlag)

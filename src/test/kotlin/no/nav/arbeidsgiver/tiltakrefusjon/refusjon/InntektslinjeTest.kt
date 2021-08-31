@@ -1,5 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.*
@@ -16,8 +17,8 @@ internal class InntektslinjeTest() {
             beskrivelse = null,
             beløp = 25000.0,
             måned = YearMonth.now(),
-            opptjeningsperiodeFom = LocalDate.now(),
-            opptjeningsperiodeTom = LocalDate.now().plusDays(30)
+            opptjeningsperiodeFom = Now.localDate(),
+            opptjeningsperiodeTom = Now.localDate().plusDays(30)
         )
         assertThat(inntektslinje.erMedIInntektsgrunnlag()).isFalse()
     }

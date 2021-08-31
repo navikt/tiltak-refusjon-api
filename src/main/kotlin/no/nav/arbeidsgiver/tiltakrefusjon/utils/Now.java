@@ -27,4 +27,8 @@ public class Now {
     public static LocalDateTime localDateTime() {
         return LocalDateTime.now(clock.get());
     }
+
+    public static YearMonth yearMonth() {
+        return YearMonth.now(clock.get());
+    }
 }

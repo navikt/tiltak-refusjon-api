@@ -2,6 +2,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon.varsling
 
 import no.nav.arbeidsgiver.tiltakrefusjon.Topics
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.kafka.core.KafkaTemplate
@@ -43,7 +44,7 @@ class RefusjonVarselProducer(
                         meldingId,
                         Topics.TILTAK_VARSEL
                     )
-                    val varsling = Varsling(refusjon.id, varselType, LocalDateTime.now())
+                    val varsling = Varsling(refusjon.id, varselType, Now.localDateTime())
                     varslingRepository.save(varsling)
                 }
             })

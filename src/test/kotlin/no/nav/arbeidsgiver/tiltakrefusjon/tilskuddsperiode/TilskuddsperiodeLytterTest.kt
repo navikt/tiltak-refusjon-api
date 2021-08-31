@@ -3,6 +3,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode
 import no.nav.arbeidsgiver.tiltakrefusjon.Topics
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
@@ -49,8 +50,8 @@ class TilskuddsperiodeLytterTest {
             bedriftNavn = "Duck Levering AS",
             bedriftNr = "99999999",
             tilskuddsbeløp = 12000,
-            tilskuddFom = LocalDate.now().minusDays(15),
-            tilskuddTom = LocalDate.now(),
+            tilskuddFom = Now.localDate().minusDays(15),
+            tilskuddTom = Now.localDate(),
             feriepengerSats = 0.12,
             otpSats = 0.02,
             arbeidsgiveravgiftSats = 0.141,

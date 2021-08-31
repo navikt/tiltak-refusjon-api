@@ -31,7 +31,7 @@ internal class RefusjonTest {
 
     @Test
     fun `oppgir inntektsgrunnlag for tidlig`() {
-        val refusjon = enRefusjon(etTilskuddsgrunnlag().copy(tilskuddTom = LocalDate.now().plusDays(1)))
+        val refusjon = enRefusjon(etTilskuddsgrunnlag().copy(tilskuddTom = Now.localDate().plusDays(1)))
         assertFeilkode(Feilkode.UGYLDIG_STATUS) {
             refusjon.oppgiInntektsgrunnlag(etInntektsgrunnlag())
         }
@@ -39,25 +39,28 @@ internal class RefusjonTest {
 
     @Test
     fun `godkjenner rett før frist`() {
+        Now.fixedDate(LocalDate.of(2021, 8, 30))
+
         val refusjon = enRefusjon(
             etTilskuddsgrunnlag().copy(
-                tilskuddFom = LocalDate.now().minusMonths(2),
-                tilskuddTom = LocalDate.now().minusMonths(2)
+                tilskuddFom = LocalDate.of(2021, 6, 30),
+                tilskuddTom = LocalDate.of(2021, 6, 30)
             )
         ).medInntektsgrunnlag().medBedriftKontonummer()
         refusjon.godkjennForArbeidsgiver()
+        Now.resetClock()
         assertThat(refusjon.godkjentAvArbeidsgiver).isNotNull
         assertThat(refusjon.status).isEqualTo(RefusjonStatus.SENDT_KRAV)
     }
 
     @Test
     fun `godkjenner etter frist`() {
-        Now.fixedDate(LocalDate.now().minusDays(1))
+        Now.fixedDate(LocalDate.of(2021, 8, 30))
 
         val refusjon = enRefusjon(
             etTilskuddsgrunnlag().copy(
-                tilskuddFom = LocalDate.now().minusMonths(2).minusDays(1),
-                tilskuddTom = LocalDate.now().minusMonths(2).minusDays(1)
+                tilskuddFom = LocalDate.of(2021, 6, 30),
+                tilskuddTom = LocalDate.of(2021, 6, 30)
             )
         ).medInntektsgrunnlag()
         Now.resetClock()
@@ -68,8 +71,8 @@ internal class RefusjonTest {
     fun `oppdater status til UTGÅTT`() {
         val refusjon = enRefusjon(
             etTilskuddsgrunnlag().copy(
-                tilskuddFom = LocalDate.now().minusMonths(6),
-                tilskuddTom = LocalDate.now().minusMonths(5)
+                tilskuddFom = Now.localDate().minusMonths(6),
+                tilskuddTom = Now.localDate().minusMonths(5)
             )
         )
         refusjon.oppdaterStatus()
@@ -80,8 +83,8 @@ internal class RefusjonTest {
     fun `oppdater status til FOR_TIDLIG`() {
         val refusjon = enRefusjon(
             etTilskuddsgrunnlag().copy(
-                tilskuddFom = LocalDate.now().minusDays(1),
-                tilskuddTom = LocalDate.now()
+                tilskuddFom = Now.localDate().minusDays(1),
+                tilskuddTom = Now.localDate()
             )
         )
         refusjon.oppdaterStatus()
@@ -92,8 +95,8 @@ internal class RefusjonTest {
     fun `oppdater status til KLAR_FOR_INNSENDING`() {
         val refusjon = enRefusjon(
             etTilskuddsgrunnlag().copy(
-                tilskuddFom = LocalDate.now().minusDays(2),
-                tilskuddTom = LocalDate.now().minusDays(1)
+                tilskuddFom = Now.localDate().minusDays(2),
+                tilskuddTom = Now.localDate().minusDays(1)
             )
         )
         refusjon.oppdaterStatus()
@@ -110,7 +113,7 @@ internal class RefusjonTest {
             )
         )
         refusjon.annuller()
-        Now.fixedDate(LocalDate.now().plusMonths(3))
+        Now.fixedDate(Now.localDate().plusMonths(3))
         refusjon.oppdaterStatus()
 
         assertThat(refusjon.status).isEqualTo(RefusjonStatus.ANNULLERT)
@@ -122,8 +125,8 @@ internal class RefusjonTest {
     fun `Sjekker om bedriftKontonummerer er null`() {
         val refusjon = enRefusjon(
             etTilskuddsgrunnlag().copy(
-                tilskuddFom = LocalDate.now().minusDays(1),
-                tilskuddTom = LocalDate.now()
+                tilskuddFom = Now.localDate().minusDays(1),
+                tilskuddTom = Now.localDate()
             )
         )
         refusjon.oppgiBedriftKontonummer("10000008145")
@@ -134,8 +137,8 @@ internal class RefusjonTest {
     fun `ikke kunne sende inn refusjon uten kontonummer`() {
         val refusjon = enRefusjon(
             etTilskuddsgrunnlag().copy(
-                tilskuddFom = LocalDate.now().minusDays(2),
-                tilskuddTom = LocalDate.now().minusDays(1)
+                tilskuddFom = Now.localDate().minusDays(2),
+                tilskuddTom = Now.localDate().minusDays(1)
             )
         ).medInntektsgrunnlag()
         assertFeilkode(Feilkode.INGEN_BEDRIFTKONTONUMMER) { refusjon.godkjennForArbeidsgiver() }
@@ -148,8 +151,8 @@ internal class RefusjonTest {
     internal fun `har inntekt for alle måneder`() {
         val refusjon = enRefusjon(
             etTilskuddsgrunnlag().copy(
-                tilskuddFom = LocalDate.now().minusDays(2),
-                tilskuddTom = LocalDate.now().minusDays(1)
+                tilskuddFom = Now.localDate().minusDays(2),
+                tilskuddTom = Now.localDate().minusDays(1)
             )
         ).medInntektsgrunnlag(YearMonth.now(),
             Inntektsgrunnlag(inntekter = listOf(Inntektslinje("LOENNSINNTEKT",
@@ -165,8 +168,8 @@ internal class RefusjonTest {
     internal fun `har ikke inntekt for alle måneder`() {
         val refusjon = enRefusjon(
             etTilskuddsgrunnlag().copy(
-                tilskuddFom = LocalDate.now().minusMonths(1).minusDays(2),
-                tilskuddTom = LocalDate.now().minusDays(1)
+                tilskuddFom = Now.localDate().minusMonths(1).minusDays(2),
+                tilskuddTom = Now.localDate().minusDays(1)
             )
         ).medInntektsgrunnlag(YearMonth.now(), Inntektsgrunnlag(inntekter = listOf(
             Inntektslinje("LOENNSINNTEKT", "fastloenn", 99.0, YearMonth.now(), null, null),
@@ -179,8 +182,8 @@ internal class RefusjonTest {
     internal fun `har ingen inntekt for alle måneder`() {
         val refusjon = enRefusjon(
             etTilskuddsgrunnlag().copy(
-                tilskuddFom = LocalDate.now().minusMonths(1).minusDays(2),
-                tilskuddTom = LocalDate.now().minusDays(1)
+                tilskuddFom = Now.localDate().minusMonths(1).minusDays(2),
+                tilskuddTom = Now.localDate().minusDays(1)
             )
         ).medInntektsgrunnlag(YearMonth.now(), Inntektsgrunnlag(inntekter = listOf(), respons = ""))
         assertThat(refusjon.harInntektIAlleMåneder()).isFalse()
@@ -190,8 +193,8 @@ internal class RefusjonTest {
     internal fun `har ikke gjort inntektsoppslag`() {
         val refusjon = enRefusjon(
             etTilskuddsgrunnlag().copy(
-                tilskuddFom = LocalDate.now().minusMonths(1).minusDays(2),
-                tilskuddTom = LocalDate.now().minusDays(1)
+                tilskuddFom = Now.localDate().minusMonths(1).minusDays(2),
+                tilskuddTom = Now.localDate().minusDays(1)
             )
         )
         assertThat(refusjon.harInntektIAlleMåneder()).isFalse()

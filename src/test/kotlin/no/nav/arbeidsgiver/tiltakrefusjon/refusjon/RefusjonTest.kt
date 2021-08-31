@@ -155,12 +155,19 @@ internal class RefusjonTest {
                 tilskuddTom = Now.localDate().minusDays(1)
             )
         ).medInntektsgrunnlag(YearMonth.now(),
-            Inntektsgrunnlag(inntekter = listOf(Inntektslinje("LOENNSINNTEKT",
-                "fastloenn",
-                99.0,
-                YearMonth.now(),
-                null,
-                null)), respons = ""))
+            Inntektsgrunnlag(inntekter = listOf(
+                Inntektslinje("LOENNSINNTEKT",
+                    "fastloenn",
+                    99.0,
+                    YearMonth.now(),
+                    null,
+                    null),
+                Inntektslinje("LOENNSINNTEKT",
+                    "fastloenn",
+                    99.0,
+                    YearMonth.now(),
+                    null,
+                    null)), respons = ""))
         assertThat(refusjon.harInntektIAlleMåneder()).isTrue()
     }
 

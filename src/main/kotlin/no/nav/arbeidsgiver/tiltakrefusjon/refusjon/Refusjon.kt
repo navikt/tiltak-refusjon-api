@@ -14,6 +14,7 @@ import java.time.LocalDateTime
 import java.time.YearMonth
 import java.util.*
 import javax.persistence.*
+import kotlin.streams.toList
 
 @Entity
 data class Refusjon(
@@ -56,17 +57,19 @@ data class Refusjon(
 
     @JsonProperty
     fun harInntektIAlleMåneder(): Boolean {
-        val måneder = inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.map { it.måned }?.sorted()
+        val månederInntekter = inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.map { it.måned }?.sorted()?.distinct() ?: emptyList()
+
         val tilskuddFom = tilskuddsgrunnlag.tilskuddFom
         val tilskuddTom = tilskuddsgrunnlag.tilskuddTom
-        return !måneder.isNullOrEmpty() && måneder.first() == YearMonth.from(tilskuddFom) && måneder.last() == YearMonth.from(
-            tilskuddTom)
+
+        val månederTilskudd = tilskuddFom.datesUntil(tilskuddTom).map { YearMonth.of(it.year, it.month) }.distinct().toList()
+
+        return månederInntekter.containsAll(månederTilskudd)
     }
 
     private fun krevStatus(vararg gyldigeStatuser: RefusjonStatus) {
         if (status !in gyldigeStatuser) throw FeilkodeException(Feilkode.UGYLDIG_STATUS)
     }
-
 
     fun oppdaterStatus() {
         val statuserSomIkkeKanEndres =

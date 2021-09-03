@@ -72,10 +72,7 @@ class RefusjonService(
                 fnr = refusjon.deltakerFnr,
                 bedriftnummerDetSøkesPå = refusjon.bedriftNr,
                 datoFra = refusjon.tilskuddsgrunnlag.tilskuddFom,
-                datoTil = if (refusjon.korreksjonsgrunner.contains(Korreksjonsgrunn.INNTEKTER_RAPPORTERT_ETTER_TILSKUDDSPERIODE))
-                    refusjon.tilskuddsgrunnlag.tilskuddTom.plusMonths(1)
-                else
-                    refusjon.tilskuddsgrunnlag.tilskuddTom
+                datoTil = refusjon.tilskuddsgrunnlag.tilskuddTom.plusMonths(1)
             )
             val inntektsgrunnlag = Inntektsgrunnlag(
                 inntekter = inntektsoppslag.first,

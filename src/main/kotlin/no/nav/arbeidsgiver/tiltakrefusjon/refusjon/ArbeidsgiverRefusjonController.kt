@@ -43,6 +43,12 @@ class ArbeidsgiverRefusjonController(
         return arbeidsgiver.finnRefusjon(id)
     }
 
+    @PostMapping("/{id}/korriger-bruttolønn")
+    fun korrigerBruttolønn(@PathVariable id: String, @RequestBody korrigerBruttolønnRequest: KorrigerBruttolønnRequest) {
+        val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
+        arbeidsgiver.korrigerBruttolønn(id, korrigerBruttolønnRequest.inntekterKunFraTiltaket, korrigerBruttolønnRequest.korrigertBruttoLønn)
+    }
+
     @PostMapping("/{id}/godkjenn")
     fun godkjenn(@PathVariable id: String) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()

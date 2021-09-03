@@ -72,6 +72,7 @@ class RefusjonServiceTest(
     fun `setter appImageId ved beregning`() {
         val refusjon = `Bjørnstjerne Bjørnson`()
         refusjonService.gjørInntektsoppslag(refusjon)
+        refusjonService.korrigerBruttolønn(refusjon, true, null)
         assertThat(refusjon.beregning?.appImageId).isEqualTo("test")
     }
 

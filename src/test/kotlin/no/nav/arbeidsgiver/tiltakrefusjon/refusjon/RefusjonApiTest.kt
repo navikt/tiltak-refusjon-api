@@ -8,7 +8,6 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjoner
 import no.nav.security.token.support.test.JwkGenerator
 import no.nav.security.token.support.test.JwtTokenGenerator
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*
 import org.springframework.beans.factory.annotation.Autowired
@@ -173,7 +172,11 @@ class RefusjonApiTest(
         // Inntektsoppslag ved henting av refusjon
         val refusjonEtterInntektsgrunnlag = hentRefusjon(id)
         assertThat(refusjonEtterInntektsgrunnlag.inntektsgrunnlag).isNotNull
-        assertThat(refusjonEtterInntektsgrunnlag.beregning?.refusjonsbeløp).isPositive()
+
+        // Svarer på spørsmål om alle inntekter er fra tiltaket
+        sendRequest(post("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id/korriger-bruttolønn"), arbGiverCookie, KorrigerBruttolønnRequest(true, null))
+        val refusjonEtterInntektsspørsmål = hentRefusjon(id)
+        assertThat(refusjonEtterInntektsspørsmål.beregning?.refusjonsbeløp).isPositive()
 
         // Godkjenn
         sendRequest(post("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id/godkjenn"), arbGiverCookie)
@@ -204,9 +207,9 @@ class RefusjonApiTest(
         return sendRequest(request, cookie, null)
     }
 
-    private fun sendRequest(request: MockHttpServletRequestBuilder, cookie: Cookie, refusjon: Refusjon?, status: ResultMatcher = status().isOk): String {
-        if (refusjon != null) {
-            request.content(mapper.writeValueAsString(refusjon))
+    private fun sendRequest(request: MockHttpServletRequestBuilder, cookie: Cookie, content: Any?, status: ResultMatcher = status().isOk): String {
+        if (content != null) {
+            request.content(mapper.writeValueAsString(content))
         }
 
         return mockMvc.perform(

@@ -42,7 +42,8 @@ fun beregnRefusjonsbeløp(
     tidligereUtbetalt: Int,
     korrigertBruttoLønn: Int?,
 ): Beregning {
-    val lønn = korrigertBruttoLønn ?: kalkulerBruttoLønn(inntekter).roundToInt()
+    val kalkulertBruttoLønn = kalkulerBruttoLønn(inntekter).roundToInt()
+    val lønn = if (korrigertBruttoLønn != null) minOf(korrigertBruttoLønn, kalkulertBruttoLønn) else kalkulertBruttoLønn
     val feriepenger = lønn * tilskuddsgrunnlag.feriepengerSats
     val tjenestepensjon = (lønn + feriepenger) * tilskuddsgrunnlag.otpSats
     val arbeidsgiveravgift = (lønn + tjenestepensjon + feriepenger) * tilskuddsgrunnlag.arbeidsgiveravgiftSats

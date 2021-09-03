@@ -13,7 +13,7 @@ data class Inntektsgrunnlag(
         @JsonIgnore
         val respons: String?,
 ) {
-    val bruttoLønn: Double = inntekter.filter { it.erMedIInntektsgrunnlag() }.sumOf { it.beløp }
+    val bruttoLønn: Double? = inntekter.filter { it.erMedIInntektsgrunnlag() }.sumOf { it.beløp }
     constructor(inntekter: List<Inntektslinje>, respons: String?) : this(inntekter.toSet(), respons)
 
     @Id

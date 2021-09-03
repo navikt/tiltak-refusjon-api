@@ -21,11 +21,13 @@ private fun beløpPerInntektslinje(
         return 0.0;
     }
 
-    val antallDagerSkalFordelesPå = antallDager(inntektslinje.opptjeningsperiodeFom, inntektslinje.opptjeningsperiodeTom)
+    val antallDagerSkalFordelesPå =
+        antallDager(inntektslinje.opptjeningsperiodeFom, inntektslinje.opptjeningsperiodeTom)
     var dagsats = inntektslinje.beløp / antallDagerSkalFordelesPå
 
 
-    return dagsats * antallDager(maxOf(fom, inntektslinje.opptjeningsperiodeFom), minOf(tom, inntektslinje.opptjeningsperiodeTom))
+    return dagsats * antallDager(maxOf(fom, inntektslinje.opptjeningsperiodeFom),
+        minOf(tom, inntektslinje.opptjeningsperiodeTom))
 }
 
 private fun antallDager(
@@ -38,11 +40,9 @@ fun beregnRefusjonsbeløp(
     tilskuddsgrunnlag: Tilskuddsgrunnlag,
     appImageId: String,
     tidligereUtbetalt: Int,
-    korreksjonsgrunner: Set<Korreksjonsgrunn>,
+    korrigertBruttoLønn: Int?,
 ): Beregning {
-    val lønn = inntekter
-        .filter(Inntektslinje::erMedIInntektsgrunnlag)
-        .sumOf { beløpPerInntektslinje(it, tilskuddsgrunnlag.tilskuddFom, if (korreksjonsgrunner.contains(Korreksjonsgrunn.INNTEKTER_RAPPORTERT_ETTER_TILSKUDDSPERIODE)) tilskuddsgrunnlag.tilskuddTom.plusMonths(1) else tilskuddsgrunnlag.tilskuddTom, tilskuddsgrunnlag.tiltakstype) }
+    val lønn = korrigertBruttoLønn ?: kalkulerBruttoLønn(inntekter).roundToInt()
     val feriepenger = lønn * tilskuddsgrunnlag.feriepengerSats
     val tjenestepensjon = (lønn + feriepenger) * tilskuddsgrunnlag.otpSats
     val arbeidsgiveravgift = (lønn + tjenestepensjon + feriepenger) * tilskuddsgrunnlag.arbeidsgiveravgiftSats
@@ -50,10 +50,11 @@ fun beregnRefusjonsbeløp(
     var beregnetBeløp = sumUtgifter * (tilskuddsgrunnlag.lønnstilskuddsprosent / 100.0)
 
     val overTilskuddsbeløp = beregnetBeløp > tilskuddsgrunnlag.tilskuddsbeløp
-    val refusjonsbeløp = (if (overTilskuddsbeløp) tilskuddsgrunnlag.tilskuddsbeløp.toDouble() else beregnetBeløp) - tidligereUtbetalt
+    val refusjonsbeløp =
+        (if (overTilskuddsbeløp) tilskuddsgrunnlag.tilskuddsbeløp.toDouble() else beregnetBeløp) - tidligereUtbetalt
 
     return Beregning(
-        lønn = lønn.roundToInt(),
+        lønn = lønn,
         feriepenger = feriepenger.roundToInt(),
         tjenestepensjon = tjenestepensjon.roundToInt(),
         arbeidsgiveravgift = arbeidsgiveravgift.roundToInt(),
@@ -65,3 +66,8 @@ fun beregnRefusjonsbeløp(
         appImageId = appImageId
     )
 }
+
+fun kalkulerBruttoLønn(
+    inntekter: List<Inntektslinje>,
+): Double =
+    inntekter.filter { it.erMedIInntektsgrunnlag() }.sumOf { it.beløp }

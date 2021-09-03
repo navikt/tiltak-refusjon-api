@@ -84,9 +84,16 @@ class RefusjonService(
         gjørBeregning(refusjon)
     }
 
+    fun korrigerBruttolønn(refusjon: Refusjon, inntekterKunFraTiltaket: Boolean, korrigertBruttoLønn: Int?) {
+        refusjon.korrigerBruttolønn(inntekterKunFraTiltaket, korrigertBruttoLønn)
+        gjørBeregning(refusjon)
+    }
+
     fun gjørBeregning(refusjon: Refusjon) {
-        val tidligereUtbetalt = beregnTidligereUtbetaltBeløp(refusjon)
-        refusjon.gjørBeregning(appImageId, tidligereUtbetalt)
+        if (refusjon.inntekterKunFraTiltaket != null) {
+            val tidligereUtbetalt = beregnTidligereUtbetaltBeløp(refusjon)
+            refusjon.gjørBeregning(appImageId, tidligereUtbetalt)
+        }
         refusjonRepository.save(refusjon)
     }
 

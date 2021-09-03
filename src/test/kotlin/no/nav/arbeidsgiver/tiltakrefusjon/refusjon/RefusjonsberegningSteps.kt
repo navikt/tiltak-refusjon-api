@@ -90,7 +90,7 @@ class RefusjonsberegningSteps {
             tilskuddsgrunnlag = tilskuddsgrunnlag,
             appImageId = "",
             tidligereUtbetalt,
-            korreksjonsgrunner
+            null
         )
         assertThat(beregnet.refusjonsbeløp).isEqualByComparingTo(refusjon);
     }

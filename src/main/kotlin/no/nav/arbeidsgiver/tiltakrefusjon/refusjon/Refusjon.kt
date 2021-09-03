@@ -51,18 +51,24 @@ data class Refusjon(
     @ElementCollection(fetch = FetchType.EAGER)
     val korreksjonsgrunner: MutableSet<Korreksjonsgrunn> = EnumSet.noneOf(Korreksjonsgrunn::class.java)
 
+    var inntekterKunFraTiltaket: Boolean? = null
+    var korrigertBruttoLønn: Int? = null
+
     init {
         oppdaterStatus()
     }
 
     @JsonProperty
     fun harInntektIAlleMåneder(): Boolean {
-        val månederInntekter = inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.map { it.måned }?.sorted()?.distinct() ?: emptyList()
+        val månederInntekter =
+            inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.map { it.måned }?.sorted()?.distinct()
+                ?: emptyList()
 
         val tilskuddFom = tilskuddsgrunnlag.tilskuddFom
         val tilskuddTom = tilskuddsgrunnlag.tilskuddTom
 
-        val månederTilskudd = tilskuddFom.datesUntil(tilskuddTom).map { YearMonth.of(it.year, it.month) }.distinct().toList()
+        val månederTilskudd =
+            tilskuddFom.datesUntil(tilskuddTom).map { YearMonth.of(it.year, it.month) }.distinct().toList()
 
         return månederInntekter.containsAll(månederTilskudd)
     }
@@ -92,7 +98,6 @@ data class Refusjon(
         } else {
             RefusjonStatus.FOR_TIDLIG
         }
-
     }
 
     fun oppgiInntektsgrunnlag(inntektsgrunnlag: Inntektsgrunnlag) {
@@ -102,6 +107,16 @@ data class Refusjon(
         registerEvent(InntekterInnhentet(this))
     }
 
+        fun korrigerBruttolønn(inntekterKunFraTiltaket: Boolean, korrigertBruttoLønn: Int?) {
+        oppdaterStatus()
+        krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING, RefusjonStatus.MANUELL_KORREKSJON)
+        if (inntekterKunFraTiltaket && korrigertBruttoLønn != null) {
+            throw FeilkodeException(Feilkode.INNTEKTER_KUN_FRA_TILTAK_OG_OPPGIR_BELØP)
+        }
+        this.inntekterKunFraTiltaket = inntekterKunFraTiltaket
+        this.korrigertBruttoLønn = korrigertBruttoLønn
+    }
+
     fun gjørBeregning(
         appImageId: String,
         tidligereUtbetalt: Int,
@@ -109,7 +124,7 @@ data class Refusjon(
         if (inntektsgrunnlag?.inntekter?.isNotEmpty() == true) {
             beregning = beregnRefusjonsbeløp(inntektsgrunnlag!!.inntekter.toList(), tilskuddsgrunnlag, appImageId,
                 tidligereUtbetalt,
-                korreksjonsgrunner)
+                korrigertBruttoLønn)
             registerEvent(BeregningUtført(this))
         }
     }

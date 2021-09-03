@@ -83,7 +83,7 @@ class RefusjosberegnerTest {
             tilskuddsgrunnlagSommerJobb,
             "appImageId",
             0,
-            emptySet())
+            null)
         val beregnetBeløpHeleInntektsgrunnlaget = 20856
         assertThat(beregning.refusjonsbeløp).isEqualTo(beregnetBeløpHeleInntektsgrunnlaget)
     }
@@ -100,7 +100,7 @@ class RefusjosberegnerTest {
             tilskuddsgrunnlagSommerJobb,
             "appImageId",
             0,
-            emptySet())
+            null)
         val beregnetBeløpAvAntallDagerJobbetInnenforInntektsgrunnlaget = 15810
         assertThat(beregning.refusjonsbeløp).isEqualTo(beregnetBeløpAvAntallDagerJobbetInnenforInntektsgrunnlaget)
     }

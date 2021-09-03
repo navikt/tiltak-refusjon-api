@@ -5,21 +5,33 @@
       "request": {
         "method": "POST",
         "urlPath": "/inntektskomponenten-ws/rs/api/v1/hentinntektliste",
-        "bodyPatterns" : [ {
-          "equalToJson" : {"fnr":"2812aaaaa8521498","bedriftNr":"998877665","refusjonFraDato":"2020-09-01","refusjonTilDato":"2020-10-01"}
-        }]},
+        "bodyPatterns": [
+          {
+            "equalToJson": {
+              "ident": {
+                "identifikator": "18019623862",
+                "aktoerType": "NATURLIG_IDENT"
+              },
+              "maanedFom": "2020-09",
+              "maanedTom": "2020-10",
+              "ainntektsfilter": "KontrollArbeidsmarkedstiltakA-inntekt"
+            }
+          }
+        ]
+      },
       "response": {
         "status": 200,
-        "jsonBody":
-        {
-
-        }
-      ,
+        "jsonBody": {
+          "ident": {
+            "identifikator": "18019623862",
+            "aktoerType": "NATURLIG_IDENT"
+          }
+        },
         "headers": {
           "Content-Type": "application/json",
-          "Accept":"application/json",
-          "Nav-consumer-Id":"tiltak-refusjon",
-          "Nav-Call-Id":"hoppla1"
+          "Accept": "application/json",
+          "Nav-consumer-Id": "tiltak-refusjon",
+          "Nav-Call-Id": "hoppla1"
         }
       }
     },
@@ -28,141 +40,150 @@
       "request": {
         "method": "POST",
         "urlPath": "/inntektskomponenten-ws/rs/api/v1/hentinntektliste",
-        "bodyPatterns" : [ {
-          "equalToJson" : {"ident":{"identifikator":"28128521498","aktoerType":"NATURLIG_IDENT"},"maanedFom":"2020-09","maanedTom":"2020-10","ainntektsfilter":"KontrollArbeidsmarkedstiltakA-inntekt"}
-      }]},
-      "response": {
-        "status": 200,
-        "jsonBody":
+        "bodyPatterns": [
           {
-            "arbeidsInntektMaaned": [
-              {
-                "aarMaaned": "2020-08",
-                "arbeidsInntektInformasjon": {
-                  "inntektListe": [
-                    {
-                      "inntektType": "LOENNSINNTEKT",
-                      "beloep": 15000,
-                      "fordel": "kontantytelse",
-                      "inntektskilde": "A-ordningen",
-                      "inntektsperiodetype": "Maaned",
-                      "inntektsstatus": "LoependeInnrapportert",
-                      "leveringstidspunkt": "2020-11",
-                      "opptjeningsland": "NO",
-                      "opptjeningsperiodeFom": "2020-09-14",
-                      "opptjeningsperiodeTom": "2020-10-16",
-                      "utbetaltIMaaned": "2020-08",
-                      "opplysningspliktig": {
-                        "identifikator": "928497704",
-                        "aktoerType": "ORGANISASJON"
-                      },
-                      "virksomhet": {
-                        "identifikator": "999999999",
-                        "aktoerType": "ORGANISASJON"
-                      },
-                      "tilleggsinformasjon": {
-                        "kategori": "Nettoloennsordning"
-                      },
-                      "inntektsmottaker": {
-                        "identifikator": "28128521498",
-                        "aktoerType": "NATURLIG_IDENT"
-                      },
-                      "inngaarIGrunnlagForTrekk": true,
-                      "utloeserArbeidsgiveravgift": true,
-                      "informasjonsstatus": "InngaarAlltid",
-                      "beskrivelse": "fastloenn",
-                      "skatteOgAvgiftsregel": "nettoloenn"
-                    }
-                  ]
-                }
+            "equalToJson": {
+              "ident": {
+                "identifikator": "28128521498",
+                "aktoerType": "NATURLIG_IDENT"
               },
-              {
-                "aarMaaned": "2020-09",
-                "arbeidsInntektInformasjon": {
-                  "inntektListe": [
-                    {
-                      "inntektType": "LOENNSINNTEKT",
-                      "beloep": 15000,
-                      "fordel": "kontantytelse",
-                      "inntektskilde": "A-ordningen",
-                      "inntektsperiodetype": "Maaned",
-                      "inntektsstatus": "LoependeInnrapportert",
-                      "leveringstidspunkt": "2020-11",
-                      "opptjeningsland": "NO",
-                      "opptjeningsperiodeFom": "2020-09-14",
-                      "opptjeningsperiodeTom": "2020-10-16",
-                      "utbetaltIMaaned": "2020-09",
-                      "opplysningspliktig": {
-                        "identifikator": "928497704",
-                        "aktoerType": "ORGANISASJON"
-                      },
-                      "virksomhet": {
-                        "identifikator": "999999999",
-                        "aktoerType": "ORGANISASJON"
-                      },
-                      "tilleggsinformasjon": {
-                        "kategori": "Nettoloennsordning"
-                      },
-                      "inntektsmottaker": {
-                        "identifikator": "28128521498",
-                        "aktoerType": "NATURLIG_IDENT"
-                      },
-                      "inngaarIGrunnlagForTrekk": true,
-                      "utloeserArbeidsgiveravgift": true,
-                      "informasjonsstatus": "InngaarAlltid",
-                      "beskrivelse": "fastloenn",
-                      "skatteOgAvgiftsregel": "nettoloenn"
-                    }
-                  ]
-                }
-              },
-              {
-                "aarMaaned": "2020-10",
-                "arbeidsInntektInformasjon": {
-                  "inntektListe": [
-                    {
-                      "inntektType": "LOENNSINNTEKT",
-                      "beloep": 10000,
-                      "fordel": "kontantytelse",
-                      "inntektskilde": "A-ordningen",
-                      "inntektsperiodetype": "Maaned",
-                      "inntektsstatus": "LoependeInnrapportert",
-                      "leveringstidspunkt": "2020-11",
-                      "opptjeningsland": "NO",
-                      "opptjeningsperiodeFom": "2020-10-01",
-                      "utbetaltIMaaned": "2020-10",
-                      "opplysningspliktig": {
-                        "identifikator": "928497704",
-                        "aktoerType": "ORGANISASJON"
-                      },
-                      "virksomhet": {
-                        "identifikator": "999999999",
-                        "aktoerType": "ORGANISASJON"
-                      },
-                      "inntektsmottaker": {
-                        "identifikator": "28128521498",
-                        "aktoerType": "NATURLIG_IDENT"
-                      },
-                      "inngaarIGrunnlagForTrekk": true,
-                      "utloeserArbeidsgiveravgift": true,
-                      "informasjonsstatus": "InngaarAlltid",
-                      "beskrivelse": "fastloenn"
-                    }
-                  ]
-                }
-              }
-            ],
-            "ident": {
-              "identifikator": "28128521498",
-              "aktoerType": "NATURLIG_IDENT"
+              "maanedFom": "2020-09",
+              "maanedTom": "2020-10",
+              "ainntektsfilter": "KontrollArbeidsmarkedstiltakA-inntekt"
             }
           }
-        ,
+        ]
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "arbeidsInntektMaaned": [
+            {
+              "aarMaaned": "2020-08",
+              "arbeidsInntektInformasjon": {
+                "inntektListe": [
+                  {
+                    "inntektType": "LOENNSINNTEKT",
+                    "beloep": 15000,
+                    "fordel": "kontantytelse",
+                    "inntektskilde": "A-ordningen",
+                    "inntektsperiodetype": "Maaned",
+                    "inntektsstatus": "LoependeInnrapportert",
+                    "leveringstidspunkt": "2020-11",
+                    "opptjeningsland": "NO",
+                    "opptjeningsperiodeFom": "2020-09-14",
+                    "opptjeningsperiodeTom": "2020-10-16",
+                    "utbetaltIMaaned": "2020-08",
+                    "opplysningspliktig": {
+                      "identifikator": "928497704",
+                      "aktoerType": "ORGANISASJON"
+                    },
+                    "virksomhet": {
+                      "identifikator": "999999999",
+                      "aktoerType": "ORGANISASJON"
+                    },
+                    "tilleggsinformasjon": {
+                      "kategori": "Nettoloennsordning"
+                    },
+                    "inntektsmottaker": {
+                      "identifikator": "28128521498",
+                      "aktoerType": "NATURLIG_IDENT"
+                    },
+                    "inngaarIGrunnlagForTrekk": true,
+                    "utloeserArbeidsgiveravgift": true,
+                    "informasjonsstatus": "InngaarAlltid",
+                    "beskrivelse": "fastloenn",
+                    "skatteOgAvgiftsregel": "nettoloenn"
+                  }
+                ]
+              }
+            },
+            {
+              "aarMaaned": "2020-09",
+              "arbeidsInntektInformasjon": {
+                "inntektListe": [
+                  {
+                    "inntektType": "LOENNSINNTEKT",
+                    "beloep": 15000,
+                    "fordel": "kontantytelse",
+                    "inntektskilde": "A-ordningen",
+                    "inntektsperiodetype": "Maaned",
+                    "inntektsstatus": "LoependeInnrapportert",
+                    "leveringstidspunkt": "2020-11",
+                    "opptjeningsland": "NO",
+                    "opptjeningsperiodeFom": "2020-09-14",
+                    "opptjeningsperiodeTom": "2020-10-16",
+                    "utbetaltIMaaned": "2020-09",
+                    "opplysningspliktig": {
+                      "identifikator": "928497704",
+                      "aktoerType": "ORGANISASJON"
+                    },
+                    "virksomhet": {
+                      "identifikator": "999999999",
+                      "aktoerType": "ORGANISASJON"
+                    },
+                    "tilleggsinformasjon": {
+                      "kategori": "Nettoloennsordning"
+                    },
+                    "inntektsmottaker": {
+                      "identifikator": "28128521498",
+                      "aktoerType": "NATURLIG_IDENT"
+                    },
+                    "inngaarIGrunnlagForTrekk": true,
+                    "utloeserArbeidsgiveravgift": true,
+                    "informasjonsstatus": "InngaarAlltid",
+                    "beskrivelse": "fastloenn",
+                    "skatteOgAvgiftsregel": "nettoloenn"
+                  }
+                ]
+              }
+            },
+            {
+              "aarMaaned": "2020-10",
+              "arbeidsInntektInformasjon": {
+                "inntektListe": [
+                  {
+                    "inntektType": "LOENNSINNTEKT",
+                    "beloep": 10000,
+                    "fordel": "kontantytelse",
+                    "inntektskilde": "A-ordningen",
+                    "inntektsperiodetype": "Maaned",
+                    "inntektsstatus": "LoependeInnrapportert",
+                    "leveringstidspunkt": "2020-11",
+                    "opptjeningsland": "NO",
+                    "opptjeningsperiodeFom": "2020-10-01",
+                    "utbetaltIMaaned": "2020-10",
+                    "opplysningspliktig": {
+                      "identifikator": "928497704",
+                      "aktoerType": "ORGANISASJON"
+                    },
+                    "virksomhet": {
+                      "identifikator": "999999999",
+                      "aktoerType": "ORGANISASJON"
+                    },
+                    "inntektsmottaker": {
+                      "identifikator": "28128521498",
+                      "aktoerType": "NATURLIG_IDENT"
+                    },
+                    "inngaarIGrunnlagForTrekk": true,
+                    "utloeserArbeidsgiveravgift": true,
+                    "informasjonsstatus": "InngaarAlltid",
+                    "beskrivelse": "fastloenn"
+                  }
+                ]
+              }
+            }
+          ],
+          "ident": {
+            "identifikator": "28128521498",
+            "aktoerType": "NATURLIG_IDENT"
+          }
+        },
         "headers": {
           "Content-Type": "application/json",
-          "Accept":"application/json",
-          "Nav-consumer-Id":"tiltak-refusjon",
-          "Nav-Call-Id":"hoppla1"
+          "Accept": "application/json",
+          "Nav-consumer-Id": "tiltak-refusjon",
+          "Nav-Call-Id": "hoppla1"
         }
       }
     },
@@ -171,25 +192,34 @@
       "request": {
         "method": "POST",
         "urlPath": "/inntektskomponenten-ws/rs/api/v1/hentinntektliste",
-        "bodyPatterns" : [ {
-          "equalToJson" : {"ident":{"identifikator":"   ","aktoerType":"NATURLIG_IDENT"},"maanedFom":"2020-09","maanedTom":"2020-10","ainntektsfilter":"KontrollArbeidsmarkedstiltakA-inntekt"}
-        }]},
+        "bodyPatterns": [
+          {
+            "equalToJson": {
+              "ident": {
+                "identifikator": "12345678912",
+                "aktoerType": "NATURLIG_IDENT"
+              },
+              "maanedFom": "2020-09",
+              "maanedTom": "2020-10",
+              "ainntektsfilter": "KontrollArbeidsmarkedstiltakA-inntekt"
+            }
+          }
+        ]
+      },
       "response": {
         "status": 400,
-        "jsonBody":
-        {
+        "jsonBody": {
           "timestamp": "2020-11-11T14:56:53.088+0100",
           "status": "400",
           "error": "Bad Request",
           "message": "Feil i forespørselen: Ident må bestå av 11 sifre",
           "path": "/api/v1/hentinntektliste"
-        }
-      ,
+        },
         "headers": {
           "Content-Type": "application/json",
-          "Accept":"application/json",
-          "Nav-consumer-Id":"tiltak-refusjon",
-          "Nav-Call-Id":"hoppla1"
+          "Accept": "application/json",
+          "Nav-consumer-Id": "tiltak-refusjon",
+          "Nav-Call-Id": "hoppla1"
         }
       }
     },
@@ -198,13 +228,23 @@
       "request": {
         "method": "POST",
         "urlPath": "/inntektskomponenten-ws/rs/api/v1/hentinntektliste",
-        "bodyPatterns" : [ {
-          "equalToJson" : {"ident":{"identifikator":"25119525430","aktoerType":"NATURLIG_IDENT"},"maanedFom":"2020-09","maanedTom":"2020-10","ainntektsfilter":"KontrollArbeidsmarkedstiltakA-inntekt"}
-        }]},
+        "bodyPatterns": [
+          {
+            "equalToJson": {
+              "ident": {
+                "identifikator": "25119525430",
+                "aktoerType": "NATURLIG_IDENT"
+              },
+              "maanedFom": "2020-09",
+              "maanedTom": "2020-10",
+              "ainntektsfilter": "KontrollArbeidsmarkedstiltakA-inntekt"
+            }
+          }
+        ]
+      },
       "response": {
         "status": 200,
-        "jsonBody":
-        {
+        "jsonBody": {
           "arbeidsInntektMaaned": [
             {
               "aarMaaned": "2021-06",
@@ -215,13 +255,12 @@
             "identifikator": "25119525430",
             "aktoerType": "NATURLIG_IDENT"
           }
-        }
-      ,
+        },
         "headers": {
           "Content-Type": "application/json",
-          "Accept":"application/json",
-          "Nav-consumer-Id":"tiltak-refusjon",
-          "Nav-Call-Id":"hoppla1"
+          "Accept": "application/json",
+          "Nav-consumer-Id": "tiltak-refusjon",
+          "Nav-Call-Id": "hoppla1"
         }
       }
     }

@@ -67,21 +67,26 @@ class RefusjonService(
             return
         }
 
-        val inntektsoppslag = inntektskomponentService.hentInntekter(
-            fnr = refusjon.deltakerFnr,
-            bedriftnummerDetSøkesPå = refusjon.bedriftNr,
-            datoFra = refusjon.tilskuddsgrunnlag.tilskuddFom,
-            datoTil = if (refusjon.korreksjonsgrunner.contains(Korreksjonsgrunn.INNTEKTER_RAPPORTERT_ETTER_TILSKUDDSPERIODE))
-                refusjon.tilskuddsgrunnlag.tilskuddTom.plusMonths(1)
-            else
-                refusjon.tilskuddsgrunnlag.tilskuddTom
-        )
-        val inntektsgrunnlag = Inntektsgrunnlag(
-            inntekter = inntektsoppslag.first,
-            respons = inntektsoppslag.second
-        )
-        refusjon.oppgiInntektsgrunnlag(inntektsgrunnlag)
-        gjørBeregning(refusjon)
+        try {
+            val inntektsoppslag = inntektskomponentService.hentInntekter(
+                fnr = refusjon.deltakerFnr,
+                bedriftnummerDetSøkesPå = refusjon.bedriftNr,
+                datoFra = refusjon.tilskuddsgrunnlag.tilskuddFom,
+                datoTil = if (refusjon.korreksjonsgrunner.contains(Korreksjonsgrunn.INNTEKTER_RAPPORTERT_ETTER_TILSKUDDSPERIODE))
+                    refusjon.tilskuddsgrunnlag.tilskuddTom.plusMonths(1)
+                else
+                    refusjon.tilskuddsgrunnlag.tilskuddTom
+            )
+            val inntektsgrunnlag = Inntektsgrunnlag(
+                inntekter = inntektsoppslag.first,
+                respons = inntektsoppslag.second
+            )
+            refusjon.oppgiInntektsgrunnlag(inntektsgrunnlag)
+            gjørBeregning(refusjon)
+        } catch (e: Exception) {
+            log.error("Feil ved henting av inntekter for refusjon ${refusjon.id}", e)
+        }
+
     }
 
     fun korrigerBruttolønn(refusjon: Refusjon, inntekterKunFraTiltaket: Boolean, korrigertBruttoLønn: Int?) {
@@ -138,7 +143,8 @@ class RefusjonService(
 
     fun gjørBedriftKontonummeroppslag(refusjon: Refusjon) {
         if (refusjon.innhentetBedriftKontonummerTidspunkt != null && refusjon.innhentetBedriftKontonummerTidspunkt!!.isAfter(
-                Now.localDateTime().minusMinutes(1))
+                Now.localDateTime().minusMinutes(1)
+            )
         ) {
             return
         }

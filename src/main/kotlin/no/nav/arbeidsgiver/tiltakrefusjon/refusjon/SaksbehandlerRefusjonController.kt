@@ -32,6 +32,12 @@ class SaksbehandlerRefusjonController(
         return saksbehandler.korriger(id, request.korreksjonsgrunner)
     }
 
+    @PostMapping("/{id}/korriger-bruttolønn")
+    fun korrigerBruttolønn(@PathVariable id: String, @RequestBody korrigerBruttolønnRequest: KorrigerBruttolønnRequest) {
+        val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
+        saksbehandler.korrigerBruttolønn(id, korrigerBruttolønnRequest.inntekterKunFraTiltaket, korrigerBruttolønnRequest.korrigertBruttoLønn)
+    }
+
     @PostMapping("/{id}/slett-korreksjon")
     fun slettKorreksjon(@PathVariable id: String): Refusjon {
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()

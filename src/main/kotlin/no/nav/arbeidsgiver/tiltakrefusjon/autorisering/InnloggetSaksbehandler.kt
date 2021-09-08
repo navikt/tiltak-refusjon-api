@@ -8,6 +8,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.data.repository.findByIdOrNull
+import java.time.LocalDate
 
 data class InnloggetSaksbehandler(
     val identifikator: String,
@@ -85,5 +86,12 @@ data class InnloggetSaksbehandler(
         refusjonRepository.save(opprinneligRefusjon)
         refusjonRepository.delete(korreksjon)
         return korreksjon
+    }
+
+    fun endreFrist(id: String, nyFrist: LocalDate):Refusjon {
+        val refusjon = finnRefusjon(id)
+        refusjon.fristForGodkjenning = nyFrist
+        refusjonRepository.save(refusjon)
+        return refusjon
     }
 }

@@ -4,7 +4,6 @@ import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBrukerService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.NyFristRequest
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.web.bind.annotation.*
-import java.time.LocalDate
 
 const val REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON = "/api/saksbehandler/refusjon"
 
@@ -43,6 +42,6 @@ class SaksbehandlerRefusjonController(
     @PostMapping("/{id}/endre-refusjon-frist")
     fun endreRefusjonFrist(@PathVariable id: String, @RequestBody request: NyFristRequest): Refusjon {
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
-        return saksbehandler.endreFrist(id, request.nyFrist)
+        return saksbehandler.endreFrist(id, request.nyFrist, request.årsak)
     }
 }

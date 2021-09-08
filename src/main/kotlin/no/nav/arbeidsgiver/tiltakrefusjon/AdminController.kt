@@ -12,6 +12,7 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
+import java.time.LocalDate
 
 @RestController("/admin")
 class AdminController(val service: RefusjonService, val refusjonRepository: RefusjonRepository) {
@@ -57,6 +58,21 @@ class AdminController(val service: RefusjonService, val refusjonRepository: Refu
         }
         return korreksjoner
     }
+
+    @Unprotected
+    @PostMapping("forleng-frister")
+    fun forlengFrister(@RequestBody request: ForlengFristerRequest) {
+        logger.info("Bruker AdminController for å forlenge frister på {} refusjoner",
+            request.refusjonIder.size)
+        for (id in request.refusjonIder) {
+            val refusjon =
+                refusjonRepository.findByIdOrNull(id) ?: throw RuntimeException("Finner ikke refusjon med id=$id")
+            refusjon.forlengFrist(request.nyFrist, request.årsak, "admin")
+            refusjonRepository.save(refusjon)
+        }
+    }
 }
 
 data class KorreksjonRequest(val refusjonIder: List<String>, val korreksjonsgrunner: Set<Korreksjonsgrunn>)
+
+data class ForlengFristerRequest(val refusjonIder: List<String>, val nyFrist: LocalDate, val årsak: String)

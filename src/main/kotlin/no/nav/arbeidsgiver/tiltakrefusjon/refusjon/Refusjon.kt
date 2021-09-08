@@ -35,6 +35,7 @@ data class Refusjon(
 
     // Fristen er satt til 2 mnd ihht økonomireglementet
     var fristForGodkjenning: LocalDate = antallMånederEtter(tilskuddsgrunnlag.tilskuddTom, 2)
+    var forrigeFristForGodkjenning: LocalDate? = null
 
     var godkjentAvArbeidsgiver: Instant? = null
     var godkjentAvSaksbehandler: Instant? = null
@@ -184,4 +185,24 @@ data class Refusjon(
         return status == RefusjonStatus.MANUELL_KORREKSJON
     }
 
+    fun forlengFrist(nyFrist: LocalDate, årsak: String, utførtAv: String) {
+        oppdaterStatus()
+        krevStatus(RefusjonStatus.FOR_TIDLIG, RefusjonStatus.KLAR_FOR_INNSENDING, RefusjonStatus.UTGÅTT)
+
+        if (nyFrist <= fristForGodkjenning) {
+            // Ny frist må være etter nåværende frist for at det skal være en forlengelse
+            throw FeilkodeException(Feilkode.UGYLDIG_FORLENGELSE_AV_FRIST)
+        }
+
+        if (nyFrist > antallMånederEtter(tilskuddsgrunnlag.tilskuddTom, 3)) {
+            // Kan maks forlenge 1 mnd ekstra fra opprinnelig frist på 2 mnd
+            throw FeilkodeException(Feilkode.FOR_LANG_FORLENGELSE_AV_FRIST)
+        }
+
+        val gammelFristForGodkjenning = fristForGodkjenning;
+        forrigeFristForGodkjenning = gammelFristForGodkjenning
+        fristForGodkjenning = nyFrist
+        oppdaterStatus()
+        registerEvent(FristForlenget(this, gammelFristForGodkjenning, fristForGodkjenning, årsak, utførtAv))
+    }
 }

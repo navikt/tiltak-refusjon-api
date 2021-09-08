@@ -48,7 +48,9 @@ data class InnloggetSaksbehandler(
     fun finnRefusjon(id: String): Refusjon {
         val refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(refusjon)
-        if (refusjon.status == RefusjonStatus.MANUELL_KORREKSJON && refusjon.korreksjonsgrunner.contains(Korreksjonsgrunn.HENT_INNTEKTER_PÅ_NYTT)) {
+        if (refusjon.status == RefusjonStatus.MANUELL_KORREKSJON && refusjon.korreksjonsgrunner.contains(
+                Korreksjonsgrunn.HENT_INNTEKTER_PÅ_NYTT)
+        ) {
             try {
                 refusjonService.gjørInntektsoppslag(refusjon)
             } catch (e: Exception) {
@@ -88,9 +90,9 @@ data class InnloggetSaksbehandler(
         return korreksjon
     }
 
-    fun endreFrist(id: String, nyFrist: LocalDate):Refusjon {
+    fun endreFrist(id: String, nyFrist: LocalDate, årsak: String): Refusjon {
         val refusjon = finnRefusjon(id)
-        refusjon.fristForGodkjenning = nyFrist
+        refusjon.forlengFrist(nyFrist, årsak, identifikator)
         refusjonRepository.save(refusjon)
         return refusjon
     }

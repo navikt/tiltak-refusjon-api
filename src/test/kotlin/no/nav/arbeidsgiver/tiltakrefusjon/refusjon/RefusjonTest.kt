@@ -225,5 +225,28 @@ internal class RefusjonTest {
         val refusjon = enRefusjon().medInntektsgrunnlag().medBedriftKontonummer()
         assertFeilkode(Feilkode.UGYLDIG_STATUS) { refusjon.lagKorreksjon(setOf(Korreksjonsgrunn.UTBETALT_HELE_TILSKUDDSBELØP)) }
     }
+
+    @Test
+    internal fun `forleng frist`() {
+        val refusjon = enRefusjon().medInntektsgrunnlag().medBedriftKontonummer()
+        val opprinneligFrist = refusjon.fristForGodkjenning
+        //TODO: Redusere siste dag det er mulig å forlenge til til 3mnd etter tilskuddTom
+        val sisteDagDetErMuligÅForlengeTil = refusjon.tilskuddsgrunnlag.tilskuddTom.plusMonths(4)
+
+        // Positiv test
+        refusjon.forlengFrist(sisteDagDetErMuligÅForlengeTil, "", "")
+        assertThat(refusjon.fristForGodkjenning).isEqualTo(sisteDagDetErMuligÅForlengeTil)
+        assertThat(refusjon.forrigeFristForGodkjenning).isEqualTo(opprinneligFrist)
+
+        // Negativ test 1
+        assertFeilkode(Feilkode.FOR_LANG_FORLENGELSE_AV_FRIST) {
+            refusjon.forlengFrist(sisteDagDetErMuligÅForlengeTil.plusDays(1), "", "")
+        }
+
+        // Negativ test 2
+        assertFeilkode(Feilkode.UGYLDIG_FORLENGELSE_AV_FRIST) {
+            refusjon.forlengFrist(refusjon.fristForGodkjenning.minusDays(1), "", "")
+        }
+    }
 }
 

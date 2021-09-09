@@ -8,6 +8,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.data.repository.findByIdOrNull
+import java.time.LocalDate
 
 data class InnloggetSaksbehandler(
     val identifikator: String,
@@ -47,7 +48,9 @@ data class InnloggetSaksbehandler(
     fun finnRefusjon(id: String): Refusjon {
         val refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(refusjon)
-        if (refusjon.status == RefusjonStatus.MANUELL_KORREKSJON && refusjon.korreksjonsgrunner.contains(Korreksjonsgrunn.HENT_INNTEKTER_PÅ_NYTT)) {
+        if (refusjon.status == RefusjonStatus.MANUELL_KORREKSJON && refusjon.korreksjonsgrunner.contains(
+                Korreksjonsgrunn.HENT_INNTEKTER_PÅ_NYTT)
+        ) {
             try {
                 refusjonService.gjørInntektsoppslag(refusjon)
             } catch (e: Exception) {
@@ -95,5 +98,12 @@ data class InnloggetSaksbehandler(
             throw FeilkodeException(Feilkode.SAKSBEHANDLER_SVARER_PÅ_INNTEKTSPØRSMÅL)
         }
         refusjonService.korrigerBruttolønn(refusjon, inntekterKunFraTiltaket, korrigertBruttoLønn)
+    }
+
+    fun endreFrist(id: String, nyFrist: LocalDate, årsak: String): Refusjon {
+        val refusjon = finnRefusjon(id)
+        refusjon.forlengFrist(nyFrist, årsak, identifikator)
+        refusjonRepository.save(refusjon)
+        return refusjon
     }
 }

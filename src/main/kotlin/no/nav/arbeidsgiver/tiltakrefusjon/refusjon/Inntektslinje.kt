@@ -31,7 +31,7 @@ data class Inntektslinje(
 
     @JsonProperty
     fun erMedIInntektsgrunnlag() =
-        inntektType == "LOENNSINNTEKT" && beløp > 0.0 && inkluderteLønnsbeskrivelser.contains(beskrivelse)
+        inntektType == "LOENNSINNTEKT" && inkluderteLønnsbeskrivelser.contains(beskrivelse)
 }
 
 val inkluderteLønnsbeskrivelser = listOf("fastloenn", "timeloenn", "fastTillegg")

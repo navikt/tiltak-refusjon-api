@@ -1,8 +1,11 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.inntekt
 
+import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.KotlinModule
+import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.request.Aktør
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.request.InntektRequest
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.response.ArbeidsInntektMaaned
@@ -36,6 +39,8 @@ class InntektskomponentServiceImpl(
         val mapper = ObjectMapper()
         mapper.registerModule(JavaTimeModule())
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+        mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+        mapper.registerModule(KotlinModule())
         mapper
     }
 
@@ -45,27 +50,34 @@ class InntektskomponentServiceImpl(
         datoFra: LocalDate,
         datoTil: LocalDate,
     ): Pair<List<Inntektslinje>, String> {
-        try {
-            val requestEntity = lagRequest(fnr, YearMonth.from(datoFra), YearMonth.from(datoTil))
-            val responseMedInntekterForDeltaker =
-                restTemplate.exchange<InntektResponse>(inntektskomponentProperties.uri,
-                    HttpMethod.POST,
-                    requestEntity).body
-            val inntekter = responseMedInntekterForDeltaker?.arbeidsInntektMaaned ?: throw FantIngenInntektException()
-            return Pair(inntekterForBedrift(inntekter, bedriftnummerDetSøkesPå),
-                objectMapper.writeValueAsString(responseMedInntekterForDeltaker))
-        } catch (ex: Exception) {
-            throw HentingAvInntektException("Kall til Inntektskomponenten feilet", ex)
-        }
+        val requestEntity = lagRequest(fnr, YearMonth.from(datoFra), YearMonth.from(datoTil))
+        val responseMedInntekterForDeltaker =
+            restTemplate.exchange<String>(
+                inntektskomponentProperties.uri,
+                HttpMethod.POST,
+                requestEntity
+            ).body
+
+        val mappedResponse = objectMapper.readValue<InntektResponse>(responseMedInntekterForDeltaker!!)
+
+        val inntekter = mappedResponse.arbeidsInntektMaaned
+        return Pair(
+            inntekterForBedrift(inntekter, bedriftnummerDetSøkesPå),
+            responseMedInntekterForDeltaker
+        )
     }
 
     private fun inntekterForBedrift(
         månedsInntektList: List<ArbeidsInntektMaaned>?,
         bedriftnummerDetSøkesPå: String,
     ): List<Inntektslinje> {
+        if (månedsInntektList.isNullOrEmpty()) {
+            return emptyList();
+        }
         val inntekterTotalt = mutableListOf<Inntektslinje>()
-        månedsInntektList?.forEach { inntektMaaned ->
-            val arbeidsinntektListe: List<InntektListe>? = inntektMaaned.arbeidsInntektInformasjon?.inntektListe
+
+        månedsInntektList.forEach { inntektMaaned ->
+            val arbeidsinntektListe: List<InntektListe>? = inntektMaaned.arbeidsInntektInformasjon.inntektListe
             arbeidsinntektListe?.filter { it.virksomhet?.identifikator.toString() == bedriftnummerDetSøkesPå }
                 ?.forEach {
                     var dateFraOpptjenningsperiode: LocalDate? = null

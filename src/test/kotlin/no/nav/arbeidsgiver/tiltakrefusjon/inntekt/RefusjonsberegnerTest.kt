@@ -2,13 +2,14 @@ package no.nav.arbeidsgiver.tiltakrefusjon.inntekt
 
 import com.github.guepardoapps.kulid.ULID
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.time.YearMonth
-import org.assertj.core.api.Assertions.assertThat
 
-class RefusjosberegnerTest {
+class RefusjonsberegnerTest {
 
     lateinit var juni: Inntektslinje
     lateinit var juli: Inntektslinje
@@ -18,18 +19,18 @@ class RefusjosberegnerTest {
     @BeforeEach
     fun init() {
         juni =
-            `lag en inntektslinje`(20000.00, YearMonth.of(2021, 7), LocalDate.of(2021, 6, 1), LocalDate.of(2021, 6, 30))
+            lagEnInntektslinje(20000.00, YearMonth.of(2021, 7), LocalDate.of(2021, 6, 1), LocalDate.of(2021, 6, 30))
         juli =
-            `lag en inntektslinje`(20000.00, YearMonth.of(2021, 7), LocalDate.of(2021, 7, 1), LocalDate.of(2021, 7, 31))
+            lagEnInntektslinje(20000.00, YearMonth.of(2021, 7), LocalDate.of(2021, 7, 1), LocalDate.of(2021, 7, 31))
         inntektsliste = listOf(juni, juli)
         inntektsgrunnlag = Inntektsgrunnlag(inntektsliste, "repons fra Inntekt")
     }
 
-    fun `lag et tilskuddsgrunnlag`(
+    fun lagEtTilskuddsgrunnlag(
         tilskuddFom: LocalDate,
         tilskuddTom: LocalDate,
         tiltakstype: Tiltakstype,
-        tilskuddsbeløp: Int
+        tilskuddsbeløp: Int,
     ): Tilskuddsgrunnlag {
         val tilskuddsgrunnlag = Tilskuddsgrunnlag(
             avtaleId = ULID.random(),
@@ -55,11 +56,11 @@ class RefusjosberegnerTest {
         return tilskuddsgrunnlag
     }
 
-    private fun `lag en inntektslinje`(
+    private fun lagEnInntektslinje(
         beløp: Double,
         måned: YearMonth,
         opptjeningsperiodeFom: LocalDate,
-        opptjeningsperiodeTom: LocalDate
+        opptjeningsperiodeTom: LocalDate,
     ): Inntektslinje {
         return Inntektslinje(
             inntektType = "LOENNSINNTEKT",
@@ -73,7 +74,7 @@ class RefusjosberegnerTest {
 
     @Test
     fun `beregning av sommerjobb, skal ikke beregne på dagsats`() {
-        val tilskuddsgrunnlagSommerJobb = `lag et tilskuddsgrunnlag`(
+        val tilskuddsgrunnlagSommerJobb = lagEtTilskuddsgrunnlag(
             LocalDate.of(2021, 6, 1),
             LocalDate.of(2021, 7, 16),
             Tiltakstype.SOMMERJOBB,
@@ -83,14 +84,15 @@ class RefusjosberegnerTest {
             tilskuddsgrunnlagSommerJobb,
             "appImageId",
             0,
-            emptySet())
+            null)
         val beregnetBeløpHeleInntektsgrunnlaget = 20856
         assertThat(beregning.refusjonsbeløp).isEqualTo(beregnetBeløpHeleInntektsgrunnlaget)
     }
 
     @Test
+    @Disabled("Finne ut hvordan lønnstilskudd skal beregnes")
     fun `beregning av lønnstilskudd, skal beregne på dagsats`() {
-        val tilskuddsgrunnlagSommerJobb = `lag et tilskuddsgrunnlag`(
+        val tilskuddsgrunnlagSommerJobb = lagEtTilskuddsgrunnlag(
             LocalDate.of(2021, 6, 1),
             LocalDate.of(2021, 7, 16),
             Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
@@ -100,7 +102,7 @@ class RefusjosberegnerTest {
             tilskuddsgrunnlagSommerJobb,
             "appImageId",
             0,
-            emptySet())
+            null)
         val beregnetBeløpAvAntallDagerJobbetInnenforInntektsgrunnlaget = 15810
         assertThat(beregning.refusjonsbeløp).isEqualTo(beregnetBeløpAvAntallDagerJobbetInnenforInntektsgrunnlaget)
     }

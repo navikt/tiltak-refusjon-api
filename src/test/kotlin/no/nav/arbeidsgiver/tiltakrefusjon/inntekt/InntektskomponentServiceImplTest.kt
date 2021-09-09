@@ -3,6 +3,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon.inntekt
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
@@ -10,10 +11,12 @@ import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock
 import org.springframework.test.context.ActiveProfiles
 import java.time.LocalDate
 
-@SpringBootTest(properties = [
-    "tiltak-refusjon.inntektskomponenten.uri=http://localhost:8090/inntektskomponenten-ws/rs/api/v1/hentinntektliste",
-    "tiltak-refusjon.inntektskomponenten.fake=false"
-])
+@SpringBootTest(
+    properties = [
+        "tiltak-refusjon.inntektskomponenten.uri=http://localhost:8090/inntektskomponenten-ws/rs/api/v1/hentinntektliste",
+        "tiltak-refusjon.inntektskomponenten.fake=false"
+    ]
+)
 @ActiveProfiles("local")
 @AutoConfigureMockMvc
 @AutoConfigureWireMock(port = 8090)
@@ -46,5 +49,28 @@ class InntektskomponentServiceImplTest {
         assertThat(inntekter.second).containsSubsequence("arbeidsInntektMaaned") // Property på høyeste nivå i JSON-responsen
     }
 
-    // TODO: Skriv flere tester som treffer feilsituasjoner
+    @Test
+    fun `kall med respons uten a-melding`() {
+        val inntekter = inntektskomponentService.hentInntekter(
+            fnr = "18019623862",
+            bedriftnummerDetSøkesPå = "999999999",
+            datoFra = LocalDate.of(2020, 9, 1),
+            datoTil = LocalDate.of(2020, 10, 1)
+        )
+        assertThat(inntekter.first).isEmpty()
+        assertThat(inntekter.second).contains("18019623862")
+    }
+
+    @Test
+    fun `kall som feiler gir ikke tom liste men feiler`() {
+        assertThrows<Throwable> {
+            val inntekter = inntektskomponentService.hentInntekter(
+                fnr = "12345678912",
+                bedriftnummerDetSøkesPå = "999999999",
+                datoFra = LocalDate.of(2020, 9, 1),
+                datoTil = LocalDate.of(2020, 10, 1)
+            )
+        }
+    }
+
 }

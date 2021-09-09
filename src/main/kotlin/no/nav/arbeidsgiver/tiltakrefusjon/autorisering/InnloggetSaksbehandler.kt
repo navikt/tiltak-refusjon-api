@@ -90,6 +90,16 @@ data class InnloggetSaksbehandler(
         return korreksjon
     }
 
+    fun korrigerBruttolønn(id: String, inntekterKunFraTiltaket: Boolean, korrigertBruttoLønn: Int?) {
+        val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
+        sjekkLesetilgang(refusjon)
+        if (refusjon.korreksjonAvId == null) {
+            // Saksbehandler kan kun oppgi bruttolønn ved korreksjon
+            throw FeilkodeException(Feilkode.SAKSBEHANDLER_SVARER_PÅ_INNTEKTSPØRSMÅL)
+        }
+        refusjonService.korrigerBruttolønn(refusjon, inntekterKunFraTiltaket, korrigertBruttoLønn)
+    }
+
     fun endreFrist(id: String, nyFrist: LocalDate, årsak: String): Refusjon {
         val refusjon = finnRefusjon(id)
         refusjon.forlengFrist(nyFrist, årsak, identifikator)

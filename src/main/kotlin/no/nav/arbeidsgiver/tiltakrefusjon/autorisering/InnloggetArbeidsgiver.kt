@@ -69,4 +69,10 @@ data class InnloggetArbeidsgiver(
         refusjonerMedSammeAvtaleId.forEach { sjekkHarTilgangTilRefusjonerForBedrift(it.bedriftNr) }
         return refusjonerMedSammeAvtaleId.filter { it.id != refusjon.id }
     }
+
+    fun korrigerBruttolønn(id: String, inntekterKunFraTiltaket: Boolean, korrigertBruttoLønn: Int?) {
+        val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
+        sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
+        refusjonService.korrigerBruttolønn(refusjon, inntekterKunFraTiltaket, korrigertBruttoLønn)
+    }
 }

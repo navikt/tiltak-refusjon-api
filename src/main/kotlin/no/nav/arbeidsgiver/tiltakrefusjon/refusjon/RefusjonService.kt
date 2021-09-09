@@ -67,26 +67,35 @@ class RefusjonService(
             return
         }
 
-        val inntektsoppslag = inntektskomponentService.hentInntekter(
-            fnr = refusjon.deltakerFnr,
-            bedriftnummerDetSøkesPå = refusjon.bedriftNr,
-            datoFra = refusjon.tilskuddsgrunnlag.tilskuddFom,
-            datoTil = if (refusjon.korreksjonsgrunner.contains(Korreksjonsgrunn.INNTEKTER_RAPPORTERT_ETTER_TILSKUDDSPERIODE))
-                refusjon.tilskuddsgrunnlag.tilskuddTom.plusMonths(1)
-            else
-                refusjon.tilskuddsgrunnlag.tilskuddTom
-        )
-        val inntektsgrunnlag = Inntektsgrunnlag(
-            inntekter = inntektsoppslag.first,
-            respons = inntektsoppslag.second
-        )
-        refusjon.oppgiInntektsgrunnlag(inntektsgrunnlag)
+        try {
+            val inntektsoppslag = inntektskomponentService.hentInntekter(
+                fnr = refusjon.deltakerFnr,
+                bedriftnummerDetSøkesPå = refusjon.bedriftNr,
+                datoFra = refusjon.tilskuddsgrunnlag.tilskuddFom,
+                datoTil = refusjon.tilskuddsgrunnlag.tilskuddTom.plusMonths(1)
+            )
+            val inntektsgrunnlag = Inntektsgrunnlag(
+                inntekter = inntektsoppslag.first,
+                respons = inntektsoppslag.second
+            )
+            refusjon.oppgiInntektsgrunnlag(inntektsgrunnlag)
+            gjørBeregning(refusjon)
+        } catch (e: Exception) {
+            log.error("Feil ved henting av inntekter for refusjon ${refusjon.id}", e)
+        }
+
+    }
+
+    fun korrigerBruttolønn(refusjon: Refusjon, inntekterKunFraTiltaket: Boolean, korrigertBruttoLønn: Int?) {
+        refusjon.korrigerBruttolønn(inntekterKunFraTiltaket, korrigertBruttoLønn)
         gjørBeregning(refusjon)
     }
 
     fun gjørBeregning(refusjon: Refusjon) {
-        val tidligereUtbetalt = beregnTidligereUtbetaltBeløp(refusjon)
-        refusjon.gjørBeregning(appImageId, tidligereUtbetalt)
+        if (refusjon.inntekterKunFraTiltaket != null) {
+            val tidligereUtbetalt = beregnTidligereUtbetaltBeløp(refusjon)
+            refusjon.gjørBeregning(appImageId, tidligereUtbetalt)
+        }
         refusjonRepository.save(refusjon)
     }
 
@@ -131,7 +140,8 @@ class RefusjonService(
 
     fun gjørBedriftKontonummeroppslag(refusjon: Refusjon) {
         if (refusjon.innhentetBedriftKontonummerTidspunkt != null && refusjon.innhentetBedriftKontonummerTidspunkt!!.isAfter(
-                Now.localDateTime().minusMinutes(1))
+                Now.localDateTime().minusMinutes(1)
+            )
         ) {
             return
         }

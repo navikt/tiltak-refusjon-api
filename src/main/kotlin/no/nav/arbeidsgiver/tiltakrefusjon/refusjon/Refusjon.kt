@@ -79,9 +79,8 @@ data class Refusjon(
     }
 
     fun oppdaterStatus() {
-        //TODO: Legge inn UTGÅTT i statuser som ikke kan endres
         val statuserSomIkkeKanEndres =
-            listOf(RefusjonStatus.SENDT_KRAV, RefusjonStatus.ANNULLERT, RefusjonStatus.UTBETALT)
+            listOf(RefusjonStatus.SENDT_KRAV, RefusjonStatus.ANNULLERT, RefusjonStatus.UTBETALT, RefusjonStatus.UTGÅTT)
         if (::status.isInitialized && status in statuserSomIkkeKanEndres) return
 
         if (korreksjonAvId != null) {
@@ -209,13 +208,13 @@ data class Refusjon(
             // Ny frist må være etter nåværende frist for at det skal være en forlengelse
             throw FeilkodeException(Feilkode.UGYLDIG_FORLENGELSE_AV_FRIST)
         }
-        //TODO: Sette max frist ned igjen til 3mnd etter tilskudd tom.
-        if (nyFrist > antallMånederEtter(tilskuddsgrunnlag.tilskuddTom, 4)) {
+
+        if (nyFrist > antallMånederEtter(tilskuddsgrunnlag.tilskuddTom, 3)) {
             // Kan maks forlenge 1 mnd ekstra fra opprinnelig frist på 2 mnd
             throw FeilkodeException(Feilkode.FOR_LANG_FORLENGELSE_AV_FRIST)
         }
 
-        val gammelFristForGodkjenning = fristForGodkjenning;
+        val gammelFristForGodkjenning = fristForGodkjenning
         forrigeFristForGodkjenning = gammelFristForGodkjenning
         fristForGodkjenning = nyFrist
         oppdaterStatus()

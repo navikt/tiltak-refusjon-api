@@ -39,6 +39,7 @@ data class Refusjon(
 
     var godkjentAvArbeidsgiver: Instant? = null
     var godkjentAvSaksbehandler: Instant? = null
+    var godkjentAvSaksbehandlerNavIdent: String? = null
 
     var bedriftKontonummer: String? = null
     var innhentetBedriftKontonummerTidspunkt: LocalDateTime? = null
@@ -194,6 +195,14 @@ data class Refusjon(
         korreksjon.korreksjonsgrunner.addAll(korreksjonsgrunner)
         this.korrigeresAvId = korreksjon.id
         return korreksjon
+    }
+
+    fun utbetalKorreksjon(utførtAv: String) {
+        krevStatus(RefusjonStatus.MANUELL_KORREKSJON)
+        status = RefusjonStatus.KORREKSJON_SENDT_TIL_UTBETALING
+        godkjentAvSaksbehandler = Now.instant()
+        godkjentAvSaksbehandlerNavIdent = utførtAv
+        registerEvent(KorreksjonSendtTilUtbetaling(this))
     }
 
     fun kanSlettes(): Boolean {

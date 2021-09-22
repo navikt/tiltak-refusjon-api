@@ -80,7 +80,7 @@ data class Refusjon(
 
     fun oppdaterStatus() {
         val statuserSomIkkeKanEndres =
-            listOf(RefusjonStatus.SENDT_KRAV, RefusjonStatus.ANNULLERT, RefusjonStatus.UTBETALT, RefusjonStatus.UTGÅTT)
+            listOf(RefusjonStatus.SENDT_KRAV, RefusjonStatus.ANNULLERT, RefusjonStatus.UTBETALT)
         if (::status.isInitialized && status in statuserSomIkkeKanEndres) return
 
         if (korreksjonAvId != null) {

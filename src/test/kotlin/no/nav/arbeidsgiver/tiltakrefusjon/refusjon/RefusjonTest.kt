@@ -247,5 +247,18 @@ internal class RefusjonTest {
             refusjon.forlengFrist(refusjon.fristForGodkjenning.minusDays(1), "", "")
         }
     }
+
+    @Test
+    internal fun `forleng frist på utgått refusjon skal endre status tilbake til klar for innsending`() {
+        val refusjon = enRefusjon(etTilskuddsgrunnlag().copy(
+            tilskuddFom = Now.localDate().minusMonths(2).minusDays(1),
+            tilskuddTom = Now.localDate().minusMonths(2).minusDays(1)
+        ))
+
+        val idag = Now.localDate()
+        refusjon.forlengFrist(idag, "", "")
+        assertThat(refusjon.fristForGodkjenning).isEqualTo(idag)
+        assertThat(refusjon.status).isEqualTo(RefusjonStatus.KLAR_FOR_INNSENDING)
+    }
 }
 

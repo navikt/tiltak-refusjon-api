@@ -7,7 +7,7 @@ on:
 
 env:
   GITHUB_REPOSITORY: ${{ github.repository }}
-  IMAGE: ghcr.io/${{ github.repository }}:${{ github.sha }}
+  IMAGE: ghcr.io/${{ github.repository }}/tiltak-refusjon-api
 
 jobs:
   bygg:

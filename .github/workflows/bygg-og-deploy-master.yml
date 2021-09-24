@@ -6,7 +6,6 @@ on:
       - 'master'
 
 env:
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   GITHUB_REPOSITORY: ${{ github.repository }}
   IMAGE: ghcr.io/${{ github.repository }}:${{ github.sha }}
 
@@ -33,8 +32,12 @@ jobs:
 
       - name: Bygg og test med Maven
         run: mvn package -B -Dsurefire.useFile=false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Bygg, tag og push Docker-image
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           docker build --tag $IMAGE .
           echo ${GITHUB_TOKEN} | docker login ghcr.io -u ${{github.repository_owner}} --password-stdin

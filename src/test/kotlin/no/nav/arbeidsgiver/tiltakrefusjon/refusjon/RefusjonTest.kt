@@ -260,5 +260,7 @@ internal class RefusjonTest {
         assertThat(refusjon.fristForGodkjenning).isEqualTo(idag)
         assertThat(refusjon.status).isEqualTo(RefusjonStatus.KLAR_FOR_INNSENDING)
     }
+
+
 }
 

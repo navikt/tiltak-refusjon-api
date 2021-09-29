@@ -90,6 +90,13 @@ data class InnloggetSaksbehandler(
         return korreksjon
     }
 
+    fun utbetalKorreksjon(id: String): Refusjon {
+        val korreksjon = finnRefusjon(id)
+        korreksjon.utbetalKorreksjon(this.identifikator)
+        refusjonRepository.save(korreksjon)
+        return korreksjon
+    }
+
     fun korrigerBruttolønn(id: String, inntekterKunFraTiltaket: Boolean, korrigertBruttoLønn: Int?) {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(refusjon)

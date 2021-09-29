@@ -101,15 +101,16 @@ class RefusjonService(
 
     private fun beregnTidligereUtbetaltBeløp(refusjon: Refusjon) =
         if (refusjon.korreksjonAvId !== null) {
-            if (refusjon.korreksjonsgrunner.contains(Korreksjonsgrunn.UTBETALT_HELE_TILSKUDDSBELØP)) {
-                refusjon.tilskuddsgrunnlag.tilskuddsbeløp
-            } else {
-                val opprinneligRefusjon = refusjonRepository.findByIdOrNull(refusjon.korreksjonAvId)!!
-                opprinneligRefusjon.beregning!!.refusjonsbeløp
+            when {
+                refusjon.korreksjonsgrunner.contains(Korreksjonsgrunn.UTBETALT_HELE_TILSKUDDSBELØP) ->
+                    refusjon.tilskuddsgrunnlag.tilskuddsbeløp
+                refusjon.korreksjonsgrunner.contains(Korreksjonsgrunn.UTBETALING_RETURNERT) -> 0
+                else -> {
+                    val opprinneligRefusjon = refusjonRepository.findByIdOrNull(refusjon.korreksjonAvId)!!
+                    opprinneligRefusjon.beregning!!.refusjonsbeløp
+                }
             }
-        } else {
-            0
-        }
+        } else 0
 
     fun godkjennForArbeidsgiver(refusjon: Refusjon) {
         refusjon.godkjennForArbeidsgiver()

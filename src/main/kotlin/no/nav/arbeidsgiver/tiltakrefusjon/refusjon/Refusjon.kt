@@ -109,7 +109,7 @@ data class Refusjon(
         registerEvent(InntekterInnhentet(this))
     }
 
-        fun korrigerBruttolønn(inntekterKunFraTiltaket: Boolean, korrigertBruttoLønn: Int?) {
+    fun korrigerBruttolønn(inntekterKunFraTiltaket: Boolean, korrigertBruttoLønn: Int?) {
         oppdaterStatus()
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING, RefusjonStatus.MANUELL_KORREKSJON)
         if (inntekterKunFraTiltaket && korrigertBruttoLønn != null) {
@@ -199,6 +199,10 @@ data class Refusjon(
 
     fun utbetalKorreksjon(utførtAv: String) {
         krevStatus(RefusjonStatus.MANUELL_KORREKSJON)
+        val refusjonsbeløp = beregning?.refusjonsbeløp
+        if (refusjonsbeløp == null || refusjonsbeløp <= 0) {
+            throw FeilkodeException(Feilkode.KORREKSJONSBELOP_NEGATIVT)
+        }
         status = RefusjonStatus.KORREKSJON_SENDT_TIL_UTBETALING
         godkjentAvSaksbehandler = Now.instant()
         godkjentAvSaksbehandlerNavIdent = utførtAv

@@ -45,6 +45,12 @@ class SaksbehandlerRefusjonController(
         return saksbehandler.slettKorreksjon(id)
     }
 
+    @PostMapping("/{id}/utbetal-korreksjon")
+    fun utbetalKorreksjon(@PathVariable id: String): Refusjon {
+        val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
+        return saksbehandler.utbetalKorreksjon(id)
+    }
+
     @PostMapping("/{id}/endre-refusjon-frist")
     fun endreRefusjonFrist(@PathVariable id: String, @RequestBody request: NyFristRequest): Refusjon {
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()

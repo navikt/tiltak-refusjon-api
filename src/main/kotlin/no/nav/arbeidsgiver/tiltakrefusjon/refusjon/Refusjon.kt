@@ -23,6 +23,7 @@ data class Refusjon(
     val bedriftNr: String,
     val deltakerFnr: String,
     val korreksjonAvId: String? = null,
+    val korreksjonsnummer: Int? = null,
 ) : AbstractAggregateRoot<Refusjon>() {
     @Id
     val id: String = ULID.random()
@@ -179,7 +180,10 @@ data class Refusjon(
         if (korrigeresAvId != null) {
             throw FeilkodeException(Feilkode.HAR_KORREKSJON)
         }
-        val korreksjon = Refusjon(Tilskuddsgrunnlag(this.tilskuddsgrunnlag), this.bedriftNr, this.deltakerFnr, this.id)
+
+        val korreksjonsnummer = if (this.korreksjonsnummer == null) 1 else this.korreksjonsnummer.plus(1)
+        val korreksjon = Refusjon(this.tilskuddsgrunnlag, this.bedriftNr, this.deltakerFnr, this.id, korreksjonsnummer)
+
         val kopiAvInntektsgrunnlag = Inntektsgrunnlag(
             inntekter = this.inntektsgrunnlag!!.inntekter.map {
                 Inntektslinje(it.inntektType,

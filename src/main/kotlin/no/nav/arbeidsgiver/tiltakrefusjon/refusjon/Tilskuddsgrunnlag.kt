@@ -30,28 +30,6 @@ data class Tilskuddsgrunnlag(
     val løpenummer: Int,
     val enhet: String?,
 ) {
-    constructor(tilskuddsgrunnlag: Tilskuddsgrunnlag) : this(
-        tilskuddsgrunnlag.avtaleId,
-        tilskuddsgrunnlag.tilskuddsperiodeId,
-        tilskuddsgrunnlag.deltakerFornavn,
-        tilskuddsgrunnlag.deltakerEtternavn,
-        tilskuddsgrunnlag.deltakerFnr,
-        tilskuddsgrunnlag.veilederNavIdent,
-        tilskuddsgrunnlag.bedriftNavn,
-        tilskuddsgrunnlag.bedriftNr,
-        tilskuddsgrunnlag.tilskuddFom,
-        tilskuddsgrunnlag.tilskuddTom,
-        tilskuddsgrunnlag.feriepengerSats,
-        tilskuddsgrunnlag.otpSats,
-        tilskuddsgrunnlag.arbeidsgiveravgiftSats,
-        tilskuddsgrunnlag.tiltakstype,
-        tilskuddsgrunnlag.tilskuddsbeløp,
-        tilskuddsgrunnlag.lønnstilskuddsprosent,
-        tilskuddsgrunnlag.avtaleNr,
-        tilskuddsgrunnlag.løpenummer,
-        tilskuddsgrunnlag.enhet,
-    )
-
     @Id
     val id: String = ULID.random()
 }

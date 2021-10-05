@@ -69,7 +69,7 @@ tiltak-refusjon:
   unleash:
     mock: true
 server:
-  port: 8082
+  port: 8081
 
 wiremock:
   port: 8091

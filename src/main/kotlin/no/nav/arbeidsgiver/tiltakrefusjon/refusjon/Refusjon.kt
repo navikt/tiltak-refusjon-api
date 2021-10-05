@@ -18,7 +18,7 @@ import kotlin.streams.toList
 
 @Entity
 data class Refusjon(
-    @OneToOne(orphanRemoval = true, cascade = [CascadeType.ALL])
+    @ManyToOne(cascade = [CascadeType.PERSIST, CascadeType.MERGE], optional = false)
     val tilskuddsgrunnlag: Tilskuddsgrunnlag,
     val bedriftNr: String,
     val deltakerFnr: String,
@@ -207,10 +207,14 @@ data class Refusjon(
         if (refusjonsbeløp == null || refusjonsbeløp <= 0) {
             throw FeilkodeException(Feilkode.KORREKSJONSBELOP_NEGATIVT)
         }
+        if (bedriftKontonummer == null) {
+            throw FeilkodeException(Feilkode.INGEN_BEDRIFTKONTONUMMER)
+        }
         status = RefusjonStatus.KORREKSJON_SENDT_TIL_UTBETALING
         godkjentAvSaksbehandler = Now.instant()
         godkjentAvSaksbehandlerNavIdent = utførtAv
-        registerEvent(KorreksjonSendtTilUtbetaling(this))
+        val korreksjonstype = if (korreksjonsgrunner.contains(Korreksjonsgrunn.UTBETALING_RETURNERT)) Korreksjonstype.UTBETALING_AVVIST else Korreksjonstype.TILLEGSUTBETALING
+        registerEvent(KorreksjonSendtTilUtbetaling(this, korreksjonstype))
     }
 
     fun kanSlettes(): Boolean {

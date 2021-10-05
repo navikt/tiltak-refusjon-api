@@ -21,8 +21,8 @@ class RefusjonRepositoryTest(
         refusjonRepository.save(refusjon)
 
         val lagretRefusjon =
-            refusjonRepository.findByTilskuddsgrunnlag_TilskuddsperiodeId(id) ?: fail("Fant ikke refusjon");
-        assertThat(lagretRefusjon).isEqualTo(refusjon)
+            refusjonRepository.findAllByTilskuddsgrunnlag_TilskuddsperiodeId(id) ?: fail("Fant ikke refusjon");
+        assertThat(lagretRefusjon).containsOnly(refusjon)
     }
 
 }

@@ -1,0 +1,1 @@
+alter table refusjon rename column korrigert_brutto_lønn to endret_brutto_lønn;

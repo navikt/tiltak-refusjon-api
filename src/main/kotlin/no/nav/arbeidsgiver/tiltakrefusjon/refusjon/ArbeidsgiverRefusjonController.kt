@@ -2,7 +2,6 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.UgyldigRequestException
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBrukerService
-import no.nav.security.token.support.core.api.Protected
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.web.bind.annotation.*
 
@@ -43,10 +42,16 @@ class ArbeidsgiverRefusjonController(
         return arbeidsgiver.finnRefusjon(id)
     }
 
+    @PostMapping("/{id}/endre-bruttolønn")
+    fun endreBruttolønn(@PathVariable id: String, @RequestBody korrigerBruttolønnRequest: EndreBruttolønnRequest) {
+        val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
+        arbeidsgiver.endreBruttolønn(id, korrigerBruttolønnRequest.inntekterKunFraTiltaket, korrigerBruttolønnRequest.bruttoLønn)
+    }
+
     @PostMapping("/{id}/korriger-bruttolønn")
     fun korrigerBruttolønn(@PathVariable id: String, @RequestBody korrigerBruttolønnRequest: KorrigerBruttolønnRequest) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-        arbeidsgiver.korrigerBruttolønn(id, korrigerBruttolønnRequest.inntekterKunFraTiltaket, korrigerBruttolønnRequest.korrigertBruttoLønn)
+        arbeidsgiver.endreBruttolønn(id, korrigerBruttolønnRequest.inntekterKunFraTiltaket, korrigerBruttolønnRequest.korrigertBruttoLønn)
     }
 
     @PostMapping("/{id}/godkjenn")

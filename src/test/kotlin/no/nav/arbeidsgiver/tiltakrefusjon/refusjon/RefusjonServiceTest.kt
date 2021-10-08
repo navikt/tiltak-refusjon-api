@@ -6,7 +6,6 @@ import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeForko
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Fail.fail
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -72,7 +71,7 @@ class RefusjonServiceTest(
     fun `setter appImageId ved beregning`() {
         val refusjon = `Bjørnstjerne Bjørnson`()
         refusjonService.gjørInntektsoppslag(refusjon)
-        refusjonService.korrigerBruttolønn(refusjon, true, null)
+        refusjonService.endreBruttolønn(refusjon, true, null)
         assertThat(refusjon.beregning?.appImageId).isEqualTo("test")
     }
 

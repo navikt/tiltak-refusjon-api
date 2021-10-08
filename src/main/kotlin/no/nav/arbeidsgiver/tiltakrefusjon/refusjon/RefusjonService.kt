@@ -86,8 +86,8 @@ class RefusjonService(
 
     }
 
-    fun korrigerBruttolønn(refusjon: Refusjon, inntekterKunFraTiltaket: Boolean, korrigertBruttoLønn: Int?) {
-        refusjon.korrigerBruttolønn(inntekterKunFraTiltaket, korrigertBruttoLønn)
+    fun endreBruttolønn(refusjon: Refusjon, inntekterKunFraTiltaket: Boolean, bruttoLønn: Int?) {
+        refusjon.endreBruttolønn(inntekterKunFraTiltaket, bruttoLønn)
         gjørBeregning(refusjon)
     }
 

@@ -53,11 +53,14 @@ data class Refusjon(
     val korreksjonsgrunner: MutableSet<Korreksjonsgrunn> = EnumSet.noneOf(Korreksjonsgrunn::class.java)
 
     var inntekterKunFraTiltaket: Boolean? = null
-    var korrigertBruttoLønn: Int? = null
+    var endretBruttoLønn: Int? = null
 
     init {
         oppdaterStatus()
     }
+
+    @JsonProperty
+    fun korrigertBruttoLønn() = endretBruttoLønn
 
     @JsonProperty
     fun harInntektIAlleMåneder(): Boolean {
@@ -108,14 +111,14 @@ data class Refusjon(
         registerEvent(InntekterInnhentet(this))
     }
 
-        fun korrigerBruttolønn(inntekterKunFraTiltaket: Boolean, korrigertBruttoLønn: Int?) {
+        fun endreBruttolønn(inntekterKunFraTiltaket: Boolean, bruttoLønn: Int?) {
         oppdaterStatus()
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING, RefusjonStatus.MANUELL_KORREKSJON)
-        if (inntekterKunFraTiltaket && korrigertBruttoLønn != null) {
+        if (inntekterKunFraTiltaket && bruttoLønn != null) {
             throw FeilkodeException(Feilkode.INNTEKTER_KUN_FRA_TILTAK_OG_OPPGIR_BELØP)
         }
         this.inntekterKunFraTiltaket = inntekterKunFraTiltaket
-        this.korrigertBruttoLønn = korrigertBruttoLønn
+        this.endretBruttoLønn = bruttoLønn
     }
 
     fun gjørBeregning(
@@ -125,7 +128,7 @@ data class Refusjon(
         if (inntektsgrunnlag?.inntekter?.isNotEmpty() == true) {
             beregning = beregnRefusjonsbeløp(inntektsgrunnlag!!.inntekter.toList(), tilskuddsgrunnlag, appImageId,
                 tidligereUtbetalt,
-                korrigertBruttoLønn)
+                endretBruttoLønn)
             registerEvent(BeregningUtført(this))
         }
     }

@@ -33,10 +33,10 @@ class SaksbehandlerRefusjonController(
         return saksbehandler.korriger(id, request.korreksjonsgrunner)
     }
 
-    @PostMapping("/{id}/korriger-bruttolønn")
-    fun korrigerBruttolønn(@PathVariable id: String, @RequestBody korrigerBruttolønnRequest: KorrigerBruttolønnRequest) {
+    @PostMapping("/{id}/endre-bruttolønn")
+    fun korrigerBruttolønn(@PathVariable id: String, @RequestBody request: EndreBruttolønnRequest) {
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
-        saksbehandler.korrigerBruttolønn(id, korrigerBruttolønnRequest.inntekterKunFraTiltaket, korrigerBruttolønnRequest.korrigertBruttoLønn)
+        saksbehandler.endreBruttolønn(id, request.inntekterKunFraTiltaket, request.bruttoLønn)
     }
 
     @PostMapping("/{id}/slett-korreksjon")

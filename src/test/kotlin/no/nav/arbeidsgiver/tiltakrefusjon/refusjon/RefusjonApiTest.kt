@@ -174,7 +174,7 @@ class RefusjonApiTest(
         assertThat(refusjonEtterInntektsgrunnlag.inntektsgrunnlag).isNotNull
 
         // Svarer på spørsmål om alle inntekter er fra tiltaket
-        sendRequest(post("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id/korriger-bruttolønn"), arbGiverCookie, KorrigerBruttolønnRequest(true, null))
+        sendRequest(post("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id/endre-bruttolønn"), arbGiverCookie, EndreBruttolønnRequest(true, null))
         val refusjonEtterInntektsspørsmål = hentRefusjon(id)
         assertThat(refusjonEtterInntektsspørsmål.beregning?.refusjonsbeløp).isPositive()
 

@@ -7,13 +7,21 @@ import org.springframework.web.bind.annotation.*
 
 const val REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON = "/api/saksbehandler/refusjon"
 
-data class HentSaksbehandlerRefusjonerQueryParametre(val veilederNavIdent: String? = null, val enhet: String? = null, val deltakerFnr: String? = null, val bedriftNr: String? = null, val status: RefusjonStatus? = null, val tiltakstype: Tiltakstype? = null, val avtaleNr: Int? = null)
+data class HentSaksbehandlerRefusjonerQueryParametre(
+    val veilederNavIdent: String? = null,
+    val enhet: String? = null,
+    val deltakerFnr: String? = null,
+    val bedriftNr: String? = null,
+    val status: RefusjonStatus? = null,
+    val tiltakstype: Tiltakstype? = null,
+    val avtaleNr: Int? = null,
+)
 
 @RestController
 @RequestMapping(REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON)
 @ProtectedWithClaims(issuer = "aad")
 class SaksbehandlerRefusjonController(
-        val innloggetBrukerService: InnloggetBrukerService
+    val innloggetBrukerService: InnloggetBrukerService,
 ) {
     @GetMapping
     fun hentAlle(queryParametre: HentSaksbehandlerRefusjonerQueryParametre): List<Refusjon> {
@@ -33,10 +41,10 @@ class SaksbehandlerRefusjonController(
         return saksbehandler.korriger(id, request.korreksjonsgrunner)
     }
 
-    @PostMapping("/{id}/korriger-bruttolønn")
-    fun korrigerBruttolønn(@PathVariable id: String, @RequestBody korrigerBruttolønnRequest: KorrigerBruttolønnRequest) {
+    @PostMapping("/{id}/endre-bruttolønn")
+    fun endreBruttolønn(@PathVariable id: String, @RequestBody request: EndreBruttolønnRequest) {
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
-        saksbehandler.korrigerBruttolønn(id, korrigerBruttolønnRequest.inntekterKunFraTiltaket, korrigerBruttolønnRequest.korrigertBruttoLønn)
+        saksbehandler.endreBruttolønn(id, request.inntekterKunFraTiltaket, request.bruttoLønn)
     }
 
     @PostMapping("/{id}/slett-korreksjon")

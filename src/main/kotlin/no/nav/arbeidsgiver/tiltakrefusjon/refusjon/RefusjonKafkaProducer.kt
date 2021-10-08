@@ -45,6 +45,7 @@ class RefusjonKafkaProducer(
     fun korreksjonSendtTilUtbetaling(event: KorreksjonSendtTilUtbetaling) {
         val melding = KorreksjonSendtTilUtbetalingMelding(
             refusjonId = event.refusjon.id,
+            korreksjonAvRefusjonId = event.refusjon.korreksjonAvId!!,
             avtaleId = event.refusjon.tilskuddsgrunnlag.avtaleId,
             tilskuddsperiodeId = event.refusjon.tilskuddsgrunnlag.tilskuddsperiodeId,
             beløp = event.refusjon.beregning!!.refusjonsbeløp,
@@ -54,7 +55,9 @@ class RefusjonKafkaProducer(
         )
         korreksjonKafkaTemplate.send(Topics.REFUSJON_KORRIGERT, event.refusjon.id, melding)
             .addCallback({
-                log.info("Melding med id {} sendt til Kafka topic {}", it?.producerRecord?.key(), it?.recordMetadata?.topic())
+                log.info("Melding med id {} sendt til Kafka topic {}",
+                    it?.producerRecord?.key(),
+                    it?.recordMetadata?.topic())
             }, {
                 log.warn("Feil", it)
             })

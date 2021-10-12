@@ -1,0 +1,1 @@
+alter table refusjon add column beslutter_nav_ident varchar(7);

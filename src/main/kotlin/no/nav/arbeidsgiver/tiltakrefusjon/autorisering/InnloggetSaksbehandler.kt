@@ -90,9 +90,9 @@ data class InnloggetSaksbehandler(
         return korreksjon
     }
 
-    fun utbetalKorreksjon(id: String): Refusjon {
+    fun utbetalKorreksjon(id: String, beslutterNavIdent: String): Refusjon {
         val korreksjon = finnRefusjon(id)
-        korreksjon.utbetalKorreksjon(this.identifikator)
+        korreksjon.utbetalKorreksjon(this.identifikator, beslutterNavIdent)
         refusjonRepository.save(korreksjon)
         return korreksjon
     }

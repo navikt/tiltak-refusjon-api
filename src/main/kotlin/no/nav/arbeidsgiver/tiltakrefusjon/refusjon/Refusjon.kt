@@ -39,8 +39,10 @@ data class Refusjon(
     var forrigeFristForGodkjenning: LocalDate? = null
 
     var godkjentAvArbeidsgiver: Instant? = null
+
     var godkjentAvSaksbehandler: Instant? = null
     var godkjentAvSaksbehandlerNavIdent: String? = null
+    var beslutterNavIdent: String? =  null
 
     var bedriftKontonummer: String? = null
     var innhentetBedriftKontonummerTidspunkt: LocalDateTime? = null
@@ -201,7 +203,8 @@ data class Refusjon(
         return korreksjon
     }
 
-    fun utbetalKorreksjon(utførtAv: String) {
+    // Ved positivt beløp, skal etterbetale
+    fun utbetalKorreksjon(utførtAv: String, beslutterNavIdent: String) {
         krevStatus(RefusjonStatus.MANUELL_KORREKSJON)
         val refusjonsbeløp = beregning?.refusjonsbeløp
         if (refusjonsbeløp == null || refusjonsbeløp <= 0) {
@@ -210,11 +213,45 @@ data class Refusjon(
         if (bedriftKontonummer == null) {
             throw FeilkodeException(Feilkode.INGEN_BEDRIFTKONTONUMMER)
         }
+        if (beslutterNavIdent.isNullOrBlank()) {
+            throw FeilkodeException(Feilkode.INGEN_BESLUTTER)
+        }
+        if (beslutterNavIdent == utførtAv) {
+            throw FeilkodeException(Feilkode.SAMME_SAKSBEHANDLER_OG_BESLUTTER)
+        }
         status = RefusjonStatus.KORREKSJON_SENDT_TIL_UTBETALING
         godkjentAvSaksbehandler = Now.instant()
         godkjentAvSaksbehandlerNavIdent = utførtAv
+        this.beslutterNavIdent = beslutterNavIdent
         val korreksjonstype = if (korreksjonsgrunner.contains(Korreksjonsgrunn.UTBETALING_RETURNERT)) Korreksjonstype.UTBETALING_AVVIST else Korreksjonstype.TILLEGSUTBETALING
         registerEvent(KorreksjonSendtTilUtbetaling(this, korreksjonstype))
+    }
+
+    // Ved 0 beløp, skal ikke tilbakekreve eller etterbetale
+    fun fullførKorreksjonVed0(utførtAv: String) {
+        krevStatus(RefusjonStatus.MANUELL_KORREKSJON)
+        val refusjonsbeløp = beregning?.refusjonsbeløp
+        if (refusjonsbeløp == null || refusjonsbeløp != 0) {
+            throw FeilkodeException(Feilkode.KORREKSJONSBELOP_IKKE_NULL)
+        }
+        status = RefusjonStatus.KORREKSJON_OPPGJORT
+        godkjentAvSaksbehandler = Now.instant()
+        godkjentAvSaksbehandlerNavIdent = utførtAv
+//        registerEvent(KorreksjonSendtTilUtbetaling(this))
+    }
+
+    // Ved negativt beløp, skal tilbakekreves
+    fun fullførKorreksjonVedTilbakekreving(utførtAv: String) {
+        krevStatus(RefusjonStatus.MANUELL_KORREKSJON)
+        val refusjonsbeløp = beregning?.refusjonsbeløp
+        if (refusjonsbeløp == null || refusjonsbeløp >= 0) {
+            throw FeilkodeException(Feilkode.KORREKSJONSBELOP_POSITIVT)
+        }
+        // sjekk inputs, f.eks. saksnummer
+        status = RefusjonStatus.KORREKSJON_SKAL_TILBAKEKREVES
+        godkjentAvSaksbehandler = Now.instant()
+        godkjentAvSaksbehandlerNavIdent = utførtAv
+        // kaste event
     }
 
     fun kanSlettes(): Boolean {

@@ -1,7 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBrukerService
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.NyFristRequest
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.web.bind.annotation.*
 
@@ -54,9 +53,9 @@ class SaksbehandlerRefusjonController(
     }
 
     @PostMapping("/{id}/utbetal-korreksjon")
-    fun utbetalKorreksjon(@PathVariable id: String): Refusjon {
+    fun utbetalKorreksjon(@PathVariable id: String, @RequestBody request: UtbetalKorreksjonRequest): Refusjon {
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
-        return saksbehandler.utbetalKorreksjon(id)
+        return saksbehandler.utbetalKorreksjon(id, request.beslutterNavIdent)
     }
 
     @PostMapping("/{id}/endre-refusjon-frist")

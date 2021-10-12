@@ -1,4 +1,4 @@
-package no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events
+package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import java.time.LocalDate
 

@@ -1,7 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBrukerService
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.NyFristRequest
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.ForlengFristRequest
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.web.bind.annotation.*
 
@@ -53,9 +53,9 @@ class SaksbehandlerRefusjonController(
         return saksbehandler.slettKorreksjon(id)
     }
 
-    @PostMapping("/{id}/endre-refusjon-frist")
-    fun endreRefusjonFrist(@PathVariable id: String, @RequestBody request: NyFristRequest): Refusjon {
+    @PostMapping("/{id}/forleng-frist")
+    fun forlengFrist(@PathVariable id: String, @RequestBody request: ForlengFristRequest): Refusjon {
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
-        return saksbehandler.endreFrist(id, request.nyFrist, request.årsak)
+        return saksbehandler.forlengFrist(id, request.nyFrist, request.årsak)
     }
 }

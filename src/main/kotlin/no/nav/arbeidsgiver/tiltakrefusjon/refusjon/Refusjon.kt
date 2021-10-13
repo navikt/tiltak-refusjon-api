@@ -228,7 +228,7 @@ data class Refusjon(
     }
 
     // Ved 0 beløp, skal ikke tilbakekreve eller etterbetale
-    fun fullførKorreksjonVed0(utførtAv: String) {
+    fun fullførKorreksjonVedOppgjort(utførtAv: String) {
         krevStatus(RefusjonStatus.MANUELL_KORREKSJON)
         val refusjonsbeløp = beregning?.refusjonsbeløp
         if (refusjonsbeløp == null || refusjonsbeløp != 0) {

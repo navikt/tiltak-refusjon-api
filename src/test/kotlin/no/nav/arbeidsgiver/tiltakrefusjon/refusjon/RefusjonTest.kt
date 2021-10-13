@@ -307,7 +307,7 @@ internal class RefusjonTest {
         val refusjon = enRefusjon().medInntektsgrunnlag().medBedriftKontonummer().medSendtKravFraArbeidsgiver()
         val korreksjon = refusjon.lagKorreksjon(setOf())
         korreksjon.gjørBeregning("", refusjon.beregning!!.refusjonsbeløp)
-        korreksjon.fullførKorreksjonVed0("X123456")
+        korreksjon.fullførKorreksjonVedOppgjort("X123456")
         assertThat(korreksjon.status).isEqualTo(RefusjonStatus.KORREKSJON_OPPGJORT)
     }
 
@@ -316,7 +316,7 @@ internal class RefusjonTest {
         val refusjon = enRefusjon().medInntektsgrunnlag().medBedriftKontonummer().medSendtKravFraArbeidsgiver()
         val korreksjon = refusjon.lagKorreksjon(setOf())
         korreksjon.gjørBeregning("", refusjon.beregning!!.refusjonsbeløp + 1)
-        assertFeilkode(Feilkode.KORREKSJONSBELOP_IKKE_NULL) { korreksjon.fullførKorreksjonVed0("X123456") }
+        assertFeilkode(Feilkode.KORREKSJONSBELOP_IKKE_NULL) { korreksjon.fullførKorreksjonVedOppgjort("X123456") }
     }
 }
 

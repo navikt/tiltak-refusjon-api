@@ -64,4 +64,16 @@ class SaksbehandlerRefusjonController(
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
         return saksbehandler.utbetalKorreksjon(id, request.beslutterNavIdent)
     }
+
+    @PostMapping("/{id}/fullfør-korreksjon-ved-oppgjort")
+    fun fullførKorreksjonVedOppgjort(@PathVariable id: String) {
+        val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
+        saksbehandler.fullførKorreksjonVedOppgjort(id)
+    }
+
+    @PostMapping("/{id}/fullfør-korreksjon-ved-tilbakekreving")
+    fun fullførKorreksjonVedTilbakekreving(@PathVariable id: String) {
+        val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
+        saksbehandler.fullførKorreksjonVedTilbakekreving(id)
+    }
 }

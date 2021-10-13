@@ -107,7 +107,7 @@ data class InnloggetSaksbehandler(
         refusjonService.endreBruttolønn(refusjon, inntekterKunFraTiltaket, endretBruttoLønn)
     }
 
-    fun endreFrist(id: String, nyFrist: LocalDate, årsak: String): Refusjon {
+    fun forlengFrist(id: String, nyFrist: LocalDate, årsak: String): Refusjon {
         val refusjon = finnRefusjon(id)
         refusjon.forlengFrist(nyFrist, årsak, identifikator)
         refusjonRepository.save(refusjon)

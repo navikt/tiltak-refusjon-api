@@ -152,7 +152,7 @@ class RefusjonService(
     }
 
     fun korriger(gammel: Refusjon, korreksjonsgrunner: Set<Korreksjonsgrunn>): Refusjon {
-        val ny = gammel.lagKorreksjon(korreksjonsgrunner)
+        val ny = gammel.opprettKorreksjonsutkast(korreksjonsgrunner)
         refusjonRepository.save(ny)
         refusjonRepository.save(gammel)
         if (korreksjonsgrunner.contains(Korreksjonsgrunn.HENT_INNTEKTER_PÅ_NYTT)) {

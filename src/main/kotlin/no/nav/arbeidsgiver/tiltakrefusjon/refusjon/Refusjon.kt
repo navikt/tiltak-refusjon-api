@@ -42,7 +42,7 @@ data class Refusjon(
 
     var godkjentAvSaksbehandler: Instant? = null
     var godkjentAvSaksbehandlerNavIdent: String? = null
-    var beslutterNavIdent: String? =  null
+    var beslutterNavIdent: String? = null
 
     var bedriftKontonummer: String? = null
     var innhentetBedriftKontonummerTidspunkt: LocalDateTime? = null
@@ -127,9 +127,11 @@ data class Refusjon(
         tidligereUtbetalt: Int,
     ) {
         if (inntektsgrunnlag?.inntekter?.isNotEmpty() == true) {
-            beregning = beregnRefusjonsbeløp(inntektsgrunnlag!!.inntekter.toList(), tilskuddsgrunnlag, appImageId,
+            beregning = beregnRefusjonsbeløp(
+                inntektsgrunnlag!!.inntekter.toList(), tilskuddsgrunnlag, appImageId,
                 tidligereUtbetalt,
-                endretBruttoLønn)
+                endretBruttoLønn
+            )
             registerEvent(BeregningUtført(this))
         }
     }
@@ -177,7 +179,7 @@ data class Refusjon(
         innhentetBedriftKontonummerTidspunkt = Now.localDateTime()
     }
 
-    fun lagKorreksjon(korreksjonsgrunner: Set<Korreksjonsgrunn>): Refusjon {
+    fun opprettKorreksjonsutkast(korreksjonsgrunner: Set<Korreksjonsgrunn>): Refusjon {
         krevStatus(RefusjonStatus.UTBETALT, RefusjonStatus.SENDT_KRAV, RefusjonStatus.UTGÅTT)
         if (korrigeresAvId != null) {
             throw FeilkodeException(Feilkode.HAR_KORREKSJON)
@@ -188,13 +190,16 @@ data class Refusjon(
 
         val kopiAvInntektsgrunnlag = Inntektsgrunnlag(
             inntekter = this.inntektsgrunnlag!!.inntekter.map {
-                Inntektslinje(it.inntektType,
+                Inntektslinje(
+                    it.inntektType,
                     it.beskrivelse,
                     it.beløp,
                     it.måned,
                     it.opptjeningsperiodeFom,
-                    it.opptjeningsperiodeTom)
-            }, respons = this.inntektsgrunnlag!!.respons)
+                    it.opptjeningsperiodeTom
+                )
+            }, respons = this.inntektsgrunnlag!!.respons
+        )
         kopiAvInntektsgrunnlag.innhentetTidspunkt = this.inntektsgrunnlag!!.innhentetTidspunkt
         korreksjon.inntektsgrunnlag = kopiAvInntektsgrunnlag
         korreksjon.bedriftKontonummer = this.bedriftKontonummer
@@ -223,7 +228,8 @@ data class Refusjon(
         godkjentAvSaksbehandler = Now.instant()
         godkjentAvSaksbehandlerNavIdent = utførtAv
         this.beslutterNavIdent = beslutterNavIdent
-        val korreksjonstype = if (korreksjonsgrunner.contains(Korreksjonsgrunn.UTBETALING_RETURNERT)) Korreksjonstype.UTBETALING_AVVIST else Korreksjonstype.TILLEGSUTBETALING
+        val korreksjonstype =
+            if (korreksjonsgrunner.contains(Korreksjonsgrunn.UTBETALING_RETURNERT)) Korreksjonstype.UTBETALING_AVVIST else Korreksjonstype.TILLEGSUTBETALING
         registerEvent(KorreksjonSendtTilUtbetaling(this, korreksjonstype))
     }
 
@@ -237,7 +243,7 @@ data class Refusjon(
         status = RefusjonStatus.KORREKSJON_OPPGJORT
         godkjentAvSaksbehandler = Now.instant()
         godkjentAvSaksbehandlerNavIdent = utførtAv
-//        registerEvent(KorreksjonSendtTilUtbetaling(this))
+        registerEvent(KorreksjonMerketForOppgjort(this))
     }
 
     // Ved negativt beløp, skal tilbakekreves
@@ -247,11 +253,10 @@ data class Refusjon(
         if (refusjonsbeløp == null || refusjonsbeløp >= 0) {
             throw FeilkodeException(Feilkode.KORREKSJONSBELOP_POSITIVT)
         }
-        // sjekk inputs, f.eks. saksnummer
         status = RefusjonStatus.KORREKSJON_SKAL_TILBAKEKREVES
         godkjentAvSaksbehandler = Now.instant()
         godkjentAvSaksbehandlerNavIdent = utførtAv
-        // kaste event
+        registerEvent(KorreksjonMerketForTilbakekreving(this))
     }
 
     fun kanSlettes(): Boolean {

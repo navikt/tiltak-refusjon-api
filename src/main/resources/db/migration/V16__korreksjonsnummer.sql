@@ -1,1 +1,1 @@
-alter table refusjon add column korreksjonsnummer numeric;
+alter table refusjon add column korreksjonsnummer integer;

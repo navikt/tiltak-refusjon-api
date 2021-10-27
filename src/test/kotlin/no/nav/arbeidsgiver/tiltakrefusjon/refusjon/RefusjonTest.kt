@@ -210,20 +210,20 @@ internal class RefusjonTest {
     @Test
     internal fun `korreksjon`() {
         val refusjon = enRefusjon().medInntektsgrunnlag().medBedriftKontonummer().medSendtKravFraArbeidsgiver()
-        val korreksjon = refusjon.lagKorreksjon(setOf(Korreksjonsgrunn.UTBETALT_HELE_TILSKUDDSBELØP))
+        val korreksjon = refusjon.opprettKorreksjonsutkast(setOf(Korreksjonsgrunn.UTBETALT_HELE_TILSKUDDSBELØP))
         assertThat(refusjon.tilskuddsgrunnlag).isEqualTo(korreksjon.tilskuddsgrunnlag)
         assertThat(refusjon.korrigeresAvId).isEqualTo(korreksjon.id)
         assertThat(korreksjon.korreksjonAvId).isEqualTo(refusjon.id)
         assertThat(korreksjon.status).isEqualTo(RefusjonStatus.MANUELL_KORREKSJON)
 
         // Kan kun ha en korreksjon av refusjonen
-        assertFeilkode(Feilkode.HAR_KORREKSJON) { refusjon.lagKorreksjon(emptySet()) }
+        assertFeilkode(Feilkode.HAR_KORREKSJON) { refusjon.opprettKorreksjonsutkast(emptySet()) }
     }
 
     @Test
     internal fun `korreksjon av uriktig status`() {
         val refusjon = enRefusjon().medInntektsgrunnlag().medBedriftKontonummer()
-        assertFeilkode(Feilkode.UGYLDIG_STATUS) { refusjon.lagKorreksjon(setOf(Korreksjonsgrunn.UTBETALT_HELE_TILSKUDDSBELØP)) }
+        assertFeilkode(Feilkode.UGYLDIG_STATUS) { refusjon.opprettKorreksjonsutkast(setOf(Korreksjonsgrunn.UTBETALT_HELE_TILSKUDDSBELØP)) }
     }
 
     @Test
@@ -259,6 +259,64 @@ internal class RefusjonTest {
         refusjon.forlengFrist(idag, "", "")
         assertThat(refusjon.fristForGodkjenning).isEqualTo(idag)
         assertThat(refusjon.status).isEqualTo(RefusjonStatus.KLAR_FOR_INNSENDING)
+    }
+
+    @Test
+    internal fun `utbetal korreksjon, etterbetaling`() {
+        val refusjon = enRefusjon().medInntektsgrunnlag().medBedriftKontonummer().medSendtKravFraArbeidsgiver()
+        val korreksjon = refusjon.opprettKorreksjonsutkast(setOf())
+        korreksjon.gjørBeregning("", 0)
+        korreksjon.utbetalKorreksjon("X123456", "Y123456")
+        assertThat(korreksjon.status).isEqualTo(RefusjonStatus.KORREKSJON_SENDT_TIL_UTBETALING)
+    }
+
+    @Test
+    internal fun `utbetal korreksjon, etterbetaling, feilsituasjoner`() {
+        val refusjon = enRefusjon().medInntektsgrunnlag().medBedriftKontonummer().medSendtKravFraArbeidsgiver()
+        val korreksjon = refusjon.opprettKorreksjonsutkast(setOf())
+        korreksjon.gjørBeregning("", 0)
+        assertFeilkode(Feilkode.SAMME_SAKSBEHANDLER_OG_BESLUTTER) { korreksjon.utbetalKorreksjon("X123456", "X123456") }
+        assertFeilkode(Feilkode.INGEN_BESLUTTER) { korreksjon.utbetalKorreksjon("X123456", "") }
+        korreksjon.bedriftKontonummer = null
+        assertFeilkode(Feilkode.INGEN_BEDRIFTKONTONUMMER) { korreksjon.utbetalKorreksjon("X123456", "Y123456") }
+
+        // er ikke en etterbetaling, skal ikke kunne utbetale korreksjonen
+        korreksjon.gjørBeregning("", 1000000)
+        assertFeilkode(Feilkode.KORREKSJONSBELOP_NEGATIVT) { korreksjon.utbetalKorreksjon("X123456", "Y123456") }
+    }
+
+    @Test
+    internal fun `fullfør korreksjon, tilbakekreving`() {
+        val refusjon = enRefusjon().medInntektsgrunnlag().medBedriftKontonummer().medSendtKravFraArbeidsgiver()
+        val korreksjon = refusjon.opprettKorreksjonsutkast(setOf())
+        korreksjon.gjørBeregning("", 1000000)
+        korreksjon.fullførKorreksjonVedTilbakekreving("X123456")
+        assertThat(korreksjon.status).isEqualTo(RefusjonStatus.KORREKSJON_SKAL_TILBAKEKREVES)
+    }
+
+    @Test
+    internal fun `fullfør korreksjon, ikke tilbakekreving allikevel`() {
+        val refusjon = enRefusjon().medInntektsgrunnlag().medBedriftKontonummer().medSendtKravFraArbeidsgiver()
+        val korreksjon = refusjon.opprettKorreksjonsutkast(setOf())
+        korreksjon.gjørBeregning("", refusjon.beregning!!.refusjonsbeløp)
+        assertFeilkode(Feilkode.KORREKSJONSBELOP_POSITIVT) { korreksjon.fullførKorreksjonVedTilbakekreving("X123456") }
+    }
+
+    @Test
+    internal fun `fullfør korreksjon, går i 0`() {
+        val refusjon = enRefusjon().medInntektsgrunnlag().medBedriftKontonummer().medSendtKravFraArbeidsgiver()
+        val korreksjon = refusjon.opprettKorreksjonsutkast(setOf())
+        korreksjon.gjørBeregning("", refusjon.beregning!!.refusjonsbeløp)
+        korreksjon.fullførKorreksjonVedOppgjort("X123456")
+        assertThat(korreksjon.status).isEqualTo(RefusjonStatus.KORREKSJON_OPPGJORT)
+    }
+
+    @Test
+    internal fun `fullfør korreksjon, går ikke i 0 allikevel`() {
+        val refusjon = enRefusjon().medInntektsgrunnlag().medBedriftKontonummer().medSendtKravFraArbeidsgiver()
+        val korreksjon = refusjon.opprettKorreksjonsutkast(setOf())
+        korreksjon.gjørBeregning("", refusjon.beregning!!.refusjonsbeløp + 1)
+        assertFeilkode(Feilkode.KORREKSJONSBELOP_IKKE_NULL) { korreksjon.fullførKorreksjonVedOppgjort("X123456") }
     }
 }
 

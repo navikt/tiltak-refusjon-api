@@ -25,7 +25,7 @@ class RefusjonService(
     fun opprettRefusjon(tilskuddsperiodeGodkjentMelding: TilskuddsperiodeGodkjentMelding): Refusjon? {
         log.info("Oppretter refusjon for tilskuddsperiodeId ${tilskuddsperiodeGodkjentMelding.tilskuddsperiodeId}")
 
-        if (refusjonRepository.findByTilskuddsgrunnlag_TilskuddsperiodeId(tilskuddsperiodeGodkjentMelding.tilskuddsperiodeId) != null) {
+        if (refusjonRepository.findAllByTilskuddsgrunnlag_TilskuddsperiodeId(tilskuddsperiodeGodkjentMelding.tilskuddsperiodeId).isNotEmpty()) {
             log.warn("Refusjon finnes allerede for tilskuddsperiode med id ${tilskuddsperiodeGodkjentMelding.tilskuddsperiodeId}")
             return null;
         }
@@ -101,15 +101,16 @@ class RefusjonService(
 
     private fun beregnTidligereUtbetaltBeløp(refusjon: Refusjon) =
         if (refusjon.korreksjonAvId !== null) {
-            if (refusjon.korreksjonsgrunner.contains(Korreksjonsgrunn.UTBETALT_HELE_TILSKUDDSBELØP)) {
-                refusjon.tilskuddsgrunnlag.tilskuddsbeløp
-            } else {
-                val opprinneligRefusjon = refusjonRepository.findByIdOrNull(refusjon.korreksjonAvId)!!
-                opprinneligRefusjon.beregning!!.refusjonsbeløp
+            when {
+                refusjon.korreksjonsgrunner.contains(Korreksjonsgrunn.UTBETALT_HELE_TILSKUDDSBELØP) ->
+                    refusjon.tilskuddsgrunnlag.tilskuddsbeløp
+                refusjon.korreksjonsgrunner.contains(Korreksjonsgrunn.UTBETALING_RETURNERT) -> 0
+                else -> {
+                    val opprinneligRefusjon = refusjonRepository.findByIdOrNull(refusjon.korreksjonAvId)!!
+                    opprinneligRefusjon.beregning!!.refusjonsbeløp
+                }
             }
-        } else {
-            0
-        }
+        } else 0
 
     fun godkjennForArbeidsgiver(refusjon: Refusjon) {
         refusjon.godkjennForArbeidsgiver()
@@ -118,7 +119,7 @@ class RefusjonService(
 
     fun annullerRefusjon(melding: TilskuddsperiodeAnnullertMelding) {
         log.info("Annullerer refusjon med tilskuddsperiodeId ${melding.tilskuddsperiodeId}")
-        val refusjon = refusjonRepository.findByTilskuddsgrunnlag_TilskuddsperiodeId(melding.tilskuddsperiodeId)
+        val refusjon = refusjonRepository.findAllByTilskuddsgrunnlag_TilskuddsperiodeId(melding.tilskuddsperiodeId).find { it.korreksjonAvId == null }
         if (refusjon != null) {
             refusjon.annuller()
             refusjonRepository.save(refusjon)
@@ -129,7 +130,7 @@ class RefusjonService(
 
     fun forkortRefusjon(melding: TilskuddsperiodeForkortetMelding) {
         log.info("Forkorter refusjon med tilskuddsperiodeId ${melding.tilskuddsperiodeId} til dato ${melding.tilskuddTom} med nytt beløp ${melding.tilskuddsbeløp}")
-        val refusjon = refusjonRepository.findByTilskuddsgrunnlag_TilskuddsperiodeId(melding.tilskuddsperiodeId)
+        val refusjon = refusjonRepository.findAllByTilskuddsgrunnlag_TilskuddsperiodeId(melding.tilskuddsperiodeId).find { it.korreksjonAvId == null }
         if (refusjon != null) {
             refusjon.forkort(melding.tilskuddTom, melding.tilskuddsbeløp)
             refusjonRepository.save(refusjon)
@@ -151,7 +152,7 @@ class RefusjonService(
     }
 
     fun korriger(gammel: Refusjon, korreksjonsgrunner: Set<Korreksjonsgrunn>): Refusjon {
-        val ny = gammel.lagKorreksjon(korreksjonsgrunner)
+        val ny = gammel.opprettKorreksjonsutkast(korreksjonsgrunner)
         refusjonRepository.save(ny)
         refusjonRepository.save(gammel)
         if (korreksjonsgrunner.contains(Korreksjonsgrunn.HENT_INNTEKTER_PÅ_NYTT)) {

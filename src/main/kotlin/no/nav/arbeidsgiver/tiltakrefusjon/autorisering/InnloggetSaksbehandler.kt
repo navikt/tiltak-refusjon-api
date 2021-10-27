@@ -90,6 +90,28 @@ data class InnloggetSaksbehandler(
         return korreksjon
     }
 
+    fun utbetalKorreksjon(id: String, beslutterNavIdent: String): Refusjon {
+        val korreksjon = finnRefusjon(id)
+        sjekkLesetilgang(korreksjon)
+        korreksjon.utbetalKorreksjon(this.identifikator, beslutterNavIdent)
+        refusjonRepository.save(korreksjon)
+        return korreksjon
+    }
+
+    fun fullførKorreksjonVedOppgjort(id: String) {
+        val korreksjon = finnRefusjon(id)
+        sjekkLesetilgang(korreksjon)
+        korreksjon.fullførKorreksjonVedOppgjort(this.identifikator)
+        refusjonRepository.save(korreksjon)
+    }
+
+    fun fullførKorreksjonVedTilbakekreving(id: String) {
+        val korreksjon = finnRefusjon(id)
+        sjekkLesetilgang(korreksjon)
+        korreksjon.fullførKorreksjonVedTilbakekreving(this.identifikator)
+        refusjonRepository.save(korreksjon)
+    }
+
     fun endreBruttolønn(id: String, inntekterKunFraTiltaket: Boolean, endretBruttoLønn: Int?) {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(refusjon)

@@ -1,0 +1,1 @@
+alter table refusjon add column godkjent_av_saksbehandler_nav_ident varchar;

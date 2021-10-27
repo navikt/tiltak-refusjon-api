@@ -1,0 +1,1 @@
+alter table refusjon add column korreksjonsnummer integer;

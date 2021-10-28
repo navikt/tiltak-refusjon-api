@@ -41,8 +41,6 @@ class SaksbehandlerRefusjonController(
         saksbehandler.endreBruttolønn(id, request.inntekterKunFraTiltaket, request.bruttoLønn)
     }
 
-
-
     @PostMapping("/{id}/forleng-frist")
     fun forlengFrist(@PathVariable id: String, @RequestBody request: ForlengFristRequest): Refusjon {
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()

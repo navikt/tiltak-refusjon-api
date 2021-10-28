@@ -45,6 +45,8 @@ class RefusjonKafkaProducer(
     fun korreksjonSendtTilUtbetaling(event: KorreksjonSendtTilUtbetaling) {
         val melding = KorreksjonSendtTilUtbetalingMelding(
             refusjonId = event.refusjon.id,
+            avtaleNr = event.refusjon.tilskuddsgrunnlag.avtaleNr,
+            løpenummer = event.refusjon.tilskuddsgrunnlag.løpenummer,
             korreksjonAvRefusjonId = event.refusjon.korreksjonAvId!!,
             avtaleId = event.refusjon.tilskuddsgrunnlag.avtaleId,
             tilskuddsperiodeId = event.refusjon.tilskuddsgrunnlag.tilskuddsperiodeId,

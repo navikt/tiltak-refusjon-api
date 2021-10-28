@@ -151,7 +151,7 @@ class RefusjonService(
         refusjonRepository.save(refusjon)
     }
 
-    fun korriger(gammel: Refusjon, korreksjonsgrunner: Set<Korreksjonsgrunn>): Refusjon {
+    fun opprettKorreksjonsutkast(gammel: Refusjon, korreksjonsgrunner: Set<Korreksjonsgrunn>): Refusjon {
         val ny = gammel.opprettKorreksjonsutkast(korreksjonsgrunner)
         refusjonRepository.save(ny)
         refusjonRepository.save(gammel)

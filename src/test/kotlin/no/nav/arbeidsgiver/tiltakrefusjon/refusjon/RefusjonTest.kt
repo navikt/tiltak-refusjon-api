@@ -214,7 +214,7 @@ internal class RefusjonTest {
         assertThat(refusjon.tilskuddsgrunnlag).isEqualTo(korreksjon.tilskuddsgrunnlag)
         assertThat(refusjon.korrigeresAvId).isEqualTo(korreksjon.id)
         assertThat(korreksjon.korreksjonAvId).isEqualTo(refusjon.id)
-        assertThat(korreksjon.status).isEqualTo(RefusjonStatus.MANUELL_KORREKSJON)
+        assertThat(korreksjon.status).isEqualTo(RefusjonStatus.KORREKSJON_UTKAST)
 
         // Kan kun ha en korreksjon av refusjonen
         assertFeilkode(Feilkode.HAR_KORREKSJON) { refusjon.opprettKorreksjonsutkast(emptySet()) }

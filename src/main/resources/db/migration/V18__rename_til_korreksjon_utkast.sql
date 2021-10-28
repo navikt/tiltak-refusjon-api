@@ -1,0 +1,1 @@
+update refusjon set status = 'KORREKSJON_UTKAST' where status = 'MANUELL_KORREKSJON';

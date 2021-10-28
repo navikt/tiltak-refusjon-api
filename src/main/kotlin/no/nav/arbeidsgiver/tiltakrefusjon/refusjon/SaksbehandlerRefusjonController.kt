@@ -35,28 +35,30 @@ class SaksbehandlerRefusjonController(
         return saksbehandler.finnRefusjon(id)
     }
 
-    @PostMapping("/{id}/korriger")
-    fun korriger(@PathVariable id: String, @RequestBody request: KorrigerRequest): Refusjon {
-        val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
-        return saksbehandler.korriger(id, request.korreksjonsgrunner)
-    }
-
     @PostMapping("/{id}/endre-bruttolønn")
     fun endreBruttolønn(@PathVariable id: String, @RequestBody request: EndreBruttolønnRequest) {
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
         saksbehandler.endreBruttolønn(id, request.inntekterKunFraTiltaket, request.bruttoLønn)
     }
 
-    @PostMapping("/{id}/slett-korreksjon")
-    fun slettKorreksjon(@PathVariable id: String): Refusjon {
-        val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
-        return saksbehandler.slettKorreksjon(id)
-    }
+
 
     @PostMapping("/{id}/forleng-frist")
     fun forlengFrist(@PathVariable id: String, @RequestBody request: ForlengFristRequest): Refusjon {
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
         return saksbehandler.forlengFrist(id, request.nyFrist, request.årsak)
+    }
+
+    @PostMapping("/{id}/opprett-korreksjonsutkast")
+    fun opprettKorreksjonsutkast(@PathVariable id: String, @RequestBody request: KorrigerRequest): Refusjon {
+        val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
+        return saksbehandler.opprettKorreksjonsutkast(id, request.korreksjonsgrunner)
+    }
+
+    @PostMapping("/{id}/slett-korreksjonsutkast")
+    fun slettKorreksjonsutkast(@PathVariable id: String): Refusjon {
+        val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
+        return saksbehandler.slettKorreksjonsutkast(id)
     }
 
     @PostMapping("/{id}/utbetal-korreksjon")

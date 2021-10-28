@@ -88,7 +88,7 @@ data class Refusjon(
         if (::status.isInitialized && status in statuserSomIkkeKanEndres) return
 
         if (korreksjonAvId != null) {
-            status = RefusjonStatus.MANUELL_KORREKSJON
+            status = RefusjonStatus.KORREKSJON_UTKAST
             return
         }
 
@@ -107,14 +107,14 @@ data class Refusjon(
 
     fun oppgiInntektsgrunnlag(inntektsgrunnlag: Inntektsgrunnlag) {
         oppdaterStatus()
-        krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING, RefusjonStatus.MANUELL_KORREKSJON)
+        krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING, RefusjonStatus.KORREKSJON_UTKAST)
         this.inntektsgrunnlag = inntektsgrunnlag
         registerEvent(InntekterInnhentet(this))
     }
 
     fun endreBruttolønn(inntekterKunFraTiltaket: Boolean, bruttoLønn: Int?) {
         oppdaterStatus()
-        krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING, RefusjonStatus.MANUELL_KORREKSJON)
+        krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING, RefusjonStatus.KORREKSJON_UTKAST)
         if (inntekterKunFraTiltaket && bruttoLønn != null) {
             throw FeilkodeException(Feilkode.INNTEKTER_KUN_FRA_TILTAK_OG_OPPGIR_BELØP)
         }
@@ -210,7 +210,7 @@ data class Refusjon(
 
     // Ved positivt beløp, skal etterbetale
     fun utbetalKorreksjon(utførtAv: String, beslutterNavIdent: String) {
-        krevStatus(RefusjonStatus.MANUELL_KORREKSJON)
+        krevStatus(RefusjonStatus.KORREKSJON_UTKAST)
         val refusjonsbeløp = beregning?.refusjonsbeløp
         if (refusjonsbeløp == null || refusjonsbeløp <= 0) {
             throw FeilkodeException(Feilkode.KORREKSJONSBELOP_NEGATIVT)
@@ -235,7 +235,7 @@ data class Refusjon(
 
     // Ved 0 beløp, skal ikke tilbakekreve eller etterbetale
     fun fullførKorreksjonVedOppgjort(utførtAv: String) {
-        krevStatus(RefusjonStatus.MANUELL_KORREKSJON)
+        krevStatus(RefusjonStatus.KORREKSJON_UTKAST)
         val refusjonsbeløp = beregning?.refusjonsbeløp
         if (refusjonsbeløp == null || refusjonsbeløp != 0) {
             throw FeilkodeException(Feilkode.KORREKSJONSBELOP_IKKE_NULL)
@@ -248,7 +248,7 @@ data class Refusjon(
 
     // Ved negativt beløp, skal tilbakekreves
     fun fullførKorreksjonVedTilbakekreving(utførtAv: String) {
-        krevStatus(RefusjonStatus.MANUELL_KORREKSJON)
+        krevStatus(RefusjonStatus.KORREKSJON_UTKAST)
         val refusjonsbeløp = beregning?.refusjonsbeløp
         if (refusjonsbeløp == null || refusjonsbeløp >= 0) {
             throw FeilkodeException(Feilkode.KORREKSJONSBELOP_POSITIVT)
@@ -260,7 +260,7 @@ data class Refusjon(
     }
 
     fun kanSlettes(): Boolean {
-        return status == RefusjonStatus.MANUELL_KORREKSJON
+        return status == RefusjonStatus.KORREKSJON_UTKAST
     }
 
     fun forlengFrist(nyFrist: LocalDate, årsak: String, utførtAv: String) {

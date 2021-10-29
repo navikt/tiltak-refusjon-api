@@ -4,7 +4,16 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.guepardoapps.kulid.ULID
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.*
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.BeregningUtført
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.FristForlenget
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.GodkjentAvArbeidsgiver
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.InntekterInnhentet
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.KorreksjonMerketForOppgjort
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.KorreksjonMerketForTilbakekreving
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.KorreksjonSendtTilUtbetaling
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonAnnullert
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonForkortet
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonKlar
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.antallMånederEtter
 import org.springframework.data.domain.AbstractAggregateRoot
@@ -12,8 +21,16 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
-import java.util.*
-import javax.persistence.*
+import java.util.EnumSet
+import javax.persistence.CascadeType
+import javax.persistence.ElementCollection
+import javax.persistence.Entity
+import javax.persistence.EnumType
+import javax.persistence.Enumerated
+import javax.persistence.FetchType
+import javax.persistence.Id
+import javax.persistence.ManyToOne
+import javax.persistence.OneToOne
 import kotlin.streams.toList
 
 @Entity
@@ -80,6 +97,14 @@ data class Refusjon(
 
     private fun krevStatus(vararg gyldigeStatuser: RefusjonStatus) {
         if (status !in gyldigeStatuser) throw FeilkodeException(Feilkode.UGYLDIG_STATUS)
+    }
+
+    fun utbetalingMislykket() {
+        if(status == RefusjonStatus.SENDT_KRAV || status == RefusjonStatus.UTBETALT) status = RefusjonStatus.UTBETALING_FEILET
+    }
+
+    fun utbetalingVellykket(){
+        if(status == RefusjonStatus.SENDT_KRAV || status == RefusjonStatus.UTBETALING_FEILET) status = RefusjonStatus.UTBETALT
     }
 
     fun oppdaterStatus() {

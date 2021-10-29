@@ -1,6 +1,13 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
-import no.nav.arbeidsgiver.tiltakrefusjon.*
+import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
+import no.nav.arbeidsgiver.tiltakrefusjon.assertFeilkode
+import no.nav.arbeidsgiver.tiltakrefusjon.enRefusjon
+import no.nav.arbeidsgiver.tiltakrefusjon.etInntektsgrunnlag
+import no.nav.arbeidsgiver.tiltakrefusjon.etTilskuddsgrunnlag
+import no.nav.arbeidsgiver.tiltakrefusjon.medBedriftKontonummer
+import no.nav.arbeidsgiver.tiltakrefusjon.medInntektsgrunnlag
+import no.nav.arbeidsgiver.tiltakrefusjon.medSendtKravFraArbeidsgiver
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -8,6 +15,48 @@ import java.time.LocalDate
 import java.time.YearMonth
 
 internal class RefusjonTest {
+
+
+    @Test
+    fun `kan sette status til UTBETALING_FEILET når refusjon har status SENDT_KRAV eller UTBETALT`(){
+        val refusjon = enRefusjon()
+
+        refusjon.status = RefusjonStatus.SENDT_KRAV
+        refusjon.utbetalingMislykket()
+        assertThat(refusjon.status).isEqualTo(RefusjonStatus.UTBETALING_FEILET)
+
+        refusjon.status = RefusjonStatus.UTBETALT
+        refusjon.utbetalingMislykket()
+        assertThat(refusjon.status).isEqualTo(RefusjonStatus.UTBETALING_FEILET)
+    }
+
+    @Test
+    fun `kan sette status til utbetalt når refusjon har status SENDT_KRAV eller UTBETALING FEILET`(){
+        // GITT
+        val refusjon = enRefusjon()
+        refusjon.status = RefusjonStatus.SENDT_KRAV
+
+        // NÅR
+        refusjon.utbetalingVellykket()
+        assertThat(refusjon.status).isEqualTo(RefusjonStatus.UTBETALT)
+
+        refusjon.status = RefusjonStatus.UTBETALING_FEILET
+        refusjon.utbetalingVellykket()
+        assertThat(refusjon.status).isEqualTo(RefusjonStatus.UTBETALT)
+    }
+
+    @Test
+    fun `kan ikke sette status til utbetalt når refusjon har status KLAR_FOR_INNSENDING`(){
+        // GITT
+        val refusjon = enRefusjon()
+
+        // NÅR
+        refusjon.utbetalingVellykket()
+
+        assertThat(refusjon.status).isNotEqualTo(RefusjonStatus.UTBETALT)
+    }
+
+
     // Godkjennelse arbeidsgiver
     @Test
     fun `kan ikke godkjenne for ag uten beregning`() {

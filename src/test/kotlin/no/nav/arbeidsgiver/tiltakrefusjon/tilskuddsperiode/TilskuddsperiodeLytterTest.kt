@@ -1,36 +1,31 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode
 
+import com.ninjasquad.springmockk.MockkBean
+import io.mockk.verify
 import no.nav.arbeidsgiver.tiltakrefusjon.Topics
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
-import org.awaitility.Awaitility.await
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
-import org.mockito.Mockito.verify
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.kafka.test.context.EmbeddedKafka
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
-import java.time.LocalDate
-import java.util.*
-import java.util.concurrent.TimeUnit
+import java.util.UUID
 
 @ActiveProfiles("local")
 @SpringBootTest(properties = ["tiltak-refusjon.kafka.enabled=true"])
 @EmbeddedKafka(partitions = 1, topics = [Topics.TILSKUDDSPERIODE_GODKJENT])
 @DirtiesContext
-@Disabled("Får ikke til å kjøre stabilt")
 class TilskuddsperiodeLytterTest {
 
     @Autowired
     lateinit var kafkaTemplate: KafkaTemplate<String, TilskuddsperiodeGodkjentMelding>
 
-    @MockBean
-    lateinit var refusjonService: RefusjonService
+    @MockkBean
+    lateinit var refusjonServiceMock: RefusjonService
 
     @Autowired
     lateinit var tilskuddsperiodeLytter: TilskuddsperiodeKafkaLytter
@@ -65,7 +60,8 @@ class TilskuddsperiodeLytterTest {
         kafkaTemplate.send(Topics.TILSKUDDSPERIODE_GODKJENT, tilskuddMelding.tilskuddsperiodeId, tilskuddMelding)
 
         // SÅ
-        await().atMost(60, TimeUnit.SECONDS).untilAsserted { verify(refusjonService).opprettRefusjon(tilskuddMelding) }
+        verify(timeout = 3000) { refusjonServiceMock.opprettRefusjon(tilskuddMelding) }
+
     }
 
 }

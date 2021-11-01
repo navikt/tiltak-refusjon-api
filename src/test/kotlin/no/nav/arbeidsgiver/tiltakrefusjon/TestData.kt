@@ -1,9 +1,12 @@
 package no.nav.arbeidsgiver.tiltakrefusjon
 
 import com.github.guepardoapps.kulid.ULID
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Inntektsgrunnlag
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Inntektslinje
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tilskuddsgrunnlag
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
-import java.time.LocalDate
 import java.time.YearMonth
 
 fun enRefusjon(tilskuddsgrunnlag: Tilskuddsgrunnlag = etTilskuddsgrunnlag()): Refusjon {
@@ -52,7 +55,10 @@ fun refusjoner(): List<Refusjon> {
         bjørnsonSendtKrav,
         `Nils Nilsen`(),
         `Inger Hagerup`(),
-        `Amalie Skram`()
+        `Amalie Skram`(),
+        `Suzanna Hansen`(),
+                `Siri Hansen`()
+
     )
 }
 
@@ -151,6 +157,53 @@ fun `Amalie Skram`(): Refusjon {
             veilederNavIdent = "X123456"
         ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
     )
+}
+
+fun `Suzanna Hansen`(): Refusjon {
+    val deltakerFnr = "23119409195"
+    val bedriftNr = "999999999"
+    val refusjon =  Refusjon(
+        tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
+            deltakerFornavn = "Suzanna",
+            deltakerEtternavn = "Hansen",
+            deltakerFnr = deltakerFnr,
+            bedriftNr = bedriftNr,
+            tilskuddsbeløp = 10579,
+            veilederNavIdent = "X123456"
+        ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
+    )
+    refusjon.let {
+        it.medInntektsgrunnlag(måned = YearMonth.of(it.tilskuddsgrunnlag.tilskuddFom.year,
+            it.tilskuddsgrunnlag.tilskuddFom.month))
+        it.medBedriftKontonummer()
+        it.medSendtKravFraArbeidsgiver()
+        it.utbetalingVellykket()
+    }
+    return refusjon
+}
+
+fun `Siri Hansen`(): Refusjon {
+    val deltakerFnr = "23119409195"
+    val bedriftNr = "999999999"
+    val refusjon =  Refusjon(
+        tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
+            deltakerFornavn = "Siri",
+            deltakerEtternavn = "Hansen",
+            deltakerFnr = deltakerFnr,
+            bedriftNr = bedriftNr,
+            tilskuddsbeløp = 10579,
+            veilederNavIdent = "X123456"
+        ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr)
+
+    refusjon.let {
+        it.medInntektsgrunnlag(måned = YearMonth.of(it.tilskuddsgrunnlag.tilskuddFom.year,
+            it.tilskuddsgrunnlag.tilskuddFom.month))
+        it.medBedriftKontonummer()
+        it.medSendtKravFraArbeidsgiver()
+        it.utbetalingMislykket()
+    }
+
+    return refusjon
 }
 
 fun Refusjon.medInntektsgrunnlag(

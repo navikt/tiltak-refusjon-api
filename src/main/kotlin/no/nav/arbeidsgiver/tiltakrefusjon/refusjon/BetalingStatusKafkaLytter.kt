@@ -17,13 +17,13 @@ class BetalingStatusKafkaLytter(private val refusjonRepository: RefusjonReposito
 
     @KafkaListener(topics = [REFUSJON_ENDRET_BETALINGSSTATUS])
     fun oppdaterRefusjonStatusBasertPåBetalingStatusFraØkonomi(event: String) {
-        val betalingStatus = objectMapper.readValue(event,BetalingStatusEndringMelding::class.java)
-        val refusjon = refusjonRepository.findByIdOrNull(betalingStatus.refusjonId)
+        val betalingsstatus = objectMapper.readValue(event,BetalingStatusEndringMelding::class.java)
+        val refusjon = refusjonRepository.findByIdOrNull(betalingsstatus.refusjonId)
         if(refusjon == null){
-            log.error("Mottatt en betaling status for en ukjent refusjon  ${betalingStatus.refusjonId}")
+            log.error("Mottatt en betaling status for en ukjent refusjon  ${betalingsstatus.refusjonId}")
             return
         }
-        if(betalingStatus.erBetalt()) {
+        if(betalingsstatus.erUtbetalt()) {
             refusjon.utbetalingVellykket()
         } else {
             refusjon.utbetalingMislykket()

@@ -12,7 +12,7 @@ data class BetalingStatusEndringMelding(
     val status: BetalingStatus,
     val avregningsdato: LocalDate
     ){
-    fun erBetalt():Boolean{
+    fun erUtbetalt():Boolean{
         return BetalingStatus.UTBETALT.equals(status)
     }
 }

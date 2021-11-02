@@ -197,7 +197,7 @@ internal class RefusjonTest {
     }
 
     @Test
-    internal fun `har inntekt for alle måneder`() {
+    internal fun `har inntekt for alle måneder i tilskuddsperioden`() {
         val refusjon = enRefusjon(
             etTilskuddsgrunnlag().copy(
                 tilskuddFom = Now.localDate().minusDays(2),

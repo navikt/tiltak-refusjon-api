@@ -216,8 +216,20 @@ internal class RefusjonTest {
                     99.0,
                     YearMonth.now(),
                     null,
+                    null),
+                Inntektslinje("LOENNSINNTEKT",
+                    "fastloenn",
+                    99.0,
+                    YearMonth.now().minusMonths(1),
+                    null,
+                    null),
+            Inntektslinje("LOENNSINNTEKT",
+                    "fastloenn",
+                    99.0,
+                    YearMonth.now().plusMonths(1),
+                    null,
                     null)), respons = ""))
-        assertThat(refusjon.harInntektIAlleMåneder()).isTrue()
+        assertThat(refusjon.harInntektIAlleMåneder()).isTrue
     }
 
     @Test

@@ -89,8 +89,7 @@ data class Refusjon(
         val tilskuddFom = tilskuddsgrunnlag.tilskuddFom
         val tilskuddTom = tilskuddsgrunnlag.tilskuddTom
 
-        val månederTilskudd =
-            tilskuddFom.datesUntil(tilskuddTom).map { YearMonth.of(it.year, it.month) }.distinct().toList()
+        val månederTilskudd = tilskuddFom.datesUntil(tilskuddTom).map { YearMonth.of(it.year, it.month) }.distinct().toList()
 
         return månederInntekter.containsAll(månederTilskudd)
     }

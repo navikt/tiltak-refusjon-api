@@ -151,15 +151,15 @@ class RefusjonService(
         refusjonRepository.save(refusjon)
     }
 
-    fun opprettKorreksjonsutkast(gammel: Refusjon, korreksjonsgrunner: Set<Korreksjonsgrunn>): Refusjon {
-        val ny = gammel.opprettKorreksjonsutkast(korreksjonsgrunner)
-        refusjonRepository.save(ny)
+    fun opprettKorreksjonsutkast(gammel: Refusjon, korreksjonsgrunner: Set<Korreksjonsgrunn>): Unit {
+        gammel.opprettKorreksjonsutkast(korreksjonsgrunner)
+        // refusjonRepository.save(ny)
         refusjonRepository.save(gammel)
-        if (korreksjonsgrunner.contains(Korreksjonsgrunn.HENT_INNTEKTER_PÅ_NYTT)) {
-            gjørInntektsoppslag(ny)
-        } else {
-            gjørBeregning(ny)
-        }
-        return ny
+        // if (korreksjonsgrunner.contains(Korreksjonsgrunn.HENT_INNTEKTER_PÅ_NYTT)) {
+        //     gjørInntektsoppslag(ny)
+        // } else {
+        //     gjørBeregning(ny)
+        // }
+        // return ny
     }
 }

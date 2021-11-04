@@ -53,13 +53,15 @@ class RefusjonKafkaProducer(
             beløp = event.refusjon.beregning!!.refusjonsbeløp,
             korreksjonsnummer = event.refusjon.korreksjonsnummer!!,
             bedriftKontonummer = event.refusjon.bedriftKontonummer!!,
-            korreksjonstype = event.korreksjonstype
+            korreksjonstype = event.korreksjon.status
         )
         korreksjonKafkaTemplate.send(Topics.REFUSJON_KORRIGERT, event.refusjon.id, melding)
             .addCallback({
-                log.info("Melding med id {} sendt til Kafka topic {}",
+                log.info(
+                    "Melding med id {} sendt til Kafka topic {}",
                     it?.producerRecord?.key(),
-                    it?.recordMetadata?.topic())
+                    it?.recordMetadata?.topic()
+                )
             }, {
                 log.warn("Feil", it)
             })

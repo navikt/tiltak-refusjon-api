@@ -75,7 +75,8 @@ data class InnloggetSaksbehandler(
 
     fun opprettKorreksjonsutkast(id: String, korreksjonsgrunner: Set<Korreksjonsgrunn>): Refusjon {
         val gammel = finnRefusjon(id)
-        return refusjonService.opprettKorreksjonsutkast(gammel, korreksjonsgrunner)
+        refusjonService.opprettKorreksjonsutkast(gammel, korreksjonsgrunner)
+        return gammel
     }
 
     fun slettKorreksjonsutkast(id: String): Refusjon {

@@ -30,8 +30,8 @@ import javax.persistence.Enumerated
 import javax.persistence.FetchType
 import javax.persistence.Id
 import javax.persistence.ManyToOne
+import javax.persistence.OneToMany
 import javax.persistence.OneToOne
-import kotlin.streams.toList
 
 @Entity
 data class Refusjon(
@@ -50,8 +50,9 @@ data class Refusjon(
 
     @OneToOne(orphanRemoval = true, cascade = [CascadeType.ALL])
     var beregning: Beregning? = null
-    @OneToOne(orphanRemoval = true, cascade = [CascadeType.ALL])
-    var korreksjon: Korreksjon? = null
+
+    // @OneToOne(orphanRemoval = true, cascade = [CascadeType.ALL])
+    // var korreksjon: Korreksjon? = null
 
     // Fristen er satt til 2 mnd ihht økonomireglementet
     var fristForGodkjenning: LocalDate = antallMånederEtter(tilskuddsgrunnlag.tilskuddTom, 2)
@@ -78,6 +79,9 @@ data class Refusjon(
     var inntekterKunFraTiltaket: Boolean? = null
     var endretBruttoLønn: Int? = null
 
+    @OneToMany(mappedBy = "refusjon", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
+    val korreksjoner: MutableSet<Korreksjon> = mutableSetOf()
+
     init {
         oppdaterStatus()
     }
@@ -91,7 +95,8 @@ data class Refusjon(
         val tilskuddFom = tilskuddsgrunnlag.tilskuddFom
         val tilskuddTom = tilskuddsgrunnlag.tilskuddTom
 
-        val månederTilskudd = tilskuddFom.datesUntil(tilskuddTom).map { YearMonth.of(it.year, it.month) }.distinct().toList()
+        val månederTilskudd =
+            tilskuddFom.datesUntil(tilskuddTom).map { YearMonth.of(it.year, it.month) }.distinct().toList()
 
         return månederInntekter.containsAll(månederTilskudd)
     }
@@ -101,11 +106,13 @@ data class Refusjon(
     }
 
     fun utbetalingMislykket() {
-        if(status == RefusjonStatus.SENDT_KRAV || status == RefusjonStatus.UTBETALT) status = RefusjonStatus.UTBETALING_FEILET
+        if (status == RefusjonStatus.SENDT_KRAV || status == RefusjonStatus.UTBETALT) status =
+            RefusjonStatus.UTBETALING_FEILET
     }
 
-    fun utbetalingVellykket(){
-        if(status == RefusjonStatus.SENDT_KRAV || status == RefusjonStatus.UTBETALING_FEILET) status = RefusjonStatus.UTBETALT
+    fun utbetalingVellykket() {
+        if (status == RefusjonStatus.SENDT_KRAV || status == RefusjonStatus.UTBETALING_FEILET) status =
+            RefusjonStatus.UTBETALT
     }
 
     fun oppdaterStatus() {
@@ -205,59 +212,22 @@ data class Refusjon(
         innhentetBedriftKontonummerTidspunkt = Now.localDateTime()
     }
 
-    fun opprettKorreksjonsutkast(korreksjonsgrunner: Set<Korreksjonsgrunn>): Refusjon {
+    fun opprettKorreksjonsutkast(korreksjonsgrunner: Set<Korreksjonsgrunn>) {
         krevStatus(RefusjonStatus.UTBETALT, RefusjonStatus.SENDT_KRAV, RefusjonStatus.UTGÅTT)
-        if (korrigeresAvId != null) {
+        if (korreksjoner.any { it.status == Korreksjonstype.UTKAST }) {
             throw FeilkodeException(Feilkode.HAR_KORREKSJON)
         }
-
-        val korreksjonsnummer = if (this.korreksjonsnummer == null) 1 else this.korreksjonsnummer.plus(1)
-        val korrigertRefusjon = Refusjon(this.tilskuddsgrunnlag, this.bedriftNr, this.deltakerFnr, this.id, korreksjonsnummer)
-
-        val kopiAvInntektsgrunnlag = Inntektsgrunnlag(
-            inntekter = this.inntektsgrunnlag!!.inntekter.map {
-                Inntektslinje(
-                    it.inntektType,
-                    it.beskrivelse,
-                    it.beløp,
-                    it.måned,
-                    it.opptjeningsperiodeFom,
-                    it.opptjeningsperiodeTom
-                )
-            }, respons = this.inntektsgrunnlag!!.respons
-        )
-        kopiAvInntektsgrunnlag.innhentetTidspunkt = this.inntektsgrunnlag!!.innhentetTidspunkt
-        korrigertRefusjon.inntektsgrunnlag = kopiAvInntektsgrunnlag
-        korrigertRefusjon.bedriftKontonummer = this.bedriftKontonummer
-        korrigertRefusjon.korreksjon = Korreksjon()
-        korrigertRefusjon.korreksjon!!.korreksjonsgrunner.addAll(korreksjonsgrunner)
-        this.korrigeresAvId = korrigertRefusjon.id
-        return korrigertRefusjon
+        val korreksjonsnummer = if (korreksjoner.isEmpty()) 1 else korreksjoner.maxOf { it.korreksjonsnummer } + 1
+        val korreksjonsutkast = Korreksjon(this, korreksjonsnummer, korreksjonsgrunner)
+        korreksjoner.add(korreksjonsutkast)
     }
 
     // Ved positivt beløp, skal etterbetale
     fun utbetalKorreksjon(utførtAv: String, beslutterNavIdent: String, kostnadssted: String) {
-        krevStatus(RefusjonStatus.KORREKSJON_UTKAST)
-        val refusjonsbeløp = beregning?.refusjonsbeløp
-        if (refusjonsbeløp == null || refusjonsbeløp <= 0) {
-            throw FeilkodeException(Feilkode.KORREKSJONSBELOP_NEGATIVT)
-        }
-        if (bedriftKontonummer == null) {
-            throw FeilkodeException(Feilkode.INGEN_BEDRIFTKONTONUMMER)
-        }
-        if (beslutterNavIdent.isNullOrBlank()) {
-            throw FeilkodeException(Feilkode.INGEN_BESLUTTER)
-        }
-        if (beslutterNavIdent == utførtAv) {
-            throw FeilkodeException(Feilkode.SAMME_SAKSBEHANDLER_OG_BESLUTTER)
-        }
-        status = RefusjonStatus.KORREKSJON_SENDT_TIL_UTBETALING
-        this.korreksjon!!.godkjentTidspunkt = Now.instant()
-        this.korreksjon!!.godkjentAvSaksbehandlerNavIdent = utførtAv
-        this.korreksjon!!.beslutterNavIdent = beslutterNavIdent
-        val korreksjonstype =
-            if (korreksjonsgrunner.contains(Korreksjonsgrunn.UTBETALING_RETURNERT)) Korreksjonstype.UTBETALING_AVVIST else Korreksjonstype.TILLEGSUTBETALING
-        registerEvent(KorreksjonSendtTilUtbetaling(this, korreksjonstype))
+        val korreksjonsutkast = korreksjoner.find { it.status === Korreksjonstype.UTKAST }
+            ?: throw FeilkodeException(Feilkode.UGYLDIG_STATUS)
+        korreksjonsutkast.utbetalKorreksjon(utførtAv, beslutterNavIdent, kostnadssted)
+        registerEvent(KorreksjonSendtTilUtbetaling(this, korreksjonsutkast))
     }
 
     // Ved 0 beløp, skal ikke tilbakekreve eller etterbetale

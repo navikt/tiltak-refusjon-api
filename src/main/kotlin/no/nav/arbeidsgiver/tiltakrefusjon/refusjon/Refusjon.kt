@@ -233,7 +233,7 @@ data class Refusjon(
     }
 
     // Ved positivt beløp, skal etterbetale
-    fun utbetalKorreksjon(utførtAv: String, beslutterNavIdent: String) {
+    fun utbetalKorreksjon(utførtAv: String, beslutterNavIdent: String, kostnadssted: String) {
         krevStatus(RefusjonStatus.KORREKSJON_UTKAST)
         val refusjonsbeløp = beregning?.refusjonsbeløp
         if (refusjonsbeløp == null || refusjonsbeløp <= 0) {

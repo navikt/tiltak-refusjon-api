@@ -327,7 +327,7 @@ internal class RefusjonTest {
         val refusjon = enRefusjon().medInntektsgrunnlag().medBedriftKontonummer().medSendtKravFraArbeidsgiver()
         val korreksjon = refusjon.opprettKorreksjonsutkast(setOf())
         korreksjon.gjørBeregning("", 0)
-        korreksjon.utbetalKorreksjon("X123456", "Y123456")
+        korreksjon.utbetalKorreksjon("X123456", "Y123456", kostnadssted)
         assertThat(korreksjon.status).isEqualTo(RefusjonStatus.KORREKSJON_SENDT_TIL_UTBETALING)
     }
 
@@ -336,14 +336,26 @@ internal class RefusjonTest {
         val refusjon = enRefusjon().medInntektsgrunnlag().medBedriftKontonummer().medSendtKravFraArbeidsgiver()
         val korreksjon = refusjon.opprettKorreksjonsutkast(setOf())
         korreksjon.gjørBeregning("", 0)
-        assertFeilkode(Feilkode.SAMME_SAKSBEHANDLER_OG_BESLUTTER) { korreksjon.utbetalKorreksjon("X123456", "X123456") }
-        assertFeilkode(Feilkode.INGEN_BESLUTTER) { korreksjon.utbetalKorreksjon("X123456", "") }
+        assertFeilkode(Feilkode.SAMME_SAKSBEHANDLER_OG_BESLUTTER) { korreksjon.utbetalKorreksjon(
+            "X123456",
+            "X123456",
+            kostnadssted
+        ) }
+        assertFeilkode(Feilkode.INGEN_BESLUTTER) { korreksjon.utbetalKorreksjon("X123456", "", kostnadssted) }
         korreksjon.bedriftKontonummer = null
-        assertFeilkode(Feilkode.INGEN_BEDRIFTKONTONUMMER) { korreksjon.utbetalKorreksjon("X123456", "Y123456") }
+        assertFeilkode(Feilkode.INGEN_BEDRIFTKONTONUMMER) { korreksjon.utbetalKorreksjon(
+            "X123456",
+            "Y123456",
+            kostnadssted
+        ) }
 
         // er ikke en etterbetaling, skal ikke kunne utbetale korreksjonen
         korreksjon.gjørBeregning("", 1000000)
-        assertFeilkode(Feilkode.KORREKSJONSBELOP_NEGATIVT) { korreksjon.utbetalKorreksjon("X123456", "Y123456") }
+        assertFeilkode(Feilkode.KORREKSJONSBELOP_NEGATIVT) { korreksjon.utbetalKorreksjon(
+            "X123456",
+            "Y123456",
+            kostnadssted
+        ) }
     }
 
     @Test

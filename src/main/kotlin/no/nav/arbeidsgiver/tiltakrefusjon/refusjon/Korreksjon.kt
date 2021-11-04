@@ -10,6 +10,7 @@ class Korreksjon() {
 
     @Id
     val id: String = ULID.random()
+    val korreksjonsnummer: Int? = null
 
     @Enumerated(EnumType.STRING)
     @ElementCollection(fetch = FetchType.EAGER)

@@ -50,6 +50,8 @@ data class Refusjon(
 
     @OneToOne(orphanRemoval = true, cascade = [CascadeType.ALL])
     var beregning: Beregning? = null
+    @OneToOne(orphanRemoval = true, cascade = [CascadeType.ALL])
+    var korreksjon: Korreksjon? = null
 
     // Fristen er satt til 2 mnd ihht økonomireglementet
     var fristForGodkjenning: LocalDate = antallMånederEtter(tilskuddsgrunnlag.tilskuddTom, 2)
@@ -210,7 +212,7 @@ data class Refusjon(
         }
 
         val korreksjonsnummer = if (this.korreksjonsnummer == null) 1 else this.korreksjonsnummer.plus(1)
-        val korreksjon = Refusjon(this.tilskuddsgrunnlag, this.bedriftNr, this.deltakerFnr, this.id, korreksjonsnummer)
+        val korrigertRefusjon = Refusjon(this.tilskuddsgrunnlag, this.bedriftNr, this.deltakerFnr, this.id, korreksjonsnummer)
 
         val kopiAvInntektsgrunnlag = Inntektsgrunnlag(
             inntekter = this.inntektsgrunnlag!!.inntekter.map {
@@ -225,11 +227,12 @@ data class Refusjon(
             }, respons = this.inntektsgrunnlag!!.respons
         )
         kopiAvInntektsgrunnlag.innhentetTidspunkt = this.inntektsgrunnlag!!.innhentetTidspunkt
-        korreksjon.inntektsgrunnlag = kopiAvInntektsgrunnlag
-        korreksjon.bedriftKontonummer = this.bedriftKontonummer
-        korreksjon.korreksjonsgrunner.addAll(korreksjonsgrunner)
-        this.korrigeresAvId = korreksjon.id
-        return korreksjon
+        korrigertRefusjon.inntektsgrunnlag = kopiAvInntektsgrunnlag
+        korrigertRefusjon.bedriftKontonummer = this.bedriftKontonummer
+        korrigertRefusjon.korreksjon = Korreksjon()
+        korrigertRefusjon.korreksjon!!.korreksjonsgrunner.addAll(korreksjonsgrunner)
+        this.korrigeresAvId = korrigertRefusjon.id
+        return korrigertRefusjon
     }
 
     // Ved positivt beløp, skal etterbetale
@@ -249,9 +252,9 @@ data class Refusjon(
             throw FeilkodeException(Feilkode.SAMME_SAKSBEHANDLER_OG_BESLUTTER)
         }
         status = RefusjonStatus.KORREKSJON_SENDT_TIL_UTBETALING
-        godkjentAvSaksbehandler = Now.instant()
-        godkjentAvSaksbehandlerNavIdent = utførtAv
-        this.beslutterNavIdent = beslutterNavIdent
+        this.korreksjon!!.godkjentTidspunkt = Now.instant()
+        this.korreksjon!!.godkjentAvSaksbehandlerNavIdent = utførtAv
+        this.korreksjon!!.beslutterNavIdent = beslutterNavIdent
         val korreksjonstype =
             if (korreksjonsgrunner.contains(Korreksjonsgrunn.UTBETALING_RETURNERT)) Korreksjonstype.UTBETALING_AVVIST else Korreksjonstype.TILLEGSUTBETALING
         registerEvent(KorreksjonSendtTilUtbetaling(this, korreksjonstype))

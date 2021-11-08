@@ -13,22 +13,36 @@ import javax.persistence.EnumType
 import javax.persistence.Enumerated
 import javax.persistence.FetchType
 import javax.persistence.Id
-import javax.persistence.JoinColumn
-import javax.persistence.ManyToOne
 import javax.persistence.OneToOne
 
 @Entity
-data class Korreksjon(
-    @ManyToOne
-    @JoinColumn(name = "refusjon_id")
-    private val refusjon: Refusjon,
+class Korreksjon(
+    val korrigererRefusjonId: String,
     val korreksjonsnummer: Int,
+    @OneToOne(orphanRemoval = true, cascade = [CascadeType.ALL])
+    val refusjonsgrunnlag: Refusjonsgrunnlag,
+    val deltakerFnr: String,
+    val bedriftNr: String,
 ) {
-    constructor(refusjon: Refusjon, korreksjonsnummer: Int, korreksjonsgrunner: Set<Korreksjonsgrunn>) : this(
+    constructor(
+        refusjon: String,
+        korreksjonsnummer: Int,
+        tidligereUtbetalt: Int,
+        korreksjonsgrunner: Set<Korreksjonsgrunn>,
+        tilskuddsgrunnlag: Tilskuddsgrunnlag,
+        deltakerFnr: String,
+        bedriftNr: String,
+        inntekterKunFraTiltaket: Boolean,
+        endretBruttoLønn: Int?
+    ) : this(
         refusjon,
-        korreksjonsnummer
+        korreksjonsnummer,
+        Refusjonsgrunnlag(tilskuddsgrunnlag, tidligereUtbetalt),
+        deltakerFnr,
+        bedriftNr
     ) {
         this.korreksjonsgrunner.addAll(korreksjonsgrunner)
+        this.refusjonsgrunnlag.endreBruttolønn(inntekterKunFraTiltaket, endretBruttoLønn)
     }
 
     @Id
@@ -38,52 +52,56 @@ data class Korreksjon(
     @ElementCollection(fetch = FetchType.EAGER)
     val korreksjonsgrunner: MutableSet<Korreksjonsgrunn> = EnumSet.noneOf(Korreksjonsgrunn::class.java)
 
-    @OneToOne(orphanRemoval = true, cascade = [CascadeType.ALL])
-    var inntektsgrunnlag: Inntektsgrunnlag? = null
-
-    @OneToOne(orphanRemoval = true, cascade = [CascadeType.ALL])
-    var beregning: Beregning? = null
     @Enumerated(EnumType.STRING)
     var status: Korreksjonstype = Korreksjonstype.UTKAST
 
     var kostnadssted: String? = null
-    var bedriftKontonummer: String? = null
-    var inntekterKunFraTiltaket: Boolean? = null
-    var endretBruttoLønn: Int? = null
 
-    var godkjentTidspunkt: Instant? = null
     var godkjentAvNavIdent: String? = null
+    var godkjentTidspunkt: Instant? = null
     var besluttetAvNavIdent: String? = null
+    var besluttetTidspunkt: Instant? = null
 
-    fun gjørBeregning() {
-        this.beregning = beregnRefusjonsbeløp(
-            inntekter = inntektsgrunnlag!!.inntekter.toList(),
-            tilskuddsgrunnlag = refusjon.tilskuddsgrunnlag,
-            appImageId = "",
-            tidligereUtbetalt = if (korreksjonsgrunner.contains(Korreksjonsgrunn.UTBETALT_HELE_TILSKUDDSBELØP))
-                refusjon.tilskuddsgrunnlag.tilskuddsbeløp
-            else
-                refusjon.beregning!!.refusjonsbeløp,
-            korrigertBruttoLønn = endretBruttoLønn
-        )
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Korreksjon
+
+        if (id != other.id) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return id.hashCode()
     }
 
     private fun krevStatus(vararg gyldigeStatuser: Korreksjonstype) {
         if (status !in gyldigeStatuser) throw FeilkodeException(Feilkode.UGYLDIG_STATUS)
     }
 
+    fun skalGjøreInntektsoppslag(): Boolean {
+        if (status != Korreksjonstype.UTKAST) {
+            return false
+        }
+        return refusjonsgrunnlag.inntektsgrunnlag?.innhentetTidspunkt?.isBefore(
+            Now.localDateTime().minusMinutes(1)
+        ) ?: true
+    }
+
     // Ved positivt beløp, skal etterbetale
     fun utbetalKorreksjon(utførtAv: String, beslutterNavIdent: String, kostnadssted: String) {
         krevStatus(Korreksjonstype.UTKAST)
 
-        val refusjonsbeløp = beregning?.refusjonsbeløp
+        val refusjonsbeløp = refusjonsgrunnlag.beregning?.refusjonsbeløp
         if (refusjonsbeløp == null || refusjonsbeløp <= 0) {
             throw FeilkodeException(Feilkode.KORREKSJONSBELOP_NEGATIVT)
         }
-        if (bedriftKontonummer == null) {
+        if (refusjonsgrunnlag.bedriftKontonummer == null) {
             throw FeilkodeException(Feilkode.INGEN_BEDRIFTKONTONUMMER)
         }
-        if (beslutterNavIdent.isNullOrBlank()) {
+        if (beslutterNavIdent.isBlank()) {
             throw FeilkodeException(Feilkode.INGEN_BESLUTTER)
         }
         if (beslutterNavIdent == utførtAv) {
@@ -92,27 +110,50 @@ data class Korreksjon(
         this.godkjentTidspunkt = Now.instant()
         this.godkjentAvNavIdent = utførtAv
         this.besluttetAvNavIdent = beslutterNavIdent
+        this.besluttetTidspunkt = Now.instant()
         this.kostnadssted = kostnadssted
         this.status = Korreksjonstype.TILLEGSUTBETALING
     }
 
     // Ved 0 beløp, skal ikke tilbakekreve eller etterbetale
     fun fullførKorreksjonVedOppgjort(utførtAv: String) {
-        val refusjonsbeløp = beregning?.refusjonsbeløp
+        krevStatus(Korreksjonstype.UTKAST)
+        val refusjonsbeløp = refusjonsgrunnlag.beregning?.refusjonsbeløp
         if (refusjonsbeløp == null || refusjonsbeløp != 0) {
             throw FeilkodeException(Feilkode.KORREKSJONSBELOP_IKKE_NULL)
         }
         this.godkjentTidspunkt = Now.instant()
         this.godkjentAvNavIdent = utførtAv
+        this.status = Korreksjonstype.OPPGJORT
     }
 
     // Ved negativt beløp, skal tilbakekreves
     fun fullførKorreksjonVedTilbakekreving(utførtAv: String) {
-        val refusjonsbeløp = beregning?.refusjonsbeløp
+        krevStatus(Korreksjonstype.UTKAST)
+        val refusjonsbeløp = refusjonsgrunnlag.beregning?.refusjonsbeløp
         if (refusjonsbeløp == null || refusjonsbeløp >= 0) {
             throw FeilkodeException(Feilkode.KORREKSJONSBELOP_POSITIVT)
         }
         this.godkjentTidspunkt = Now.instant()
         this.godkjentAvNavIdent = utførtAv
+        this.status = Korreksjonstype.TILBAKEKREVING
+    }
+
+    fun endreBruttolønn(inntekterKunFraTiltaket: Boolean, endretBruttoLønn: Int?) {
+        krevStatus(Korreksjonstype.UTKAST)
+        refusjonsgrunnlag.endreBruttolønn(inntekterKunFraTiltaket, endretBruttoLønn)
+    }
+
+    fun skalGjøreKontonummerOppslag(): Boolean {
+        if (status != Korreksjonstype.UTKAST) {
+            return false
+        }
+        return refusjonsgrunnlag.bedriftKontonummerInnhentetTidspunkt?.isBefore(
+            Now.localDateTime().minusMinutes(1)
+        ) ?: true
+    }
+
+    fun kanSlettes(): Boolean {
+        return status == Korreksjonstype.UTKAST
     }
 }

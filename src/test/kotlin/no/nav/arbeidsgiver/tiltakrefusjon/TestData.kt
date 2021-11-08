@@ -18,16 +18,18 @@ fun enRefusjon(tilskuddsgrunnlag: Tilskuddsgrunnlag = etTilskuddsgrunnlag()): Re
 fun refusjoner(): List<Refusjon> {
     val kiellandNy = `Alexander Kielland`()
     val kiellandGammel = `Alexander Kielland`().let {
-        val tilskuddFom = kiellandNy.tilskuddsgrunnlag.tilskuddFom.minusMonths(5)
+        val tilskuddFom = kiellandNy.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom.minusMonths(5)
         it.copy(
-            tilskuddsgrunnlag = it.tilskuddsgrunnlag.copy(
-                avtaleId = kiellandNy.tilskuddsgrunnlag.avtaleId,
+            tilskuddsgrunnlag = it.refusjonsgrunnlag.tilskuddsgrunnlag.copy(
+                avtaleId = kiellandNy.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleId,
                 tilskuddFom = tilskuddFom,
-                tilskuddTom = kiellandNy.tilskuddsgrunnlag.tilskuddTom.minusDays(1)
-            )
+                tilskuddTom = kiellandNy.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom.minusDays(1)
+            ),
+            deltakerFnr = "12345678901"
         )
             .medInntektsgrunnlag(måned = YearMonth.of(tilskuddFom.year, tilskuddFom.month))
             .medBedriftKontonummer()
+            .medSvarPåInntekter()
             .medSendtKravFraArbeidsgiver()
     }
     val BjørnsonUtgått = `Bjørnstjerne Bjørnson`().let {
@@ -44,6 +46,7 @@ fun refusjoner(): List<Refusjon> {
     val bjørnsonSendtKrav = `Bjørnstjerne Bjørnson`().let {
         it.medInntektsgrunnlag(måned = YearMonth.of(it.tilskuddsgrunnlag.tilskuddFom.year, it.tilskuddsgrunnlag.tilskuddFom.month))
         it.medBedriftKontonummer()
+        it.medSvarPåInntekter()
         it.medSendtKravFraArbeidsgiver()
     }
 
@@ -60,6 +63,11 @@ fun refusjoner(): List<Refusjon> {
                 `Siri Hansen`()
 
     )
+}
+
+private fun Refusjon.medSvarPåInntekter() : Refusjon {
+    this.endreBruttolønn(true, null)
+    return this
 }
 
 fun etTilskuddsgrunnlag() = Tilskuddsgrunnlag(
@@ -176,6 +184,7 @@ fun `Suzanna Hansen`(): Refusjon {
         it.medInntektsgrunnlag(måned = YearMonth.of(it.tilskuddsgrunnlag.tilskuddFom.year,
             it.tilskuddsgrunnlag.tilskuddFom.month))
         it.medBedriftKontonummer()
+        it.medSvarPåInntekter()
         it.medSendtKravFraArbeidsgiver()
         it.utbetalingVellykket()
     }
@@ -199,6 +208,7 @@ fun `Siri Hansen`(): Refusjon {
         it.medInntektsgrunnlag(måned = YearMonth.of(it.tilskuddsgrunnlag.tilskuddFom.year,
             it.tilskuddsgrunnlag.tilskuddFom.month))
         it.medBedriftKontonummer()
+        it.medSvarPåInntekter()
         it.medSendtKravFraArbeidsgiver()
         it.utbetalingMislykket()
     }
@@ -211,7 +221,6 @@ fun Refusjon.medInntektsgrunnlag(
     inntektsgrunnlag: Inntektsgrunnlag = etInntektsgrunnlag(måned = måned),
 ): Refusjon {
     this.oppgiInntektsgrunnlag(inntektsgrunnlag)
-    this.gjørBeregning("", 0)
     return this
 }
 

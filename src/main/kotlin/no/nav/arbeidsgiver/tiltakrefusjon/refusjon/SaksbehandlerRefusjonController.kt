@@ -35,45 +35,9 @@ class SaksbehandlerRefusjonController(
         return saksbehandler.finnRefusjon(id)
     }
 
-    @PostMapping("/{id}/endre-bruttolønn")
-    fun endreBruttolønn(@PathVariable id: String, @RequestBody request: EndreBruttolønnRequest) {
-        val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
-        saksbehandler.endreBruttolønn(id, request.inntekterKunFraTiltaket, request.bruttoLønn)
-    }
-
     @PostMapping("/{id}/forleng-frist")
     fun forlengFrist(@PathVariable id: String, @RequestBody request: ForlengFristRequest): Refusjon {
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
         return saksbehandler.forlengFrist(id, request.nyFrist, request.årsak)
-    }
-
-    @PostMapping("/{id}/opprett-korreksjonsutkast")
-    fun opprettKorreksjonsutkast(@PathVariable id: String, @RequestBody request: KorrigerRequest): Refusjon {
-        val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
-        return saksbehandler.opprettKorreksjonsutkast(id, request.korreksjonsgrunner)
-    }
-
-    @PostMapping("/{id}/slett-korreksjonsutkast")
-    fun slettKorreksjonsutkast(@PathVariable id: String): Refusjon {
-        val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
-        return saksbehandler.slettKorreksjonsutkast(id)
-    }
-
-    @PostMapping("/{id}/utbetal-korreksjon")
-    fun utbetalKorreksjon(@PathVariable id: String, @RequestBody request: UtbetalKorreksjonRequest): Refusjon {
-        val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
-        return saksbehandler.utbetalKorreksjon(id, request.beslutterNavIdent, request.kostnadssted)
-    }
-
-    @PostMapping("/{id}/fullfør-korreksjon-ved-oppgjort")
-    fun fullførKorreksjonVedOppgjort(@PathVariable id: String) {
-        val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
-        saksbehandler.fullførKorreksjonVedOppgjort(id)
-    }
-
-    @PostMapping("/{id}/fullfør-korreksjon-ved-tilbakekreving")
-    fun fullførKorreksjonVedTilbakekreving(@PathVariable id: String) {
-        val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
-        saksbehandler.fullførKorreksjonVedTilbakekreving(id)
     }
 }

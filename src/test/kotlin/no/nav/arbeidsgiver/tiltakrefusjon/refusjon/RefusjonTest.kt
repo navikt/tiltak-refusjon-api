@@ -179,7 +179,7 @@ internal class RefusjonTest {
             )
         )
         refusjon.oppgiBedriftKontonummer("10000008145")
-        assertThat(refusjon.bedriftKontonummer).isEqualTo("10000008145")
+        assertThat(refusjon.refusjonsgrunnlag.bedriftKontonummer).isEqualTo("10000008145")
     }
 
     @Test

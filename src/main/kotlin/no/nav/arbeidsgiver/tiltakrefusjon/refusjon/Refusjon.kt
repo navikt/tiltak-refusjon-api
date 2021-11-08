@@ -4,13 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.guepardoapps.kulid.ULID
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.BeregningUtført
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.FristForlenget
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.GodkjentAvArbeidsgiver
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.InntekterInnhentet
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.KorreksjonMerketForOppgjort
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.KorreksjonMerketForTilbakekreving
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.KorreksjonSendtTilUtbetaling
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonAnnullert
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonForkortet
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonKlar
@@ -19,68 +15,44 @@ import no.nav.arbeidsgiver.tiltakrefusjon.utils.antallMånederEtter
 import org.springframework.data.domain.AbstractAggregateRoot
 import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.YearMonth
-import java.util.EnumSet
 import javax.persistence.CascadeType
-import javax.persistence.ElementCollection
 import javax.persistence.Entity
 import javax.persistence.EnumType
 import javax.persistence.Enumerated
-import javax.persistence.FetchType
 import javax.persistence.Id
-import javax.persistence.ManyToOne
-import javax.persistence.OneToMany
 import javax.persistence.OneToOne
 
 @Entity
-data class Refusjon(
-    @ManyToOne(cascade = [CascadeType.PERSIST, CascadeType.MERGE], optional = false)
-    val tilskuddsgrunnlag: Tilskuddsgrunnlag,
+class Refusjon(
+    @OneToOne(orphanRemoval = true, cascade = [CascadeType.ALL])
+    val refusjonsgrunnlag: Refusjonsgrunnlag,
     val bedriftNr: String,
-    val deltakerFnr: String,
-    val korreksjonAvId: String? = null,
-    val korreksjonsnummer: Int? = null,
+    val deltakerFnr: String
 ) : AbstractAggregateRoot<Refusjon>() {
+    constructor(tilskuddsgrunnlag: Tilskuddsgrunnlag, bedriftNr: String, deltakerFnr: String) : this(
+        Refusjonsgrunnlag(tilskuddsgrunnlag), bedriftNr, deltakerFnr
+    )
+
     @Id
     val id: String = ULID.random()
 
-    @OneToOne(orphanRemoval = true, cascade = [CascadeType.ALL])
-    var inntektsgrunnlag: Inntektsgrunnlag? = null
-
-    @OneToOne(orphanRemoval = true, cascade = [CascadeType.ALL])
-    var beregning: Beregning? = null
-
-    // @OneToOne(orphanRemoval = true, cascade = [CascadeType.ALL])
-    // var korreksjon: Korreksjon? = null
-
     // Fristen er satt til 2 mnd ihht økonomireglementet
-    var fristForGodkjenning: LocalDate = antallMånederEtter(tilskuddsgrunnlag.tilskuddTom, 2)
+    var fristForGodkjenning: LocalDate = antallMånederEtter(refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom, 2)
     var forrigeFristForGodkjenning: LocalDate? = null
 
     var godkjentAvArbeidsgiver: Instant? = null
 
-    var godkjentAvSaksbehandler: Instant? = null
-    var godkjentAvSaksbehandlerNavIdent: String? = null
-    var beslutterNavIdent: String? = null
-
-    var bedriftKontonummer: String? = null
-    var innhentetBedriftKontonummerTidspunkt: LocalDateTime? = null
-
     @Enumerated(EnumType.STRING)
     lateinit var status: RefusjonStatus
 
-    var korrigeresAvId: String? = null
+    var korreksjonsutkastId: String? = null
 
-    @Enumerated(EnumType.STRING)
-    @ElementCollection(fetch = FetchType.EAGER)
-    val korreksjonsgrunner: MutableSet<Korreksjonsgrunn> = EnumSet.noneOf(Korreksjonsgrunn::class.java)
-
-    var inntekterKunFraTiltaket: Boolean? = null
-    var endretBruttoLønn: Int? = null
-
-    @OneToMany(mappedBy = "refusjon", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
-    val korreksjoner: MutableSet<Korreksjon> = mutableSetOf()
+    // Midlertidige frontend-mappinger
+    val beregning: Beregning? get() = refusjonsgrunnlag.beregning
+    val tilskuddsgrunnlag: Tilskuddsgrunnlag get() = refusjonsgrunnlag.tilskuddsgrunnlag
+    val inntektsgrunnlag: Inntektsgrunnlag? get() = refusjonsgrunnlag.inntektsgrunnlag
+    val bedriftKontonummer: String? get() = refusjonsgrunnlag.bedriftKontonummer
+    val inntekterKunFraTiltaket: Boolean? get() = refusjonsgrunnlag.inntekterKunFraTiltaket
 
     init {
         oppdaterStatus()
@@ -88,17 +60,7 @@ data class Refusjon(
 
     @JsonProperty
     fun harInntektIAlleMåneder(): Boolean {
-        val månederInntekter =
-            inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.map { it.måned }?.sorted()?.distinct()
-                ?: emptyList()
-
-        val tilskuddFom = tilskuddsgrunnlag.tilskuddFom
-        val tilskuddTom = tilskuddsgrunnlag.tilskuddTom
-
-        val månederTilskudd =
-            tilskuddFom.datesUntil(tilskuddTom).map { YearMonth.of(it.year, it.month) }.distinct().toList()
-
-        return månederInntekter.containsAll(månederTilskudd)
+        return refusjonsgrunnlag.harInntektIAlleMåneder()
     }
 
     private fun krevStatus(vararg gyldigeStatuser: RefusjonStatus) {
@@ -120,18 +82,13 @@ data class Refusjon(
             listOf(RefusjonStatus.SENDT_KRAV, RefusjonStatus.ANNULLERT, RefusjonStatus.UTBETALT)
         if (::status.isInitialized && status in statuserSomIkkeKanEndres) return
 
-        if (korreksjonAvId != null) {
-            status = RefusjonStatus.KORREKSJON_UTKAST
-            return
-        }
-
         val today = Now.localDate()
         if (today.isAfter(fristForGodkjenning)) {
             status = RefusjonStatus.UTGÅTT
             return
         }
 
-        status = if (today.isAfter(tilskuddsgrunnlag.tilskuddTom)) {
+        status = if (today.isAfter(refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom)) {
             RefusjonStatus.KLAR_FOR_INNSENDING
         } else {
             RefusjonStatus.FOR_TIDLIG
@@ -140,42 +97,29 @@ data class Refusjon(
 
     fun oppgiInntektsgrunnlag(inntektsgrunnlag: Inntektsgrunnlag) {
         oppdaterStatus()
-        krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING, RefusjonStatus.KORREKSJON_UTKAST)
-        this.inntektsgrunnlag = inntektsgrunnlag
+        krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
+
+        this.refusjonsgrunnlag.oppgiInntektsgrunnlag(inntektsgrunnlag)
         registerEvent(InntekterInnhentet(this))
+    }
+
+    fun oppgiBedriftKontonummer(bedrifKontonummer: String) {
+        refusjonsgrunnlag.oppgiBedriftKontonummer(bedrifKontonummer)
     }
 
     fun endreBruttolønn(inntekterKunFraTiltaket: Boolean, bruttoLønn: Int?) {
         oppdaterStatus()
-        krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING, RefusjonStatus.KORREKSJON_UTKAST)
-        if (inntekterKunFraTiltaket && bruttoLønn != null) {
-            throw FeilkodeException(Feilkode.INNTEKTER_KUN_FRA_TILTAK_OG_OPPGIR_BELØP)
-        }
-        this.inntekterKunFraTiltaket = inntekterKunFraTiltaket
-        this.endretBruttoLønn = bruttoLønn
-    }
-
-    fun gjørBeregning(
-        appImageId: String,
-        tidligereUtbetalt: Int,
-    ) {
-        if (inntektsgrunnlag?.inntekter?.isNotEmpty() == true) {
-            beregning = beregnRefusjonsbeløp(
-                inntektsgrunnlag!!.inntekter.toList(), tilskuddsgrunnlag, appImageId,
-                tidligereUtbetalt,
-                endretBruttoLønn
-            )
-            registerEvent(BeregningUtført(this))
-        }
+        krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
+        refusjonsgrunnlag.endreBruttolønn(inntekterKunFraTiltaket, bruttoLønn)
     }
 
     fun godkjennForArbeidsgiver() {
         oppdaterStatus()
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
-        if (inntektsgrunnlag == null || inntektsgrunnlag!!.inntekter.isEmpty()) {
+        if (refusjonsgrunnlag.inntektsgrunnlag == null || refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.isEmpty()) {
             throw FeilkodeException(Feilkode.INGEN_INNTEKTER)
         }
-        if (bedriftKontonummer == null) {
+        if (refusjonsgrunnlag.bedriftKontonummer == null) {
             throw FeilkodeException(Feilkode.INGEN_BEDRIFTKONTONUMMER)
         }
         godkjentAvArbeidsgiver = Now.instant()
@@ -192,7 +136,7 @@ data class Refusjon(
 
     fun gjørKlarTilInnsending() {
         krevStatus(RefusjonStatus.FOR_TIDLIG)
-        if (Now.localDate().isAfter(tilskuddsgrunnlag.tilskuddTom)) {
+        if (Now.localDate().isAfter(refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom)) {
             status = RefusjonStatus.KLAR_FOR_INNSENDING
             registerEvent(RefusjonKlar(this))
         }
@@ -201,63 +145,40 @@ data class Refusjon(
     fun forkort(tilskuddTom: LocalDate, tilskuddsbeløp: Int) {
         oppdaterStatus()
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING, RefusjonStatus.FOR_TIDLIG)
-        tilskuddsgrunnlag.tilskuddTom = tilskuddTom
-        tilskuddsgrunnlag.tilskuddsbeløp = tilskuddsbeløp
+        refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom = tilskuddTom
+        refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsbeløp = tilskuddsbeløp
         oppdaterStatus()
         registerEvent(RefusjonForkortet(this))
     }
 
-    fun oppgiBedriftKontonummer(bedrifKontonummer: String) {
-        bedriftKontonummer = bedrifKontonummer
-        innhentetBedriftKontonummerTidspunkt = Now.localDateTime()
-    }
-
-    fun opprettKorreksjonsutkast(korreksjonsgrunner: Set<Korreksjonsgrunn>) {
+    fun opprettKorreksjonsutkast(korreksjonsgrunner: Set<Korreksjonsgrunn>): Korreksjon {
         krevStatus(RefusjonStatus.UTBETALT, RefusjonStatus.SENDT_KRAV, RefusjonStatus.UTGÅTT)
-        if (korreksjoner.any { it.status == Korreksjonstype.UTKAST }) {
+        if (korreksjonsutkastId != null) {
             throw FeilkodeException(Feilkode.HAR_KORREKSJON)
         }
-        val korreksjonsnummer = if (korreksjoner.isEmpty()) 1 else korreksjoner.maxOf { it.korreksjonsnummer } + 1
-        val korreksjonsutkast = Korreksjon(this, korreksjonsnummer, korreksjonsgrunner)
-        korreksjoner.add(korreksjonsutkast)
+        // val korreksjonsnummer = korreksjoner.size + 1
+        val korreksjonsnummer = 1
+        val korreksjonsutkast = Korreksjon(
+            this.id,
+            korreksjonsnummer,
+            refusjonsgrunnlag.beregning!!.refusjonsbeløp,
+            korreksjonsgrunner,
+            refusjonsgrunnlag.tilskuddsgrunnlag,
+            deltakerFnr,
+            bedriftNr,
+            refusjonsgrunnlag.inntekterKunFraTiltaket ?: true,
+            refusjonsgrunnlag.endretBruttoLønn,
+
+        )
+        // this.korreksjoner.add(korreksjonsutkast.id)
+        this.korreksjonsutkastId = korreksjonsutkast.id
+        return korreksjonsutkast
     }
 
-    // Ved positivt beløp, skal etterbetale
-    fun utbetalKorreksjon(utførtAv: String, beslutterNavIdent: String, kostnadssted: String) {
-        val korreksjonsutkast = korreksjoner.find { it.status === Korreksjonstype.UTKAST }
-            ?: throw FeilkodeException(Feilkode.UGYLDIG_STATUS)
-        korreksjonsutkast.utbetalKorreksjon(utførtAv, beslutterNavIdent, kostnadssted)
-        registerEvent(KorreksjonSendtTilUtbetaling(this, korreksjonsutkast))
-    }
-
-    // Ved 0 beløp, skal ikke tilbakekreve eller etterbetale
-    fun fullførKorreksjonVedOppgjort(utførtAv: String) {
-        krevStatus(RefusjonStatus.KORREKSJON_UTKAST)
-        val refusjonsbeløp = beregning?.refusjonsbeløp
-        if (refusjonsbeløp == null || refusjonsbeløp != 0) {
-            throw FeilkodeException(Feilkode.KORREKSJONSBELOP_IKKE_NULL)
+    fun slettKorreksjonsutkast() {
+        if (korreksjonsutkastId != null) {
+            korreksjonsutkastId = null
         }
-        status = RefusjonStatus.KORREKSJON_OPPGJORT
-        godkjentAvSaksbehandler = Now.instant()
-        godkjentAvSaksbehandlerNavIdent = utførtAv
-        registerEvent(KorreksjonMerketForOppgjort(this))
-    }
-
-    // Ved negativt beløp, skal tilbakekreves
-    fun fullførKorreksjonVedTilbakekreving(utførtAv: String) {
-        krevStatus(RefusjonStatus.KORREKSJON_UTKAST)
-        val refusjonsbeløp = beregning?.refusjonsbeløp
-        if (refusjonsbeløp == null || refusjonsbeløp >= 0) {
-            throw FeilkodeException(Feilkode.KORREKSJONSBELOP_POSITIVT)
-        }
-        status = RefusjonStatus.KORREKSJON_SKAL_TILBAKEKREVES
-        godkjentAvSaksbehandler = Now.instant()
-        godkjentAvSaksbehandlerNavIdent = utførtAv
-        registerEvent(KorreksjonMerketForTilbakekreving(this))
-    }
-
-    fun kanSlettes(): Boolean {
-        return status == RefusjonStatus.KORREKSJON_UTKAST
     }
 
     fun forlengFrist(nyFrist: LocalDate, årsak: String, utførtAv: String) {
@@ -269,7 +190,7 @@ data class Refusjon(
             throw FeilkodeException(Feilkode.UGYLDIG_FORLENGELSE_AV_FRIST)
         }
 
-        if (nyFrist > antallMånederEtter(tilskuddsgrunnlag.tilskuddTom, 6)) {
+        if (nyFrist > antallMånederEtter(refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom, 6)) {
             // Kan maks forlenge 1 mnd ekstra fra opprinnelig frist på 2 mnd
             throw FeilkodeException(Feilkode.FOR_LANG_FORLENGELSE_AV_FRIST)
         }
@@ -279,5 +200,42 @@ data class Refusjon(
         fristForGodkjenning = nyFrist
         oppdaterStatus()
         registerEvent(FristForlenget(this, gammelFristForGodkjenning, fristForGodkjenning, årsak, utførtAv))
+    }
+
+    fun skalGjøreInntektsoppslag(): Boolean {
+        if (status != RefusjonStatus.KLAR_FOR_INNSENDING) {
+            return false
+        }
+        return refusjonsgrunnlag.inntektsgrunnlag?.innhentetTidspunkt?.isBefore(
+            Now.localDateTime().minusMinutes(1)
+        ) ?: false
+    }
+
+    fun skalGjøreKontonummerOppslag(): Boolean {
+        if (status != RefusjonStatus.KLAR_FOR_INNSENDING) return false
+        val innhentetTidspunkt = refusjonsgrunnlag.bedriftKontonummerInnhentetTidspunkt
+        return innhentetTidspunkt == null || innhentetTidspunkt.isBefore(Now.localDateTime().minusMinutes(1))
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Refusjon
+
+        if (id != other.id) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return id.hashCode()
+    }
+
+    fun copy(
+        tilskuddsgrunnlag: Tilskuddsgrunnlag = this.tilskuddsgrunnlag,
+        deltakerFnr: String = this.deltakerFnr
+    ): Refusjon {
+        return Refusjon(tilskuddsgrunnlag, bedriftNr, deltakerFnr)
     }
 }

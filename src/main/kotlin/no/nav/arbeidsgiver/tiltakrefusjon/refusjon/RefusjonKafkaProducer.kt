@@ -44,15 +44,15 @@ class RefusjonKafkaProducer(
     @TransactionalEventListener
     fun korreksjonSendtTilUtbetaling(event: KorreksjonSendtTilUtbetaling) {
         val melding = KorreksjonSendtTilUtbetalingMelding(
-            refusjonId = event.refusjon.id,
-            avtaleNr = event.refusjon.tilskuddsgrunnlag.avtaleNr,
-            løpenummer = event.refusjon.tilskuddsgrunnlag.løpenummer,
-            korreksjonAvRefusjonId = event.refusjon.korreksjonAvId!!,
-            avtaleId = event.refusjon.tilskuddsgrunnlag.avtaleId,
-            tilskuddsperiodeId = event.refusjon.tilskuddsgrunnlag.tilskuddsperiodeId,
-            beløp = event.refusjon.beregning!!.refusjonsbeløp,
-            korreksjonsnummer = event.refusjon.korreksjonsnummer!!,
-            bedriftKontonummer = event.refusjon.bedriftKontonummer!!,
+            refusjonId = event.korreksjon.id,
+            avtaleNr = event.korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr,
+            løpenummer = event.korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.løpenummer,
+            korreksjonAvRefusjonId = event.refusjon.id,
+            avtaleId = event.korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleId,
+            tilskuddsperiodeId = event.korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId,
+            beløp = event.korreksjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp,
+            korreksjonsnummer = event.korreksjon.korreksjonsnummer,
+            bedriftKontonummer = event.korreksjon.refusjonsgrunnlag.bedriftKontonummer!!,
             korreksjonstype = event.korreksjon.status
         )
         korreksjonKafkaTemplate.send(Topics.REFUSJON_KORRIGERT, event.refusjon.id, melding)

@@ -178,7 +178,7 @@ class RefusjonApiTest(
 
         // Inntektsoppslag ved henting av refusjon
         val refusjonEtterInntektsgrunnlag = hentRefusjon(id)
-        assertThat(refusjonEtterInntektsgrunnlag.inntektsgrunnlag).isNotNull
+        assertThat(refusjonEtterInntektsgrunnlag.refusjonsgrunnlag.inntektsgrunnlag).isNotNull
 
         // Svarer på spørsmål om alle inntekter er fra tiltaket
         sendRequest(post("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id/endre-bruttolønn"), arbGiverCookie, EndreBruttolønnRequest(true, null))

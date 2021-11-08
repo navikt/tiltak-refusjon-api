@@ -12,6 +12,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Korreksjonsgrunn
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonRepository
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonService
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonStatus
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.data.repository.findByIdOrNull
@@ -124,24 +125,42 @@ data class InnloggetSaksbehandler(
     }
 
     fun utbetalKorreksjon(id: String, beslutterNavIdent: String, kostnadssted: String) {
-        val refusjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
+        val korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
+        sjekkLesetilgang(korreksjon)
+        val refusjon = finnRefusjon(korreksjon.korrigererRefusjonId)
         sjekkLesetilgang(refusjon)
-        refusjon.utbetalKorreksjon(this.identifikator, beslutterNavIdent, kostnadssted)
-        korreksjonRepository.save(refusjon)
+
+        korreksjon.utbetalKorreksjon(this.identifikator, beslutterNavIdent, kostnadssted)
+        refusjon.status = RefusjonStatus.KORRIGERT
+
+        refusjonRepository.save(refusjon)
+        korreksjonRepository.save(korreksjon)
     }
 
     fun fullførKorreksjonVedOppgjort(id: String) {
         val korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(korreksjon)
+        val refusjon = finnRefusjon(korreksjon.korrigererRefusjonId)
+        sjekkLesetilgang(refusjon)
+
         korreksjon.fullførKorreksjonVedOppgjort(this.identifikator)
+        refusjon.status = RefusjonStatus.KORRIGERT
+
+        refusjonRepository.save(refusjon)
         korreksjonRepository.save(korreksjon)
     }
 
     fun fullførKorreksjonVedTilbakekreving(id: String) {
-        val refusjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
+        val korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
+        sjekkLesetilgang(korreksjon)
+        val refusjon = finnRefusjon(korreksjon.korrigererRefusjonId)
         sjekkLesetilgang(refusjon)
-        refusjon.fullførKorreksjonVedTilbakekreving(this.identifikator)
-        korreksjonRepository.save(refusjon)
+
+        korreksjon.fullførKorreksjonVedTilbakekreving(this.identifikator)
+        refusjon.status = RefusjonStatus.KORRIGERT
+
+        refusjonRepository.save(refusjon)
+        korreksjonRepository.save(korreksjon)
     }
 
     fun endreBruttolønn(id: String, inntekterKunFraTiltaket: Boolean, endretBruttoLønn: Int?) {

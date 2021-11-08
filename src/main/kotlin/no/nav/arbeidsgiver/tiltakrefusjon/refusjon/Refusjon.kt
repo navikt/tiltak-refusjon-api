@@ -208,7 +208,7 @@ class Refusjon(
         }
         return refusjonsgrunnlag.inntektsgrunnlag?.innhentetTidspunkt?.isBefore(
             Now.localDateTime().minusMinutes(1)
-        ) ?: false
+        ) ?: true
     }
 
     fun skalGjøreKontonummerOppslag(): Boolean {

@@ -6,6 +6,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeForko
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.Ignore
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -68,6 +69,7 @@ class RefusjonServiceTest(
     }
 
     @Test
+    @Ignore("Endres til å lagre regelsport i egen tabell, når det er gjort slett denne testen")
     fun `setter appImageId ved beregning`() {
         val refusjon = `Bjørnstjerne Bjørnson`()
         refusjonService.gjørInntektsoppslag(refusjon)

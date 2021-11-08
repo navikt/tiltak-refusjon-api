@@ -101,7 +101,7 @@ class RefusjonService(
         log.info("Forkorter refusjon med tilskuddsperiodeId ${melding.tilskuddsperiodeId} til dato ${melding.tilskuddTom} med nytt beløp ${melding.tilskuddsbeløp}")
         refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_TilskuddsperiodeId(melding.tilskuddsperiodeId).firstOrNull()
             ?.let {
-                it.annuller()
+                it.forkort(melding.tilskuddTom, melding.tilskuddsbeløp)
                 refusjonRepository.save(it)
             } ?: run {
             log.warn("Kunne ikke forkorte refusjon med tilskuddsperiodeId ${melding.tilskuddsperiodeId}, fant ikke refusjonen")

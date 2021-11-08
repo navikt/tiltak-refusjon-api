@@ -74,6 +74,7 @@ class RefusjonApiTest(
         val json = sendRequest(get("$REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON?enhet=1000"), navCookie)
         val liste = mapper.readValue(json, object : TypeReference<List<Refusjon>>() {})
 
+        assertNull(liste.find { it.refusjonsgrunnlag.tilskuddsgrunnlag.enhet != "1000" })
         assertEquals(8, liste.size)
         assertNull(liste.find { it.deltakerFnr == "07098142678" })
     }
@@ -178,7 +179,7 @@ class RefusjonApiTest(
 
         // Inntektsoppslag ved henting av refusjon
         val refusjonEtterInntektsgrunnlag = hentRefusjon(id)
-        assertThat(refusjonEtterInntektsgrunnlag.refusjonsgrunnlag.inntektsgrunnlag).isNotNull
+        assertThat(refusjonEtterInntektsgrunnlag.refusjonsgrunnlag.inntektsgrunnlag).isNotNull()
 
         // Svarer på spørsmål om alle inntekter er fra tiltaket
         sendRequest(post("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id/endre-bruttolønn"), arbGiverCookie, EndreBruttolønnRequest(true, null))

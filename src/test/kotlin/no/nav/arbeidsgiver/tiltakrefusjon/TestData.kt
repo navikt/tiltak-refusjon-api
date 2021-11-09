@@ -1,11 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon
 
 import com.github.guepardoapps.kulid.ULID
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Inntektsgrunnlag
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Inntektslinje
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tilskuddsgrunnlag
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import java.time.YearMonth
 
@@ -44,7 +40,12 @@ fun refusjoner(): List<Refusjon> {
         )
     }
     val bjørnsonSendtKrav = `Bjørnstjerne Bjørnson`().let {
-        it.medInntektsgrunnlag(måned = YearMonth.of(it.tilskuddsgrunnlag.tilskuddFom.year, it.tilskuddsgrunnlag.tilskuddFom.month))
+        it.medInntektsgrunnlag(
+            måned = YearMonth.of(
+                it.tilskuddsgrunnlag.tilskuddFom.year,
+                it.tilskuddsgrunnlag.tilskuddFom.month
+            )
+        )
         it.medBedriftKontonummer()
         it.medSvarPåInntekter()
         it.medSendtKravFraArbeidsgiver()
@@ -60,7 +61,7 @@ fun refusjoner(): List<Refusjon> {
         `Inger Hagerup`(),
         `Amalie Skram`(),
         `Suzanna Hansen`(),
-                `Siri Hansen`()
+        `Siri Hansen`()
 
     )
 }
@@ -170,7 +171,7 @@ fun `Amalie Skram`(): Refusjon {
 fun `Suzanna Hansen`(): Refusjon {
     val deltakerFnr = "23119409195"
     val bedriftNr = "999999999"
-    val refusjon =  Refusjon(
+    val refusjon = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
             deltakerFornavn = "Suzanna",
             deltakerEtternavn = "Hansen",
@@ -181,8 +182,12 @@ fun `Suzanna Hansen`(): Refusjon {
         ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
     )
     refusjon.let {
-        it.medInntektsgrunnlag(måned = YearMonth.of(it.tilskuddsgrunnlag.tilskuddFom.year,
-            it.tilskuddsgrunnlag.tilskuddFom.month))
+        it.medInntektsgrunnlag(
+            måned = YearMonth.of(
+                it.tilskuddsgrunnlag.tilskuddFom.year,
+                it.tilskuddsgrunnlag.tilskuddFom.month
+            )
+        )
         it.medBedriftKontonummer()
         it.medSvarPåInntekter()
         it.medSendtKravFraArbeidsgiver()
@@ -194,7 +199,7 @@ fun `Suzanna Hansen`(): Refusjon {
 fun `Siri Hansen`(): Refusjon {
     val deltakerFnr = "23119409195"
     val bedriftNr = "999999999"
-    val refusjon =  Refusjon(
+    val refusjon = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
             deltakerFornavn = "Siri",
             deltakerEtternavn = "Hansen",
@@ -202,11 +207,16 @@ fun `Siri Hansen`(): Refusjon {
             bedriftNr = bedriftNr,
             tilskuddsbeløp = 10579,
             veilederNavIdent = "X123456"
-        ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr)
+        ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
+    )
 
     refusjon.let {
-        it.medInntektsgrunnlag(måned = YearMonth.of(it.tilskuddsgrunnlag.tilskuddFom.year,
-            it.tilskuddsgrunnlag.tilskuddFom.month))
+        it.medInntektsgrunnlag(
+            måned = YearMonth.of(
+                it.tilskuddsgrunnlag.tilskuddFom.year,
+                it.tilskuddsgrunnlag.tilskuddFom.month
+            )
+        )
         it.medBedriftKontonummer()
         it.medSvarPåInntekter()
         it.medSendtKravFraArbeidsgiver()
@@ -225,7 +235,7 @@ fun Refusjon.medInntektsgrunnlag(
 }
 
 fun Refusjon.medSendtKravFraArbeidsgiver(): Refusjon {
-    this.godkjennForArbeidsgiver()
+    this.godkjennForArbeidsgiver("")
     return this
 }
 

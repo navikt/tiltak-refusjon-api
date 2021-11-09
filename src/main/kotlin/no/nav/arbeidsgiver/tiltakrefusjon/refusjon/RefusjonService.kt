@@ -83,8 +83,8 @@ class RefusjonService(
         }
     }
 
-    fun godkjennForArbeidsgiver(refusjon: Refusjon) {
-        refusjon.godkjennForArbeidsgiver()
+    fun godkjennForArbeidsgiver(refusjon: Refusjon, utførtAv: String) {
+        refusjon.godkjennForArbeidsgiver(utførtAv)
         refusjonRepository.save(refusjon)
     }
 

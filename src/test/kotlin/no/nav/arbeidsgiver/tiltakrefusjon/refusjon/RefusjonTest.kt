@@ -1,13 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
-import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
-import no.nav.arbeidsgiver.tiltakrefusjon.assertFeilkode
-import no.nav.arbeidsgiver.tiltakrefusjon.enRefusjon
-import no.nav.arbeidsgiver.tiltakrefusjon.etInntektsgrunnlag
-import no.nav.arbeidsgiver.tiltakrefusjon.etTilskuddsgrunnlag
-import no.nav.arbeidsgiver.tiltakrefusjon.medBedriftKontonummer
-import no.nav.arbeidsgiver.tiltakrefusjon.medInntektsgrunnlag
-import no.nav.arbeidsgiver.tiltakrefusjon.medSendtKravFraArbeidsgiver
+import no.nav.arbeidsgiver.tiltakrefusjon.*
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -18,7 +11,7 @@ internal class RefusjonTest {
 
 
     @Test
-    fun `kan sette status til UTBETALING_FEILET når refusjon har status SENDT_KRAV eller UTBETALT`(){
+    fun `kan sette status til UTBETALING_FEILET når refusjon har status SENDT_KRAV eller UTBETALT`() {
         val refusjon = enRefusjon()
 
         refusjon.status = RefusjonStatus.SENDT_KRAV
@@ -31,7 +24,7 @@ internal class RefusjonTest {
     }
 
     @Test
-    fun `kan sette status til utbetalt når refusjon har status SENDT_KRAV eller UTBETALING FEILET`(){
+    fun `kan sette status til utbetalt når refusjon har status SENDT_KRAV eller UTBETALING FEILET`() {
         // GITT
         val refusjon = enRefusjon()
         refusjon.status = RefusjonStatus.SENDT_KRAV
@@ -46,7 +39,7 @@ internal class RefusjonTest {
     }
 
     @Test
-    fun `kan ikke sette status til utbetalt når refusjon har status KLAR_FOR_INNSENDING`(){
+    fun `kan ikke sette status til utbetalt når refusjon har status KLAR_FOR_INNSENDING`() {
         // GITT
         val refusjon = enRefusjon()
 
@@ -61,13 +54,13 @@ internal class RefusjonTest {
     @Test
     fun `kan ikke godkjenne for ag uten beregning`() {
         val refusjon = enRefusjon()
-        assertFeilkode(Feilkode.INGEN_INNTEKTER) { refusjon.godkjennForArbeidsgiver() }
+        assertFeilkode(Feilkode.INGEN_INNTEKTER) { refusjon.godkjennForArbeidsgiver("") }
     }
 
     @Test
     fun `kan godkjenne for ag med beregning`() {
         val refusjon = enRefusjon().medInntektsgrunnlag().medBedriftKontonummer()
-        refusjon.godkjennForArbeidsgiver()
+        refusjon.godkjennForArbeidsgiver("")
         assertThat(refusjon.godkjentAvArbeidsgiver).isNotNull
         assertThat(refusjon.status).isEqualTo(RefusjonStatus.SENDT_KRAV)
     }
@@ -75,7 +68,7 @@ internal class RefusjonTest {
     @Test
     fun `kan ikke godkjenne for ag to ganger`() {
         val refusjon = enRefusjon().medInntektsgrunnlag().medBedriftKontonummer().medSendtKravFraArbeidsgiver()
-        assertFeilkode(Feilkode.UGYLDIG_STATUS) { refusjon.godkjennForArbeidsgiver() }
+        assertFeilkode(Feilkode.UGYLDIG_STATUS) { refusjon.godkjennForArbeidsgiver("") }
     }
 
     @Test
@@ -96,7 +89,7 @@ internal class RefusjonTest {
                 tilskuddTom = LocalDate.of(2021, 6, 30)
             )
         ).medInntektsgrunnlag().medBedriftKontonummer()
-        refusjon.godkjennForArbeidsgiver()
+        refusjon.godkjennForArbeidsgiver("")
         Now.resetClock()
         assertThat(refusjon.godkjentAvArbeidsgiver).isNotNull
         assertThat(refusjon.status).isEqualTo(RefusjonStatus.SENDT_KRAV)
@@ -113,7 +106,7 @@ internal class RefusjonTest {
             )
         ).medInntektsgrunnlag()
         Now.resetClock()
-        assertFeilkode(Feilkode.UGYLDIG_STATUS) { refusjon.godkjennForArbeidsgiver() }
+        assertFeilkode(Feilkode.UGYLDIG_STATUS) { refusjon.godkjennForArbeidsgiver("") }
     }
 
     @Test
@@ -190,9 +183,9 @@ internal class RefusjonTest {
                 tilskuddTom = Now.localDate().minusDays(1)
             )
         ).medInntektsgrunnlag()
-        assertFeilkode(Feilkode.INGEN_BEDRIFTKONTONUMMER) { refusjon.godkjennForArbeidsgiver() }
+        assertFeilkode(Feilkode.INGEN_BEDRIFTKONTONUMMER) { refusjon.godkjennForArbeidsgiver("") }
         refusjon.oppgiBedriftKontonummer("10000008145")
-        refusjon.godkjennForArbeidsgiver()
+        refusjon.godkjennForArbeidsgiver("")
         assertThat(refusjon.status).isEqualTo(RefusjonStatus.SENDT_KRAV)
     }
 
@@ -203,32 +196,45 @@ internal class RefusjonTest {
                 tilskuddFom = Now.localDate().minusDays(2),
                 tilskuddTom = Now.localDate().minusDays(1)
             )
-        ).medInntektsgrunnlag(YearMonth.now(),
-            Inntektsgrunnlag(inntekter = listOf(
-                Inntektslinje("LOENNSINNTEKT",
-                    "fastloenn",
-                    99.0,
-                    YearMonth.now(),
-                    null,
-                    null),
-                Inntektslinje("LOENNSINNTEKT",
-                    "fastloenn",
-                    99.0,
-                    YearMonth.now(),
-                    null,
-                    null),
-                Inntektslinje("LOENNSINNTEKT",
-                    "fastloenn",
-                    99.0,
-                    YearMonth.now().minusMonths(1),
-                    null,
-                    null),
-            Inntektslinje("LOENNSINNTEKT",
-                    "fastloenn",
-                    99.0,
-                    YearMonth.now().plusMonths(1),
-                    null,
-                    null)), respons = ""))
+        ).medInntektsgrunnlag(
+            YearMonth.now(),
+            Inntektsgrunnlag(
+                inntekter = listOf(
+                    Inntektslinje(
+                        "LOENNSINNTEKT",
+                        "fastloenn",
+                        99.0,
+                        YearMonth.now(),
+                        null,
+                        null
+                    ),
+                    Inntektslinje(
+                        "LOENNSINNTEKT",
+                        "fastloenn",
+                        99.0,
+                        YearMonth.now(),
+                        null,
+                        null
+                    ),
+                    Inntektslinje(
+                        "LOENNSINNTEKT",
+                        "fastloenn",
+                        99.0,
+                        YearMonth.now().minusMonths(1),
+                        null,
+                        null
+                    ),
+                    Inntektslinje(
+                        "LOENNSINNTEKT",
+                        "fastloenn",
+                        99.0,
+                        YearMonth.now().plusMonths(1),
+                        null,
+                        null
+                    )
+                ), respons = ""
+            )
+        )
         assertThat(refusjon.harInntektIAlleMåneder()).isTrue
     }
 
@@ -239,10 +245,14 @@ internal class RefusjonTest {
                 tilskuddFom = Now.localDate().minusMonths(1).minusDays(2),
                 tilskuddTom = Now.localDate().minusDays(1)
             )
-        ).medInntektsgrunnlag(YearMonth.now(), Inntektsgrunnlag(inntekter = listOf(
-            Inntektslinje("LOENNSINNTEKT", "fastloenn", 99.0, YearMonth.now(), null, null),
-            Inntektslinje("LOENNSINNTEKT", "feriepenger", 99.0, YearMonth.now().minusMonths(1), null, null)
-        ), respons = ""))
+        ).medInntektsgrunnlag(
+            YearMonth.now(), Inntektsgrunnlag(
+                inntekter = listOf(
+                    Inntektslinje("LOENNSINNTEKT", "fastloenn", 99.0, YearMonth.now(), null, null),
+                    Inntektslinje("LOENNSINNTEKT", "feriepenger", 99.0, YearMonth.now().minusMonths(1), null, null)
+                ), respons = ""
+            )
+        )
         assertThat(refusjon.harInntektIAlleMåneder()).isFalse()
     }
 
@@ -311,10 +321,12 @@ internal class RefusjonTest {
 
     @Test
     internal fun `forleng frist på utgått refusjon skal endre status tilbake til klar for innsending`() {
-        val refusjon = enRefusjon(etTilskuddsgrunnlag().copy(
-            tilskuddFom = Now.localDate().minusMonths(2).minusDays(1),
-            tilskuddTom = Now.localDate().minusMonths(2).minusDays(1)
-        ))
+        val refusjon = enRefusjon(
+            etTilskuddsgrunnlag().copy(
+                tilskuddFom = Now.localDate().minusMonths(2).minusDays(1),
+                tilskuddTom = Now.localDate().minusMonths(2).minusDays(1)
+            )
+        )
 
         val idag = Now.localDate()
         refusjon.forlengFrist(idag, "", "")

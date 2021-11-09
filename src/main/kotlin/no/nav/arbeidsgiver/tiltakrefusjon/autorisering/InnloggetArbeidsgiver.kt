@@ -7,16 +7,15 @@ import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonRepository
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonService
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonStatus
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.data.repository.findByIdOrNull
 
 data class InnloggetArbeidsgiver(
-        val identifikator: String,
-        @JsonIgnore val altinnTilgangsstyringService: AltinnTilgangsstyringService,
-        @JsonIgnore val refusjonRepository: RefusjonRepository,
-        @JsonIgnore val refusjonService: RefusjonService
+    val identifikator: String,
+    @JsonIgnore val altinnTilgangsstyringService: AltinnTilgangsstyringService,
+    @JsonIgnore val refusjonRepository: RefusjonRepository,
+    @JsonIgnore val refusjonService: RefusjonService
 
 ) {
 
@@ -33,7 +32,7 @@ data class InnloggetArbeidsgiver(
     fun godkjenn(refusjonId: String) {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(refusjonId) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
-        refusjonService.godkjennForArbeidsgiver(refusjon)
+        refusjonService.godkjennForArbeidsgiver(refusjon, this.identifikator)
     }
 
     fun finnRefusjon(id: String): Refusjon {

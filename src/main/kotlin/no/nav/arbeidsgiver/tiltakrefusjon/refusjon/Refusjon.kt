@@ -45,7 +45,7 @@ class Refusjon(
     @Enumerated(EnumType.STRING)
     lateinit var status: RefusjonStatus
 
-    var korreksjonsutkastId: String? = null
+    var korreksjonId: String? = null
 
     // Midlertidige frontend-mappinger
     val beregning: Beregning? get() = refusjonsgrunnlag.beregning
@@ -153,7 +153,7 @@ class Refusjon(
 
     fun opprettKorreksjonsutkast(korreksjonsgrunner: Set<Korreksjonsgrunn>): Korreksjon {
         krevStatus(RefusjonStatus.UTBETALT, RefusjonStatus.SENDT_KRAV, RefusjonStatus.UTGÅTT)
-        if (korreksjonsutkastId != null) {
+        if (korreksjonId != null) {
             throw FeilkodeException(Feilkode.HAR_KORREKSJON)
         }
         // val korreksjonsnummer = korreksjoner.size + 1
@@ -171,13 +171,13 @@ class Refusjon(
 
         )
         // this.korreksjoner.add(korreksjonsutkast.id)
-        this.korreksjonsutkastId = korreksjonsutkast.id
+        this.korreksjonId = korreksjonsutkast.id
         return korreksjonsutkast
     }
 
     fun slettKorreksjonsutkast() {
-        if (korreksjonsutkastId != null) {
-            korreksjonsutkastId = null
+        if (korreksjonId != null) {
+            korreksjonId = null
         }
     }
 

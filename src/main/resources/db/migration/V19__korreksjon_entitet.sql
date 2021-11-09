@@ -42,4 +42,4 @@ create table korreksjon_korreksjonsgrunner
 );
 
 alter table refusjon
-    add column korreksjonsutkast_id varchar references korreksjon (id);
+    add column korreksjon_id varchar references korreksjon (id);

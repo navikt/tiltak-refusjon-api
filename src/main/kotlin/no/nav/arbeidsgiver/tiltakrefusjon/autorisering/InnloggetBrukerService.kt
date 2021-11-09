@@ -11,12 +11,12 @@ import org.springframework.stereotype.Component
 
 @Component
 class InnloggetBrukerService(
-        val context: TokenValidationContextHolder,
-        val graphApiService: GraphApiService,
-        val altinnTilgangsstyringService: AltinnTilgangsstyringService,
-        val abacTilgangsstyringService: AbacTilgangsstyringService,
-        val refusjonRepository: RefusjonRepository,
-        val refusjonService: RefusjonService
+    val context: TokenValidationContextHolder,
+    val graphApiService: GraphApiService,
+    val altinnTilgangsstyringService: AltinnTilgangsstyringService,
+    val abacTilgangsstyringService: AbacTilgangsstyringService,
+    val refusjonRepository: RefusjonRepository,
+    val refusjonService: RefusjonService
 ) {
     var logger: Logger = LoggerFactory.getLogger(javaClass)
 
@@ -44,7 +44,13 @@ class InnloggetBrukerService(
         return when {
             erSaksbehandler() -> {
                 val (onPremisesSamAccountName, displayName) = graphApiService.hent()
-                InnloggetSaksbehandler(onPremisesSamAccountName, displayName, abacTilgangsstyringService, refusjonRepository, refusjonService)
+                InnloggetSaksbehandler(
+                    onPremisesSamAccountName,
+                    displayName,
+                    abacTilgangsstyringService,
+                    refusjonRepository,
+                    refusjonService
+                )
             }
             else -> {
                 throw RuntimeException("Feil ved token, kunne ikke identifisere saksbehandler")

@@ -13,10 +13,10 @@ import org.slf4j.LoggerFactory
 import org.springframework.data.repository.findByIdOrNull
 
 data class InnloggetArbeidsgiver(
-        val identifikator: String,
-        @JsonIgnore val altinnTilgangsstyringService: AltinnTilgangsstyringService,
-        @JsonIgnore val refusjonRepository: RefusjonRepository,
-        @JsonIgnore val refusjonService: RefusjonService
+    val identifikator: String,
+    @JsonIgnore val altinnTilgangsstyringService: AltinnTilgangsstyringService,
+    @JsonIgnore val refusjonRepository: RefusjonRepository,
+    @JsonIgnore val refusjonService: RefusjonService
 
 ) {
 
@@ -27,13 +27,14 @@ data class InnloggetArbeidsgiver(
 
     fun finnAlleMedBedriftnummer(bedriftnummer: String): List<Refusjon> {
         sjekkHarTilgangTilRefusjonerForBedrift(bedriftnummer)
-        return refusjonRepository.findAllByBedriftNr(bedriftnummer).filter { it.status != RefusjonStatus.KORREKSJON_UTKAST }
+        return refusjonRepository.findAllByBedriftNr(bedriftnummer)
+            .filter { it.status != RefusjonStatus.KORREKSJON_UTKAST }
     }
 
     fun godkjenn(refusjonId: String) {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(refusjonId) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
-        refusjonService.godkjennForArbeidsgiver(refusjon)
+        refusjonService.godkjennForArbeidsgiver(refusjon, this.identifikator)
     }
 
     fun finnRefusjon(id: String): Refusjon {
@@ -65,7 +66,8 @@ data class InnloggetArbeidsgiver(
 
     fun finnTidligereRefusjoner(refusjonId: String): List<Refusjon> {
         val refusjon = refusjonRepository.findByIdOrNull(refusjonId) ?: throw TilgangskontrollException()
-        val refusjonerMedSammeAvtaleId = refusjonRepository.findAllByTilskuddsgrunnlag_AvtaleIdAndGodkjentAvArbeidsgiverIsNotNull(refusjon.tilskuddsgrunnlag.avtaleId)
+        val refusjonerMedSammeAvtaleId =
+            refusjonRepository.findAllByTilskuddsgrunnlag_AvtaleIdAndGodkjentAvArbeidsgiverIsNotNull(refusjon.tilskuddsgrunnlag.avtaleId)
         refusjonerMedSammeAvtaleId.forEach { sjekkHarTilgangTilRefusjonerForBedrift(it.bedriftNr) }
         return refusjonerMedSammeAvtaleId.filter { it.id != refusjon.id }
     }

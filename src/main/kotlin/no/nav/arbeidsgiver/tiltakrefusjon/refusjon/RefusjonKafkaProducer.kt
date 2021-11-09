@@ -47,7 +47,7 @@ class RefusjonKafkaProducer(
             refusjonId = event.korreksjon.id,
             avtaleNr = event.korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr,
             løpenummer = event.korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.løpenummer,
-            korreksjonAvRefusjonId = event.refusjon.id,
+            korreksjonAvRefusjonId = event.korreksjon.korrigererRefusjonId,
             avtaleId = event.korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleId,
             tilskuddsperiodeId = event.korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId,
             beløp = event.korreksjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp,
@@ -55,7 +55,7 @@ class RefusjonKafkaProducer(
             bedriftKontonummer = event.korreksjon.refusjonsgrunnlag.bedriftKontonummer!!,
             korreksjonstype = event.korreksjon.status
         )
-        korreksjonKafkaTemplate.send(Topics.REFUSJON_KORRIGERT, event.refusjon.id, melding)
+        korreksjonKafkaTemplate.send(Topics.REFUSJON_KORRIGERT, event.korreksjon.id, melding)
             .addCallback({
                 log.info(
                     "Melding med id {} sendt til Kafka topic {}",

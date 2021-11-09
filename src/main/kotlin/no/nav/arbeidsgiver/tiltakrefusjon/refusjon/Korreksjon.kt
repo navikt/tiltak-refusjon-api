@@ -4,6 +4,9 @@ import com.github.guepardoapps.kulid.ULID
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.KorreksjonBeregningUtført
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.KorreksjonMerketForOppgjort
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.KorreksjonMerketForTilbakekreving
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.KorreksjonSendtTilUtbetaling
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.springframework.data.domain.AbstractAggregateRoot
 import java.time.Instant
@@ -115,6 +118,7 @@ class Korreksjon(
         this.besluttetTidspunkt = Now.instant()
         this.kostnadssted = kostnadssted
         this.status = Korreksjonstype.TILLEGSUTBETALING
+        registerEvent(KorreksjonSendtTilUtbetaling(this, utførtAv))
     }
 
     // Ved 0 beløp, skal ikke tilbakekreve eller etterbetale
@@ -127,6 +131,7 @@ class Korreksjon(
         this.godkjentTidspunkt = Now.instant()
         this.godkjentAvNavIdent = utførtAv
         this.status = Korreksjonstype.OPPGJORT
+        registerEvent(KorreksjonMerketForOppgjort(this, utførtAv))
     }
 
     // Ved negativt beløp, skal tilbakekreves
@@ -139,6 +144,7 @@ class Korreksjon(
         this.godkjentTidspunkt = Now.instant()
         this.godkjentAvNavIdent = utførtAv
         this.status = Korreksjonstype.TILBAKEKREVING
+        registerEvent(KorreksjonMerketForTilbakekreving(this, utførtAv))
     }
 
     fun endreBruttolønn(inntekterKunFraTiltaket: Boolean, endretBruttoLønn: Int?) {

@@ -28,7 +28,7 @@ class EndretGrunnlagLytter(
     fun sporbarHendelse(event: SporbarKorreksjonHendelse) {
         val hendelse = Hendelseslogg(
             appImageId = appImageId,
-            refusjonId = null,
+            refusjonId = event.korreksjon.korrigererRefusjonId,
             korreksjonId = event.korreksjon.id,
             utførtAv = event.utførtAv,
             event = event.javaClass.simpleName,

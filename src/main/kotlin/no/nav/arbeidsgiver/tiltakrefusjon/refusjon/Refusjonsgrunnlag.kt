@@ -32,24 +32,23 @@ class Refusjonsgrunnlag(
     @OneToOne(orphanRemoval = true, cascade = [CascadeType.ALL])
     var beregning: Beregning? = null
 
-    fun oppgiInntektsgrunnlag(inntektsgrunnlag: Inntektsgrunnlag) {
+    fun oppgiInntektsgrunnlag(inntektsgrunnlag: Inntektsgrunnlag) : Boolean {
         this.inntektsgrunnlag = inntektsgrunnlag
-        gjørBeregning()
+        return gjørBeregning()
     }
 
     fun oppgiBedriftKontonummer(bedrifKontonummer: String) {
         this.bedriftKontonummer = bedrifKontonummer
         this.bedriftKontonummerInnhentetTidspunkt = Now.localDateTime()
-        gjørBeregning()
     }
 
-    fun endreBruttolønn(inntekterKunFraTiltaket: Boolean, bruttoLønn: Int?) {
+    fun endreBruttolønn(inntekterKunFraTiltaket: Boolean, bruttoLønn: Int?) : Boolean {
         if (inntekterKunFraTiltaket && bruttoLønn != null) {
             throw FeilkodeException(Feilkode.INNTEKTER_KUN_FRA_TILTAK_OG_OPPGIR_BELØP)
         }
         this.inntekterKunFraTiltaket = inntekterKunFraTiltaket
         this.endretBruttoLønn = bruttoLønn
-        gjørBeregning()
+        return gjørBeregning()
     }
 
     fun erAltOppgitt(): Boolean {
@@ -58,7 +57,7 @@ class Refusjonsgrunnlag(
         return bedriftKontonummer != null && (inntekterKunFraTiltaket == true && endretBruttoLønn == null || inntekterKunFraTiltaket == false && endretBruttoLønn != null)
     }
 
-    fun gjørBeregning() {
+    private fun gjørBeregning() : Boolean {
         if (erAltOppgitt()) {
             this.beregning = beregnRefusjonsbeløp(
                 inntekter = inntektsgrunnlag!!.inntekter.toList(),
@@ -67,7 +66,9 @@ class Refusjonsgrunnlag(
                 tidligereUtbetalt = tidligereUtbetalt,
                 korrigertBruttoLønn = endretBruttoLønn
             )
+            return true
         }
+        return false
     }
 
     fun harInntektIAlleMåneder(): Boolean {

@@ -1,8 +1,8 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events
 
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Korreksjon
 
-interface SporbarRefusjonHendelse {
-    val refusjon: Refusjon
+interface SporbarKorreksjonHendelse {
+    val korreksjon: Korreksjon
     val utførtAv: String
 }

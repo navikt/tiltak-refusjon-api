@@ -7,10 +7,6 @@ import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.BeregningUtført
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.FristForlenget
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.GodkjentAvArbeidsgiver
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.InntekterInnhentet
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.KorreksjonMerketForOppgjort
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.KorreksjonMerketForTilbakekreving
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.KorreksjonSendtTilUtbetaling
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonAnnullert
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonForkortet
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonKlar
@@ -19,19 +15,12 @@ import no.nav.arbeidsgiver.tiltakrefusjon.utils.antallMånederEtter
 import org.springframework.data.domain.AbstractAggregateRoot
 import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.YearMonth
-import java.util.EnumSet
 import javax.persistence.CascadeType
-import javax.persistence.ElementCollection
 import javax.persistence.Entity
 import javax.persistence.EnumType
 import javax.persistence.Enumerated
-import javax.persistence.FetchType
 import javax.persistence.Id
-import javax.persistence.ManyToOne
 import javax.persistence.OneToOne
-import kotlin.streams.toList
 
 @Entity
 class Refusjon(
@@ -110,8 +99,10 @@ class Refusjon(
         oppdaterStatus()
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
 
-        this.refusjonsgrunnlag.oppgiInntektsgrunnlag(inntektsgrunnlag)
-        registerEvent(InntekterInnhentet(this))
+        val harGjortBeregning = this.refusjonsgrunnlag.oppgiInntektsgrunnlag(inntektsgrunnlag)
+        if (harGjortBeregning) {
+            registerEvent(BeregningUtført(this))
+        }
     }
 
     fun oppgiBedriftKontonummer(bedrifKontonummer: String) {
@@ -121,10 +112,13 @@ class Refusjon(
     fun endreBruttolønn(inntekterKunFraTiltaket: Boolean, bruttoLønn: Int?) {
         oppdaterStatus()
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
-        refusjonsgrunnlag.endreBruttolønn(inntekterKunFraTiltaket, bruttoLønn)
+        val harGjortBeregning = refusjonsgrunnlag.endreBruttolønn(inntekterKunFraTiltaket, bruttoLønn)
+        if (harGjortBeregning) {
+            registerEvent(BeregningUtført(this))
+        }
     }
 
-    fun godkjennForArbeidsgiver() {
+    fun godkjennForArbeidsgiver(utførtAv: String) {
         oppdaterStatus()
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
         if (refusjonsgrunnlag.inntektsgrunnlag == null || refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.isEmpty()) {
@@ -135,7 +129,7 @@ class Refusjon(
         }
         godkjentAvArbeidsgiver = Now.instant()
         status = RefusjonStatus.SENDT_KRAV
-        registerEvent(GodkjentAvArbeidsgiver(this))
+        registerEvent(GodkjentAvArbeidsgiver(this, utførtAv))
     }
 
     fun annuller() {
@@ -180,7 +174,7 @@ class Refusjon(
             refusjonsgrunnlag.inntekterKunFraTiltaket ?: true,
             refusjonsgrunnlag.endretBruttoLønn,
 
-        )
+            )
         this.korreksjonId = korreksjonsutkast.id
         return korreksjonsutkast
     }

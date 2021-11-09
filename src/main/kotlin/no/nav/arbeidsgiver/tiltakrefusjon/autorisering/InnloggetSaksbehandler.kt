@@ -81,7 +81,7 @@ data class InnloggetSaksbehandler(
                 inntekter = inntektsoppslag.first,
                 respons = inntektsoppslag.second
             )
-            korreksjon.refusjonsgrunnlag.oppgiInntektsgrunnlag(inntektsgrunnlag)
+            korreksjon.oppgiInntektsgrunnlag(inntektsgrunnlag)
             korreksjonRepository.save(korreksjon)
         }
         return korreksjon

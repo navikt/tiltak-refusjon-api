@@ -3,7 +3,9 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 import com.github.guepardoapps.kulid.ULID
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.KorreksjonBeregningUtført
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
+import org.springframework.data.domain.AbstractAggregateRoot
 import java.time.Instant
 import java.util.EnumSet
 import javax.persistence.CascadeType
@@ -23,7 +25,7 @@ class Korreksjon(
     val refusjonsgrunnlag: Refusjonsgrunnlag,
     val deltakerFnr: String,
     val bedriftNr: String,
-) {
+) : AbstractAggregateRoot<Korreksjon>() {
     constructor(
         refusjon: String,
         korreksjonsnummer: Int,
@@ -141,7 +143,10 @@ class Korreksjon(
 
     fun endreBruttolønn(inntekterKunFraTiltaket: Boolean, endretBruttoLønn: Int?) {
         krevStatus(Korreksjonstype.UTKAST)
-        refusjonsgrunnlag.endreBruttolønn(inntekterKunFraTiltaket, endretBruttoLønn)
+        val harGjortBeregning = refusjonsgrunnlag.endreBruttolønn(inntekterKunFraTiltaket, endretBruttoLønn)
+        if (harGjortBeregning) {
+            registerEvent(KorreksjonBeregningUtført(this))
+        }
     }
 
     fun skalGjøreKontonummerOppslag(): Boolean {
@@ -155,5 +160,12 @@ class Korreksjon(
 
     fun kanSlettes(): Boolean {
         return status == Korreksjonstype.UTKAST
+    }
+
+    fun oppgiInntektsgrunnlag(inntektsgrunnlag: Inntektsgrunnlag) {
+        val harGjortBeregning = this.refusjonsgrunnlag.oppgiInntektsgrunnlag(inntektsgrunnlag)
+        if (harGjortBeregning) {
+            registerEvent(KorreksjonBeregningUtført(this))
+        }
     }
 }

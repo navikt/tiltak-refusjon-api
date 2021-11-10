@@ -1,6 +1,3 @@
-alter table refusjon
-    rename column innhentet_bedrift_kontonummer_tidspunkt to bedrift_kontonummer_innhentet_tidspunkt;
-
 create table refusjonsgrunnlag
 (
     id                                      varchar primary key,

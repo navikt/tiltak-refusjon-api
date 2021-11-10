@@ -1,6 +1,8 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 
+import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
+import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
 import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterService
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeAnnullertMelding
@@ -165,5 +167,15 @@ class RefusjonService(
             gjørBeregning(ny)
         }
         return ny
+    }
+
+    fun slettKorreksjonsutkast(korreksjon: Refusjon) {
+        if (!korreksjon.kanSlettes()) {
+            throw FeilkodeException(Feilkode.UGYLDIG_STATUS)
+        }
+        val opprinneligRefusjon = refusjonRepository.findByIdOrNull(korreksjon.korreksjonAvId)!!
+        opprinneligRefusjon.korrigeresAvId = null
+        refusjonRepository.save(opprinneligRefusjon)
+        refusjonRepository.delete(korreksjon)
     }
 }

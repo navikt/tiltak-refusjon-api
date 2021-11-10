@@ -54,9 +54,9 @@ class SaksbehandlerRefusjonController(
     }
 
     @PostMapping("/{id}/slett-korreksjonsutkast")
-    fun slettKorreksjonsutkast(@PathVariable id: String): Refusjon {
+    fun slettKorreksjonsutkast(@PathVariable id: String) {
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
-        return saksbehandler.slettKorreksjonsutkast(id)
+        saksbehandler.slettKorreksjonsutkast(id)
     }
 
     @PostMapping("/{id}/utbetal-korreksjon")

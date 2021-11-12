@@ -78,16 +78,9 @@ data class InnloggetSaksbehandler(
         return refusjonService.opprettKorreksjonsutkast(gammel, korreksjonsgrunner)
     }
 
-    fun slettKorreksjonsutkast(id: String): Refusjon {
+    fun slettKorreksjonsutkast(id: String) {
         val korreksjon = finnRefusjon(id)
-        if (!korreksjon.kanSlettes()) {
-            throw FeilkodeException(Feilkode.UGYLDIG_STATUS)
-        }
-        val opprinneligRefusjon = refusjonRepository.findByIdOrNull(korreksjon.korreksjonAvId)!!
-        opprinneligRefusjon.korrigeresAvId = null
-        refusjonRepository.save(opprinneligRefusjon)
-        refusjonRepository.delete(korreksjon)
-        return korreksjon
+        refusjonService.slettKorreksjonsutkast(korreksjon)
     }
 
     fun utbetalKorreksjon(id: String, beslutterNavIdent: String): Refusjon {

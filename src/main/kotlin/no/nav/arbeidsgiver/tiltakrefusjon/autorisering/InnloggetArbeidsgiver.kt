@@ -31,7 +31,8 @@ data class InnloggetArbeidsgiver(
 
     fun finnAlleMedBedriftnummer(bedriftnummer: String): List<Refusjon> {
         sjekkHarTilgangTilRefusjonerForBedrift(bedriftnummer)
-        return refusjonRepository.findAllByBedriftNr(bedriftnummer).filter { it.status != RefusjonStatus.KORREKSJON_UTKAST }
+        return refusjonRepository.findAllByBedriftNr(bedriftnummer)
+            .filter { it.status != RefusjonStatus.KORREKSJON_UTKAST }
     }
 
     fun godkjenn(refusjonId: String) {
@@ -39,7 +40,7 @@ data class InnloggetArbeidsgiver(
         val harForretningsadresse = eregClient.hentVirksomhet(refusjon.bedriftNr).let(Virksomhet::harBedriftAdresseOgJuridiskEnhet)
         if(!harForretningsadresse) throw FeilkodeException(Feilkode.EREG_MANGLER_ADRESSEINFO)
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
-        refusjonService.godkjennForArbeidsgiver(refusjon)
+        refusjonService.godkjennForArbeidsgiver(refusjon, this.identifikator)
     }
 
     fun finnRefusjon(id: String): Refusjon {
@@ -71,7 +72,8 @@ data class InnloggetArbeidsgiver(
 
     fun finnTidligereRefusjoner(refusjonId: String): List<Refusjon> {
         val refusjon = refusjonRepository.findByIdOrNull(refusjonId) ?: throw TilgangskontrollException()
-        val refusjonerMedSammeAvtaleId = refusjonRepository.findAllByTilskuddsgrunnlag_AvtaleIdAndGodkjentAvArbeidsgiverIsNotNull(refusjon.tilskuddsgrunnlag.avtaleId)
+        val refusjonerMedSammeAvtaleId =
+            refusjonRepository.findAllByTilskuddsgrunnlag_AvtaleIdAndGodkjentAvArbeidsgiverIsNotNull(refusjon.tilskuddsgrunnlag.avtaleId)
         refusjonerMedSammeAvtaleId.forEach { sjekkHarTilgangTilRefusjonerForBedrift(it.bedriftNr) }
         return refusjonerMedSammeAvtaleId.filter { it.id != refusjon.id }
     }

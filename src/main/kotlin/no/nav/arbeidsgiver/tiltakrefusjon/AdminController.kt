@@ -60,6 +60,17 @@ class AdminController(val service: RefusjonService, val refusjonRepository: Refu
     }
 
     @Unprotected
+    @PostMapping("slett-korreksjoner")
+    fun slettKorreksjoner(@RequestBody refusjonIder: List<String>) {
+        logger.info("Bruker AdminController for å slette korreksjon på {} refusjoner", refusjonIder.size)
+        for (id in refusjonIder) {
+            val refusjon =
+                refusjonRepository.findByIdOrNull(id) ?: throw RuntimeException("Finner ikke refusjon med id=$id")
+            service.slettKorreksjonsutkast(refusjon)
+        }
+    }
+
+    @Unprotected
     @PostMapping("forleng-frister")
     fun forlengFrister(@RequestBody request: ForlengFristerRequest) {
         logger.info("Bruker AdminController for å forlenge frister på {} refusjoner",

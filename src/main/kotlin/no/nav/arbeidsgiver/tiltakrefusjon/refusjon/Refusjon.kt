@@ -4,16 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.guepardoapps.kulid.ULID
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.BeregningUtført
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.FristForlenget
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.GodkjentAvArbeidsgiver
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.InntekterInnhentet
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.KorreksjonMerketForOppgjort
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.KorreksjonMerketForTilbakekreving
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.KorreksjonSendtTilUtbetaling
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonAnnullert
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonForkortet
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonKlar
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.*
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.antallMånederEtter
 import org.springframework.data.domain.AbstractAggregateRoot
@@ -21,17 +12,8 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
-import java.util.EnumSet
-import javax.persistence.CascadeType
-import javax.persistence.ElementCollection
-import javax.persistence.Entity
-import javax.persistence.EnumType
-import javax.persistence.Enumerated
-import javax.persistence.FetchType
-import javax.persistence.Id
-import javax.persistence.ManyToOne
-import javax.persistence.OneToOne
-import kotlin.streams.toList
+import java.util.*
+import javax.persistence.*
 
 @Entity
 data class Refusjon(
@@ -89,7 +71,8 @@ data class Refusjon(
         val tilskuddFom = tilskuddsgrunnlag.tilskuddFom
         val tilskuddTom = tilskuddsgrunnlag.tilskuddTom
 
-        val månederTilskudd = tilskuddFom.datesUntil(tilskuddTom).map { YearMonth.of(it.year, it.month) }.distinct().toList()
+        val månederTilskudd =
+            tilskuddFom.datesUntil(tilskuddTom).map { YearMonth.of(it.year, it.month) }.distinct().toList()
 
         return månederInntekter.containsAll(månederTilskudd)
     }
@@ -99,11 +82,13 @@ data class Refusjon(
     }
 
     fun utbetalingMislykket() {
-        if(status == RefusjonStatus.SENDT_KRAV || status == RefusjonStatus.UTBETALT) status = RefusjonStatus.UTBETALING_FEILET
+        if (status == RefusjonStatus.SENDT_KRAV || status == RefusjonStatus.UTBETALT) status =
+            RefusjonStatus.UTBETALING_FEILET
     }
 
-    fun utbetalingVellykket(){
-        if(status == RefusjonStatus.SENDT_KRAV || status == RefusjonStatus.UTBETALING_FEILET) status = RefusjonStatus.UTBETALT
+    fun utbetalingVellykket() {
+        if (status == RefusjonStatus.SENDT_KRAV || status == RefusjonStatus.UTBETALING_FEILET) status =
+            RefusjonStatus.UTBETALT
     }
 
     fun oppdaterStatus() {
@@ -160,7 +145,7 @@ data class Refusjon(
         }
     }
 
-    fun godkjennForArbeidsgiver() {
+    fun godkjennForArbeidsgiver(utførtAv: String) {
         oppdaterStatus()
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
         if (inntektsgrunnlag == null || inntektsgrunnlag!!.inntekter.isEmpty()) {
@@ -171,7 +156,7 @@ data class Refusjon(
         }
         godkjentAvArbeidsgiver = Now.instant()
         status = RefusjonStatus.SENDT_KRAV
-        registerEvent(GodkjentAvArbeidsgiver(this))
+        registerEvent(GodkjentAvArbeidsgiver(this, utførtAv))
     }
 
     fun annuller() {
@@ -254,7 +239,7 @@ data class Refusjon(
         this.beslutterNavIdent = beslutterNavIdent
         val korreksjonstype =
             if (korreksjonsgrunner.contains(Korreksjonsgrunn.UTBETALING_RETURNERT)) Korreksjonstype.UTBETALING_AVVIST else Korreksjonstype.TILLEGSUTBETALING
-        registerEvent(KorreksjonSendtTilUtbetaling(this, korreksjonstype))
+        registerEvent(KorreksjonSendtTilUtbetaling(this, utførtAv, korreksjonstype))
     }
 
     // Ved 0 beløp, skal ikke tilbakekreve eller etterbetale
@@ -267,7 +252,7 @@ data class Refusjon(
         status = RefusjonStatus.KORREKSJON_OPPGJORT
         godkjentAvSaksbehandler = Now.instant()
         godkjentAvSaksbehandlerNavIdent = utførtAv
-        registerEvent(KorreksjonMerketForOppgjort(this))
+        registerEvent(KorreksjonMerketForOppgjort(this, utførtAv))
     }
 
     // Ved negativt beløp, skal tilbakekreves
@@ -280,7 +265,7 @@ data class Refusjon(
         status = RefusjonStatus.KORREKSJON_SKAL_TILBAKEKREVES
         godkjentAvSaksbehandler = Now.instant()
         godkjentAvSaksbehandlerNavIdent = utførtAv
-        registerEvent(KorreksjonMerketForTilbakekreving(this))
+        registerEvent(KorreksjonMerketForTilbakekreving(this, utførtAv))
     }
 
     fun kanSlettes(): Boolean {

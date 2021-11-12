@@ -46,7 +46,13 @@ class InnloggetBrukerService(
         return when {
             erSaksbehandler() -> {
                 val (onPremisesSamAccountName, displayName) = graphApiService.hent()
-                InnloggetSaksbehandler(onPremisesSamAccountName, displayName, abacTilgangsstyringService, refusjonRepository, refusjonService)
+                InnloggetSaksbehandler(
+                    onPremisesSamAccountName,
+                    displayName,
+                    abacTilgangsstyringService,
+                    refusjonRepository,
+                    refusjonService
+                )
             }
             else -> {
                 throw RuntimeException("Feil ved token, kunne ikke identifisere saksbehandler")

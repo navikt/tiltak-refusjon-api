@@ -1,6 +1,8 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 
+import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
+import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
 import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterService
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeAnnullertMelding
@@ -25,7 +27,9 @@ class RefusjonService(
     fun opprettRefusjon(tilskuddsperiodeGodkjentMelding: TilskuddsperiodeGodkjentMelding): Refusjon? {
         log.info("Oppretter refusjon for tilskuddsperiodeId ${tilskuddsperiodeGodkjentMelding.tilskuddsperiodeId}")
 
-        if (refusjonRepository.findAllByTilskuddsgrunnlag_TilskuddsperiodeId(tilskuddsperiodeGodkjentMelding.tilskuddsperiodeId).isNotEmpty()) {
+        if (refusjonRepository.findAllByTilskuddsgrunnlag_TilskuddsperiodeId(tilskuddsperiodeGodkjentMelding.tilskuddsperiodeId)
+                .isNotEmpty()
+        ) {
             log.warn("Refusjon finnes allerede for tilskuddsperiode med id ${tilskuddsperiodeGodkjentMelding.tilskuddsperiodeId}")
             return null;
         }
@@ -112,14 +116,15 @@ class RefusjonService(
             }
         } else 0
 
-    fun godkjennForArbeidsgiver(refusjon: Refusjon) {
-        refusjon.godkjennForArbeidsgiver()
+    fun godkjennForArbeidsgiver(refusjon: Refusjon, utførtAv: String) {
+        refusjon.godkjennForArbeidsgiver(utførtAv)
         refusjonRepository.save(refusjon)
     }
 
     fun annullerRefusjon(melding: TilskuddsperiodeAnnullertMelding) {
         log.info("Annullerer refusjon med tilskuddsperiodeId ${melding.tilskuddsperiodeId}")
-        val refusjon = refusjonRepository.findAllByTilskuddsgrunnlag_TilskuddsperiodeId(melding.tilskuddsperiodeId).find { it.korreksjonAvId == null }
+        val refusjon = refusjonRepository.findAllByTilskuddsgrunnlag_TilskuddsperiodeId(melding.tilskuddsperiodeId)
+            .find { it.korreksjonAvId == null }
         if (refusjon != null) {
             refusjon.annuller()
             refusjonRepository.save(refusjon)
@@ -130,7 +135,8 @@ class RefusjonService(
 
     fun forkortRefusjon(melding: TilskuddsperiodeForkortetMelding) {
         log.info("Forkorter refusjon med tilskuddsperiodeId ${melding.tilskuddsperiodeId} til dato ${melding.tilskuddTom} med nytt beløp ${melding.tilskuddsbeløp}")
-        val refusjon = refusjonRepository.findAllByTilskuddsgrunnlag_TilskuddsperiodeId(melding.tilskuddsperiodeId).find { it.korreksjonAvId == null }
+        val refusjon = refusjonRepository.findAllByTilskuddsgrunnlag_TilskuddsperiodeId(melding.tilskuddsperiodeId)
+            .find { it.korreksjonAvId == null }
         if (refusjon != null) {
             refusjon.forkort(melding.tilskuddTom, melding.tilskuddsbeløp)
             refusjonRepository.save(refusjon)
@@ -161,5 +167,15 @@ class RefusjonService(
             gjørBeregning(ny)
         }
         return ny
+    }
+
+    fun slettKorreksjonsutkast(korreksjon: Refusjon) {
+        if (!korreksjon.kanSlettes()) {
+            throw FeilkodeException(Feilkode.UGYLDIG_STATUS)
+        }
+        val opprinneligRefusjon = refusjonRepository.findByIdOrNull(korreksjon.korreksjonAvId)!!
+        opprinneligRefusjon.korrigeresAvId = null
+        refusjonRepository.save(opprinneligRefusjon)
+        refusjonRepository.delete(korreksjon)
     }
 }

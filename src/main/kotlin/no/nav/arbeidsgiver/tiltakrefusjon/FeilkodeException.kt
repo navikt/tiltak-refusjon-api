@@ -4,6 +4,9 @@ open class FeilkodeException(val feilkode: Feilkode) : RuntimeException("Feil in
 
 enum class Feilkode {
     TEKNISK_FEIL_BANKKONTONUMMEROPPSLAG,
+    TEKNISK_FEIL_EREGOPPSLAG,
+    TEKNISK_FEIL_EREGOPPSLAG_FANT_IKKE_BEDRIFT,
+    EREG_MANGLER_ADRESSEINFO,
     UGYLDIG_STATUS,
     ETTER_FRIST,
     INGEN_INNTEKTER,

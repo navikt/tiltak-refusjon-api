@@ -51,6 +51,9 @@ tiltak-refusjon:
     fake: true
   kontoregister:
     fake: true
+  ereg:
+    uri: http://localhost:${wiremock.port}/ereg
+    consumer-id: tiltak-refusjon-api
   inntektskomponenten:
     fake: true
   altinn-tilgangstyring:

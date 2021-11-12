@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
-const val REQUEST_MAPPING_INNLOGGET_ARBEIDSGIVER = "/api/arbeidsgiver/innlogget-bruker"
+const val REQUEST_MAPPING_INNLOGGET_ARBEIDSGIVER = "/api/arbeidsgiver"
 
 @RestController
 @RequestMapping(REQUEST_MAPPING_INNLOGGET_ARBEIDSGIVER)
@@ -22,7 +22,7 @@ class InnloggetArbeidsgiverController(
         counter.increment(0.0)
     }
 
-    @GetMapping
+    @GetMapping("/innlogget-bruker")
     fun hentInnloggetArbeidsgiver(): InnloggetArbeidsgiver {
         counter.increment()
         return innloggetBrukerService.hentInnloggetArbeidsgiver()

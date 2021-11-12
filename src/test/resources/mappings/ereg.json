@@ -1,0 +1,621 @@
+{
+  "mappings": [
+    {
+      "priority": 1,
+      "request": {
+        "method": "GET",
+        "urlPath": "/ereg/api/v1/organisasjon/[0-9]{11}",
+        "queryParameters" : {
+          "inkluderHierarki" : {
+            "matches" : "true"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "organisasjonsnummer": "874135402",
+          "type": "Virksomhet",
+          "navn": {
+            "redigertnavn": "STOR GAALAAS GÅRD ARNE BØHMER",
+            "navnelinje1": "STOR-GAALAAS GÅRD Arne Bøhmer",
+            "bruksperiode": {
+              "fom": "2015-02-23T08:04:53.2"
+            },
+            "gyldighetsperiode": {
+              "fom": "2012-05-08"
+            }
+          },
+          "organisasjonDetaljer": {
+            "registreringsdato": "1995-02-22T00:00:00",
+            "enhetstyper": [
+              {
+                "enhetstype": "BEDR",
+                "bruksperiode": {
+                  "fom": "2014-05-21T14:55:16.963"
+                },
+                "gyldighetsperiode": {
+                  "fom": "1995-02-22"
+                }
+              }
+            ],
+            "navn": [
+              {
+                "redigertnavn": "STOR GAALAAS GÅRD ARNE BØHMER",
+                "navnelinje1": "STOR-GAALAAS GÅRD Arne Bøhmer",
+                "bruksperiode": {
+                  "fom": "2015-02-23T08:04:53.2"
+                },
+                "gyldighetsperiode": {
+                  "fom": "2012-05-08"
+                }
+              }
+            ],
+            "forretningsadresser": [
+              {
+                "type": "Forretningsadresse",
+                "adresselinje1": "Gålåsvegen 185",
+                "postnummer": "2320",
+                "landkode": "NO",
+                "kommunenummer": "3411",
+                "bruksperiode": {
+                  "fom": "2020-01-02T13:52:26.973"
+                },
+                "gyldighetsperiode": {
+                  "fom": "2019-12-31"
+                }
+              }
+            ],
+            "epostadresser": [
+              {
+                "adresse": "abohmer@gmail.com",
+                "bruksperiode": {
+                  "fom": "2014-05-21T18:44:20.317"
+                },
+                "gyldighetsperiode": {
+                  "fom": "2013-05-28"
+                }
+              }
+            ],
+            "telefonnummer": [
+              {
+                "nummer": "62 35 81 38",
+                "telefontype": "TFON",
+                "bruksperiode": {
+                  "fom": "2014-05-21T18:44:20.317"
+                },
+                "gyldighetsperiode": {
+                  "fom": "2013-05-28"
+                }
+              }
+            ],
+            "sistEndret": "2021-03-11",
+            "ansatte": [
+              {
+                "antall": 6,
+                "bruksperiode": {
+                  "fom": "2021-03-22T15:55:43.522"
+                },
+                "gyldighetsperiode": {
+                  "fom": "2021-03-11"
+                }
+              }
+            ]
+          },
+          "inngaarIJuridiskEnheter": [
+            {
+              "organisasjonsnummer": "994446096",
+              "navn": {
+                "redigertnavn": "STOR GAALAAS GÅRD ARNE BØHMER",
+                "navnelinje1": "STOR-GAALAAS GÅRD Arne Bøhmer",
+                "bruksperiode": {
+                  "fom": "2015-02-23T08:04:53.2"
+                },
+                "gyldighetsperiode": {
+                  "fom": "2012-05-08"
+                }
+              },
+              "bruksperiode": {
+                "fom": "2014-05-23T15:20:56.665"
+              },
+              "gyldighetsperiode": {
+                "fom": "2009-08-25"
+              }
+            }
+          ]
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "priority": 1,
+      "request": {
+        "method": "GET",
+        "urlPath": "/ereg/api/v1/organisasjon/990983666",
+        "queryParameters" : {
+          "inkluderHierarki" : {
+            "matches" : "true"
+          }
+        }
+      },
+      "response": {
+        "status": 404,
+        "jsonBody": {},
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },    {
+      "priority": 1,
+      "request": {
+        "method": "GET",
+        "urlPath": "/ereg/api/v1/organisasjon/979589255",
+        "queryParameters" : {
+          "inkluderHierarki" : {
+            "matches" : "true"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "organisasjonsnummer": "979589255",
+          "type": "Virksomhet",
+          "navn": {
+            "redigertnavn": "NAV NORDSTRAND SOSIAL",
+            "navnelinje1": "NAV NORDSTRAND SOSIAL",
+            "bruksperiode": {
+              "fom": "2018-01-07T04:00:45.778"
+            },
+            "gyldighetsperiode": {
+              "fom": "2018-01-06"
+            }
+          },
+          "organisasjonDetaljer": {
+            "registreringsdato": "1998-07-28T00:00:00",
+            "enhetstyper": [
+              {
+                "enhetstype": "BEDR",
+                "bruksperiode": {
+                  "fom": "2014-05-21T15:26:38.802"
+                },
+                "gyldighetsperiode": {
+                  "fom": "1998-07-28"
+                }
+              }
+            ],
+            "naeringer": [
+              {
+                "naeringskode": "88.998",
+                "hjelpeenhet": false,
+                "bruksperiode": {
+                  "fom": "2014-05-22T01:02:19.905"
+                },
+                "gyldighetsperiode": {
+                  "fom": "1989-01-01"
+                }
+              }
+            ],
+            "navn": [
+              {
+                "redigertnavn": "NAV NORDSTRAND SOSIAL",
+                "navnelinje1": "NAV NORDSTRAND SOSIAL",
+                "bruksperiode": {
+                  "fom": "2018-01-07T04:00:45.778"
+                },
+                "gyldighetsperiode": {
+                  "fom": "2018-01-06"
+                }
+              }
+            ],
+            "forretningsadresser": [
+              {
+                "type": "Forretningsadresse",
+                "adresselinje1": "Cecilie Thoresens vei 1",
+                "postnummer": "1153",
+                "landkode": "NO",
+                "kommunenummer": "0301",
+                "bruksperiode": {
+                  "fom": "2018-01-09T04:01:04.247"
+                },
+                "gyldighetsperiode": {
+                  "fom": "2018-01-08"
+                }
+              }
+            ],
+            "postadresser": [
+              {
+                "type": "Postadresse",
+                "adresselinje1": "Postboks 4 Lambertseter",
+                "postnummer": "1101",
+                "landkode": "NO",
+                "kommunenummer": "0301",
+                "bruksperiode": {
+                  "fom": "2018-01-07T04:00:52.172"
+                },
+                "gyldighetsperiode": {
+                  "fom": "2018-01-06"
+                }
+              }
+            ],
+            "sistEndret": "2021-05-11",
+            "ansatte": [
+              {
+                "antall": 49,
+                "bruksperiode": {
+                  "fom": "2021-05-16T00:51:21.256"
+                },
+                "gyldighetsperiode": {
+                  "fom": "2021-05-11"
+                }
+              }
+            ]
+          },
+          "virksomhetDetaljer": {
+            "enhetstype": "BEDR",
+            "oppstartsdato": "1989-01-01"
+          },
+          "bestaarAvOrganisasjonsledd": [
+            {
+              "organisasjonsledd": {
+                "organisasjonsnummer": "970534679",
+                "type": "Organisasjonsledd",
+                "navn": {
+                  "redigertnavn": "OSLO KOMMUNE BYDEL 14 NORDSTRAND",
+                  "navnelinje1": "OSLO KOMMUNE BYDEL 14 NORDSTRAND",
+                  "bruksperiode": {
+                    "fom": "2015-02-23T08:04:53.2"
+                  },
+                  "gyldighetsperiode": {
+                    "fom": "2004-02-11"
+                  }
+                },
+                "organisasjonsleddOver": [
+                  {
+                    "organisasjonsledd": {
+                      "organisasjonsnummer": "876819872",
+                      "type": "Organisasjonsledd",
+                      "navn": {
+                        "redigertnavn": "OSLO KOMMUNE, BYRÅDSAVDELING FOR",
+                        "navnelinje1": "OSLO KOMMUNE, BYRÅDSAVDELING FOR",
+                        "navnelinje2": "HELSE, ELDRE OG INNBYGGERTJENESTER",
+                        "bruksperiode": {
+                          "fom": "2020-07-03T04:00:45.796"
+                        },
+                        "gyldighetsperiode": {
+                          "fom": "2020-07-02"
+                        }
+                      },
+                      "inngaarIJuridiskEnheter": [
+                        {
+                          "organisasjonsnummer": "958935420",
+                          "navn": {
+                            "redigertnavn": "OSLO KOMMUNE",
+                            "navnelinje1": "OSLO KOMMUNE",
+                            "bruksperiode": {
+                              "fom": "2015-02-23T08:04:53.2"
+                            },
+                            "gyldighetsperiode": {
+                              "fom": "1997-08-30"
+                            }
+                          },
+                          "bruksperiode": {
+                            "fom": "2014-05-23T15:24:51.336"
+                          },
+                          "gyldighetsperiode": {
+                            "fom": "1997-10-29"
+                          }
+                        }
+                      ]
+                    },
+                    "bruksperiode": {
+                      "fom": "2014-05-23T16:19:00.529"
+                    },
+                    "gyldighetsperiode": {
+                      "fom": "1998-08-19"
+                    }
+                  }
+                ]
+              },
+              "bruksperiode": {
+                "fom": "2014-05-23T18:21:02.211"
+              },
+              "gyldighetsperiode": {
+                "fom": "1998-07-28"
+              }
+            }
+          ]
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "urlPathPattern": "/ereg/api/v1/organisasjon/[0-9]{9}",
+        "queryParameters" : {
+          "inkluderHierarki" : {
+            "matches" : "true"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "organisasjonsnummer": "874135402",
+          "type": "Virksomhet",
+          "navn": {
+            "redigertnavn": "STOR GAALAAS GÅRD ARNE BØHMER",
+            "navnelinje1": "STOR-GAALAAS GÅRD Arne Bøhmer",
+            "bruksperiode": {
+              "fom": "2015-02-23T08:04:53.2"
+            },
+            "gyldighetsperiode": {
+              "fom": "2012-05-08"
+            }
+          },
+          "organisasjonDetaljer": {
+            "registreringsdato": "1995-02-22T00:00:00",
+            "enhetstyper": [
+              {
+                "enhetstype": "BEDR",
+                "bruksperiode": {
+                  "fom": "2014-05-21T14:55:16.963"
+                },
+                "gyldighetsperiode": {
+                  "fom": "1995-02-22"
+                }
+              }
+            ],
+            "navn": [
+              {
+                "redigertnavn": "STOR GAALAAS GÅRD ARNE BØHMER",
+                "navnelinje1": "STOR-GAALAAS GÅRD Arne Bøhmer",
+                "bruksperiode": {
+                  "fom": "2015-02-23T08:04:53.2"
+                },
+                "gyldighetsperiode": {
+                  "fom": "2012-05-08"
+                }
+              }
+            ],
+            "forretningsadresser": [
+              {
+                "type": "Forretningsadresse",
+                "adresselinje1": "Gålåsvegen 185",
+                "postnummer": "2320",
+                "landkode": "NO",
+                "kommunenummer": "3411",
+                "bruksperiode": {
+                  "fom": "2020-01-02T13:52:26.973"
+                },
+                "gyldighetsperiode": {
+                  "fom": "2019-12-31"
+                }
+              }
+            ],
+            "epostadresser": [
+              {
+                "adresse": "abohmer@gmail.com",
+                "bruksperiode": {
+                  "fom": "2014-05-21T18:44:20.317"
+                },
+                "gyldighetsperiode": {
+                  "fom": "2013-05-28"
+                }
+              }
+            ],
+            "telefonnummer": [
+              {
+                "nummer": "62 35 81 38",
+                "telefontype": "TFON",
+                "bruksperiode": {
+                  "fom": "2014-05-21T18:44:20.317"
+                },
+                "gyldighetsperiode": {
+                  "fom": "2013-05-28"
+                }
+              }
+            ],
+            "sistEndret": "2021-03-11",
+            "ansatte": [
+              {
+                "antall": 6,
+                "bruksperiode": {
+                  "fom": "2021-03-22T15:55:43.522"
+                },
+                "gyldighetsperiode": {
+                  "fom": "2021-03-11"
+                }
+              }
+            ]
+          },
+          "inngaarIJuridiskEnheter": [
+            {
+              "organisasjonsnummer": "994446096",
+              "navn": {
+                "redigertnavn": "STOR GAALAAS GÅRD ARNE BØHMER",
+                "navnelinje1": "STOR-GAALAAS GÅRD Arne Bøhmer",
+                "bruksperiode": {
+                  "fom": "2015-02-23T08:04:53.2"
+                },
+                "gyldighetsperiode": {
+                  "fom": "2012-05-08"
+                }
+              },
+              "bruksperiode": {
+                "fom": "2014-05-23T15:20:56.665"
+              },
+              "gyldighetsperiode": {
+                "fom": "2009-08-25"
+              }
+            }
+          ]
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "urlPath": "/ereg/api/v1/organisasjon/975218279",
+        "queryParameters" : {
+          "inkluderHierarki" : {
+            "matches" : "true"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "organisasjonsnummer": "975218279",
+          "type": "Virksomhet",
+          "navn": {
+            "redigertnavn": "MOLVÆR BARNEHAGE",
+            "navnelinje1": "MOLVÆR BARNEHAGE",
+            "bruksperiode": {
+              "fom": "2015-02-23T08:04:53.2"
+            },
+            "gyldighetsperiode": {
+              "fom": "1996-10-15"
+            }
+          },
+          "organisasjonDetaljer": {
+            "registreringsdato": "1996-10-15T00:00:00",
+            "enhetstyper": [
+              {
+                "enhetstype": "BEDR",
+                "bruksperiode": {
+                  "fom": "2014-05-21T15:21:21.211"
+                },
+                "gyldighetsperiode": {
+                  "fom": "1996-10-15"
+                }
+              }
+            ],
+            "naeringer": [
+              {
+                "naeringskode": "88.911",
+                "hjelpeenhet": false,
+                "bruksperiode": {
+                  "fom": "2014-05-22T00:58:29.609"
+                },
+                "gyldighetsperiode": {
+                  "fom": "2003-01-11"
+                }
+              }
+            ],
+            "navn": [
+              {
+                "redigertnavn": "MOLVÆR BARNEHAGE",
+                "navnelinje1": "MOLVÆR BARNEHAGE",
+                "bruksperiode": {
+                  "fom": "2015-02-23T08:04:53.2"
+                },
+                "gyldighetsperiode": {
+                  "fom": "1996-10-15"
+                }
+              }
+            ],
+            "forretningsadresser": [
+              {
+                "type": "Forretningsadresse",
+                "adresselinje1": "Geilneset 31",
+                "postnummer": "6030",
+                "landkode": "NO",
+                "kommunenummer": "1531",
+                "bruksperiode": {
+                  "fom": "2015-02-23T10:38:34.403"
+                },
+                "gyldighetsperiode": {
+                  "fom": "2001-04-18"
+                }
+              }
+            ],
+            "epostadresser": [
+              {
+                "adresse": "anne.kari.vadset@sula.kommune.no",
+                "bruksperiode": {
+                  "fom": "2016-03-09T04:04:30.595"
+                },
+                "gyldighetsperiode": {
+                  "fom": "2016-03-08"
+                }
+              }
+            ],
+            "sistEndret": "2020-12-12",
+            "ansatte": [
+              {
+                "antall": 31,
+                "bruksperiode": {
+                  "fom": "2020-12-16T00:54:04.1"
+                },
+                "gyldighetsperiode": {
+                  "fom": "2020-12-12"
+                }
+              }
+            ]
+          },
+          "virksomhetDetaljer": {
+            "enhetstype": "BEDR",
+            "oppstartsdato": "1994-08-25"
+          },
+          "bestaarAvOrganisasjonsledd": [
+            {
+              "organisasjonsledd": {
+                "organisasjonsnummer": "974765411",
+                "type": "Organisasjonsledd",
+                "navn": {
+                  "redigertnavn": "SULA KOMMUNE KULTUR OG OPPVEKST",
+                  "navnelinje1": "SULA KOMMUNE KULTUR OG OPPVEKST",
+                  "bruksperiode": {
+                    "fom": "2015-02-23T08:04:53.2"
+                  },
+                  "gyldighetsperiode": {
+                    "fom": "2006-06-27"
+                  }
+                },
+                "inngaarIJuridiskEnheter": [
+                  {
+                    "organisasjonsnummer": "964980543",
+                    "navn": {
+                      "redigertnavn": "SULA KOMMUNE",
+                      "navnelinje1": "SULA KOMMUNE",
+                      "bruksperiode": {
+                        "fom": "2015-02-23T08:04:53.2"
+                      },
+                      "gyldighetsperiode": {
+                        "fom": "1997-08-30"
+                      }
+                    },
+                    "bruksperiode": {
+                      "fom": "2014-05-23T17:27:45.133"
+                    },
+                    "gyldighetsperiode": {
+                      "fom": "1996-10-14"
+                    }
+                  }
+                ]
+              },
+              "bruksperiode": {
+                "fom": "2014-05-23T17:31:10.854"
+              },
+              "gyldighetsperiode": {
+                "fom": "1996-10-15"
+              }
+            }
+          ]
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    }
+  ]
+}

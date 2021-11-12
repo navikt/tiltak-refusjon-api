@@ -31,6 +31,9 @@ tiltak-refusjon:
   graph-api:
     uri: ""
     fake: true
+  ereg:
+    uri: http://tiltak-refusjon-api-wiremock/ereg
+    consumer-id: "tiltak-refusjon-api"
   kontoregister:
     fake: true
   inntektskomponenten:

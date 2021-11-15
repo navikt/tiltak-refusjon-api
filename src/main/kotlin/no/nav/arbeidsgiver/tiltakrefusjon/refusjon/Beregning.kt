@@ -14,8 +14,7 @@ data class Beregning(
         val beregnetBeløp: Int,
         val refusjonsbeløp: Int,
         val overTilskuddsbeløp: Boolean,
-        val tidligereUtbetalt: Int,
-        val appImageId: String
+        val tidligereUtbetalt: Int
 ) {
     @Id
     val id: String = ULID.random()

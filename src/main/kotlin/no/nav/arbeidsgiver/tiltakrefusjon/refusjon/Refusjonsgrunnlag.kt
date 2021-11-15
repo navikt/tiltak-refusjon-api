@@ -62,7 +62,6 @@ class Refusjonsgrunnlag(
             this.beregning = beregnRefusjonsbeløp(
                 inntekter = inntektsgrunnlag!!.inntekter.toList(),
                 tilskuddsgrunnlag = tilskuddsgrunnlag,
-                appImageId = "appImageId",
                 tidligereUtbetalt = tidligereUtbetalt,
                 korrigertBruttoLønn = endretBruttoLønn
             )

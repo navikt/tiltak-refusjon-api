@@ -15,8 +15,6 @@ class RefusjonService(
     val refusjonRepository: RefusjonRepository,
     val korreksjonRepository: KorreksjonRepository,
     val kontoregisterService: KontoregisterService,
-    @Value("\${NAIS_APP_IMAGE:}")
-    val appImageId: String,
 ) {
     val log = LoggerFactory.getLogger(javaClass)
 

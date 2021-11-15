@@ -18,12 +18,12 @@ private fun beløpPerInntektslinje(
         }
 
     if (inntektslinje.opptjeningsperiodeTom < fom) {
-        return 0.0;
+        return 0.0
     }
 
     val antallDagerSkalFordelesPå =
         antallDager(inntektslinje.opptjeningsperiodeFom, inntektslinje.opptjeningsperiodeTom)
-    var dagsats = inntektslinje.beløp / antallDagerSkalFordelesPå
+    val dagsats = inntektslinje.beløp / antallDagerSkalFordelesPå
 
 
     return dagsats * antallDager(maxOf(fom, inntektslinje.opptjeningsperiodeFom),
@@ -38,7 +38,6 @@ private fun antallDager(
 fun beregnRefusjonsbeløp(
     inntekter: List<Inntektslinje>,
     tilskuddsgrunnlag: Tilskuddsgrunnlag,
-    appImageId: String,
     tidligereUtbetalt: Int,
     korrigertBruttoLønn: Int?,
 ): Beregning {
@@ -48,7 +47,7 @@ fun beregnRefusjonsbeløp(
     val tjenestepensjon = (lønn + feriepenger) * tilskuddsgrunnlag.otpSats
     val arbeidsgiveravgift = (lønn + tjenestepensjon + feriepenger) * tilskuddsgrunnlag.arbeidsgiveravgiftSats
     val sumUtgifter = lønn + tjenestepensjon + feriepenger + arbeidsgiveravgift
-    var beregnetBeløp = sumUtgifter * (tilskuddsgrunnlag.lønnstilskuddsprosent / 100.0)
+    val beregnetBeløp = sumUtgifter * (tilskuddsgrunnlag.lønnstilskuddsprosent / 100.0)
 
     val overTilskuddsbeløp = beregnetBeløp > tilskuddsgrunnlag.tilskuddsbeløp
     val refusjonsbeløp =
@@ -64,7 +63,6 @@ fun beregnRefusjonsbeløp(
         refusjonsbeløp = refusjonsbeløp.roundToInt(),
         overTilskuddsbeløp = overTilskuddsbeløp,
         tidligereUtbetalt = tidligereUtbetalt,
-        appImageId = appImageId
     )
 }
 

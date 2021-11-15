@@ -18,12 +18,10 @@ class Hendelseslogg(
     val id: String = ULID.random()
     val tidspunkt: LocalDateTime = Now.localDateTime()
 
-
     init {
         if (!((refusjonId == null) xor (korreksjonId == null))) {
             throw RuntimeException("må sette enten refusjonId eller korreksjonId")
         }
     }
-
 
 }

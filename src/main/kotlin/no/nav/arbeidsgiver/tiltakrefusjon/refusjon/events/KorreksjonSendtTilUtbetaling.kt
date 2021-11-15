@@ -1,10 +1,8 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events
 
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Korreksjonstype
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Korreksjon
 
 data class KorreksjonSendtTilUtbetaling(
-    override val refusjon: Refusjon,
-    override val utførtAv: String,
-    val korreksjonstype: Korreksjonstype
-) : SporbarRefusjonHendelse
+    override val korreksjon: Korreksjon,
+    override val utførtAv: String
+) : SporbarKorreksjonHendelse

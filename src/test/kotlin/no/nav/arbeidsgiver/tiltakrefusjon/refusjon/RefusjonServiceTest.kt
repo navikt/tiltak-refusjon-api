@@ -68,14 +68,6 @@ class RefusjonServiceTest(
     }
 
     @Test
-    fun `setter appImageId ved beregning`() {
-        val refusjon = `Bjørnstjerne Bjørnson`()
-        refusjonService.gjørInntektsoppslag(refusjon)
-        refusjonService.endreBruttolønn(refusjon, true, null)
-        assertThat(refusjon.beregning?.appImageId).isEqualTo("test")
-    }
-
-    @Test
     fun `kaller opprett på samme melding flere ganger, skal bare lagre den ene`() {
         val deltakerFnr = "00000000000"
         val tilskuddMelding = TilskuddsperiodeGodkjentMelding(

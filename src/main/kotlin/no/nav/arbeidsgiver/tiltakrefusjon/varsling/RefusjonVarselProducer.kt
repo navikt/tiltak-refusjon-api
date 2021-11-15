@@ -9,7 +9,6 @@ import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.kafka.support.SendResult
 import org.springframework.stereotype.Component
 import org.springframework.util.concurrent.ListenableFutureCallback
-import java.time.LocalDateTime
 
 @ConditionalOnProperty("tiltak-refusjon.kafka.enabled")
 @Component
@@ -23,8 +22,8 @@ class RefusjonVarselProducer(
     fun sendVarsel(refusjon: Refusjon, varselType: VarselType) {
         log.info("Prosesserer $varselType melding for sending på topic ${Topics.TILTAK_VARSEL}")
         val melding = RefusjonVarselMelding(
-            avtaleId = refusjon.tilskuddsgrunnlag.avtaleId,
-            tilskuddsperiodeId = refusjon.tilskuddsgrunnlag.tilskuddsperiodeId,
+            avtaleId = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleId,
+            tilskuddsperiodeId = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId,
             varselType = varselType
         )
         val meldingId = "${refusjon.id}-$varselType"

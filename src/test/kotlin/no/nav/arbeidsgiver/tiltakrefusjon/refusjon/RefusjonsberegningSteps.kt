@@ -94,7 +94,6 @@ class RefusjonsberegningSteps {
         val beregnet = beregnRefusjonsbeløp(
             inntekter = inntekstlinjer,
             tilskuddsgrunnlag = tilskuddsgrunnlag,
-            appImageId = "",
             tidligereUtbetalt,
             korrigertBruttoLønn
         )

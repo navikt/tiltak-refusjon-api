@@ -1,8 +1,11 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.autorisering
 
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
+import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
+import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterService
 import no.nav.arbeidsgiver.tiltakrefusjon.organisasjon.EregClient
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Fnr
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.KorreksjonRepository
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonRepository
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonService
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
@@ -12,13 +15,16 @@ import org.springframework.stereotype.Component
 
 @Component
 class InnloggetBrukerService(
-        val context: TokenValidationContextHolder,
-        val graphApiService: GraphApiService,
-        val altinnTilgangsstyringService: AltinnTilgangsstyringService,
-        val abacTilgangsstyringService: AbacTilgangsstyringService,
-        val refusjonRepository: RefusjonRepository,
-        val refusjonService: RefusjonService,
-        val eregClient: EregClient
+    val context: TokenValidationContextHolder,
+    val graphApiService: GraphApiService,
+    val altinnTilgangsstyringService: AltinnTilgangsstyringService,
+    val abacTilgangsstyringService: AbacTilgangsstyringService,
+    val refusjonRepository: RefusjonRepository,
+    val korreksjonRepository: KorreksjonRepository,
+    val refusjonService: RefusjonService,
+    val inntektskomponentService: InntektskomponentService,
+    val kontoregisterService: KontoregisterService,
+    val eregClient: EregClient
 ) {
     var logger: Logger = LoggerFactory.getLogger(javaClass)
 
@@ -51,7 +57,10 @@ class InnloggetBrukerService(
                     displayName,
                     abacTilgangsstyringService,
                     refusjonRepository,
-                    refusjonService
+                    korreksjonRepository,
+                    refusjonService,
+                    inntektskomponentService,
+                    kontoregisterService
                 )
             }
             else -> {

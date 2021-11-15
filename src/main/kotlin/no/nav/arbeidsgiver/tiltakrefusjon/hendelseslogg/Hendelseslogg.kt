@@ -9,7 +9,7 @@ import javax.persistence.Id
 @Entity
 class Hendelseslogg(
     val appImageId: String,
-    val refusjonId: String?,
+    val refusjonId: String,
     val korreksjonId: String?,
     val utførtAv: String,
     val event: String,
@@ -17,11 +17,4 @@ class Hendelseslogg(
     @Id
     val id: String = ULID.random()
     val tidspunkt: LocalDateTime = Now.localDateTime()
-
-    init {
-        if (!((refusjonId == null) xor (korreksjonId == null))) {
-            throw RuntimeException("må sette enten refusjonId eller korreksjonId")
-        }
-    }
-
 }

@@ -27,13 +27,7 @@ class ArbeidsgiverRefusjonController(
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
         return arbeidsgiver.finnAlleMedBedriftnummer(queryParametre.bedriftNr)
             .filter { queryParametre.status == null || queryParametre.status == it.status }
-            .filter { queryParametre.tiltakstype == null || queryParametre.tiltakstype == it.tilskuddsgrunnlag.tiltakstype }
-    }
-
-    @GetMapping("/{refusjonId}/tidligere-refusjoner")
-    fun hentTidligereRefusjoner(@PathVariable refusjonId: String): List<Refusjon> {
-        val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-        return arbeidsgiver.finnTidligereRefusjoner(refusjonId)
+            .filter { queryParametre.tiltakstype == null || queryParametre.tiltakstype == it.refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype }
     }
 
     @GetMapping("/{id}")

@@ -44,22 +44,24 @@ class RefusjonKafkaProducer(
     @TransactionalEventListener
     fun korreksjonSendtTilUtbetaling(event: KorreksjonSendtTilUtbetaling) {
         val melding = KorreksjonSendtTilUtbetalingMelding(
-            refusjonId = event.refusjon.id,
-            avtaleNr = event.refusjon.tilskuddsgrunnlag.avtaleNr,
-            løpenummer = event.refusjon.tilskuddsgrunnlag.løpenummer,
-            korreksjonAvRefusjonId = event.refusjon.korreksjonAvId!!,
-            avtaleId = event.refusjon.tilskuddsgrunnlag.avtaleId,
-            tilskuddsperiodeId = event.refusjon.tilskuddsgrunnlag.tilskuddsperiodeId,
-            beløp = event.refusjon.beregning!!.refusjonsbeløp,
-            korreksjonsnummer = event.refusjon.korreksjonsnummer!!,
-            bedriftKontonummer = event.refusjon.bedriftKontonummer!!,
-            korreksjonstype = event.korreksjonstype
+            refusjonId = event.korreksjon.id,
+            avtaleNr = event.korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr,
+            løpenummer = event.korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.løpenummer,
+            korreksjonAvRefusjonId = event.korreksjon.korrigererRefusjonId,
+            avtaleId = event.korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleId,
+            tilskuddsperiodeId = event.korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId,
+            beløp = event.korreksjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp,
+            korreksjonsnummer = event.korreksjon.korreksjonsnummer,
+            bedriftKontonummer = event.korreksjon.refusjonsgrunnlag.bedriftKontonummer!!,
+            korreksjonstype = event.korreksjon.status
         )
-        korreksjonKafkaTemplate.send(Topics.REFUSJON_KORRIGERT, event.refusjon.id, melding)
+        korreksjonKafkaTemplate.send(Topics.REFUSJON_KORRIGERT, event.korreksjon.id, melding)
             .addCallback({
-                log.info("Melding med id {} sendt til Kafka topic {}",
+                log.info(
+                    "Melding med id {} sendt til Kafka topic {}",
                     it?.producerRecord?.key(),
-                    it?.recordMetadata?.topic())
+                    it?.recordMetadata?.topic()
+                )
             }, {
                 log.warn("Feil", it)
             })

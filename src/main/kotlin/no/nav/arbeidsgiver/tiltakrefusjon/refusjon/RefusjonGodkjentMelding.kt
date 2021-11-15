@@ -27,23 +27,23 @@ data class RefusjonGodkjentMelding(
         companion object{
                 @JvmStatic
                 fun create(refusjon: Refusjon): RefusjonGodkjentMelding {
-                        return RefusjonGodkjentMelding(refusjon.tilskuddsgrunnlag.avtaleId, refusjon.tilskuddsgrunnlag.tilskuddsperiodeId,
-                                refusjon.tilskuddsgrunnlag.tiltakstype,refusjon.tilskuddsgrunnlag.deltakerFornavn,
-                                refusjon.tilskuddsgrunnlag.deltakerEtternavn,refusjon.deltakerFnr,
-                                refusjon.tilskuddsgrunnlag.veilederNavIdent,
-                                refusjon.tilskuddsgrunnlag.bedriftNavn,
-                                refusjon.tilskuddsgrunnlag.bedriftNr,
-                                refusjon.beregning!!.refusjonsbeløp,
+                        return RefusjonGodkjentMelding(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleId, refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId,
+                                refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype,refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.deltakerFornavn,
+                                refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.deltakerEtternavn,refusjon.deltakerFnr,
+                                refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.veilederNavIdent,
+                                refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.bedriftNavn,
+                                refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.bedriftNr,
+                                refusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp,
                                 refusjon.id,
-                                refusjon.tilskuddsgrunnlag.tilskuddFom,
-                                refusjon.tilskuddsgrunnlag.tilskuddTom,
-                                refusjon.tilskuddsgrunnlag.feriepengerSats,
-                                refusjon.tilskuddsgrunnlag.otpSats,
-                                refusjon.tilskuddsgrunnlag.arbeidsgiveravgiftSats,
-                                refusjon.tilskuddsgrunnlag.lønnstilskuddsprosent,
-                                refusjon.tilskuddsgrunnlag.avtaleNr,
-                                refusjon.tilskuddsgrunnlag.løpenummer,
-                                refusjon.bedriftKontonummer!!
+                                refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
+                                refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom,
+                                refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.feriepengerSats,
+                                refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.otpSats,
+                                refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.arbeidsgiveravgiftSats,
+                                refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.lønnstilskuddsprosent,
+                                refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr,
+                                refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.løpenummer,
+                                refusjon.refusjonsgrunnlag.bedriftKontonummer!!
                         )
                 }
         }

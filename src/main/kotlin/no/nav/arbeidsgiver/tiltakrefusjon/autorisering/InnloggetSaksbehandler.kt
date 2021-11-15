@@ -1,9 +1,9 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.autorisering
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
-import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.RessursFinnesIkkeException
+import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
+import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -15,7 +15,10 @@ data class InnloggetSaksbehandler(
     val navn: String,
     @JsonIgnore val abacTilgangsstyringService: AbacTilgangsstyringService,
     @JsonIgnore val refusjonRepository: RefusjonRepository,
+    @JsonIgnore val korreksjonRepository: KorreksjonRepository,
     @JsonIgnore val refusjonService: RefusjonService,
+    @JsonIgnore val inntektskomponentService: InntektskomponentService,
+    @JsonIgnore val kontoregisterService: KontoregisterService,
 ) {
     @JsonIgnore
     val log: Logger = LoggerFactory.getLogger(javaClass)
@@ -25,13 +28,13 @@ data class InnloggetSaksbehandler(
             if (!queryParametre.bedriftNr.isNullOrBlank()) {
                 refusjonRepository.findAllByBedriftNr(queryParametre.bedriftNr)
             } else if (!queryParametre.veilederNavIdent.isNullOrBlank()) {
-                refusjonRepository.findAllByTilskuddsgrunnlag_VeilederNavIdent(queryParametre.veilederNavIdent)
+                refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_VeilederNavIdent(queryParametre.veilederNavIdent)
             } else if (!queryParametre.deltakerFnr.isNullOrBlank()) {
                 refusjonRepository.findAllByDeltakerFnr(queryParametre.deltakerFnr)
             } else if (!queryParametre.enhet.isNullOrBlank()) {
-                refusjonRepository.findAllByTilskuddsgrunnlag_Enhet(queryParametre.enhet)
+                refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_Enhet(queryParametre.enhet)
             } else if (queryParametre.avtaleNr !== null) {
-                refusjonRepository.findAllByTilskuddsgrunnlag_AvtaleNr(queryParametre.avtaleNr)
+                refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_AvtaleNr(queryParametre.avtaleNr)
             } else {
                 emptyList()
             }
@@ -40,7 +43,7 @@ data class InnloggetSaksbehandler(
             liste = liste.filter { queryParametre.status == it.status }
         }
         if (queryParametre.tiltakstype != null) {
-            liste = liste.filter { queryParametre.tiltakstype == it.tilskuddsgrunnlag.tiltakstype }
+            liste = liste.filter { queryParametre.tiltakstype == it.refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype }
         }
         return medLesetilgang(liste)
     }
@@ -48,16 +51,32 @@ data class InnloggetSaksbehandler(
     fun finnRefusjon(id: String): Refusjon {
         val refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(refusjon)
-        if (refusjon.status == RefusjonStatus.KORREKSJON_UTKAST && refusjon.korreksjonsgrunner.contains(
-                Korreksjonsgrunn.HENT_INNTEKTER_PÅ_NYTT)
-        ) {
-            try {
-                refusjonService.gjørInntektsoppslag(refusjon)
-            } catch (e: Exception) {
-                log.error("Feil ved henting av inntekt for ${refusjon.id}", e)
-            }
-        }
         return refusjon
+    }
+
+    fun finnKorreksjon(id: String): Korreksjon {
+        val korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
+        sjekkLesetilgang(korreksjon)
+        if (korreksjon.skalGjøreKontonummerOppslag()) {
+            val kontonummer = kontoregisterService.hentBankkontonummer(korreksjon.bedriftNr)
+            korreksjon.refusjonsgrunnlag.oppgiBedriftKontonummer(kontonummer)
+            korreksjonRepository.save(korreksjon)
+        }
+        if (korreksjon.skalGjøreInntektsoppslag()) {
+            val inntektsoppslag = inntektskomponentService.hentInntekter(
+                fnr = korreksjon.deltakerFnr,
+                bedriftnummerDetSøkesPå = korreksjon.bedriftNr,
+                datoFra = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
+                datoTil = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom.plusMonths(1) // TODO: Sjekk korreksjonsgrunn, om det skal være 2 mnd etter
+            )
+            val inntektsgrunnlag = Inntektsgrunnlag(
+                inntekter = inntektsoppslag.first,
+                respons = inntektsoppslag.second
+            )
+            korreksjon.oppgiInntektsgrunnlag(inntektsgrunnlag)
+            korreksjonRepository.save(korreksjon)
+        }
+        return korreksjon
     }
 
     private fun medLesetilgang(refusjoner: List<Refusjon>): List<Refusjon> {
@@ -73,46 +92,74 @@ data class InnloggetSaksbehandler(
         }
     }
 
+    private fun sjekkLesetilgang(korreksjon: Korreksjon) {
+        if (!abacTilgangsstyringService.harLeseTilgang(identifikator, korreksjon.deltakerFnr)) {
+            throw TilgangskontrollException()
+        }
+    }
+
     fun opprettKorreksjonsutkast(id: String, korreksjonsgrunner: Set<Korreksjonsgrunn>): Refusjon {
         val gammel = finnRefusjon(id)
-        return refusjonService.opprettKorreksjonsutkast(gammel, korreksjonsgrunner)
+        refusjonService.opprettKorreksjonsutkast(gammel, korreksjonsgrunner)
+        return gammel
     }
 
     fun slettKorreksjonsutkast(id: String) {
-        val korreksjon = finnRefusjon(id)
-        refusjonService.slettKorreksjonsutkast(korreksjon)
+        val korreksjon = finnKorreksjon(id)
+        sjekkLesetilgang(korreksjon)
+        val refusjon = finnRefusjon(korreksjon.korrigererRefusjonId)
+        sjekkLesetilgang(refusjon)
+        if (korreksjon.kanSlettes()) {
+            refusjon.fjernKorreksjonId()
+            refusjonRepository.save(refusjon)
+            korreksjonRepository.delete(korreksjon)
+        }
     }
 
-    fun utbetalKorreksjon(id: String, beslutterNavIdent: String): Refusjon {
-        val korreksjon = finnRefusjon(id)
+    fun utbetalKorreksjon(id: String, beslutterNavIdent: String, kostnadssted: String) {
+        val korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(korreksjon)
-        korreksjon.utbetalKorreksjon(this.identifikator, beslutterNavIdent)
-        refusjonRepository.save(korreksjon)
-        return korreksjon
+        val refusjon = finnRefusjon(korreksjon.korrigererRefusjonId)
+        sjekkLesetilgang(refusjon)
+
+        korreksjon.utbetalKorreksjon(this.identifikator, beslutterNavIdent, kostnadssted)
+        refusjon.status = RefusjonStatus.KORRIGERT
+
+        refusjonRepository.save(refusjon)
+        korreksjonRepository.save(korreksjon)
     }
 
     fun fullførKorreksjonVedOppgjort(id: String) {
-        val korreksjon = finnRefusjon(id)
+        val korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(korreksjon)
+        val refusjon = finnRefusjon(korreksjon.korrigererRefusjonId)
+        sjekkLesetilgang(refusjon)
+
         korreksjon.fullførKorreksjonVedOppgjort(this.identifikator)
-        refusjonRepository.save(korreksjon)
+        refusjon.status = RefusjonStatus.KORRIGERT
+
+        refusjonRepository.save(refusjon)
+        korreksjonRepository.save(korreksjon)
     }
 
     fun fullførKorreksjonVedTilbakekreving(id: String) {
-        val korreksjon = finnRefusjon(id)
+        val korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(korreksjon)
+        val refusjon = finnRefusjon(korreksjon.korrigererRefusjonId)
+        sjekkLesetilgang(refusjon)
+
         korreksjon.fullførKorreksjonVedTilbakekreving(this.identifikator)
-        refusjonRepository.save(korreksjon)
+        refusjon.status = RefusjonStatus.KORRIGERT
+
+        refusjonRepository.save(refusjon)
+        korreksjonRepository.save(korreksjon)
     }
 
     fun endreBruttolønn(id: String, inntekterKunFraTiltaket: Boolean, endretBruttoLønn: Int?) {
-        val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
-        sjekkLesetilgang(refusjon)
-        if (refusjon.korreksjonAvId == null) {
-            // Saksbehandler kan kun oppgi bruttolønn ved korreksjon
-            throw FeilkodeException(Feilkode.SAKSBEHANDLER_SVARER_PÅ_INNTEKTSPØRSMÅL)
-        }
-        refusjonService.endreBruttolønn(refusjon, inntekterKunFraTiltaket, endretBruttoLønn)
+        val korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
+        sjekkLesetilgang(korreksjon)
+        korreksjon.endreBruttolønn(inntekterKunFraTiltaket, endretBruttoLønn)
+        korreksjonRepository.save(korreksjon)
     }
 
     fun forlengFrist(id: String, nyFrist: LocalDate, årsak: String): Refusjon {

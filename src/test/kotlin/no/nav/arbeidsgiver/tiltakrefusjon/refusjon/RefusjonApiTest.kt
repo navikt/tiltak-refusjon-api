@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.nimbusds.jwt.JWTClaimsSet
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
+import no.nav.arbeidsgiver.tiltakrefusjon.hendelseslogg.HendelsesloggRepository
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjoner
 import no.nav.security.token.support.test.JwkGenerator
 import no.nav.security.token.support.test.JwtTokenGenerator
@@ -34,16 +35,16 @@ import java.util.Date
 import java.util.UUID
 import javax.servlet.http.Cookie
 
-
 @SpringBootTest
 @ActiveProfiles("local")
 @AutoConfigureMockMvc
 @AutoConfigureWireMock(port = 8091)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class RefusjonApiTest(
-        @Autowired val refusjonRepository: RefusjonRepository,
-        @Autowired val mapper: ObjectMapper,
-        @Autowired val mockMvc: MockMvc
+    @Autowired val refusjonRepository: RefusjonRepository,
+    @Autowired val mapper: ObjectMapper,
+    @Autowired val mockMvc: MockMvc,
+    @Autowired val hendelsesloggRepository: HendelsesloggRepository
 ) {
 
     private final val TOKEN_X_COOKIE_NAVN = "tokenx-token"
@@ -74,8 +75,9 @@ class RefusjonApiTest(
         val json = sendRequest(get("$REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON?enhet=1000"), navCookie)
         val liste = mapper.readValue(json, object : TypeReference<List<Refusjon>>() {})
 
-        assertEquals(8, liste.size)
+        assertNull(liste.find { it.refusjonsgrunnlag.tilskuddsgrunnlag.enhet != "1000" })
         assertNull(liste.find { it.deltakerFnr == "07098142678" })
+        assertEquals(9, liste.size) // Det er 9 stk i TestData som ikke har det fødselsnummeret som gir 'Deny'
     }
 
     @Test
@@ -178,12 +180,15 @@ class RefusjonApiTest(
 
         // Inntektsoppslag ved henting av refusjon
         val refusjonEtterInntektsgrunnlag = hentRefusjon(id)
-        assertThat(refusjonEtterInntektsgrunnlag.inntektsgrunnlag).isNotNull
+        assertThat(refusjonEtterInntektsgrunnlag.refusjonsgrunnlag.inntektsgrunnlag).isNotNull()
 
         // Svarer på spørsmål om alle inntekter er fra tiltaket
         sendRequest(post("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id/endre-bruttolønn"), arbGiverCookie, EndreBruttolønnRequest(true, null))
         val refusjonEtterInntektsspørsmål = hentRefusjon(id)
         assertThat(refusjonEtterInntektsspørsmål.beregning?.refusjonsbeløp).isPositive()
+        val harLagretHendelselogg = hendelsesloggRepository.findAll()
+            .find { it.refusjonId == refusjonEtterInntektsspørsmål.id && it.event == "BeregningUtført" && it.appImageId != null } != null
+        assertTrue(harLagretHendelselogg)
 
         // Godkjenn
         sendRequest(post("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id/godkjenn"), arbGiverCookie)

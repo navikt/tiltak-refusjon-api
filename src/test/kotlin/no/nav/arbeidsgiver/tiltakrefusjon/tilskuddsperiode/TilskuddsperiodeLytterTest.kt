@@ -55,7 +55,7 @@ class TilskuddsperiodeLytterTest {
             løpenummer = 3,
             enhet = "1000"
         )
-
+        Thread.sleep(300L)
         // NÅR
         kafkaTemplate.send(Topics.TILSKUDDSPERIODE_GODKJENT, tilskuddMelding.tilskuddsperiodeId, tilskuddMelding)
 

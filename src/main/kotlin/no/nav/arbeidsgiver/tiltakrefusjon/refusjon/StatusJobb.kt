@@ -15,7 +15,6 @@ class StatusJobb(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-
     @Scheduled(fixedDelayString = "\${tiltak-refusjon.statusjobb.fixed-delay}")
     fun sjekkForStatusEndring() {
         if (!leaderPodCheck.isLeaderPod()) {
@@ -31,7 +30,7 @@ class StatusJobb(
         var antallEndretTilKlarForInnsending: Int = 0;
         refusjoner.forEach {
             try {
-                if (Now.localDate().isAfter(it.tilskuddsgrunnlag.tilskuddTom)) {
+                if (Now.localDate().isAfter(it.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom)) {
                     it.gjørKlarTilInnsending()
                     antallEndretTilKlarForInnsending++
                     refusjonRepository.save(it)
@@ -46,7 +45,7 @@ class StatusJobb(
 
     fun sjekkOmUtgått() {
         val refusjoner = refusjonRepository.findAllByStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
-        var antallEndretTilUtgått: Int = 0;
+        var antallEndretTilUtgått: Int = 0
         refusjoner.forEach {
             try {
                 if (Now.localDate().isAfter(it.fristForGodkjenning)) {
@@ -60,5 +59,4 @@ class StatusJobb(
         }
         logger.info("Endret status til UTGÅTT på $antallEndretTilUtgått refusjoner")
     }
-
 }

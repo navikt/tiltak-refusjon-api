@@ -3,6 +3,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon.autorisering
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
 import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterService
+import no.nav.arbeidsgiver.tiltakrefusjon.organisasjon.EregClient
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Fnr
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.KorreksjonRepository
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonRepository
@@ -22,7 +23,8 @@ class InnloggetBrukerService(
     val korreksjonRepository: KorreksjonRepository,
     val refusjonService: RefusjonService,
     val inntektskomponentService: InntektskomponentService,
-    val kontoregisterService: KontoregisterService
+    val kontoregisterService: KontoregisterService,
+    val eregClient: EregClient
 ) {
     var logger: Logger = LoggerFactory.getLogger(javaClass)
 
@@ -38,7 +40,7 @@ class InnloggetBrukerService(
         return when {
             erArbeidsgiver() -> {
                 val fnr = Fnr(context.tokenValidationContext.getClaims("tokenx").getStringClaim("pid"))
-                InnloggetArbeidsgiver(fnr.verdi, altinnTilgangsstyringService, refusjonRepository, refusjonService)
+                InnloggetArbeidsgiver(fnr.verdi, altinnTilgangsstyringService, refusjonRepository, refusjonService, eregClient)
             }
             else -> {
                 throw RuntimeException("Feil ved token, kunne ikke identifisere arbeidsgiver")

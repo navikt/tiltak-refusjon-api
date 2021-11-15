@@ -1,12 +1,12 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
+
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
 import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterService
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeAnnullertMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeForkortetMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 
 @Service

@@ -21,7 +21,9 @@ class RefusjonService(
     fun opprettRefusjon(tilskuddsperiodeGodkjentMelding: TilskuddsperiodeGodkjentMelding): Refusjon? {
         log.info("Oppretter refusjon for tilskuddsperiodeId ${tilskuddsperiodeGodkjentMelding.tilskuddsperiodeId}")
 
-        if (refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_TilskuddsperiodeId(tilskuddsperiodeGodkjentMelding.tilskuddsperiodeId)
+        if (refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_TilskuddsperiodeId(
+                tilskuddsperiodeGodkjentMelding.tilskuddsperiodeId
+            )
                 .isNotEmpty()
         ) {
             log.warn("Refusjon finnes allerede for tilskuddsperiode med id ${tilskuddsperiodeGodkjentMelding.tilskuddsperiodeId}")
@@ -88,7 +90,8 @@ class RefusjonService(
 
     fun annullerRefusjon(melding: TilskuddsperiodeAnnullertMelding) {
         log.info("Annullerer refusjon med tilskuddsperiodeId ${melding.tilskuddsperiodeId}")
-        refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_TilskuddsperiodeId(melding.tilskuddsperiodeId).firstOrNull()
+        refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_TilskuddsperiodeId(melding.tilskuddsperiodeId)
+            .firstOrNull()
             ?.let {
                 it.annuller()
                 refusjonRepository.save(it)
@@ -97,7 +100,8 @@ class RefusjonService(
 
     fun forkortRefusjon(melding: TilskuddsperiodeForkortetMelding) {
         log.info("Forkorter refusjon med tilskuddsperiodeId ${melding.tilskuddsperiodeId} til dato ${melding.tilskuddTom} med nytt beløp ${melding.tilskuddsbeløp}")
-        refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_TilskuddsperiodeId(melding.tilskuddsperiodeId).firstOrNull()
+        refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_TilskuddsperiodeId(melding.tilskuddsperiodeId)
+            .firstOrNull()
             ?.let {
                 it.forkort(melding.tilskuddTom, melding.tilskuddsbeløp)
                 refusjonRepository.save(it)
@@ -117,15 +121,8 @@ class RefusjonService(
 
     fun opprettKorreksjonsutkast(refusjon: Refusjon, korreksjonsgrunner: Set<Korreksjonsgrunn>): Korreksjon {
         val korreksjonsutkast = refusjon.opprettKorreksjonsutkast(korreksjonsgrunner)
-        // refusjonRepository.save(ny)
         korreksjonRepository.save(korreksjonsutkast)
         refusjonRepository.save(refusjon)
         return korreksjonsutkast
-        // if (korreksjonsgrunner.contains(Korreksjonsgrunn.HENT_INNTEKTER_PÅ_NYTT)) {
-        //     gjørInntektsoppslag(ny)
-        // } else {
-        //     gjørBeregning(ny)
-        // }
-        // return ny
     }
 }

@@ -4,23 +4,13 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.guepardoapps.kulid.ULID
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.BeregningUtført
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.FristForlenget
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.GodkjentAvArbeidsgiver
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonAnnullert
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonForkortet
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonKlar
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.*
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.antallMånederEtter
 import org.springframework.data.domain.AbstractAggregateRoot
 import java.time.Instant
 import java.time.LocalDate
-import javax.persistence.CascadeType
-import javax.persistence.Entity
-import javax.persistence.EnumType
-import javax.persistence.Enumerated
-import javax.persistence.Id
-import javax.persistence.OneToOne
+import javax.persistence.*
 
 @Entity
 class Refusjon(
@@ -161,7 +151,6 @@ class Refusjon(
         if (korreksjonId != null) {
             throw FeilkodeException(Feilkode.HAR_KORREKSJON)
         }
-        // val korreksjonsnummer = korreksjoner.size + 1
         val korreksjonsnummer = 1
         val korreksjonsutkast = Korreksjon(
             this.id,
@@ -179,7 +168,8 @@ class Refusjon(
         return korreksjonsutkast
     }
 
-    fun slettKorreksjonsutkast() {
+    fun fjernKorreksjonId() {
+        // TODO: Kreve at status ikke er korrigert
         if (korreksjonId != null) {
             korreksjonId = null
         }
@@ -236,10 +226,4 @@ class Refusjon(
         return id.hashCode()
     }
 
-    fun copy(
-        tilskuddsgrunnlag: Tilskuddsgrunnlag = this.tilskuddsgrunnlag,
-        deltakerFnr: String = this.deltakerFnr
-    ): Refusjon {
-        return Refusjon(tilskuddsgrunnlag, bedriftNr, deltakerFnr)
-    }
 }

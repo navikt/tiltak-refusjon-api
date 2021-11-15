@@ -66,7 +66,7 @@ fun refusjoner(): List<Refusjon> {
     )
 }
 
-private fun Refusjon.medSvarPåInntekter() : Refusjon {
+private fun Refusjon.medSvarPåInntekter(): Refusjon {
     this.endreBruttolønn(true, null)
     return this
 }
@@ -242,6 +242,13 @@ fun Refusjon.medSendtKravFraArbeidsgiver(): Refusjon {
 fun Refusjon.medBedriftKontonummer(): Refusjon {
     this.oppgiBedriftKontonummer("12345670910")
     return this
+}
+
+fun Refusjon.copy(
+    tilskuddsgrunnlag: Tilskuddsgrunnlag = this.tilskuddsgrunnlag,
+    deltakerFnr: String = this.deltakerFnr
+): Refusjon {
+    return Refusjon(tilskuddsgrunnlag, bedriftNr, deltakerFnr)
 }
 
 fun etInntektsgrunnlag(måned: YearMonth = YearMonth.of(2020, 10)) = Inntektsgrunnlag(

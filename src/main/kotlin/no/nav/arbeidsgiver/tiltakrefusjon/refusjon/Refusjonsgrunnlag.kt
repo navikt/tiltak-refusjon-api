@@ -6,12 +6,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import java.time.LocalDateTime
 import java.time.YearMonth
-import javax.persistence.CascadeType
-import javax.persistence.Entity
-import javax.persistence.Id
-import javax.persistence.JoinColumn
-import javax.persistence.ManyToOne
-import javax.persistence.OneToOne
+import javax.persistence.*
 
 @Entity
 class Refusjonsgrunnlag(
@@ -21,7 +16,7 @@ class Refusjonsgrunnlag(
     val tidligereUtbetalt: Int = 0,
 ) {
     @Id
-    var id = ULID.random()
+    val id = ULID.random()
 
     @OneToOne(orphanRemoval = true, cascade = [CascadeType.ALL])
     var inntektsgrunnlag: Inntektsgrunnlag? = null
@@ -29,10 +24,11 @@ class Refusjonsgrunnlag(
     var bedriftKontonummerInnhentetTidspunkt: LocalDateTime? = null
     var inntekterKunFraTiltaket: Boolean? = null
     var endretBruttoLønn: Int? = null
+
     @OneToOne(orphanRemoval = true, cascade = [CascadeType.ALL])
     var beregning: Beregning? = null
 
-    fun oppgiInntektsgrunnlag(inntektsgrunnlag: Inntektsgrunnlag) : Boolean {
+    fun oppgiInntektsgrunnlag(inntektsgrunnlag: Inntektsgrunnlag): Boolean {
         this.inntektsgrunnlag = inntektsgrunnlag
         return gjørBeregning()
     }
@@ -42,7 +38,7 @@ class Refusjonsgrunnlag(
         this.bedriftKontonummerInnhentetTidspunkt = Now.localDateTime()
     }
 
-    fun endreBruttolønn(inntekterKunFraTiltaket: Boolean, bruttoLønn: Int?) : Boolean {
+    fun endreBruttolønn(inntekterKunFraTiltaket: Boolean, bruttoLønn: Int?): Boolean {
         if (inntekterKunFraTiltaket && bruttoLønn != null) {
             throw FeilkodeException(Feilkode.INNTEKTER_KUN_FRA_TILTAK_OG_OPPGIR_BELØP)
         }
@@ -57,7 +53,7 @@ class Refusjonsgrunnlag(
         return bedriftKontonummer != null && (inntekterKunFraTiltaket == true && endretBruttoLønn == null || inntekterKunFraTiltaket == false && endretBruttoLønn != null)
     }
 
-    private fun gjørBeregning() : Boolean {
+    private fun gjørBeregning(): Boolean {
         if (erAltOppgitt()) {
             this.beregning = beregnRefusjonsbeløp(
                 inntekter = inntektsgrunnlag!!.inntekter.toList(),

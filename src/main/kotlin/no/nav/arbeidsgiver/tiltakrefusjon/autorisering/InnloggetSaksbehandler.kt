@@ -4,15 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.arbeidsgiver.tiltakrefusjon.RessursFinnesIkkeException
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
 import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterService
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.HentSaksbehandlerRefusjonerQueryParametre
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Inntektsgrunnlag
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Korreksjon
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.KorreksjonRepository
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Korreksjonsgrunn
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonRepository
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonService
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonStatus
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.data.repository.findByIdOrNull
@@ -118,7 +110,7 @@ data class InnloggetSaksbehandler(
         val refusjon = finnRefusjon(korreksjon.korrigererRefusjonId)
         sjekkLesetilgang(refusjon)
         if (korreksjon.kanSlettes()) {
-            refusjon.slettKorreksjonsutkast()
+            refusjon.fjernKorreksjonId()
             refusjonRepository.save(refusjon)
             korreksjonRepository.delete(korreksjon)
         }

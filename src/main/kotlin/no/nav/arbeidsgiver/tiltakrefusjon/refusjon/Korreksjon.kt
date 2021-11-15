@@ -10,15 +10,8 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.KorreksjonSendtTilUtbe
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.springframework.data.domain.AbstractAggregateRoot
 import java.time.Instant
-import java.util.EnumSet
-import javax.persistence.CascadeType
-import javax.persistence.ElementCollection
-import javax.persistence.Entity
-import javax.persistence.EnumType
-import javax.persistence.Enumerated
-import javax.persistence.FetchType
-import javax.persistence.Id
-import javax.persistence.OneToOne
+import java.util.*
+import javax.persistence.*
 
 @Entity
 class Korreksjon(
@@ -30,24 +23,28 @@ class Korreksjon(
     val bedriftNr: String,
 ) : AbstractAggregateRoot<Korreksjon>() {
     constructor(
-        refusjon: String,
+        korrigererRefusjonId: String,
         korreksjonsnummer: Int,
         tidligereUtbetalt: Int,
         korreksjonsgrunner: Set<Korreksjonsgrunn>,
         tilskuddsgrunnlag: Tilskuddsgrunnlag,
         deltakerFnr: String,
         bedriftNr: String,
-        inntekterKunFraTiltaket: Boolean,
+        inntekterKunFraTiltaket: Boolean?,
         endretBruttoLønn: Int?
     ) : this(
-        refusjon,
+        korrigererRefusjonId,
         korreksjonsnummer,
         Refusjonsgrunnlag(tilskuddsgrunnlag, tidligereUtbetalt),
         deltakerFnr,
         bedriftNr
     ) {
         this.korreksjonsgrunner.addAll(korreksjonsgrunner)
-        this.refusjonsgrunnlag.endreBruttolønn(inntekterKunFraTiltaket, endretBruttoLønn)
+        if (inntekterKunFraTiltaket == null) { // For gamle refusjoner før vi stilte dette spørsmålet
+            this.refusjonsgrunnlag.endreBruttolønn(true, null)
+        } else {
+            this.refusjonsgrunnlag.endreBruttolønn(inntekterKunFraTiltaket, endretBruttoLønn)
+        }
     }
 
     @Id

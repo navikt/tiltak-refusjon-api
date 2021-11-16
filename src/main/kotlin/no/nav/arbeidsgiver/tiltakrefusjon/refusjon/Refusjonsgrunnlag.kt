@@ -6,7 +6,12 @@ import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import java.time.LocalDateTime
 import java.time.YearMonth
-import javax.persistence.*
+import javax.persistence.CascadeType
+import javax.persistence.Entity
+import javax.persistence.Id
+import javax.persistence.JoinColumn
+import javax.persistence.ManyToOne
+import javax.persistence.OneToOne
 
 @Entity
 class Refusjonsgrunnlag(
@@ -33,9 +38,10 @@ class Refusjonsgrunnlag(
         return gjørBeregning()
     }
 
-    fun oppgiBedriftKontonummer(bedrifKontonummer: String) {
+    fun oppgiBedriftKontonummer(bedrifKontonummer: String): Boolean {
         this.bedriftKontonummer = bedrifKontonummer
         this.bedriftKontonummerInnhentetTidspunkt = Now.localDateTime()
+        return gjørBeregning()
     }
 
     fun endreBruttolønn(inntekterKunFraTiltaket: Boolean, bruttoLønn: Int?): Boolean {
@@ -49,7 +55,7 @@ class Refusjonsgrunnlag(
 
     fun erAltOppgitt(): Boolean {
         val inntektsgrunnlag = inntektsgrunnlag
-        if (inntektsgrunnlag == null || inntektsgrunnlag.inntekter.none() { it.erMedIInntektsgrunnlag() }) return false
+        if (inntektsgrunnlag == null || inntektsgrunnlag.inntekter.none { it.erMedIInntektsgrunnlag() }) return false
         return bedriftKontonummer != null && (inntekterKunFraTiltaket == true && endretBruttoLønn == null || inntekterKunFraTiltaket == false && endretBruttoLønn != null)
     }
 

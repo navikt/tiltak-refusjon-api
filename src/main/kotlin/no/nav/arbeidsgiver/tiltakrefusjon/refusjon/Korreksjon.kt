@@ -109,6 +109,9 @@ class Korreksjon(
         if (beslutterNavIdent == utførtAv) {
             throw FeilkodeException(Feilkode.SAMME_SAKSBEHANDLER_OG_BESLUTTER)
         }
+        if (kostnadssted.isBlank()) {
+            throw FeilkodeException(Feilkode.KOSTNADSSTED_MANGLER)
+        }
         this.godkjentTidspunkt = Now.instant()
         this.godkjentAvNavIdent = utførtAv
         this.besluttetAvNavIdent = beslutterNavIdent
@@ -167,6 +170,13 @@ class Korreksjon(
 
     fun oppgiInntektsgrunnlag(inntektsgrunnlag: Inntektsgrunnlag) {
         val harGjortBeregning = this.refusjonsgrunnlag.oppgiInntektsgrunnlag(inntektsgrunnlag)
+        if (harGjortBeregning) {
+            registerEvent(KorreksjonBeregningUtført(this))
+        }
+    }
+
+    fun oppgiBedriftKontonummer(bedrifKontonummer: String) {
+        val harGjortBeregning = this.refusjonsgrunnlag.oppgiBedriftKontonummer(bedrifKontonummer)
         if (harGjortBeregning) {
             registerEvent(KorreksjonBeregningUtført(this))
         }

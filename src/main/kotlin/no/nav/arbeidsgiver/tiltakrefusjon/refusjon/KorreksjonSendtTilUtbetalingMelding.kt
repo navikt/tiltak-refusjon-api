@@ -1,7 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 data class KorreksjonSendtTilUtbetalingMelding(
-    val refusjonId: String,
+    val korreksjonId: String,
     val avtaleNr: Int,
     val løpenummer: Int,
     val avtaleId: String,
@@ -9,6 +9,6 @@ data class KorreksjonSendtTilUtbetalingMelding(
     val beløp: Int,
     val korreksjonsnummer: Int,
     val bedriftKontonummer: String,
-    val korreksjonAvRefusjonId: String,
-    val korreksjonstype: Korreksjonstype
+    val korrigererRefusjonId: String,
+    val kostnadssted: String
 )

@@ -44,16 +44,16 @@ class RefusjonKafkaProducer(
     @TransactionalEventListener
     fun korreksjonSendtTilUtbetaling(event: KorreksjonSendtTilUtbetaling) {
         val melding = KorreksjonSendtTilUtbetalingMelding(
-            refusjonId = event.korreksjon.id,
+            korreksjonId = event.korreksjon.id,
             avtaleNr = event.korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr,
             løpenummer = event.korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.løpenummer,
-            korreksjonAvRefusjonId = event.korreksjon.korrigererRefusjonId,
             avtaleId = event.korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleId,
             tilskuddsperiodeId = event.korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId,
             beløp = event.korreksjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp,
             korreksjonsnummer = event.korreksjon.korreksjonsnummer,
             bedriftKontonummer = event.korreksjon.refusjonsgrunnlag.bedriftKontonummer!!,
-            korreksjonstype = event.korreksjon.status
+            korrigererRefusjonId = event.korreksjon.korrigererRefusjonId,
+            kostnadssted = event.korreksjon.kostnadssted!!
         )
         korreksjonKafkaTemplate.send(Topics.REFUSJON_KORRIGERT, event.korreksjon.id, melding)
             .addCallback({
@@ -63,7 +63,7 @@ class RefusjonKafkaProducer(
                     it?.recordMetadata?.topic()
                 )
             }, {
-                log.warn("Feil", it)
+                log.warn("Feil ved sending av refusjon korrigert-melding på Kafka", it)
             })
     }
 }

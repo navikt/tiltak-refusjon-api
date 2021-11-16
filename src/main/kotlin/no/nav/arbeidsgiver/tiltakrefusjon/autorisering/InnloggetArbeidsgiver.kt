@@ -35,8 +35,11 @@ data class InnloggetArbeidsgiver(
 
     fun godkjenn(refusjonId: String) {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(refusjonId) ?: throw RessursFinnesIkkeException()
-        val harForretningsadresse = eregClient.hentVirksomhet(refusjon.bedriftNr).let(Virksomhet::harBedriftAdresseOgJuridiskEnhet)
+       /*
+       Deaktiverer dette til vi har en bedre løsning
+          val harForretningsadresse = eregClient.hentVirksomhet(refusjon.bedriftNr).let(Virksomhet::harBedriftAdresseOgJuridiskEnhet)
         if(!harForretningsadresse) throw FeilkodeException(Feilkode.EREG_MANGLER_ADRESSEINFO)
+      */
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
         refusjonService.godkjennForArbeidsgiver(refusjon, this.identifikator)
     }

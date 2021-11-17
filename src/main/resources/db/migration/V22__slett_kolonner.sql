@@ -1,6 +1,6 @@
-alter table refusjon drop column tilskuddsgrunnlag_id;
-alter table refusjon drop column inntektsgrunnlag_id;
-alter table refusjon drop column beregning_id;
+alter table refusjon drop column if exists tilskuddsgrunnlag_id;
+alter table refusjon drop column if exists inntektsgrunnlag_id;
+alter table refusjon drop column if exists beregning_id;
 alter table refusjon drop column bedrift_kontonummer;
 alter table refusjon drop column innhentet_bedrift_kontonummer_tidspunkt;
 alter table refusjon drop column inntekter_kun_fra_tiltaket;

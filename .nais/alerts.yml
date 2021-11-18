@@ -19,10 +19,10 @@ spec:
       for: 2m
       description: "App tiltak-refusjon-api er nede. Ingen tilgjengelige podder."
       action: Se `kubectl get  pod -l app={{ $labels.deployment }}` for status på podder, og `kubectl logs -l app={{ $labels.deployment }}` for logger.
-    - alert: høy feilrate i logger
+    - alert: Høy feilrate i logger
       expr: (100 * sum by (log_app, log_namespace) (rate(logd_messages_total{log_app="tiltak-refusjon-api",log_level=~"Error"}[3m])) / sum by (log_app, log_namespace) (rate(logd_messages_total{log_app="tiltak-refusjon-api"}[3m]))) > 10
       for: 3m
-      action: "Sjekk loggene til app tiltak-refusjon-api i namespace arbeidsgiver for å se hvorfor det er så mye feil"
+      action: "Sjekk loggene til app tiltak-refusjon-api: https://logs.adeo.no/goto/333ea0992af69a51db68bcb2903bb164"
   receivers:
     slack:
       channel: '#{{ slack_alert_channel }}'

@@ -1,13 +1,10 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.autorisering
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
-import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.RessursFinnesIkkeException
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
 import no.nav.arbeidsgiver.tiltakrefusjon.organisasjon.EregClient
-import no.nav.arbeidsgiver.tiltakrefusjon.organisasjon.Virksomhet
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonRepository
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonService
@@ -35,11 +32,6 @@ data class InnloggetArbeidsgiver(
 
     fun godkjenn(refusjonId: String) {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(refusjonId) ?: throw RessursFinnesIkkeException()
-       /*
-       Deaktiverer dette til vi har en bedre løsning
-          val harForretningsadresse = eregClient.hentVirksomhet(refusjon.bedriftNr).let(Virksomhet::harBedriftAdresseOgJuridiskEnhet)
-        if(!harForretningsadresse) throw FeilkodeException(Feilkode.EREG_MANGLER_ADRESSEINFO)
-      */
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
         refusjonService.godkjennForArbeidsgiver(refusjon, this.identifikator)
     }

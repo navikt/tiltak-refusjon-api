@@ -12,6 +12,7 @@ import javax.persistence.Id
 import javax.persistence.JoinColumn
 import javax.persistence.ManyToOne
 import javax.persistence.OneToOne
+import kotlin.streams.toList
 
 @Entity
 class Refusjonsgrunnlag(
@@ -81,8 +82,7 @@ class Refusjonsgrunnlag(
         val tilskuddFom = tilskuddsgrunnlag.tilskuddFom
         val tilskuddTom = tilskuddsgrunnlag.tilskuddTom
 
-        val månederTilskudd =
-            tilskuddFom.datesUntil(tilskuddTom).map { YearMonth.of(it.year, it.month) }.distinct().toList()
+        val månederTilskudd =  tilskuddFom.datesUntil(tilskuddTom).map { YearMonth.of(it.year, it.month) }.distinct().toList()
 
         return månederInntekter.containsAll(månederTilskudd)
     }

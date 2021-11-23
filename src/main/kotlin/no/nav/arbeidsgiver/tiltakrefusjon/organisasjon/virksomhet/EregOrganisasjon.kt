@@ -27,7 +27,7 @@ data class EregOrganisasjon (
 			return Virksomhet(
 				juridiskEnhetNavnOgOrgNr.second,
 				organisasjonsnummer.toString(),
-				organisasjonDetaljer.forretningsadresser.first().adresselinje1,
+				organisasjonDetaljer.forretningsadresser.first().adresselinje1 ?: ".",
 				organisasjonDetaljer.forretningsadresser.first().postnummer.toString(),
 				juridiskEnhetNavnOgOrgNr.first)
 	}

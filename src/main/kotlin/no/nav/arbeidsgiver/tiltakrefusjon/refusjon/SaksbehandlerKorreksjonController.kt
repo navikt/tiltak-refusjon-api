@@ -17,12 +17,6 @@ const val REQUEST_MAPPING_SAKSBEHANDLER_KORREKSJON = "/api/saksbehandler/korreks
 class SaksbehandlerKorreksjonController(
     val innloggetBrukerService: InnloggetBrukerService,
 ) {
-    @GetMapping
-    fun hentAlle(queryParametre: HentSaksbehandlerRefusjonerQueryParametre): List<Refusjon> {
-        val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
-        return saksbehandler.finnAlle(queryParametre)
-    }
-
     @GetMapping("/{id}")
     fun hent(@PathVariable id: String): Korreksjon? {
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()

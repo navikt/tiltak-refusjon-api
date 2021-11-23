@@ -40,7 +40,7 @@ class InnloggetBrukerService(
         return when {
             erArbeidsgiver() -> {
                 val fnr = Fnr(context.tokenValidationContext.getClaims("tokenx").getStringClaim("pid"))
-                InnloggetArbeidsgiver(fnr.verdi, altinnTilgangsstyringService, refusjonRepository, refusjonService, eregClient)
+                InnloggetArbeidsgiver(fnr.verdi, altinnTilgangsstyringService, refusjonRepository, korreksjonRepository, refusjonService, eregClient)
             }
             else -> {
                 throw RuntimeException("Feil ved token, kunne ikke identifisere arbeidsgiver")

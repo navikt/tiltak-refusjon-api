@@ -5,19 +5,18 @@ import no.nav.arbeidsgiver.tiltakrefusjon.RessursFinnesIkkeException
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
 import no.nav.arbeidsgiver.tiltakrefusjon.organisasjon.EregClient
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonRepository
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonService
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.data.repository.findByIdOrNull
 
 data class InnloggetArbeidsgiver(
-        val identifikator: String,
-        @JsonIgnore val altinnTilgangsstyringService: AltinnTilgangsstyringService,
-        @JsonIgnore val refusjonRepository: RefusjonRepository,
-        @JsonIgnore val refusjonService: RefusjonService,
-        @JsonIgnore val eregClient: EregClient
+    val identifikator: String,
+    @JsonIgnore val altinnTilgangsstyringService: AltinnTilgangsstyringService,
+    @JsonIgnore val refusjonRepository: RefusjonRepository,
+    @JsonIgnore val korreksjonRepository: KorreksjonRepository,
+    @JsonIgnore val refusjonService: RefusjonService,
+    @JsonIgnore val eregClient: EregClient
 ) {
 
     @JsonIgnore
@@ -42,6 +41,12 @@ data class InnloggetArbeidsgiver(
         refusjonService.gjørBedriftKontonummeroppslag(refusjon)
         refusjonService.gjørInntektsoppslag(refusjon)
         return refusjon
+    }
+
+    fun finnKorreksjon(id: String): Korreksjon {
+        val korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
+        sjekkHarTilgangTilRefusjonerForBedrift(korreksjon.bedriftNr)
+        return korreksjon
     }
 
     private fun sjekkHarTilgangTilRefusjonerForBedrift(bedriftsnummer: String): Boolean {

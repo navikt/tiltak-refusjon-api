@@ -13,7 +13,7 @@ Egenskap: Beregn refusjon for sommerjobb
       | inntektType   | beskrivelse | beløp | måned   | opptjeningsperiodeFom | opptjeningsperiodeTom |
       | LOENNSINNTEKT | fastloenn   | 20000 | 2020-02 |                       |                       |
     Når sommerjobb på 60 prosent skal refunderes for periode "2020-01-01" til "2020-01-31" med arbeidsgiveravgift "0.141", feriepengersats "0.12", OTP-sats "0.02"
-    Og korreksjonsgrunn "INNTEKTER_RAPPORTERT_ETTER_TILSKUDDSPERIODE" er valgt
+    Og korreksjonsgrunn "HENT_INNTEKTER_TO_MÅNEDER_FREM" er valgt
     Så beregnes refusjon til 15642 kr for periode
 
   @skip_scenario

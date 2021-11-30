@@ -63,11 +63,12 @@ data class InnloggetSaksbehandler(
             korreksjonRepository.save(korreksjon)
         }
         if (korreksjon.skalGjøreInntektsoppslag()) {
+            val antallMånederSomSkalSjekkes: Long = if (korreksjon.korreksjonsgrunner.contains(Korreksjonsgrunn.HENT_INNTEKTER_TO_MÅNEDER_FREM)) 2 else 1
             val inntektsoppslag = inntektskomponentService.hentInntekter(
                 fnr = korreksjon.deltakerFnr,
                 bedriftnummerDetSøkesPå = korreksjon.bedriftNr,
                 datoFra = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
-                datoTil = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom.plusMonths(1) // TODO: Sjekk korreksjonsgrunn, om det skal være 2 mnd etter
+                datoTil = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom.plusMonths(antallMånederSomSkalSjekkes)
             )
             val inntektsgrunnlag = Inntektsgrunnlag(
                 inntekter = inntektsoppslag.first,

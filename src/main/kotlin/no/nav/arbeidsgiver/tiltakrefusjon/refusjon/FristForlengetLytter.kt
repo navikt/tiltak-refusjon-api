@@ -15,11 +15,20 @@ class FristForlengetLytter(
 ) {
     @EventListener
     fun fristForlenget(event: FristForlenget) {
-        fristForlengetRepository.save(FristForlengetEntitet(refusjonId = event.refusjon.id,
-            gammelFrist = event.gammelFrist,
-            nyFrist = event.nyFrist,
-            årsak = event.årsak,
-            utførtAv = event.utførtAv))
-        producer.sendVarsel(event.refusjon, VarselType.FRIST_FORLENGET)
+        fristForlengetRepository.save(
+            FristForlengetEntitet(
+                refusjonId = event.refusjon.id,
+                gammelFrist = event.gammelFrist,
+                nyFrist = event.nyFrist,
+                årsak = event.årsak,
+                utførtAv = event.utførtAv
+            )
+        )
+        producer.sendVarsel(
+            varselType = VarselType.FRIST_FORLENGET,
+            refusjonId = event.refusjon.id,
+            tilskuddsperiodeId = event.refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId,
+            avtaleId = event.refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleId
+        )
     }
 }

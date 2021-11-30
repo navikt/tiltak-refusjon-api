@@ -35,7 +35,7 @@ class VarslingJobb(
             val varslerForRefusjon = varslingRepository.findAllByRefusjonId(refusjon.id)
 
             if (varslerForRefusjon.none { it.varselType === VarselType.KLAR }) {
-                refusjonVarselProducer.sendVarsel(refusjon, VarselType.KLAR)
+                refusjonVarselProducer.sendVarsel(VarselType.KLAR, refusjon.id, refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId, refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleId)
                 continue
             }
 
@@ -44,7 +44,7 @@ class VarslingJobb(
             val finnesIngenFerskVarsling = dagerSidenForrigeVarsel(varslerForRefusjon) > 3
 
             if (kortTidTilRefusjonenGårUt && finnesIngenRevarslerForRefusjon && finnesIngenFerskVarsling) {
-                refusjonVarselProducer.sendVarsel(refusjon, VarselType.REVARSEL)
+                refusjonVarselProducer.sendVarsel(VarselType.REVARSEL, refusjon.id, refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId, refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleId)
             }
         }
     }

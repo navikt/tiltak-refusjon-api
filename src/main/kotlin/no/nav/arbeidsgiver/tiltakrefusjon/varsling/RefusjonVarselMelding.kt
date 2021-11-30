@@ -5,5 +5,6 @@ data class RefusjonVarselMelding(val avtaleId: String, val tilskuddsperiodeId: S
 enum class VarselType {
     KLAR,
     REVARSEL,
-    FRIST_FORLENGET
+    FRIST_FORLENGET,
+    KORRIGERT
 }

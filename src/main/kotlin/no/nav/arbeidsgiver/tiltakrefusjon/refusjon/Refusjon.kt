@@ -4,13 +4,23 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.guepardoapps.kulid.ULID
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.*
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.BeregningUtført
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.FristForlenget
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.GodkjentAvArbeidsgiver
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonAnnullert
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonForkortet
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonKlar
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.antallMånederEtter
 import org.springframework.data.domain.AbstractAggregateRoot
 import java.time.Instant
 import java.time.LocalDate
-import javax.persistence.*
+import javax.persistence.CascadeType
+import javax.persistence.Entity
+import javax.persistence.EnumType
+import javax.persistence.Enumerated
+import javax.persistence.Id
+import javax.persistence.OneToOne
 
 @Entity
 class Refusjon(
@@ -152,18 +162,18 @@ class Refusjon(
             throw FeilkodeException(Feilkode.HAR_KORREKSJON)
         }
         val korreksjonsnummer = 1
+        val tidligereUtbetalt = if (korreksjonsgrunner.contains(Korreksjonsgrunn.UTBETALT_HELE_TILSKUDDSBELØP)) refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsbeløp else refusjonsgrunnlag.beregning!!.refusjonsbeløp
         val korreksjonsutkast = Korreksjon(
-            this.id,
-            korreksjonsnummer,
-            refusjonsgrunnlag.beregning!!.refusjonsbeløp,
-            korreksjonsgrunner,
-            refusjonsgrunnlag.tilskuddsgrunnlag,
-            deltakerFnr,
-            bedriftNr,
-            refusjonsgrunnlag.inntekterKunFraTiltaket ?: true,
-            refusjonsgrunnlag.endretBruttoLønn,
-
-            )
+            korrigererRefusjonId = this.id,
+            korreksjonsnummer = korreksjonsnummer,
+            tidligereUtbetalt = tidligereUtbetalt,
+            korreksjonsgrunner = korreksjonsgrunner,
+            tilskuddsgrunnlag = refusjonsgrunnlag.tilskuddsgrunnlag,
+            deltakerFnr = deltakerFnr,
+            bedriftNr = bedriftNr,
+            inntekterKunFraTiltaket = refusjonsgrunnlag.inntekterKunFraTiltaket ?: true,
+            endretBruttoLønn = refusjonsgrunnlag.endretBruttoLønn,
+        )
         this.korreksjonId = korreksjonsutkast.id
         return korreksjonsutkast
     }
@@ -225,5 +235,4 @@ class Refusjon(
     override fun hashCode(): Int {
         return id.hashCode()
     }
-
 }

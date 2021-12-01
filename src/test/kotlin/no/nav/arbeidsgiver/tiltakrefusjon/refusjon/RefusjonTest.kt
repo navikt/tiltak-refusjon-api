@@ -301,7 +301,7 @@ internal class RefusjonTest {
     internal fun `forleng frist`() {
         val refusjon = enRefusjon().medInntektsgrunnlag().medBedriftKontonummer()
         val opprinneligFrist = refusjon.fristForGodkjenning
-        val sisteDagDetErMuligÅForlengeTil = refusjon.tilskuddsgrunnlag.tilskuddTom.plusMonths(6)
+        val sisteDagDetErMuligÅForlengeTil = refusjon.tilskuddsgrunnlag.tilskuddTom.plusMonths(12)
 
         // Positiv test
         refusjon.forlengFrist(sisteDagDetErMuligÅForlengeTil, "", "")

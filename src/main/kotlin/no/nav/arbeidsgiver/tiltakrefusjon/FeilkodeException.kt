@@ -3,7 +3,6 @@ package no.nav.arbeidsgiver.tiltakrefusjon
 open class FeilkodeException(val feilkode: Feilkode) : RuntimeException("Feil inntruffet: $feilkode")
 
 enum class Feilkode {
-    TEKNISK_FEIL_BANKKONTONUMMEROPPSLAG,
     TEKNISK_FEIL_EREGOPPSLAG,
     TEKNISK_FEIL_EREGOPPSLAG_FANT_IKKE_BEDRIFT,
     EREG_MANGLER_ADRESSEINFO,

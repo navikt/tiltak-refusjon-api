@@ -39,7 +39,7 @@ class Refusjonsgrunnlag(
         return gjørBeregning()
     }
 
-    fun oppgiBedriftKontonummer(bedrifKontonummer: String): Boolean {
+    fun oppgiBedriftKontonummer(bedrifKontonummer: String?): Boolean {
         this.bedriftKontonummer = bedrifKontonummer
         this.bedriftKontonummerInnhentetTidspunkt = Now.localDateTime()
         return gjørBeregning()

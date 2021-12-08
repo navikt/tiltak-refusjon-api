@@ -105,7 +105,7 @@ class Refusjon(
         }
     }
 
-    fun oppgiBedriftKontonummer(bedrifKontonummer: String) {
+    fun oppgiBedriftKontonummer(bedrifKontonummer: String?) {
         refusjonsgrunnlag.oppgiBedriftKontonummer(bedrifKontonummer)
     }
 

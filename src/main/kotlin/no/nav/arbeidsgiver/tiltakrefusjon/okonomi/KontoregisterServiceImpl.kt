@@ -18,25 +18,24 @@ import java.util.*
 @Service
 @ConditionalOnPropertyNotEmpty("tiltak-refusjon.kontoregister.uri")
 class KontoregisterServiceImpl(
-        val properties: KontoregisterProperties,
-        @Qualifier("anonymProxyRestTemplate") val restTemplate: RestTemplate
+    val properties: KontoregisterProperties,
+    @Qualifier("anonymProxyRestTemplate") val restTemplate: RestTemplate
 ) : KontoregisterService {
 
     val log: Logger = LoggerFactory.getLogger(javaClass)
 
-    override fun hentBankkontonummer(bedriftNr: String): String {
+    override fun hentBankkontonummer(bedriftNr: String): String? {
         val requestEntity = lagRequest()
         val url = "${properties.uri}/${bedriftNr}"
         log.info("Kontoregister url: $url")
-        var responseMedKontonummerTilBedrift: KontoregisterResponse?
         try {
-            responseMedKontonummerTilBedrift = restTemplate.exchange<KontoregisterResponse>(url, HttpMethod.GET, requestEntity).body
+            val responseMedKontonummerTilBedrift =
+                restTemplate.exchange<KontoregisterResponse>(url, HttpMethod.GET, requestEntity).body
+            return responseMedKontonummerTilBedrift?.kontonr
         } catch (e: RestClientException) {
             log.warn("Kontoregister call feiler", e)
-            throw HentingAvBankkontonummerException()
         }
-        val kontonummer = responseMedKontonummerTilBedrift?.kontonr ?: throw HentingAvBankkontonummerException()
-        return kontonummer
+        return null
     }
 
     private fun lagRequest(): HttpEntity<KontoregisterRequest> {

@@ -17,6 +17,7 @@
         <kotlin.version>1.5.10</kotlin.version>
         <cucumber.version>6.4.0</cucumber.version>
         <swagger.version>2.9.2</swagger.version>
+        <log4j2.version>2.15.0</log4j2.version>
     </properties>
 
     <dependencies>

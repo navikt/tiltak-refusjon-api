@@ -110,7 +110,7 @@ class RefusjonServiceTest(
     internal fun `inntektsoppslag skal ta hensyn til unntaksregel`() {
         val deltakerFnr = "00000000000"
         val tilskuddMelding = TilskuddsperiodeGodkjentMelding(
-            avtaleId = "1",
+            avtaleId = "2",
             tilskuddsbeløp = 1000,
             tiltakstype = Tiltakstype.SOMMERJOBB,
             deltakerEtternavn = "Mus",
@@ -124,7 +124,7 @@ class RefusjonServiceTest(
             otpSats = 0.02,
             tilskuddFom = Now.localDate().minusWeeks(4).plusDays(1),
             tilskuddTom = Now.localDate().minusDays(1),
-            tilskuddsperiodeId = "3",
+            tilskuddsperiodeId = "4",
             veilederNavIdent = "X123456",
             lønnstilskuddsprosent = 60,
             avtaleNr = 3456,

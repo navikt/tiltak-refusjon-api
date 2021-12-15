@@ -7,27 +7,33 @@ public class Now {
 
     private static ThreadLocal<Clock> clock = ThreadLocal.withInitial(Clock::systemDefaultZone);
 
+    // Metode for å sette tidspunkt. Skal kun brukes i test
     public static void fixedDate(LocalDate localDate) {
         Instant instant = ZonedDateTime.of(localDate.atStartOfDay(), ZoneId.systemDefault()).toInstant();
         clock.set(Clock.fixed(instant, ZoneId.systemDefault()));
     }
 
+    // Metode for å resette tidspunkt. Skal brukes i test hvis man har brukt fixedDate først
     public static void resetClock() {
         Now.clock.set(Clock.systemDefaultZone());
     }
 
+    // Skal brukes i prod-kode om man trenger nå-tidspunkt. Ikke bruk Instant.now() i prod-kode om det skal kunne testes.
     public static Instant instant() {
         return Instant.now(clock.get());
     }
 
+    // Skal brukes i prod-kode om man trenger nå-tidspunkt. Ikke bruk LocalDate.now() i prod-kode om det skal kunne testes.
     public static LocalDate localDate() {
         return LocalDate.now(clock.get());
     }
 
+    // Skal brukes i prod-kode om man trenger nå-tidspunkt. Ikke bruk LocalDateTime.now() i prod-kode om det skal kunne testes.
     public static LocalDateTime localDateTime() {
         return LocalDateTime.now(clock.get());
     }
 
+    // Skal brukes i prod-kode om man trenger nå-tidspunkt. Ikke bruk YearMonth.now() i prod-kode om det skal kunne testes.
     public static YearMonth yearMonth() {
         return YearMonth.now(clock.get());
     }

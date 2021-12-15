@@ -1,0 +1,1 @@
+alter table refusjon add column unntak_om_inntekter_to_måneder_frem boolean default false;

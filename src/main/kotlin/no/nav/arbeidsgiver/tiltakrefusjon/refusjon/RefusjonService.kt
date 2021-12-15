@@ -65,12 +65,13 @@ class RefusjonService(
             return
         }
 
+        val antallMånederSomSkalSjekkes: Long = if (refusjon.unntakOmInntekterToMånederFrem) 2 else 1
         try {
             val inntektsoppslag = inntektskomponentService.hentInntekter(
                 fnr = refusjon.deltakerFnr,
                 bedriftnummerDetSøkesPå = refusjon.bedriftNr,
                 datoFra = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
-                datoTil = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom.plusMonths(1)
+                datoTil = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom.plusMonths(antallMånederSomSkalSjekkes)
             )
             val inntektsgrunnlag = Inntektsgrunnlag(
                 inntekter = inntektsoppslag.first,

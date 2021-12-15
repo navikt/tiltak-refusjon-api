@@ -7,6 +7,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.BeregningUtført
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.FristForlenget
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.GodkjentAvArbeidsgiver
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.MerketForUnntakOmInntekterToMånederFrem
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonAnnullert
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonForkortet
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonKlar
@@ -39,6 +40,8 @@ class Refusjon(
     // Fristen er satt til 2 mnd ihht økonomireglementet
     var fristForGodkjenning: LocalDate = antallMånederEtter(refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom, 2)
     var forrigeFristForGodkjenning: LocalDate? = null
+
+    var unntakOmInntekterToMånederFrem: Boolean = false
 
     var godkjentAvArbeidsgiver: Instant? = null
 
@@ -235,5 +238,11 @@ class Refusjon(
 
     override fun hashCode(): Int {
         return id.hashCode()
+    }
+
+    fun merkForUnntakOmInntekterToMånederFrem(merking: Boolean, utførtAv: String) {
+        krevStatus(RefusjonStatus.FOR_TIDLIG, RefusjonStatus.KLAR_FOR_INNSENDING)
+        unntakOmInntekterToMånederFrem = merking
+        registerEvent(MerketForUnntakOmInntekterToMånederFrem(this, merking, utførtAv))
     }
 }

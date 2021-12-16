@@ -17,6 +17,8 @@ data class HentSaksbehandlerRefusjonerQueryParametre(
     val avtaleNr: Int? = null,
 )
 
+data class MerkForUnntakOmInntekterToMånederFremRequest(val merking: Boolean)
+
 @RestController
 @RequestMapping(REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON)
 @ProtectedWithClaims(issuer = "aad")
@@ -42,8 +44,8 @@ class SaksbehandlerRefusjonController(
     }
 
     @PostMapping("/{id}/merk-for-unntak-om-inntekter-to-mnd-frem")
-    fun merkForUnntakOmInntekterToMånederFrem(@PathVariable id: String, @RequestBody request: Boolean) {
+    fun merkForUnntakOmInntekterToMånederFrem(@PathVariable id: String, @RequestBody request: MerkForUnntakOmInntekterToMånederFremRequest) {
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
-        saksbehandler.merkForUnntakOmInntekterToMånederFrem(id, request)
+        saksbehandler.merkForUnntakOmInntekterToMånederFrem(id, request.merking)
     }
 }

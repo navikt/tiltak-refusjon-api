@@ -41,7 +41,7 @@ class SaksbehandlerRefusjonController(
         return saksbehandler.forlengFrist(id, request.nyFrist, request.årsak)
     }
 
-    @PostMapping("/{id}/merk-for-unntak-om-inntekter-to-måneder-frem")
+    @PostMapping("/{id}/merk-for-unntak-om-inntekter-to-mnd-frem")
     fun merkForUnntakOmInntekterToMånederFrem(@PathVariable id: String, @RequestBody request: Boolean) {
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
         saksbehandler.merkForUnntakOmInntekterToMånederFrem(id, request)

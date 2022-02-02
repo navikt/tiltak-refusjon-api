@@ -8,7 +8,11 @@ import no.nav.arbeidsgiver.tiltakrefusjon.organisasjon.EregClient
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
+
 
 data class InnloggetArbeidsgiver(
     val identifikator: String,
@@ -27,6 +31,19 @@ data class InnloggetArbeidsgiver(
     fun finnAlleMedBedriftnummer(bedriftnummer: String): List<Refusjon> {
         sjekkHarTilgangTilRefusjonerForBedrift(bedriftnummer)
         return refusjonRepository.findAllByBedriftNr(bedriftnummer)
+    }
+
+    fun finnAlleForGittArbeidsgiver(bedrifter: String?, status: RefusjonStatus?, page: Int, size: Int): List<Refusjon> {
+        val paging: Pageable = PageRequest.of(page, size, Sort.by("bedriftNr"))
+        if(bedrifter != null) {
+            if (bedrifter != "ALLEBEDRIFTER") {
+                return refusjonRepository.findAllByBedriftNrAndStatus(bedrifter.split(",")
+                    .filter { org -> this.organisasjoner.any { it.organizationNumber == org } }, status, paging)
+            }
+        }
+        return refusjonRepository.findAllByBedriftNrAndStatus(this.organisasjoner
+            .filter { org -> org.type != "Enterprise" && org.organizationForm != "FLI" && org.organizationForm != "AS" }
+            .map { organisasjon -> organisasjon.organizationNumber }, status, paging)
     }
 
     fun godkjenn(refusjonId: String) {

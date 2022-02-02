@@ -4,6 +4,9 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.nimbusds.jwt.JWTClaimsSet
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
+import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
+import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetArbeidsgiver
+import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.REQUEST_MAPPING_INNLOGGET_ARBEIDSGIVER
 import no.nav.arbeidsgiver.tiltakrefusjon.hendelseslogg.HendelsesloggRepository
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjoner
 import no.nav.security.token.support.test.JwkGenerator
@@ -34,6 +37,8 @@ import java.nio.charset.StandardCharsets
 import java.util.Date
 import java.util.UUID
 import javax.servlet.http.Cookie
+
+data class InnloggetBrukerTest(val identifikator: String, val organisasjoner: Set<Organisasjon>)
 
 @SpringBootTest
 @ActiveProfiles("local")
@@ -82,11 +87,13 @@ class RefusjonApiTest(
 
     @Test
     fun `hentAlle() er utilgjengelig for arbeidsgiver`() {
-        mockMvc.perform(get(REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON)
+        mockMvc.perform(
+            get(REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .cookie(arbGiverCookie))
-                .andExpect(status().isBadRequest)
+                .cookie(arbGiverCookie)
+        )
+            .andExpect(status().isBadRequest)
     }
 
     @Test
@@ -108,13 +115,60 @@ class RefusjonApiTest(
         // GITT
         val bedriftNr = "998877665"
 
+        // REQUEST_MAPPING_INNLOGGET_ARBEIDSGIVER
         // NÅR
+
         val json = sendRequest(get("$REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON?bedriftNr=$bedriftNr"), navCookie)
         val liste = mapper.readValue(json, object : TypeReference<List<Refusjon>>() {})
 
         // SÅ
         assertThat(liste).allMatch { it.bedriftNr == bedriftNr }
         assertEquals(2, liste.size)
+    }
+
+    @Test
+    fun `hentAlle refusjon for alle bedrifter arbeidsgiver har tilgang til`() {
+        // GITT
+        val BEDRIFT_NR1 = "998877665"
+        val BEDRIFT_NR2 = "999999999"
+
+        // NÅR
+        val brukerJson = sendRequest(get("$REQUEST_MAPPING_INNLOGGET_ARBEIDSGIVER/innlogget-bruker"), arbGiverCookie)
+        val refusjonJson =
+            sendRequest(get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/hentliste?page=0&size=3"), arbGiverCookie)
+        val refusjonJson2 =
+            sendRequest(get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/hentliste?page=1&size=3"), arbGiverCookie)
+        val refusjonJson3 =
+            sendRequest(get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/hentliste?page=0&size=6"), arbGiverCookie)
+
+        val bruker: InnloggetBrukerTest = mapper.readValue(brukerJson, object : TypeReference<InnloggetBrukerTest>() {})
+        val refusjonlist: List<Refusjon> = mapper.readValue(refusjonJson, object : TypeReference<List<Refusjon>>() {})
+        val refusjonlist2: List<Refusjon> = mapper.readValue(refusjonJson2, object : TypeReference<List<Refusjon>>() {})
+        val refusjonlist3: List<Refusjon> = mapper.readValue(refusjonJson3, object : TypeReference<List<Refusjon>>() {})
+
+        // SÅ
+        assertThat(refusjonlist).allMatch { bedrifter -> bruker.organisasjoner.any { it.organizationNumber == bedrifter.bedriftNr } }
+        assertThat(refusjonlist2).allMatch { bedrifter -> bruker.organisasjoner.any { it.organizationNumber == bedrifter.bedriftNr } }
+        assertThat(refusjonlist3).allMatch { bedrifter -> bruker.organisasjoner.any { it.organizationNumber == bedrifter.bedriftNr } }
+
+        assertThat(refusjonlist.size).isEqualTo(3);
+        assertThat(refusjonlist2.size).isEqualTo(3);
+        assertThat(refusjonlist3.size).isEqualTo(6);
+
+        assertThat(refusjonlist3.find { ref -> ref.id == refusjonlist[0].id });
+        assertThat(refusjonlist3.find { ref -> ref.id == refusjonlist2[0].id })
+
+        // NÅR
+        val json4 = sendRequest(
+            get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/hentliste?bedriftNr=$BEDRIFT_NR1,$BEDRIFT_NR2&page=0&size=6")
+                .header("bedriftListe", "$BEDRIFT_NR1,$BEDRIFT_NR2"), arbGiverCookie
+        )
+
+        val refusjonlist4: List<Refusjon> = mapper.readValue(json4, object : TypeReference<List<Refusjon>>() {})
+
+        // SÅ
+        assertThat(refusjonlist4).allMatch { bedrifter -> bruker.organisasjoner.any { it.organizationNumber == bedrifter.bedriftNr } }
+        assertThat(refusjonlist4).allMatch { org -> org.bedriftNr == BEDRIFT_NR1 || org.bedriftNr == BEDRIFT_NR2 }
     }
 
     @Test
@@ -163,15 +217,17 @@ class RefusjonApiTest(
     @Test
     fun `Får feil hvis cookie mangler arbeidsgiver`() {
         mockMvc.perform(
-                get(REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON))
-                .andExpect(status().isUnauthorized)
+            get(REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON)
+        )
+            .andExpect(status().isUnauthorized)
     }
 
     @Test
     fun `Får feil hvis cookie mangler saksbehandler`() {
         mockMvc.perform(
-                get(REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON))
-                .andExpect(status().isUnauthorized)
+            get(REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON)
+        )
+            .andExpect(status().isUnauthorized)
     }
 
     @Test
@@ -183,7 +239,11 @@ class RefusjonApiTest(
         assertThat(refusjonEtterInntektsgrunnlag.refusjonsgrunnlag.inntektsgrunnlag).isNotNull()
 
         // Svarer på spørsmål om alle inntekter er fra tiltaket
-        sendRequest(post("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id/endre-bruttolønn"), arbGiverCookie, EndreBruttolønnRequest(true, null))
+        sendRequest(
+            post("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id/endre-bruttolønn"),
+            arbGiverCookie,
+            EndreBruttolønnRequest(true, null)
+        )
         val refusjonEtterInntektsspørsmål = hentRefusjon(id)
         assertThat(refusjonEtterInntektsspørsmål.beregning?.refusjonsbeløp).isPositive()
         val harLagretHendelselogg = hendelsesloggRepository.findAll()
@@ -202,12 +262,13 @@ class RefusjonApiTest(
 
         // Godkjenn
         mockMvc.perform(
-                post("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id/godkjenn")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .cookie(arbGiverCookie))
-                .andExpect(status().isBadRequest)
-                .andExpect(header().string("feilkode", Feilkode.INGEN_INNTEKTER.toString()))
+            post("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id/godkjenn")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .cookie(arbGiverCookie)
+        )
+            .andExpect(status().isBadRequest)
+            .andExpect(header().string("feilkode", Feilkode.INGEN_INNTEKTER.toString()))
     }
 
     private fun hentRefusjon(id: String?): Refusjon {
@@ -219,45 +280,52 @@ class RefusjonApiTest(
         return sendRequest(request, cookie, null)
     }
 
-    private fun sendRequest(request: MockHttpServletRequestBuilder, cookie: Cookie, content: Any?, status: ResultMatcher = status().isOk): String {
+    private fun sendRequest(
+        request: MockHttpServletRequestBuilder,
+        cookie: Cookie,
+        content: Any?,
+        status: ResultMatcher = status().isOk
+    ): String {
         if (content != null) {
             request.content(mapper.writeValueAsString(content))
         }
 
         return mockMvc.perform(
-                request
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .cookie(cookie))
-                .andExpect(status)
-                .andReturn()
-                .response.getContentAsString(StandardCharsets.UTF_8)
+            request
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .cookie(cookie)
+        )
+            .andExpect(status)
+            .andReturn()
+            .response.getContentAsString(StandardCharsets.UTF_8)
     }
 
     private fun sendRequest(request: MockHttpServletRequestBuilder, cookie: Cookie, forventetStatus: ResultMatcher) {
         mockMvc.perform(
-                request
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .cookie(cookie))
-                .andExpect(forventetStatus)
+            request
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .cookie(cookie)
+        )
+            .andExpect(forventetStatus)
     }
 
     private final fun lagTokenForFnr(fnr: String): String? {
         val now = Date()
         val claims = JWTClaimsSet.Builder()
-                .subject(UUID.randomUUID().toString())
-                .issuer("tokenx")
-                .audience("aud-tokenx")
-                .jwtID(UUID.randomUUID().toString())
-                .claim("pid", fnr)
-                .claim("acr", "Level4")
-                .claim("ver", "1.0")
-                .claim("nonce", "myNonce")
-                .claim("auth_time", now)
-                .notBeforeTime(now)
-                .issueTime(now)
-                .expirationTime(Date(now.time + 1000000)).build()
+            .subject(UUID.randomUUID().toString())
+            .issuer("tokenx")
+            .audience("aud-tokenx")
+            .jwtID(UUID.randomUUID().toString())
+            .claim("pid", fnr)
+            .claim("acr", "Level4")
+            .claim("ver", "1.0")
+            .claim("nonce", "myNonce")
+            .claim("auth_time", now)
+            .notBeforeTime(now)
+            .issueTime(now)
+            .expirationTime(Date(now.time + 1000000)).build()
 
         return JwtTokenGenerator.createSignedJWT(JwkGenerator.getDefaultRSAKey(), claims).serialize()
     }
@@ -265,17 +333,17 @@ class RefusjonApiTest(
     private final fun lagTokenForNavId(navId: String): String? {
         val now = Date()
         val claims = JWTClaimsSet.Builder()
-                .subject(UUID.randomUUID().toString())
-                .claim("NAVident", navId)
-                .issuer("aad")
-                .audience("aud-aad")
-                .jwtID(UUID.randomUUID().toString())
-                .claim("ver", "1.0")
-                .claim("auth_time", now)
-                .claim("nonce", "myNonce")
-                .notBeforeTime(now)
-                .issueTime(now)
-                .expirationTime(Date(now.time + 1000000)).build()
+            .subject(UUID.randomUUID().toString())
+            .claim("NAVident", navId)
+            .issuer("aad")
+            .audience("aud-aad")
+            .jwtID(UUID.randomUUID().toString())
+            .claim("ver", "1.0")
+            .claim("auth_time", now)
+            .claim("nonce", "myNonce")
+            .notBeforeTime(now)
+            .issueTime(now)
+            .expirationTime(Date(now.time + 1000000)).build()
 
         return JwtTokenGenerator.createSignedJWT(JwkGenerator.getDefaultRSAKey(), claims).serialize()
     }

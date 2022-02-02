@@ -11,6 +11,8 @@ data class HentArbeidsgiverRefusjonerQueryParametre(
     val bedriftNr: String?,
     val status: RefusjonStatus?,
     val tiltakstype: Tiltakstype?,
+    val page: Int = 0,
+    val size: Int = 4
 )
 
 @RestController
@@ -30,6 +32,17 @@ class ArbeidsgiverRefusjonController(
             .filter { queryParametre.tiltakstype == null || queryParametre.tiltakstype == it.refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype }
     }
 
+    @GetMapping("/hentliste")
+    fun hentListAvBedrifter(queryParametre: HentArbeidsgiverRefusjonerQueryParametre): List<Refusjon> {
+        val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
+        return arbeidsgiver.finnAlleForGittArbeidsgiver(
+            queryParametre.bedriftNr,
+            queryParametre.status,
+            queryParametre.page,
+            queryParametre.size
+        );
+    }
+
     @GetMapping("/{id}")
     fun hent(@PathVariable id: String): Refusjon? {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
@@ -39,9 +52,11 @@ class ArbeidsgiverRefusjonController(
     @PostMapping("/{id}/endre-bruttolønn")
     fun endreBruttolønn(@PathVariable id: String, @RequestBody request: EndreBruttolønnRequest) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-        arbeidsgiver.endreBruttolønn(id,
+        arbeidsgiver.endreBruttolønn(
+            id,
             request.inntekterKunFraTiltaket,
-            request.bruttoLønn)
+            request.bruttoLønn
+        )
     }
 
     @PostMapping("/{id}/godkjenn")

@@ -61,7 +61,25 @@ fun refusjoner(): List<Refusjon> {
         `Inger Hagerup`(),
         `Amalie Skram`(),
         `Suzanna Hansen`(),
-        `Siri Hansen`()
+        `Siri Hansen`(),
+        `Camilla Collett`(),
+        `Sigrid Undset`(),
+        `Henrik Wergeland`(),
+        `Jonas Lie`(),
+        kiellandNy,
+        kiellandGammel,
+        BjørnsonUtgått,
+        `Bjørnstjerne Bjørnson`(),
+        bjørnsonSendtKrav,
+        `Nils Nilsen`(),
+        `Inger Hagerup`(),
+        `Amalie Skram`(),
+        `Suzanna Hansen`(),
+        `Siri Hansen`(),
+        `Camilla Collett`(),
+        `Sigrid Undset`(),
+        `Henrik Wergeland`(),
+        `Jonas Lie`()
 
     )
 }
@@ -92,6 +110,66 @@ fun etTilskuddsgrunnlag() = Tilskuddsgrunnlag(
     løpenummer = 3,
     enhet = "1000"
 )
+
+fun `Jonas Lie`(): Refusjon {
+    val deltakerFnr = "07098142678"
+    val bedriftNr = "910712306"
+    return Refusjon(
+        tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
+            deltakerFnr = deltakerFnr,
+            bedriftNr = bedriftNr,
+            deltakerFornavn = "Jonas",
+            deltakerEtternavn = "Lie",
+            tilskuddsbeløp = 1357,
+            veilederNavIdent = "Z123456"
+        ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
+    )
+}
+
+fun `Henrik Wergeland`(): Refusjon {
+    val deltakerFnr = "07098142678"
+    val bedriftNr = "990000000"
+    return Refusjon(
+        tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
+            deltakerFnr = deltakerFnr,
+            bedriftNr = bedriftNr,
+            deltakerFornavn = "Henrik",
+            deltakerEtternavn = "Wergeland",
+            tilskuddsbeløp = 1357,
+            veilederNavIdent = "Z123456"
+        ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
+    )
+}
+
+fun `Sigrid Undset`(): Refusjon {
+    val deltakerFnr = "07098142678"
+    val bedriftNr = "990000000"
+    return Refusjon(
+        tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
+            deltakerFnr = deltakerFnr,
+            bedriftNr = bedriftNr,
+            deltakerFornavn = "Sigrid",
+            deltakerEtternavn = "Undset",
+            tilskuddsbeløp = 1357,
+            veilederNavIdent = "Z123456"
+        ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
+    )
+}
+
+fun `Camilla Collett`(): Refusjon {
+    val deltakerFnr = "07098142678"
+    val bedriftNr = "990000000"
+    return Refusjon(
+        tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
+            deltakerFnr = deltakerFnr,
+            bedriftNr = bedriftNr,
+            deltakerFornavn = "Camilla",
+            deltakerEtternavn = "Collett",
+            tilskuddsbeløp = 1357,
+            veilederNavIdent = "Z123456"
+        ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
+    )
+}
 
 fun `Alexander Kielland`(): Refusjon {
     val deltakerFnr = "07098142678"

@@ -2,10 +2,14 @@
 
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
+import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor
+import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.query.Param
 
-interface RefusjonRepository : JpaRepository<Refusjon, String>, JpaSpecificationExecutor<Refusjon> {
+
+interface RefusjonRepository : JpaRepository<Refusjon, String> {
     fun findAllByDeltakerFnr(deltakerFnr: String): List<Refusjon>
     fun findAllByBedriftNr(bedriftNr: String): List<Refusjon>
     fun findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_Enhet(enhet: String): List<Refusjon>
@@ -14,4 +18,7 @@ interface RefusjonRepository : JpaRepository<Refusjon, String>, JpaSpecification
     fun findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_TilskuddsperiodeId(tilskuddsperiodeId: String): List<Refusjon>
     fun findAllByStatus(status: RefusjonStatus): List<Refusjon>
     fun findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_AvtaleNr(avtaleNr: Int): List<Refusjon>
+
+    @Query("select r from Refusjon r where r.bedriftNr in (:bedriftNr) and (:status is null or r.status = :status)")
+    fun findAllByBedriftNrAndStatus(@Param("bedriftNr") bedriftNr: List<String>, @Param("status") status: RefusjonStatus?, pageable: Pageable): List<Refusjon>
 }

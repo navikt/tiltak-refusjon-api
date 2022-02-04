@@ -8,6 +8,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.organisasjon.EregClient
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
@@ -33,17 +34,21 @@ data class InnloggetArbeidsgiver(
         return refusjonRepository.findAllByBedriftNr(bedriftnummer)
     }
 
-    fun finnAlleForGittArbeidsgiver(bedrifter: String?, status: RefusjonStatus?, page: Int, size: Int): List<Refusjon> {
+    fun finnAlleUnderenheterTilArbeidsgiver() = this.organisasjoner
+        .filter { org -> org.type != "Enterprise" && org.organizationForm != "FLI" && org.organizationForm != "AS" }
+        .map { organisasjon -> organisasjon.organizationNumber }
+
+    fun finnAlleForGittArbeidsgiver(bedrifter: String?, status: RefusjonStatus?, page: Int, size: Int): Page<Refusjon> {
         val paging: Pageable = PageRequest.of(page, size, Sort.by("bedriftNr"))
         if(bedrifter != null) {
             if (bedrifter != "ALLEBEDRIFTER") {
-                return refusjonRepository.findAllByBedriftNrAndStatus(bedrifter.split(",")
-                    .filter { org -> this.organisasjoner.any { it.organizationNumber == org } }, status, paging)
+                return refusjonRepository.findAllByBedriftNrAndStatus(
+                    bedrifter.split(",")
+                        .filter { org -> this.organisasjoner.any { it.organizationNumber == org } }, status, paging
+                )
             }
         }
-        return refusjonRepository.findAllByBedriftNrAndStatus(this.organisasjoner
-            .filter { org -> org.type != "Enterprise" && org.organizationForm != "FLI" && org.organizationForm != "AS" }
-            .map { organisasjon -> organisasjon.organizationNumber }, status, paging)
+        return refusjonRepository.findAllByBedriftNrAndStatus(finnAlleUnderenheterTilArbeidsgiver(), status, paging)
     }
 
     fun godkjenn(refusjonId: String) {

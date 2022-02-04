@@ -3,7 +3,11 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.UgyldigRequestException
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBrukerService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
+import org.springframework.data.domain.Page
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+
 
 const val REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON = "/api/arbeidsgiver/refusjon"
 
@@ -33,14 +37,22 @@ class ArbeidsgiverRefusjonController(
     }
 
     @GetMapping("/hentliste")
-    fun hentListAvBedrifter(queryParametre: HentArbeidsgiverRefusjonerQueryParametre): List<Refusjon> {
+    fun hentListAvBedrifter(queryParametre: HentArbeidsgiverRefusjonerQueryParametre): ResponseEntity<Map<String, Any>> {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-        return arbeidsgiver.finnAlleForGittArbeidsgiver(
+        val pagableRefusjonlist: Page<Refusjon> = arbeidsgiver.finnAlleForGittArbeidsgiver(
             queryParametre.bedriftNr,
             queryParametre.status,
             queryParametre.page,
             queryParametre.size
         );
+        val response = mapOf<String, Any>(
+            Pair("refusjoner", pagableRefusjonlist.content),
+            Pair("size", pagableRefusjonlist.size),
+            Pair("currentPage", pagableRefusjonlist.number),
+            Pair("totalItems", pagableRefusjonlist.totalElements),
+            Pair("totalPages", pagableRefusjonlist.totalPages)
+        )
+        return ResponseEntity<Map<String, Any>>(response, HttpStatus.OK)
     }
 
     @GetMapping("/{id}")

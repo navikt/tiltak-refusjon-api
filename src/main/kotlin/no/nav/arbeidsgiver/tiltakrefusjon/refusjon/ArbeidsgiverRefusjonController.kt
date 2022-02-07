@@ -42,6 +42,7 @@ class ArbeidsgiverRefusjonController(
         val pagableRefusjonlist: Page<Refusjon> = arbeidsgiver.finnAlleForGittArbeidsgiver(
             queryParametre.bedriftNr,
             queryParametre.status,
+            queryParametre.tiltakstype,
             queryParametre.page,
             queryParametre.size
         );

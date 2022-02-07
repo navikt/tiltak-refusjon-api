@@ -20,8 +20,14 @@ interface RefusjonRepository : JpaRepository<Refusjon, String> {
     fun findAllByStatus(status: RefusjonStatus): List<Refusjon>
     fun findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_AvtaleNr(avtaleNr: Int): List<Refusjon>
 
-    @Query("select r from Refusjon r where r.bedriftNr in (:bedriftNr) and (:status is null or r.status = :status)")
-    fun findAllByBedriftNrAndStatus(@Param("bedriftNr") bedriftNr: List<String>, @Param("status") status: RefusjonStatus?, pageable: Pageable): Page<Refusjon>
+    @Query("select r from Refusjon r where r.bedriftNr in (:bedriftNr) and (:status is null or r.status = :status) " +
+            "and (:tiltakstype is null or r.refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype = :tiltakstype)")
+    fun findAllByBedriftNrAndStatus(
+        @Param("bedriftNr") bedriftNr: List<String>,
+        @Param("status") status: RefusjonStatus?,
+        @Param("tiltakstype") tiltakstype: Tiltakstype?,
+        pageable: Pageable
+    ): Page<Refusjon>
 
     @Query("select r from Refusjon r where r.bedriftNr in (:bedriftNr)")
     fun findAllByBedriftNr(@Param("bedriftNr") bedriftNr: List<String>): List<Refusjon>

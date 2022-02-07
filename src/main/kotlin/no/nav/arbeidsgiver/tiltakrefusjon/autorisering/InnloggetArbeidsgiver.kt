@@ -38,17 +38,17 @@ data class InnloggetArbeidsgiver(
         .filter { org -> org.type != "Enterprise" && org.organizationForm != "FLI" && org.organizationForm != "AS" }
         .map { organisasjon -> organisasjon.organizationNumber }
 
-    fun finnAlleForGittArbeidsgiver(bedrifter: String?, status: RefusjonStatus?, page: Int, size: Int): Page<Refusjon> {
+    fun finnAlleForGittArbeidsgiver(bedrifter: String?, status: RefusjonStatus?, tiltakstype: Tiltakstype?, page: Int, size: Int): Page<Refusjon> {
         val paging: Pageable = PageRequest.of(page, size, Sort.by("bedriftNr"))
         if(bedrifter != null) {
             if (bedrifter != "ALLEBEDRIFTER") {
                 return refusjonRepository.findAllByBedriftNrAndStatus(
                     bedrifter.split(",")
-                        .filter { org -> this.organisasjoner.any { it.organizationNumber == org } }, status, paging
+                        .filter { org -> this.organisasjoner.any { it.organizationNumber == org } }, status, tiltakstype, paging
                 )
             }
         }
-        return refusjonRepository.findAllByBedriftNrAndStatus(finnAlleUnderenheterTilArbeidsgiver(), status, paging)
+        return refusjonRepository.findAllByBedriftNrAndStatus(finnAlleUnderenheterTilArbeidsgiver(), status, tiltakstype, paging)
     }
 
     fun godkjenn(refusjonId: String) {

@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock
+import org.springframework.data.domain.Page
 import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
@@ -39,6 +40,14 @@ import java.util.UUID
 import javax.servlet.http.Cookie
 
 data class InnloggetBrukerTest(val identifikator: String, val organisasjoner: Set<Organisasjon>)
+data class RefusjonlistFraFlereOrgTest(
+    val refusjoner: List<Refusjon>,
+    val size: Int,
+    val currentPage: Int,
+    val totalItems: Int,
+    val totalPages: Int
+)
+
 
 @SpringBootTest
 @ActiveProfiles("local")
@@ -142,33 +151,33 @@ class RefusjonApiTest(
             sendRequest(get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/hentliste?page=0&size=6"), arbGiverCookie)
 
         val bruker: InnloggetBrukerTest = mapper.readValue(brukerJson, object : TypeReference<InnloggetBrukerTest>() {})
-        val refusjonlist: List<Refusjon> = mapper.readValue(refusjonJson, object : TypeReference<List<Refusjon>>() {})
-        val refusjonlist2: List<Refusjon> = mapper.readValue(refusjonJson2, object : TypeReference<List<Refusjon>>() {})
-        val refusjonlist3: List<Refusjon> = mapper.readValue(refusjonJson3, object : TypeReference<List<Refusjon>>() {})
+        val refusjonlist: RefusjonlistFraFlereOrgTest = mapper.readValue(refusjonJson, object : TypeReference<RefusjonlistFraFlereOrgTest>() {})
+        val refusjonlist2: RefusjonlistFraFlereOrgTest = mapper.readValue(refusjonJson2, object : TypeReference<RefusjonlistFraFlereOrgTest>() {})
+        val refusjonlist3: RefusjonlistFraFlereOrgTest = mapper.readValue(refusjonJson3, object : TypeReference<RefusjonlistFraFlereOrgTest>() {})
 
         // SÅ
-        assertThat(refusjonlist).allMatch { bedrifter -> bruker.organisasjoner.any { it.organizationNumber == bedrifter.bedriftNr } }
-        assertThat(refusjonlist2).allMatch { bedrifter -> bruker.organisasjoner.any { it.organizationNumber == bedrifter.bedriftNr } }
-        assertThat(refusjonlist3).allMatch { bedrifter -> bruker.organisasjoner.any { it.organizationNumber == bedrifter.bedriftNr } }
+        assertThat(refusjonlist.refusjoner).allMatch { bedrifter -> bruker.organisasjoner.any { it.organizationNumber == bedrifter.bedriftNr } }
+        assertThat(refusjonlist2.refusjoner).allMatch { bedrifter -> bruker.organisasjoner.any { it.organizationNumber == bedrifter.bedriftNr } }
+        assertThat(refusjonlist3.refusjoner).allMatch { bedrifter -> bruker.organisasjoner.any { it.organizationNumber == bedrifter.bedriftNr } }
 
         assertThat(refusjonlist.size).isEqualTo(3);
         assertThat(refusjonlist2.size).isEqualTo(3);
         assertThat(refusjonlist3.size).isEqualTo(6);
 
-        assertThat(refusjonlist3.find { ref -> ref.id == refusjonlist[0].id });
-        assertThat(refusjonlist3.find { ref -> ref.id == refusjonlist2[0].id })
+        assertThat(refusjonlist3.refusjoner.find { ref -> ref.id == refusjonlist.refusjoner[0].id });
+        assertThat(refusjonlist3.refusjoner.find { ref -> ref.id == refusjonlist2.refusjoner[0].id })
 
         // NÅR
         val json4 = sendRequest(
-            get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/hentliste?bedriftNr=$BEDRIFT_NR1,$BEDRIFT_NR2&page=0&size=6")
-                .header("bedriftListe", "$BEDRIFT_NR1,$BEDRIFT_NR2"), arbGiverCookie
+            get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/hentliste?bedriftNr=$BEDRIFT_NR1,$BEDRIFT_NR2&page=0&size=6"),
+            arbGiverCookie
         )
 
-        val refusjonlist4: List<Refusjon> = mapper.readValue(json4, object : TypeReference<List<Refusjon>>() {})
+        val refusjonlist4: RefusjonlistFraFlereOrgTest = mapper.readValue(json4, object : TypeReference<RefusjonlistFraFlereOrgTest>() {})
 
         // SÅ
-        assertThat(refusjonlist4).allMatch { bedrifter -> bruker.organisasjoner.any { it.organizationNumber == bedrifter.bedriftNr } }
-        assertThat(refusjonlist4).allMatch { org -> org.bedriftNr == BEDRIFT_NR1 || org.bedriftNr == BEDRIFT_NR2 }
+        assertThat(refusjonlist4.refusjoner).allMatch { bedrifter -> bruker.organisasjoner.any { it.organizationNumber == bedrifter.bedriftNr } }
+        assertThat(refusjonlist4.refusjoner).allMatch { org -> org.bedriftNr == BEDRIFT_NR1 || org.bedriftNr == BEDRIFT_NR2 }
     }
 
     @Test

@@ -107,6 +107,7 @@ tiltak-refusjon:
     uri: ''
     consumer-id: tiltak-refusjon-api
   inntektskomponenten:
+    fake: false
     uri: ''
     filter: KontrollArbeidsmarkedstiltakA-inntekt
     consumer-id: tiltak-refusjon-api

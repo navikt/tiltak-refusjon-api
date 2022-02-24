@@ -32,6 +32,12 @@ data class Inntektslinje(
     @JsonProperty
     fun erMedIInntektsgrunnlag() =
         inntektType == "LOENNSINNTEKT" && inkluderteLønnsbeskrivelser.contains(beskrivelse)
+
+    @JsonProperty
+    fun skalTrekkesIfraInntektsgrunnlag() =
+        inntektType == "LOENNSINNTEKT" && inkluderteFratrekkbeskrivelser.contains(beskrivelse)
 }
+
+val inkluderteFratrekkbeskrivelser = listOf<String>("trekkILoennForFerie")
 
 val inkluderteLønnsbeskrivelser = listOf("fastloenn", "timeloenn", "fastTillegg")

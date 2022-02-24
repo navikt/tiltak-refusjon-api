@@ -1,0 +1,1 @@
+alter table beregning add column fratrekk_lonn_ferie numeric;

@@ -26,8 +26,10 @@ private fun beløpPerInntektslinje(
     val dagsats = inntektslinje.beløp / antallDagerSkalFordelesPå
 
 
-    return dagsats * antallDager(maxOf(fom, inntektslinje.opptjeningsperiodeFom),
-        minOf(tom, inntektslinje.opptjeningsperiodeTom))
+    return dagsats * antallDager(
+        maxOf(fom, inntektslinje.opptjeningsperiodeFom),
+        minOf(tom, inntektslinje.opptjeningsperiodeTom)
+    )
 }
 
 private fun antallDager(
@@ -48,10 +50,11 @@ fun beregnRefusjonsbeløp(
     val arbeidsgiveravgift = (lønn + tjenestepensjon + feriepenger) * tilskuddsgrunnlag.arbeidsgiveravgiftSats
     val sumUtgifter = lønn + tjenestepensjon + feriepenger + arbeidsgiveravgift
     val beregnetBeløp = sumUtgifter * (tilskuddsgrunnlag.lønnstilskuddsprosent / 100.0)
+    val trekkgrunnlagFerie = leggSammenTrekkGrunnlag(inntekter).roundToInt()
 
     val overTilskuddsbeløp = beregnetBeløp > tilskuddsgrunnlag.tilskuddsbeløp
     val refusjonsbeløp =
-        (if (overTilskuddsbeløp) tilskuddsgrunnlag.tilskuddsbeløp.toDouble() else beregnetBeløp) - tidligereUtbetalt
+        (if (overTilskuddsbeløp) tilskuddsgrunnlag.tilskuddsbeløp.toDouble() else beregnetBeløp) - trekkgrunnlagFerie - tidligereUtbetalt
 
     return Beregning(
         lønn = lønn,
@@ -63,8 +66,14 @@ fun beregnRefusjonsbeløp(
         refusjonsbeløp = refusjonsbeløp.roundToInt(),
         overTilskuddsbeløp = overTilskuddsbeløp,
         tidligereUtbetalt = tidligereUtbetalt,
+        fratrekkLonnFerie = trekkgrunnlagFerie
     )
 }
+
+fun leggSammenTrekkGrunnlag(
+    inntekter: List<Inntektslinje>
+): Double =
+    inntekter.filter { it.skalTrekkesIfraInntektsgrunnlag() }.sumOf { it.beløp }
 
 fun kalkulerBruttoLønn(
     inntekter: List<Inntektslinje>,

@@ -15,6 +15,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Inntektslinje
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.ConditionalOnPropertyNotEmpty
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
@@ -27,7 +28,7 @@ import java.util.*
 
 
 @Service
-@ConditionalOnPropertyNotEmpty("tiltak-refusjon.inntektskomponenten.uri")
+@ConditionalOnProperty("tiltak-refusjon.inntektskomponenten.fake", havingValue = "false")
 class InntektskomponentServiceImpl(
     val inntektskomponentProperties: InntektskomponentProperties,
     @Qualifier("anonymProxyRestTemplate") val restTemplate: RestTemplate,

@@ -4,29 +4,27 @@ import com.github.guepardoapps.kulid.ULID
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock
+import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import java.time.LocalDate
 
 
+@DirtiesContext
 @SpringBootTest(properties = ["NAIS_APP_IMAGE=test", "tiltak-refusjon.inntektskomponenten.fake=false"])
 @ActiveProfiles("local", "wiremock")
 @AutoConfigureWireMock(port = 8090)
 class RefusjonberegnerFratrekkFerieTest(
     @Autowired
     val refusjonService: RefusjonService,
-
 ) {
-
     val WIREMOCK_IDENT: String = "08098613316"
     val WIREMOCK_VIRKSOMHET_IDENTIFIKATOR: String = "972674818"
-    val log: Logger = LoggerFactory.getLogger(javaClass)
 
     fun lagEnTilskuddsperiodeGodkjentMelding(
         tilskuddFom: LocalDate,
@@ -72,14 +70,20 @@ class RefusjonberegnerFratrekkFerieTest(
         return refusjon;
     }
 
+    fun `vis utregning med feriefratrekk`(refusjon: Refusjon, TREKKFORFERIEGRUNNLAG: Int): Int {
+        val beregning: Beregning = refusjon.refusjonsgrunnlag.beregning ?: throw Exception()
+        val (lønn, _, feriepenger,tjenestepensjon, arbeidsgiveravgift) = beregning
+
+        return ((lønn - TREKKFORFERIEGRUNNLAG + feriepenger + tjenestepensjon + arbeidsgiveravgift) * 0.40).toInt()
+    }
+
     @Test
     fun `hent inntektsoppslag som har feriefratrekk og beregn`() {
-        val beregnetBelop: Int = 31283; // 40% av sumUtgifter på 78209
-        val trekkgrunnlagFerie: Int = 7500 // trekk grunnlag fra inntektoppslag
+        val TREKKFORFERIEGRUNNLAG: Int = 7500 // trekk grunnlag fra inntektoppslag
 
         val tilskuddsperiodeGodkjentMelding: TilskuddsperiodeGodkjentMelding = lagEnTilskuddsperiodeGodkjentMelding(
             LocalDate.of(2021, 7, 1),
-            LocalDate.of(2021, 7, 30),
+            LocalDate.of(2021, 7, 31),
             Tiltakstype.SOMMERJOBB,
             60000,
             WIREMOCK_IDENT,
@@ -87,17 +91,17 @@ class RefusjonberegnerFratrekkFerieTest(
         )
         val refusjon = opprettRefusjonOgGjørInntektoppslag(tilskuddsperiodeGodkjentMelding)
 
-        assert(refusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp == beregnetBelop - trekkgrunnlagFerie)
+        assert(refusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp == `vis utregning med feriefratrekk`(refusjon, TREKKFORFERIEGRUNNLAG))
+        assert(refusjon.refusjonsgrunnlag.beregning!!.fratrekkLonnFerie == TREKKFORFERIEGRUNNLAG)
     }
 
     @Test
     fun `hent inntektsoppslag som ikke har feriefratrekk og beregn`() {
-        val beregnetBelop: Int = 31283; // 40% av sumUtgifter på 78209
-        val trekkgrunnlagFerie: Int = 0 // trekk grunnlag fra inntektoppslag
+        val TREKKFORFERIEGRUNNLAG: Int = 0 // trekk grunnlag fra inntektoppslag
 
         val tilskuddsperiodeGodkjentMelding: TilskuddsperiodeGodkjentMelding = lagEnTilskuddsperiodeGodkjentMelding(
             LocalDate.of(2021, 6, 1),
-            LocalDate.of(2021, 6, 31),
+            LocalDate.of(2021, 6, 30),
             Tiltakstype.SOMMERJOBB,
             60000,
             WIREMOCK_IDENT,
@@ -105,6 +109,7 @@ class RefusjonberegnerFratrekkFerieTest(
         )
         val refusjon = opprettRefusjonOgGjørInntektoppslag(tilskuddsperiodeGodkjentMelding)
 
-        assert(refusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp == beregnetBelop - trekkgrunnlagFerie)
+        assert(refusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp == `vis utregning med feriefratrekk`(refusjon, TREKKFORFERIEGRUNNLAG))
+        assert(refusjon.refusjonsgrunnlag.beregning!!.fratrekkLonnFerie == TREKKFORFERIEGRUNNLAG)
     }
 }

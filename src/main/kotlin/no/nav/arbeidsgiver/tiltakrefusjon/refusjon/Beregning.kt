@@ -7,6 +7,7 @@ import javax.persistence.Id
 @Entity
 data class Beregning(
         val lønn: Int,
+        val lønnFratrukketFerie: Int,
         val feriepenger: Int,
         val tjenestepensjon: Int,
         val arbeidsgiveravgift: Int,

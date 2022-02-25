@@ -45,19 +45,22 @@ fun beregnRefusjonsbeløp(
 ): Beregning {
     val kalkulertBruttoLønn = kalkulerBruttoLønn(inntekter).roundToInt()
     val lønn = if (korrigertBruttoLønn != null) minOf(korrigertBruttoLønn, kalkulertBruttoLønn) else kalkulertBruttoLønn
-    val feriepenger = lønn * tilskuddsgrunnlag.feriepengerSats
-    val tjenestepensjon = (lønn + feriepenger) * tilskuddsgrunnlag.otpSats
-    val arbeidsgiveravgift = (lønn + tjenestepensjon + feriepenger) * tilskuddsgrunnlag.arbeidsgiveravgiftSats
-    val sumUtgifter = lønn + tjenestepensjon + feriepenger + arbeidsgiveravgift
-    val beregnetBeløp = sumUtgifter * (tilskuddsgrunnlag.lønnstilskuddsprosent / 100.0)
     val trekkgrunnlagFerie = leggSammenTrekkGrunnlag(inntekter).roundToInt()
+    val lønnFratrukketFerie = lønn - trekkgrunnlagFerie
+    val feriepenger = lønnFratrukketFerie * tilskuddsgrunnlag.feriepengerSats
+    val tjenestepensjon = (lønnFratrukketFerie + feriepenger) * tilskuddsgrunnlag.otpSats
+    val arbeidsgiveravgift = (lønnFratrukketFerie + tjenestepensjon + feriepenger) * tilskuddsgrunnlag.arbeidsgiveravgiftSats
+    val sumUtgifter = lønnFratrukketFerie + tjenestepensjon + feriepenger + arbeidsgiveravgift
+    val beregnetBeløp = sumUtgifter * (tilskuddsgrunnlag.lønnstilskuddsprosent / 100.0)
+
 
     val overTilskuddsbeløp = beregnetBeløp > tilskuddsgrunnlag.tilskuddsbeløp
     val refusjonsbeløp =
-        (if (overTilskuddsbeløp) tilskuddsgrunnlag.tilskuddsbeløp.toDouble() else beregnetBeløp) - trekkgrunnlagFerie - tidligereUtbetalt
+        (if (overTilskuddsbeløp) tilskuddsgrunnlag.tilskuddsbeløp.toDouble() else beregnetBeløp) - tidligereUtbetalt
 
     return Beregning(
         lønn = lønn,
+        lønnFratrukketFerie = lønnFratrukketFerie,
         feriepenger = feriepenger.roundToInt(),
         tjenestepensjon = tjenestepensjon.roundToInt(),
         arbeidsgiveravgift = arbeidsgiveravgift.roundToInt(),

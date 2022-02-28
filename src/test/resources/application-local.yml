@@ -54,6 +54,7 @@ tiltak-refusjon:
     consumer-id: tiltak-refusjon-api
   inntektskomponenten:
     fake: true
+    uri: http://localhost:${wiremock.port}/inntektskomponenten-ws/rs/api/v1/hentinntektliste
   altinn-tilgangstyring:
     uri: http://localhost:${wiremock.port}/altinn-tilgangsstyring
     proxyUri: http://localhost:9090/altinn-rettigheter-proxy/ekstern/altinn/api/serviceowner/reportees

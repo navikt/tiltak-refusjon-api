@@ -7,6 +7,7 @@ import javax.persistence.Id
 @Entity
 data class Beregning(
         val lønn: Int,
+        val lønnFratrukketFerie: Int,
         val feriepenger: Int,
         val tjenestepensjon: Int,
         val arbeidsgiveravgift: Int,
@@ -14,7 +15,8 @@ data class Beregning(
         val beregnetBeløp: Int,
         val refusjonsbeløp: Int,
         val overTilskuddsbeløp: Boolean,
-        val tidligereUtbetalt: Int
+        val tidligereUtbetalt: Int,
+        val fratrekkLonnFerie: Int,
 ) {
     @Id
     val id: String = ULID.random()

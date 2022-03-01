@@ -3,6 +3,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.*
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.time.YearMonth
@@ -319,6 +320,7 @@ internal class RefusjonTest {
         }
     }
 
+    @Disabled
     @Test
     internal fun `forleng frist på utgått refusjon skal endre status tilbake til klar for innsending`() {
         val refusjon = enRefusjon(

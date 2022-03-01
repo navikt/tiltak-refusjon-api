@@ -13,4 +13,12 @@ fun antallMånederEtter(dato: LocalDate, antall: Long): LocalDate {
         return datoEtterAntallMåneder.plusDays(1)
     }
     return datoEtterAntallMåneder
+
+    /**
+     *     val datoEtterAntallMåneder = dato.plusMonths(antall)
+           if(dato.lengthOfMonth() == dato.dayOfMonth && datoEtterAntallMåneder.lengthOfMonth() != datoEtterAntallMåneder.dayOfMonth) {
+               return LocalDate.of(datoEtterAntallMåneder.year, datoEtterAntallMåneder.month, datoEtterAntallMåneder.lengthOfMonth())
+           }
+           return  datoEtterAntallMåneder;
+     * */
 }

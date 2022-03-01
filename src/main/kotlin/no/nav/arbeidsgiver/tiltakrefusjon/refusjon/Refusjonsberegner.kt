@@ -69,7 +69,7 @@ fun beregnRefusjonsbeløp(
         refusjonsbeløp = refusjonsbeløp.roundToInt(),
         overTilskuddsbeløp = overTilskuddsbeløp,
         tidligereUtbetalt = tidligereUtbetalt,
-        fratrekkLonnFerie = trekkgrunnlagFerie
+        fratrekkLønnFerie = trekkgrunnlagFerie
     )
 }
 

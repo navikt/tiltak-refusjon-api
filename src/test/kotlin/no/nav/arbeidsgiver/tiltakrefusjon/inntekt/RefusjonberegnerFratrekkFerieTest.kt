@@ -5,8 +5,8 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.junit.jupiter.api.Test
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import no.nav.arbeidsgiver.tiltakrefusjon.etInntektsgrunnlag
+import org.assertj.core.api.Assertions.assertThat
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock
@@ -92,7 +92,7 @@ class RefusjonberegnerFratrekkFerieTest(
         val refusjon = opprettRefusjonOgGjørInntektoppslag(tilskuddsperiodeGodkjentMelding)
 
         assert(refusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp == `vis utregning med feriefratrekk`(refusjon, TREKKFORFERIEGRUNNLAG))
-        assert(refusjon.refusjonsgrunnlag.beregning!!.fratrekkLonnFerie == TREKKFORFERIEGRUNNLAG)
+        assert(refusjon.refusjonsgrunnlag.beregning!!.fratrekkLønnFerie == TREKKFORFERIEGRUNNLAG)
     }
 
     @Test
@@ -110,6 +110,15 @@ class RefusjonberegnerFratrekkFerieTest(
         val refusjon = opprettRefusjonOgGjørInntektoppslag(tilskuddsperiodeGodkjentMelding)
 
         assert(refusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp == `vis utregning med feriefratrekk`(refusjon, TREKKFORFERIEGRUNNLAG))
-        assert(refusjon.refusjonsgrunnlag.beregning!!.fratrekkLonnFerie == TREKKFORFERIEGRUNNLAG)
+        assert(refusjon.refusjonsgrunnlag.beregning!!.fratrekkLønnFerie == TREKKFORFERIEGRUNNLAG)
+    }
+
+    @Test
+    fun `sjekk at leggSammenTrekkGrunnlag returnerer primiviteInt-eller-double`() {
+        val etInntektsgrunnlag = etInntektsgrunnlag()
+        val leggSammenTrekkGrunnlag: Double = leggSammenTrekkGrunnlag(etInntektsgrunnlag.inntekter.toList())
+
+        assertThat(leggSammenTrekkGrunnlag).isNotNull
+
     }
 }

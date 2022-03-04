@@ -65,10 +65,19 @@ class ArbeidsgiverRefusjonController(
     @PostMapping("/{id}/endre-bruttolønn")
     fun endreBruttolønn(@PathVariable id: String, @RequestBody request: EndreBruttolønnRequest) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-        arbeidsgiver.endreBruttolønn(
+         arbeidsgiver.endreBruttolønn(
             id,
             request.inntekterKunFraTiltaket,
             request.bruttoLønn
+        )
+    }
+
+    @PostMapping("/{id}/toggle-refundert-inntektslinje")
+    fun endreRefundertInntekslinje(@PathVariable id: String, @RequestBody request: EndreRefundertInntektslinjeRequest) {
+        val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
+         arbeidsgiver.toggleBruttolønn(
+            id,
+            request.inntektslinjeId
         )
     }
 

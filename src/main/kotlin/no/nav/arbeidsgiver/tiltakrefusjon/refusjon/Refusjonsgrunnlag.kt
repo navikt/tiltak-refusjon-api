@@ -45,8 +45,8 @@ class Refusjonsgrunnlag(
         return gjørBeregning()
     }
 
-    fun endreBruttolønn(inntekterKunFraTiltaket: Boolean, bruttoLønn: Int?): Boolean {
-        if (inntekterKunFraTiltaket && bruttoLønn != null) {
+    fun endreBruttolønn(inntekterKunFraTiltaket: Boolean?, bruttoLønn: Int?): Boolean {
+        if (inntekterKunFraTiltaket != null && inntekterKunFraTiltaket == true && bruttoLønn != null) {
             throw FeilkodeException(Feilkode.INNTEKTER_KUN_FRA_TILTAK_OG_OPPGIR_BELØP)
         }
         this.inntekterKunFraTiltaket = inntekterKunFraTiltaket
@@ -57,7 +57,7 @@ class Refusjonsgrunnlag(
     fun erAltOppgitt(): Boolean {
         val inntektsgrunnlag = inntektsgrunnlag
         if (inntektsgrunnlag == null || inntektsgrunnlag.inntekter.none { it.erMedIInntektsgrunnlag() }) return false
-        return bedriftKontonummer != null && (inntekterKunFraTiltaket == true && endretBruttoLønn == null || inntekterKunFraTiltaket == false && endretBruttoLønn != null)
+        return bedriftKontonummer != null && (inntekterKunFraTiltaket == true && endretBruttoLønn == null || ((inntekterKunFraTiltaket == false || inntekterKunFraTiltaket == null) && endretBruttoLønn != null))
     }
 
     private fun gjørBeregning(): Boolean {

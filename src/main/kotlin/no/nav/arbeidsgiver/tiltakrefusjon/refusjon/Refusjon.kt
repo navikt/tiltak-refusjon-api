@@ -112,7 +112,7 @@ class Refusjon(
         refusjonsgrunnlag.oppgiBedriftKontonummer(bedrifKontonummer)
     }
 
-    fun endreBruttolønn(inntekterKunFraTiltaket: Boolean, bruttoLønn: Int?) {
+    fun endreBruttolønn(inntekterKunFraTiltaket: Boolean?, bruttoLønn: Int?) {
         oppdaterStatus()
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
         val harGjortBeregning = refusjonsgrunnlag.endreBruttolønn(inntekterKunFraTiltaket, bruttoLønn)
@@ -244,5 +244,11 @@ class Refusjon(
         krevStatus(RefusjonStatus.FOR_TIDLIG, RefusjonStatus.KLAR_FOR_INNSENDING)
         unntakOmInntekterToMånederFrem = merking
         registerEvent(MerketForUnntakOmInntekterToMånederFrem(this, merking, utførtAv))
+    }
+
+    fun toggleIntekslinje(inntekslinjeId: String) {
+        refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.id == inntekslinjeId }?.forEach {
+            it.skalRefunderes  = !it.skalRefunderes
+        }
     }
 }

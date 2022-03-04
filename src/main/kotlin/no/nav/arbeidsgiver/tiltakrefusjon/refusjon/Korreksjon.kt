@@ -147,7 +147,7 @@ class Korreksjon(
         registerEvent(KorreksjonMerketForTilbakekreving(this, utførtAv))
     }
 
-    fun endreBruttolønn(inntekterKunFraTiltaket: Boolean, endretBruttoLønn: Int?) {
+    fun endreBruttolønn(inntekterKunFraTiltaket: Boolean?, endretBruttoLønn: Int?) {
         krevStatus(Korreksjonstype.UTKAST)
         val harGjortBeregning = refusjonsgrunnlag.endreBruttolønn(inntekterKunFraTiltaket, endretBruttoLønn)
         if (harGjortBeregning) {

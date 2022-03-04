@@ -63,7 +63,7 @@ class Refusjonsgrunnlag(
     private fun gjørBeregning(): Boolean {
         if (erAltOppgitt()) {
             this.beregning = beregnRefusjonsbeløp(
-                inntekter = inntektsgrunnlag!!.inntekter.toList(),
+                inntekter = inntektsgrunnlag!!.inntekter.filter { it.skalRefunderes }.toList(),
                 tilskuddsgrunnlag = tilskuddsgrunnlag,
                 tidligereUtbetalt = tidligereUtbetalt,
                 korrigertBruttoLønn = endretBruttoLønn
@@ -85,5 +85,12 @@ class Refusjonsgrunnlag(
         val månederTilskudd =  tilskuddFom.datesUntil(tilskuddTom).map { YearMonth.of(it.year, it.month) }.distinct().toList()
 
         return månederInntekter.containsAll(månederTilskudd)
+    }
+
+    fun toggleInntektslinje(inntekslinjeId: String): Boolean {
+        inntektsgrunnlag?.inntekter?.filter { it.id == inntekslinjeId }?.forEach {
+            it.skalRefunderes  = !it.skalRefunderes
+        }
+        return gjørBeregning()
     }
 }

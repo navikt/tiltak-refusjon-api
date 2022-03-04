@@ -247,8 +247,11 @@ class Refusjon(
     }
 
     fun toggleIntekslinje(inntekslinjeId: String) {
-        refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.id == inntekslinjeId }?.forEach {
-            it.skalRefunderes  = !it.skalRefunderes
+        oppdaterStatus()
+        krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
+        var harGjortBeregning  = refusjonsgrunnlag.toggleInntektslinje(inntekslinjeId)
+        if (harGjortBeregning) {
+            registerEvent(BeregningUtført(this))
         }
     }
 }

@@ -30,7 +30,7 @@
         "urlPath": "/altinn-tilgangsstyring",
         "queryParameters": {
           "subject": {
-            "matches": "^234\\d{7}$"
+            "matches": "^234\\d{8}$"
           },
           "serviceCode": {
             "matches": "4936"

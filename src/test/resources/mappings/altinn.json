@@ -30,6 +30,39 @@
         "urlPath": "/altinn-tilgangsstyring",
         "queryParameters": {
           "subject": {
+            "matches": "^2\\d{10}$"
+          },
+          "serviceCode": {
+            "matches": "4936"
+          },
+          "serviceEdition": {
+            "matches": "1"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": [
+          {
+            "Name": "KAUPANGER OG TANGEN REVISJON",
+            "Type": "Enterprise",
+            "OrganizationNumber": "910948334",
+            "OrganizationForm": "AS",
+            "Status": "Active",
+            "ParentOrganizationNumber": null
+          }
+        ],
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "urlPath": "/altinn-tilgangsstyring",
+        "queryParameters": {
+          "subject": {
             "matches": "^1\\d{10}$"
           },
           "serviceCode": {

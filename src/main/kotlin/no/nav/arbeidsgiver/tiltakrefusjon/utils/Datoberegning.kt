@@ -9,16 +9,8 @@ fun erMånedIPeriode(måned: YearMonth, fra: LocalDate, til: LocalDate): Boolean
 
 fun antallMånederEtter(dato: LocalDate, antall: Long): LocalDate {
     val datoEtterAntallMåneder = dato.plusMonths(antall)
-    if (datoEtterAntallMåneder.dayOfMonth < dato.dayOfMonth) {
-        return datoEtterAntallMåneder.plusDays(1)
+    if (dato.lengthOfMonth() == dato.dayOfMonth && datoEtterAntallMåneder.lengthOfMonth() != datoEtterAntallMåneder.dayOfMonth) {
+        return LocalDate.of(datoEtterAntallMåneder.year, datoEtterAntallMåneder.month, datoEtterAntallMåneder.lengthOfMonth())
     }
     return datoEtterAntallMåneder
-
-    /**
-     *     val datoEtterAntallMåneder = dato.plusMonths(antall)
-           if(dato.lengthOfMonth() == dato.dayOfMonth && datoEtterAntallMåneder.lengthOfMonth() != datoEtterAntallMåneder.dayOfMonth) {
-               return LocalDate.of(datoEtterAntallMåneder.year, datoEtterAntallMåneder.month, datoEtterAntallMåneder.lengthOfMonth())
-           }
-           return  datoEtterAntallMåneder;
-     * */
 }

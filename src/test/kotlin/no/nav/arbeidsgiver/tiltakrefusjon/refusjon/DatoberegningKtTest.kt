@@ -19,7 +19,7 @@ internal class DatoberegningKtTest {
 
     @Test
     internal fun `to måneder etter i måned med 31 dager`() {
-        assertThat(antallMånederEtter(LocalDate.of(2021, 7, 31), 2)).isEqualTo(LocalDate.of(2021, 10, 1))
+        assertThat(antallMånederEtter(LocalDate.of(2021, 7, 31), 2)).isEqualTo(LocalDate.of(2021, 9, 30))
     }
 
     @Test
@@ -29,6 +29,6 @@ internal class DatoberegningKtTest {
 
     @Test
     internal fun `to måneder fra desember til februar`() {
-        assertThat(antallMånederEtter(LocalDate.of(2021, 12, 31), 2)).isEqualTo(LocalDate.of(2022, 3, 1))
+        assertThat(antallMånederEtter(LocalDate.of(2021, 12, 31), 2)).isEqualTo(LocalDate.of(2022, 2, 28))
     }
 }

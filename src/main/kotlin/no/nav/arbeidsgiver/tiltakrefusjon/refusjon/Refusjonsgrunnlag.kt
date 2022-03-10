@@ -34,7 +34,19 @@ class Refusjonsgrunnlag(
     @OneToOne(orphanRemoval = true, cascade = [CascadeType.ALL])
     var beregning: Beregning? = null
 
-    fun oppgiInntektsgrunnlag(inntektsgrunnlag: Inntektsgrunnlag): Boolean {
+    fun oppgiInntektsgrunnlag(
+        inntektsgrunnlag: Inntektsgrunnlag,
+        gjeldendeInntektsgrunnlag: Inntektsgrunnlag?
+    ): Boolean {
+        if (gjeldendeInntektsgrunnlag != null) {
+            inntektsgrunnlag.inntekter.forEach { inntekt ->
+                val gjeldendeInntektslinje =
+                    gjeldendeInntektsgrunnlag.inntekter.find { it.beløp == inntekt.beløp && it.måned == inntekt.måned && it.beskrivelse == inntekt.beskrivelse }
+                if (gjeldendeInntektslinje != null) {
+                    inntekt.skalRefunderes = gjeldendeInntektslinje.skalRefunderes
+                }
+            }
+        }
         this.inntektsgrunnlag = inntektsgrunnlag
         return gjørBeregning()
     }
@@ -63,7 +75,7 @@ class Refusjonsgrunnlag(
     private fun gjørBeregning(): Boolean {
         if (erAltOppgitt()) {
             this.beregning = beregnRefusjonsbeløp(
-                inntekter = inntektsgrunnlag!!.inntekter.filter { it.skalRefunderes }.toList(),
+                inntekter = inntektsgrunnlag!!.inntekter.toList(),
                 tilskuddsgrunnlag = tilskuddsgrunnlag,
                 tidligereUtbetalt = tidligereUtbetalt,
                 korrigertBruttoLønn = endretBruttoLønn
@@ -82,14 +94,15 @@ class Refusjonsgrunnlag(
         val tilskuddFom = tilskuddsgrunnlag.tilskuddFom
         val tilskuddTom = tilskuddsgrunnlag.tilskuddTom
 
-        val månederTilskudd =  tilskuddFom.datesUntil(tilskuddTom).map { YearMonth.of(it.year, it.month) }.distinct().toList()
+        val månederTilskudd =
+            tilskuddFom.datesUntil(tilskuddTom).map { YearMonth.of(it.year, it.month) }.distinct().toList()
 
         return månederInntekter.containsAll(månederTilskudd)
     }
 
     fun toggleInntektslinje(inntekslinjeId: String): Boolean {
         inntektsgrunnlag?.inntekter?.filter { it.id == inntekslinjeId }?.forEach {
-            it.skalRefunderes  = !it.skalRefunderes
+            it.skalRefunderes = !it.skalRefunderes
         }
         return gjørBeregning()
     }

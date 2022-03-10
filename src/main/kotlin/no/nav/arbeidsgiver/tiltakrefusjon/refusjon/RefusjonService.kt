@@ -77,7 +77,7 @@ class RefusjonService(
                 inntekter = inntektsoppslag.first,
                 respons = inntektsoppslag.second
             )
-            refusjon.oppgiInntektsgrunnlag(inntektsgrunnlag)
+            refusjon.oppgiInntektsgrunnlag(inntektsgrunnlag, refusjon.inntektsgrunnlag)
             refusjonRepository.save(refusjon)
         } catch (e: Exception) {
             log.error("Feil ved henting av inntekter for refusjon ${refusjon.id}", e)

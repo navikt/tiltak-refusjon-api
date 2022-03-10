@@ -81,4 +81,4 @@ fun leggSammenTrekkGrunnlag(
 fun kalkulerBruttoLønn(
     inntekter: List<Inntektslinje>,
 ): Double =
-    inntekter.filter { it.erMedIInntektsgrunnlag() }.sumOf { it.beløp }
+    inntekter.filter { it.erMedIInntektsgrunnlag() && it.skalRefunderes }.sumOf { it.beløp }

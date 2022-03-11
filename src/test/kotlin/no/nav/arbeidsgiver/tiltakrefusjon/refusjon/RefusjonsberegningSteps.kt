@@ -33,6 +33,7 @@ class RefusjonsberegningSteps {
                 YearMonth.parse(map["måned"]),
                 map["opptjeningsperiodeFom"]?.let { LocalDate.parse(it) },
                 map["opptjeningsperiodeTom"]?.let { LocalDate.parse(it) },
+                map["skalRefunderes"].toBoolean(),
             )
         }
     }

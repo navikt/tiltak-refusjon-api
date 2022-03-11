@@ -100,10 +100,11 @@ class Refusjonsgrunnlag(
         return månederInntekter.containsAll(månederTilskudd)
     }
 
-    fun toggleInntektslinje(inntekslinjeId: String): Boolean {
-        inntektsgrunnlag?.inntekter?.filter { it.id == inntekslinjeId }?.forEach {
-            it.skalRefunderes = !it.skalRefunderes
-        }
+    fun toggleInntektslinje(inntekslinjeId: String, erOpptjentIPeriode: Boolean): Boolean {
+        val inntektslinje = inntektsgrunnlag?.inntekter?.find { it.id == inntekslinjeId }
+            ?: throw RuntimeException("Finner ikke inntektslinje med id=$id")
+        inntektslinje.skalRefunderes = erOpptjentIPeriode
+
         return gjørBeregning()
     }
 }

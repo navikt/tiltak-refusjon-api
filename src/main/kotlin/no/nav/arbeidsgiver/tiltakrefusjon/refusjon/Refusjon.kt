@@ -246,10 +246,10 @@ class Refusjon(
         registerEvent(MerketForUnntakOmInntekterToMånederFrem(this, merking, utførtAv))
     }
 
-    fun toggleIntekslinje(inntekslinjeId: String) {
+    fun toggleIntekslinje(inntekslinjeId: String, erOpptjentIPeriode: Boolean) {
         oppdaterStatus()
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
-        var harGjortBeregning  = refusjonsgrunnlag.toggleInntektslinje(inntekslinjeId)
+        var harGjortBeregning  = refusjonsgrunnlag.toggleInntektslinje(inntekslinjeId, erOpptjentIPeriode)
         if (harGjortBeregning) {
             registerEvent(BeregningUtført(this))
         }

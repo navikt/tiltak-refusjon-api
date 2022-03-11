@@ -77,12 +77,13 @@ class ArbeidsgiverRefusjonController(
         )
     }
 
-    @PostMapping("/{id}/toggle-refundert-inntektslinje")
+    @PostMapping("/{id}/set-inntektslinje-opptjent-i-periode")
     fun endreRefundertInntekslinje(@PathVariable id: String, @RequestBody request: EndreRefundertInntektslinjeRequest) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-         arbeidsgiver.toggleSkalRefundereInntektslinje(
+         arbeidsgiver.setInntektslinjeTilOpptjentIPeriode(
             id,
-            request.inntektslinjeId
+            request.inntektslinjeId,
+             request.erOpptjentIPeriode
         )
     }
 

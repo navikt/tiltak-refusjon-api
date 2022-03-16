@@ -88,7 +88,7 @@ data class InnloggetArbeidsgiver(
     fun setInntektslinjeTilOpptjentIPeriode(refusjonId: String, inntekslinjeId: String, erOpptjentIPeriode: Boolean) {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(refusjonId) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
-        refusjon.toggleIntekslinje(inntekslinjeId, erOpptjentIPeriode)
+        refusjon.setInntektslinjeTilOpptjentIPeriode(inntekslinjeId, erOpptjentIPeriode)
         refusjonRepository.save(refusjon)
     }
 

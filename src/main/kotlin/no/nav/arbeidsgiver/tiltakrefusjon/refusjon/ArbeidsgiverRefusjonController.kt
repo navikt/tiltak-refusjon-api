@@ -6,12 +6,7 @@ import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.data.domain.Page
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 
 const val REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON = "/api/arbeidsgiver/refusjon"
@@ -80,10 +75,10 @@ class ArbeidsgiverRefusjonController(
     @PostMapping("/{id}/set-inntektslinje-opptjent-i-periode")
     fun endreRefundertInntekslinje(@PathVariable id: String, @RequestBody request: EndreRefundertInntektslinjeRequest) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-         arbeidsgiver.setInntektslinjeTilOpptjentIPeriode(
-            id,
-            request.inntektslinjeId,
-             request.erOpptjentIPeriode
+        arbeidsgiver.setInntektslinjeTilOpptjentIPeriode(
+            refusjonId = id,
+            inntekslinjeId = request.inntektslinjeId,
+            erOpptjentIPeriode = request.erOpptjentIPeriode
         )
     }
 

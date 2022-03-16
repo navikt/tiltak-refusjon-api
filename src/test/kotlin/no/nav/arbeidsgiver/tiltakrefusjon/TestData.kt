@@ -337,7 +337,8 @@ fun etInntektsgrunnlag(måned: YearMonth = YearMonth.of(2020, 10)) = Inntektsgru
             måned = måned,
             beløp = 7777.0,
             opptjeningsperiodeTom = null,
-            opptjeningsperiodeFom = null
+            opptjeningsperiodeFom = null,
+            skalRefunderes = true
         )
     ),
     respons = ""

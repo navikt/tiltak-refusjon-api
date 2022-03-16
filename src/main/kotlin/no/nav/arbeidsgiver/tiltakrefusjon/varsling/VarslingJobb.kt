@@ -24,7 +24,7 @@ class VarslingJobb(
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @Scheduled(fixedDelayString = "\${tiltak-refusjon.varslingsjobb.fixed-delay}")
-    fun sjekkForVarsling() {
+    fun sjekkForRevarsling() {
 
         if (!leaderPodCheck.isLeaderPod()) {
             logger.info("Pod er ikke leader, så kjører ikke jobb for å finne refusjoner som skal varsles")
@@ -33,32 +33,34 @@ class VarslingJobb(
 
         val refusjoner = refusjonRepository.findAllByStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
         for (refusjon in refusjoner) {
+
             val varslerForRefusjon = varslingRepository.findAllByRefusjonId(refusjon.id)
             val kortTidTilRefusjonenGårUt = refusjon.fristForGodkjenning.isBefore(Now.localDate().plusWeeks(2))
             val finnesIngenRevarslerForRefusjon = varslerForRefusjon.none { it.varselType === VarselType.REVARSEL }
             val finnesIngenFerskVarsling = dagerSidenForrigeVarsel(varslerForRefusjon) > 3
 
             if (kortTidTilRefusjonenGårUt && finnesIngenRevarslerForRefusjon && finnesIngenFerskVarsling) {
-                refusjonVarselProducer.sendVarsel(VarselType.REVARSEL, refusjon.id, refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId, refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleId)
+                refusjonVarselProducer.sendVarsel(VarselType.REVARSEL, refusjon.id, refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId, refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleId, refusjon.fristForGodkjenning)
             }
         }
     }
 
-    @Scheduled(cron="0 7 5 * *")
+    // Cronjobb kjører kl 07:00 den 5 hver måned.
+    @Scheduled(cron="0 0 7 5 * ?")
     fun sjekkForVarslingKlar() {
-        val forigeMåned = LocalDate.now().minusMonths(1).monthOfYear;
-
+        
         if (!leaderPodCheck.isLeaderPod()) {
             logger.info("Pod er ikke leader, så kjører ikke jobb for å finne refusjoner som skal varsles")
             return
         }
 
+        val forrigeMåned = LocalDate.now().minusMonths(1).monthOfYear;
         val refusjoner = refusjonRepository.findAllByStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
         for (refusjon in refusjoner) {
             val varslerForRefusjon = varslingRepository.findAllByRefusjonId(refusjon.id)
 
-            if (varslerForRefusjon.none { it.varselType === VarselType.KLAR} && refusjon.tilskuddsgrunnlag.tilskuddTom.monthValue == forigeMåned) {
-                refusjonVarselProducer.sendVarsel(VarselType.KLAR, refusjon.id, refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId, refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleId)
+            if (varslerForRefusjon.none { it.varselType === VarselType.KLAR} && refusjon.tilskuddsgrunnlag.tilskuddTom.monthValue == forrigeMåned) {
+                refusjonVarselProducer.sendVarsel(VarselType.KLAR, refusjon.id, refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId, refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleId, refusjon.fristForGodkjenning)
                 continue;
             }
         }

@@ -3,7 +3,6 @@ package no.nav.arbeidsgiver.tiltakrefusjon.varsling
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.verify
 import no.nav.arbeidsgiver.tiltakrefusjon.Topics
 import no.nav.arbeidsgiver.tiltakrefusjon.enRefusjon
@@ -13,7 +12,6 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonRepository
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonStatus
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.kafka.core.KafkaTemplate
@@ -78,7 +76,6 @@ class VarslingJobbTest {
         val varslingJobb =
             VarslingJobb(refusjonRepositoryMock, varslingRepositoryMock, refusjonVarselProducer, leaderPodCheck)
 
-
         val enRefusjon = enRefusjon()
         enRefusjon.status = RefusjonStatus.KLAR_FOR_INNSENDING
 
@@ -90,7 +87,7 @@ class VarslingJobbTest {
 
         varslingJobb.sjekkForVarslingKlar()
 
-        verify(timeout = 2000 , exactly = 1) { varslingRepositoryMock.save( any()) }
+        verify(timeout = 2000, exactly = 1) { varslingRepositoryMock.save(any()) }
 
     }
 

@@ -3,12 +3,23 @@ package no.nav.arbeidsgiver.tiltakrefusjon
 import com.github.guepardoapps.kulid.ULID
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
+import no.nav.arbeidsgiver.tiltakrefusjon.varsling.VarselType
+import no.nav.arbeidsgiver.tiltakrefusjon.varsling.Varsling
+import java.time.LocalDateTime
 import java.time.YearMonth
+import javax.persistence.EnumType
+import javax.persistence.Enumerated
 
 fun enRefusjon(tilskuddsgrunnlag: Tilskuddsgrunnlag = etTilskuddsgrunnlag()): Refusjon {
     val deltakerFnr = "07098142678"
     val bedriftNr = "999999999"
     return Refusjon(tilskuddsgrunnlag = tilskuddsgrunnlag, bedriftNr = bedriftNr, deltakerFnr = deltakerFnr)
+}
+
+fun enVarsling(varselType: VarselType = VarselType.KLAR ) : Varsling {
+    val refusjonId = ULID.random()
+    val varselTidspunkt = Now.localDateTime()
+    return Varsling(refusjonId, varselType, varselTidspunkt)
 }
 
 fun refusjoner(): List<Refusjon> {

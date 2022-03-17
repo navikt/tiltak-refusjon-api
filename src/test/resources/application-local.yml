@@ -68,6 +68,8 @@ tiltak-refusjon:
     fake: true
   unleash:
     mock: true
+  varsling:
+    varsling-klar-cron: "0 */5 0 17 * ?"
 server:
   port: 8081
 

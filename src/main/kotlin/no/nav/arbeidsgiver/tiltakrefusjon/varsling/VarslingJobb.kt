@@ -6,6 +6,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonStatus
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.joda.time.LocalDate
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.scheduling.annotation.EnableScheduling
 import org.springframework.scheduling.annotation.Scheduled
@@ -46,7 +47,7 @@ class VarslingJobb(
     }
 
     // Cronjobb kjører kl 07:00 den 5 hver måned.
-    @Scheduled(cron="0 0 7 5 * ?")
+    @Scheduled(cron = "\${tiltak-refusjon.varsling.varsling-klar-cron}")
     fun sjekkForVarslingKlar() {
         
         if (!leaderPodCheck.isLeaderPod()) {
@@ -56,14 +57,17 @@ class VarslingJobb(
 
         val forrigeMåned = LocalDate.now().minusMonths(1).monthOfYear;
         val refusjoner = refusjonRepository.findAllByStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
+        var antallSendteVarsler = 0
         for (refusjon in refusjoner) {
             val varslerForRefusjon = varslingRepository.findAllByRefusjonId(refusjon.id)
 
             if (varslerForRefusjon.none { it.varselType === VarselType.KLAR} && refusjon.tilskuddsgrunnlag.tilskuddTom.monthValue == forrigeMåned) {
                 refusjonVarselProducer.sendVarsel(VarselType.KLAR, refusjon.id, refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId, refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleId, refusjon.fristForGodkjenning)
+                antallSendteVarsler++
                 continue;
             }
         }
+        logger.info("Cron jobb ferdig kjørt. Sendt ${antallSendteVarsler} varsler")
     }
 
     fun dagerSidenForrigeVarsel(varslinger: List<Varsling>): Long {

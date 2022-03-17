@@ -6,7 +6,6 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonStatus
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.joda.time.LocalDate
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.scheduling.annotation.EnableScheduling
 import org.springframework.scheduling.annotation.Scheduled
@@ -49,7 +48,9 @@ class VarslingJobb(
     // Cronjobb kjører kl 07:00 den 5 hver måned.
     @Scheduled(cron = "\${tiltak-refusjon.varsling.varsling-klar-cron}")
     fun sjekkForVarslingKlar() {
-        
+
+        logger.info("Cronjobb kjører")
+
         if (!leaderPodCheck.isLeaderPod()) {
             logger.info("Pod er ikke leader, så kjører ikke jobb for å finne refusjoner som skal varsles")
             return

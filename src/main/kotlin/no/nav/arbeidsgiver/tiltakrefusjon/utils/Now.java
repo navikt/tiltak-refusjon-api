@@ -13,6 +13,12 @@ public class Now {
         clock.set(Clock.fixed(instant, ZoneId.systemDefault()));
     }
 
+    // Metode for å sette dato og klokkeslett. Skal kun brukes i test
+    public static void fixedDateTime(LocalDateTime localDateTime){
+        Instant instant = ZonedDateTime.of(localDateTime, ZoneId.systemDefault()).toInstant();
+        clock.set(Clock.fixed(instant, ZoneId.systemDefault()));
+    }
+
     // Metode for å resette tidspunkt. Skal brukes i test hvis man har brukt fixedDate først
     public static void resetClock() {
         Now.clock.set(Clock.systemDefaultZone());

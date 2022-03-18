@@ -20,7 +20,7 @@ import java.time.LocalDate
 @EmbeddedKafka(partitions = 1, topics = [Topics.REFUSJON_ENDRET_BETALINGSSTATUS])
 @DirtiesContext
 class BetalingStatusKafkaLytterTest {
-    @MockkBean  lateinit var refusjonRepositoryMock: RefusjonRepository
+    @MockkBean lateinit var refusjonRepositoryMock: RefusjonRepository
     @Autowired lateinit var  objectMapper: ObjectMapper
 
     @Test

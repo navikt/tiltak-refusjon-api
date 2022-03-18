@@ -28,7 +28,8 @@ class FristForlengetLytter(
             varselType = VarselType.FRIST_FORLENGET,
             refusjonId = event.refusjon.id,
             tilskuddsperiodeId = event.refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId,
-            avtaleId = event.refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleId
+            avtaleId = event.refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleId,
+            fristForGodkjenning = event.refusjon.fristForGodkjenning
         )
     }
 }

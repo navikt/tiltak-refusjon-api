@@ -34,7 +34,8 @@ class RefusjonKorrigertLytter(
             varselType = VarselType.KORRIGERT,
             refusjonId = korreksjon.korrigererRefusjonId,
             tilskuddsperiodeId = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId,
-            avtaleId = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleId
+            avtaleId = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleId,
+            fristForGodkjenning = null
         )
     }
 }

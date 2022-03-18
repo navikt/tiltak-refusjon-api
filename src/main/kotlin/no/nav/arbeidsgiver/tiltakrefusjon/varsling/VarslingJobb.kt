@@ -49,8 +49,6 @@ class VarslingJobb(
     @Scheduled(cron = "\${tiltak-refusjon.varsling.varsling-klar-cron}")
     fun sjekkForVarslingKlar() {
 
-        logger.info("Cronjobb kjører")
-
         if (!leaderPodCheck.isLeaderPod()) {
             logger.info("Pod er ikke leader, så kjører ikke jobb for å finne refusjoner som skal varsles")
             return

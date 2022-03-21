@@ -66,6 +66,11 @@ class Refusjon(
         return refusjonsgrunnlag.harInntektIAlleMåneder()
     }
 
+    @JsonProperty
+    fun harTattStillingTilAlleInntektslinjer(): Boolean =
+        refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.find { inntekt -> inntekt.skalRefunderes === null } === null
+
+
     private fun krevStatus(vararg gyldigeStatuser: RefusjonStatus) {
         if (status !in gyldigeStatuser) throw FeilkodeException(Feilkode.UGYLDIG_STATUS)
     }

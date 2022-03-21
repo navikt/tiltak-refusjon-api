@@ -47,6 +47,9 @@ class Refusjonsgrunnlag(
                 }
             }
         }
+        if(inntektsgrunnlag.inntekter.find { it.skalRefunderes === null } !== null) {
+            this.resetEndreBruttolønn()
+        }
         this.inntektsgrunnlag = inntektsgrunnlag
         return gjørBeregning()
     }
@@ -55,6 +58,11 @@ class Refusjonsgrunnlag(
         this.bedriftKontonummer = bedrifKontonummer
         this.bedriftKontonummerInnhentetTidspunkt = Now.localDateTime()
         return gjørBeregning()
+    }
+
+    fun resetEndreBruttolønn() {
+        this.inntekterKunFraTiltaket = null
+        this.endretBruttoLønn = null
     }
 
     fun endreBruttolønn(inntekterKunFraTiltaket: Boolean?, bruttoLønn: Int?): Boolean {

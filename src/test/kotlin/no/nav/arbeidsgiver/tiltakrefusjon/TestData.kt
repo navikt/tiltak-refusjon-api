@@ -329,7 +329,7 @@ fun Refusjon.copy(
     return Refusjon(tilskuddsgrunnlag, bedriftNr, deltakerFnr)
 }
 
-fun etInntektsgrunnlag(måned: YearMonth = YearMonth.of(2020, 10)) = Inntektsgrunnlag(
+fun etInntektsgrunnlag(måned: YearMonth = YearMonth.of(2020, 10), opptjentIPeriode: Boolean = true) = Inntektsgrunnlag(
     inntekter = listOf(
         Inntektslinje(
             inntektType = "LOENNSINNTEKT",
@@ -338,8 +338,19 @@ fun etInntektsgrunnlag(måned: YearMonth = YearMonth.of(2020, 10)) = Inntektsgru
             beløp = 7777.0,
             opptjeningsperiodeTom = null,
             opptjeningsperiodeFom = null,
-            skalRefunderes = true
+            skalRefunderes = opptjentIPeriode
         )
     ),
     respons = ""
 )
+
+fun enInntektslinje(måned: YearMonth = YearMonth.of(2020, 10), opptjentIPeriode: Boolean = true): Inntektslinje =
+    Inntektslinje(
+        inntektType = "LOENNSINNTEKT",
+        beskrivelse = "timeloenn",
+        måned = måned,
+        beløp = 7777.0,
+        opptjeningsperiodeTom = null,
+        opptjeningsperiodeFom = null,
+        skalRefunderes = opptjentIPeriode
+    )

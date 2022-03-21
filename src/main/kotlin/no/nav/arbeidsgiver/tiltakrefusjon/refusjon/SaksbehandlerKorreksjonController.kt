@@ -58,4 +58,14 @@ class SaksbehandlerKorreksjonController(
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
         saksbehandler.fullførKorreksjonVedTilbakekreving(id)
     }
+
+    @PostMapping("/{id}/set-inntektslinje-opptjent-i-periode")
+    fun setInntektslinjeTilOpptjentIPeriode(@PathVariable id: String, @RequestBody request: EndreRefundertInntektslinjeRequest) {
+        val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
+        saksbehandler.setInntektslinjeTilOpptjentIPeriode(
+            korreksjonId = id,
+            inntekslinjeId = request.inntektslinjeId,
+            erOpptjentIPeriode = request.erOpptjentIPeriode
+        )
+    }
 }

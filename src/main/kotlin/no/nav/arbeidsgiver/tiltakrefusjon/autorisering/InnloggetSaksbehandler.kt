@@ -175,4 +175,11 @@ data class InnloggetSaksbehandler(
         refusjon.merkForUnntakOmInntekterToMånederFrem(merking, identifikator)
         refusjonRepository.save(refusjon)
     }
+
+    fun setInntektslinjeTilOpptjentIPeriode(korreksjonId: String, inntekslinjeId: String, erOpptjentIPeriode: Boolean) {
+        val korreksjon = korreksjonRepository.findByIdOrNull(korreksjonId) ?: throw RessursFinnesIkkeException()
+        sjekkLesetilgang(korreksjon)
+        korreksjon.setInntektslinjeTilOpptjentIPeriode(inntekslinjeId, erOpptjentIPeriode)
+        korreksjonRepository.save(korreksjon)
+    }
 }

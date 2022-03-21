@@ -1,10 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import com.github.guepardoapps.kulid.ULID
-import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
-import no.nav.arbeidsgiver.tiltakrefusjon.assertFeilkode
-import no.nav.arbeidsgiver.tiltakrefusjon.etInntektsgrunnlag
-import no.nav.arbeidsgiver.tiltakrefusjon.etTilskuddsgrunnlag
+import no.nav.arbeidsgiver.tiltakrefusjon.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.time.YearMonth
@@ -119,5 +116,32 @@ class KorreksjonTest {
         assertFeilkode(Feilkode.KORREKSJONSBELOP_POSITIVT) { korreksjon.fullførKorreksjonVedTilbakekreving("") }
         korreksjon.fullførKorreksjonVedOppgjort("")
         assertThat(korreksjon.status).isEqualTo(Korreksjonstype.OPPGJORT)
+    }
+
+    @Test
+    internal fun `kun inntekter som er huket av for at de er opptjent i perioden blir regnet med`() {
+        val tilskuddsgrunnlag = etTilskuddsgrunnlag()
+        val korreksjon = Korreksjon(
+            ULID.random(),
+            1,
+            4055,
+            setOf(Korreksjonsgrunn.HENT_INNTEKTER_PÅ_NYTT),
+            tilskuddsgrunnlag,
+            tilskuddsgrunnlag.deltakerFnr,
+            tilskuddsgrunnlag.bedriftNr,
+            true,
+            null
+        )
+        val inntektslinjeOpptjentIPeriode = enInntektslinje(opptjentIPeriode = true)
+        val inntektslinjeIkkeOptjentIPeriode = enInntektslinje(opptjentIPeriode = false)
+        val inntekter = listOf(
+            inntektslinjeOpptjentIPeriode,
+            inntektslinjeIkkeOptjentIPeriode
+        )
+        val inntektsgrunnlag = Inntektsgrunnlag(inntekter, "")
+        korreksjon.oppgiBedriftKontonummer("123456789")
+        korreksjon.oppgiInntektsgrunnlag(inntektsgrunnlag)
+
+        assertThat(korreksjon.refusjonsgrunnlag.beregning?.lønn).isEqualTo(inntektslinjeOpptjentIPeriode.beløp.toInt())
     }
 }

@@ -1,1 +1,1 @@
-alter table inntektslinje add column skal_refunderes boolean default false;
+alter table inntektslinje add column skal_refunderes boolean default null;

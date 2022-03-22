@@ -64,9 +64,12 @@ class RefusjonberegnerFratrekkFerieTest(
         refusjon.status = RefusjonStatus.KLAR_FOR_INNSENDING
         refusjon.unntakOmInntekterToMånederFrem = false
         refusjon.fristForGodkjenning = Now.localDate().plusDays(1)
-        refusjon.endreBruttolønn(true, null)
         refusjonService.gjørBedriftKontonummeroppslag(refusjon)
         refusjonService.gjørInntektsoppslag(refusjon)
+        // Sett innhentede inntekter til opptjent i periode
+        refusjon.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.forEach { it.skalRefunderes = true }
+        // Bekreft at alle inntektene kun er fra tiltaket
+        refusjon.endreBruttolønn(true, null)
         return refusjon;
     }
 

@@ -279,6 +279,18 @@ internal class RefusjonTest {
         assertThat(refusjon.harInntektIAlleMåneder()).isFalse()
     }
 
+    @Test
+    internal fun `kun avhukede inntetslinjer blir medregnet`() {
+        val inntektslinjeOpptjentIPeriode = enInntektslinje(opptjentIPeriode = true)
+        val inntektslinjeIkkeOptjentIPeriode = enInntektslinje(opptjentIPeriode = false)
+        val inntekter = listOf(inntektslinjeOpptjentIPeriode, inntektslinjeIkkeOptjentIPeriode)
+        val inntektsgrunnlag = Inntektsgrunnlag(inntekter, "")
+
+        val refusjon = enRefusjon().medBedriftKontonummer().medInntekterKunFraTiltaket()
+        refusjon.oppgiInntektsgrunnlag(inntektsgrunnlag)
+        assertThat(refusjon.refusjonsgrunnlag.beregning?.lønn).isEqualTo(inntektslinjeOpptjentIPeriode.beløp.toInt())
+    }
+
     // @Test
     // internal fun `korreksjon`() {
     //     val refusjon = enRefusjon().medInntektsgrunnlag().medBedriftKontonummer().medSendtKravFraArbeidsgiver()

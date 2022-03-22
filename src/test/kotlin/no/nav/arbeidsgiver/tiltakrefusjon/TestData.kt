@@ -322,6 +322,11 @@ fun Refusjon.medBedriftKontonummer(): Refusjon {
     return this
 }
 
+fun Refusjon.medInntekterKunFraTiltaket(): Refusjon {
+    this.refusjonsgrunnlag.inntekterKunFraTiltaket = true
+    return this
+}
+
 fun Refusjon.copy(
     tilskuddsgrunnlag: Tilskuddsgrunnlag = this.tilskuddsgrunnlag,
     deltakerFnr: String = this.deltakerFnr

@@ -243,7 +243,7 @@ class RefusjonApiTest(
 
 
         // Huker av for at inntektene er opptjet i periode
-        refusjonEtterInntektsgrunnlag.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.forEach {
+        refusjonEtterInntektsgrunnlag.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.forEach {
             setInntektslinjeOpptjentIPeriode(
                 refusjonId = refusjonEtterInntektsgrunnlag.id,
                 inntektslinjeId = it.id,

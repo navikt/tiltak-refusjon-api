@@ -112,6 +112,9 @@ class Refusjonsgrunnlag(
     fun setInntektslinjeTilOpptjentIPeriode(inntekslinjeId: String, erOpptjentIPeriode: Boolean): Boolean {
         val inntektslinje = inntektsgrunnlag?.inntekter?.find { it.id == inntekslinjeId }
             ?: throw RuntimeException("Finner ikke inntektslinje med id=$id")
+        if (!inntektslinje.erMedIInntektsgrunnlag()) {
+            throw FeilkodeException(Feilkode.INNTEKTSLINJE_IKKE_MED_I_GRUNNLAG)
+        }
         inntektslinje.skalRefunderes = erOpptjentIPeriode
 
         return gjørBeregning()

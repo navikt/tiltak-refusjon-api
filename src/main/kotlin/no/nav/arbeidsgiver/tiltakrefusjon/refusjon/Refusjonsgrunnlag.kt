@@ -47,7 +47,7 @@ class Refusjonsgrunnlag(
                 }
             }
         }
-        if(inntektsgrunnlag.inntekter.find { it.skalRefunderes === null } !== null) {
+        if(inntektsgrunnlag.inntekter.filter { it.erMedIInntektsgrunnlag() }.find { it.skalRefunderes === null } !== null) {
             this.resetEndreBruttolønn()
         }
         this.inntektsgrunnlag = inntektsgrunnlag
@@ -63,6 +63,7 @@ class Refusjonsgrunnlag(
     fun resetEndreBruttolønn() {
         this.inntekterKunFraTiltaket = null
         this.endretBruttoLønn = null
+        this.beregning = null
     }
 
     fun endreBruttolønn(inntekterKunFraTiltaket: Boolean?, bruttoLønn: Int?): Boolean {

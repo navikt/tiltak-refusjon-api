@@ -67,7 +67,7 @@ class RefusjonberegnerFratrekkFerieTest(
         refusjonService.gjørBedriftKontonummeroppslag(refusjon)
         refusjonService.gjørInntektsoppslag(refusjon)
         // Sett innhentede inntekter til opptjent i periode
-        refusjon.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.forEach { it.skalRefunderes = true }
+        refusjon.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.forEach { it.erOpptjentIPeriode = true }
         // Bekreft at alle inntektene kun er fra tiltaket
         refusjon.endreBruttolønn(true, null)
         return refusjon;

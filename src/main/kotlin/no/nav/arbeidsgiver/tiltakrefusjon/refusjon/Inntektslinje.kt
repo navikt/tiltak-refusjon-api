@@ -17,7 +17,8 @@ data class Inntektslinje(
     val måned: YearMonth,
     val opptjeningsperiodeFom: LocalDate?,
     val opptjeningsperiodeTom: LocalDate?,
-    var skalRefunderes: Boolean? = null,
+    @Column(name = "er_opptjent_i_periode")
+    var erOpptjentIPeriode: Boolean? = null,
 ) {
     @Id
     val id: String = ULID.random()

@@ -3,14 +3,14 @@ Egenskap: Beregn refusjon for sommerjobb
 
   Scenario: Inntekt uten opptjeningsperiode
     Gitt følgende opplysninger om inntekt
-      | inntektType   | beskrivelse | beløp | måned   | opptjeningsperiodeFom | opptjeningsperiodeTom | skalRefunderes |
+      | inntektType   | beskrivelse | beløp | måned   | opptjeningsperiodeFom | opptjeningsperiodeTom | erOpptjentIPeriode |
       | LOENNSINNTEKT | fastloenn   | 20000 | 2020-01 |                       |                       | true           |
     Når sommerjobb på 60 prosent skal refunderes for periode "2020-01-01" til "2020-01-31" med arbeidsgiveravgift "0.141", feriepengersats "0.12", OTP-sats "0.02"
     Så beregnes refusjon til 15642 kr for periode
 
   Scenario: Inntekt etter tilskuddsperiode, ved korreksjon
     Gitt følgende opplysninger om inntekt
-      | inntektType   | beskrivelse | beløp | måned   | opptjeningsperiodeFom | opptjeningsperiodeTom | skalRefunderes |
+      | inntektType   | beskrivelse | beløp | måned   | opptjeningsperiodeFom | opptjeningsperiodeTom | erOpptjentIPeriode |
       | LOENNSINNTEKT | fastloenn   | 20000 | 2020-02 |                       |                       | true           |
     Når sommerjobb på 60 prosent skal refunderes for periode "2020-01-01" til "2020-01-31" med arbeidsgiveravgift "0.141", feriepengersats "0.12", OTP-sats "0.02"
     Og korreksjonsgrunn "HENT_INNTEKTER_TO_MÅNEDER_FREM" er valgt
@@ -19,14 +19,14 @@ Egenskap: Beregn refusjon for sommerjobb
   @skip_scenario
   Scenario: Inntekt etter tilskuddsperiode, ikke korreksjon
     Gitt følgende opplysninger om inntekt
-      | inntektType   | beskrivelse | beløp | måned   | opptjeningsperiodeFom | opptjeningsperiodeTom | skalRefunderes |
+      | inntektType   | beskrivelse | beløp | måned   | opptjeningsperiodeFom | opptjeningsperiodeTom | erOpptjentIPeriode |
       | LOENNSINNTEKT | fastloenn   | 20000 | 2020-02 |                       |                       | true           |
     Når sommerjobb på 60 prosent skal refunderes for periode "2020-01-01" til "2020-01-31" med arbeidsgiveravgift "0.141", feriepengersats "0.12", OTP-sats "0.02"
     Så beregnes refusjon til 0 kr for periode
 
   Scenario: Inntekt med og uten opptjeningsperiode
     Gitt følgende opplysninger om inntekt
-      | inntektType   | beskrivelse | beløp | måned   | opptjeningsperiodeFom | opptjeningsperiodeTom | skalRefunderes |
+      | inntektType   | beskrivelse | beløp | måned   | opptjeningsperiodeFom | opptjeningsperiodeTom | erOpptjentIPeriode |
       | LOENNSINNTEKT | fastloenn   | 10000 | 2020-03 | 2020-03-20            | 2020-04-10            | true           |
       | LOENNSINNTEKT | fastloenn   | 5000  | 2020-03 |                       |                       | true           |
       | LOENNSINNTEKT | fastloenn   | 5000  | 2020-04 |                       |                       | true           |
@@ -36,7 +36,7 @@ Egenskap: Beregn refusjon for sommerjobb
   @skip_scenario
   Scenario: Inntekt uten opptjeningsperiode, utenfor tilskuddsperiode
     Gitt følgende opplysninger om inntekt
-      | inntektType   | beskrivelse | beløp | måned   | opptjeningsperiodeFom | opptjeningsperiodeTom | skalRefunderes |
+      | inntektType   | beskrivelse | beløp | måned   | opptjeningsperiodeFom | opptjeningsperiodeTom | erOpptjentIPeriode |
       | LOENNSINNTEKT | fastloenn   | 10000 | 2020-03 | 2020-03-20            | 2020-04-10            | true           |
       | LOENNSINNTEKT | fastloenn   | 5000  | 2020-02 |                       |                       | true           |
       | LOENNSINNTEKT | fastloenn   | 5000  | 2020-05 |                       |                       | true           |
@@ -45,7 +45,7 @@ Egenskap: Beregn refusjon for sommerjobb
 
   Scenario: To inntekter i hele tilskuddsperioden
     Gitt følgende opplysninger om inntekt
-      | inntektType   | beskrivelse | beløp | måned   | opptjeningsperiodeFom | opptjeningsperiodeTom | skalRefunderes |
+      | inntektType   | beskrivelse | beløp | måned   | opptjeningsperiodeFom | opptjeningsperiodeTom | erOpptjentIPeriode |
       | LOENNSINNTEKT | fastloenn   | 10000 | 2020-03 | 2020-03-20            | 2020-04-10            | true           |
       | LOENNSINNTEKT | fastloenn   | 20000 | 2020-03 | 2020-03-20            | 2020-04-10            | true           |
     Når sommerjobb på 60 prosent skal refunderes for periode "2020-03-20" til "2020-04-10" med arbeidsgiveravgift "0.141", feriepengersats "0.12", OTP-sats "0.02"
@@ -53,7 +53,7 @@ Egenskap: Beregn refusjon for sommerjobb
 
   Scenario: Ferie i mellom inntekter
     Gitt følgende opplysninger om inntekt
-      | inntektType   | beskrivelse | beløp | måned   | opptjeningsperiodeFom | opptjeningsperiodeTom | skalRefunderes |
+      | inntektType   | beskrivelse | beløp | måned   | opptjeningsperiodeFom | opptjeningsperiodeTom | erOpptjentIPeriode |
       | LOENNSINNTEKT | fastloenn   | 10000 | 2020-04 | 2020-04-01            | 2020-04-10            | true           |
       | FERIE         | fastloenn   | 5000  | 2020-04 | 2020-04-11            | 2020-04-17            | true           |
       | LOENNSINNTEKT | fastloenn   | 20000 | 2020-04 | 2020-04-18            | 2020-04-30            | true           |
@@ -63,7 +63,7 @@ Egenskap: Beregn refusjon for sommerjobb
   @skip_scenario
   Scenario: Inntekt før tilskuddsperiode, og ytelse
     Gitt følgende opplysninger om inntekt
-      | inntektType   | beskrivelse | beløp | måned   | opptjeningsperiodeFom | opptjeningsperiodeTom | skalRefunderes |
+      | inntektType   | beskrivelse | beløp | måned   | opptjeningsperiodeFom | opptjeningsperiodeTom | erOpptjentIPeriode |
       | LOENNSINNTEKT | fastloenn   | 7000  | 2019-01 | 2019-01-01            | 2019-01-31            | true           |
       | YTELSE        | fastloenn   | 2000  | 2020-01 |                       |                       | true           |
     Når sommerjobb på 60 prosent skal refunderes for periode "2020-01-01" til "2020-01-31" med arbeidsgiveravgift "0.141", feriepengersats "0.12", OTP-sats "0.02"
@@ -72,7 +72,7 @@ Egenskap: Beregn refusjon for sommerjobb
   @skip_scenario
   Scenario: Inntekt etter tilskuddsperiode, og ytelse
     Gitt følgende opplysninger om inntekt
-      | inntektType   | beskrivelse | beløp | måned   | opptjeningsperiodeFom | opptjeningsperiodeTom | skalRefunderes |
+      | inntektType   | beskrivelse | beløp | måned   | opptjeningsperiodeFom | opptjeningsperiodeTom | erOpptjentIPeriode |
       | LOENNSINNTEKT | fastloenn   | 7000  | 2020-02 | 2020-02-01            | 2020-02-28            | true           |
       | YTELSE        | fastloenn   | 2000  | 2020-01 |                       |                       | true           |
     Når sommerjobb på 60 prosent skal refunderes for periode "2020-01-01" til "2020-01-31" med arbeidsgiveravgift "0.141", feriepengersats "0.12", OTP-sats "0.02"
@@ -80,7 +80,7 @@ Egenskap: Beregn refusjon for sommerjobb
 
   Scenario: Tjener mer enn tilskuddsbeløp, skal da avkorte refusjon
     Gitt følgende opplysninger om inntekt
-      | inntektType   | beskrivelse | beløp | måned   | opptjeningsperiodeFom | opptjeningsperiodeTom | skalRefunderes |
+      | inntektType   | beskrivelse | beløp | måned   | opptjeningsperiodeFom | opptjeningsperiodeTom | erOpptjentIPeriode |
       | LOENNSINNTEKT | fastloenn   | 10000 | 2020-04 | 2020-04-01            | 2020-04-30            | true           |
     Når sommerjobb på 51 prosent skal refunderes for periode "2020-04-01" til "2020-04-30" med arbeidsgiveravgift "0.0", feriepengersats "0.0", OTP-sats "0.0"
     Og tilskuddsbeløp er 5000 kr
@@ -88,7 +88,7 @@ Egenskap: Beregn refusjon for sommerjobb
 
   Scenario: Er korreksjon, skal da avkorte refusjon
     Gitt følgende opplysninger om inntekt
-      | inntektType   | beskrivelse | beløp | måned   | opptjeningsperiodeFom | opptjeningsperiodeTom | skalRefunderes |
+      | inntektType   | beskrivelse | beløp | måned   | opptjeningsperiodeFom | opptjeningsperiodeTom | erOpptjentIPeriode |
       | LOENNSINNTEKT | fastloenn   | 10000 | 2020-04 | 2020-04-01            | 2020-04-30            | true           |
     Når sommerjobb på 50 prosent skal refunderes for periode "2020-04-01" til "2020-04-30" med arbeidsgiveravgift "0.0", feriepengersats "0.0", OTP-sats "0.0"
     Og tidligere utbetalt er 4999 kr
@@ -96,7 +96,7 @@ Egenskap: Beregn refusjon for sommerjobb
 
   Scenario: Bruttolønnkorreksjon som er lavere enn innhentet bruttolønn
     Gitt følgende opplysninger om inntekt
-      | inntektType   | beskrivelse | beløp | måned   | opptjeningsperiodeFom | opptjeningsperiodeTom | skalRefunderes |
+      | inntektType   | beskrivelse | beløp | måned   | opptjeningsperiodeFom | opptjeningsperiodeTom | erOpptjentIPeriode |
       | LOENNSINNTEKT | fastloenn   | 10000 | 2020-04 | 2020-04-01            | 2020-04-30            | true           |
     Når sommerjobb på 50 prosent skal refunderes for periode "2020-04-01" til "2020-04-30" med arbeidsgiveravgift "0.0", feriepengersats "0.0", OTP-sats "0.0"
     Og bruttolønn er korrigert til 5000 kr
@@ -104,7 +104,7 @@ Egenskap: Beregn refusjon for sommerjobb
 
   Scenario: Bruttolønnkorreksjon som er høyere enn innhentet bruttolønn
     Gitt følgende opplysninger om inntekt
-      | inntektType   | beskrivelse | beløp | måned   | opptjeningsperiodeFom | opptjeningsperiodeTom | skalRefunderes |
+      | inntektType   | beskrivelse | beløp | måned   | opptjeningsperiodeFom | opptjeningsperiodeTom | erOpptjentIPeriode |
       | LOENNSINNTEKT | fastloenn   | 10000 | 2020-04 | 2020-04-01            | 2020-04-30            | true           |
     Når sommerjobb på 50 prosent skal refunderes for periode "2020-04-01" til "2020-04-30" med arbeidsgiveravgift "0.0", feriepengersats "0.0", OTP-sats "0.0"
     Og bruttolønn er korrigert til 11000 kr
@@ -112,7 +112,7 @@ Egenskap: Beregn refusjon for sommerjobb
 
   Scenario: Skal filtrere ut riktige lønnsinntekter
     Gitt følgende opplysninger om inntekt
-      | inntektType   | beskrivelse                                                                       | beløp | måned   | opptjeningsperiodeFom | opptjeningsperiodeTom | skalRefunderes |
+      | inntektType   | beskrivelse                                                                       | beløp | måned   | opptjeningsperiodeFom | opptjeningsperiodeTom | erOpptjentIPeriode |
       | LOENNSINNTEKT | fastloenn                                                                         | 10000 | 2020-04 | 2020-04-01            | 2020-04-30            | true           |
       | LOENNSINNTEKT | timeloenn                                                                         | 10000 | 2020-04 | 2020-04-01            | 2020-04-30            | true           |
       | LOENNSINNTEKT | Honorar/Akkord/Prosent/Provisjon                                                  | 10000 | 2020-04 | 2020-04-01            | 2020-04-30            | true           |

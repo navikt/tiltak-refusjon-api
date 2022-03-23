@@ -343,7 +343,7 @@ fun etInntektsgrunnlag(måned: YearMonth = YearMonth.of(2020, 10), opptjentIPeri
             beløp = 7777.0,
             opptjeningsperiodeTom = null,
             opptjeningsperiodeFom = null,
-            skalRefunderes = opptjentIPeriode
+            erOpptjentIPeriode = opptjentIPeriode
         )
     ),
     respons = ""
@@ -357,5 +357,5 @@ fun enInntektslinje(måned: YearMonth = YearMonth.of(2020, 10), opptjentIPeriode
         beløp = 7777.0,
         opptjeningsperiodeTom = null,
         opptjeningsperiodeFom = null,
-        skalRefunderes = opptjentIPeriode
+        erOpptjentIPeriode = opptjentIPeriode
     )

@@ -12,7 +12,6 @@ import javax.persistence.Id
 import javax.persistence.JoinColumn
 import javax.persistence.ManyToOne
 import javax.persistence.OneToOne
-import kotlin.streams.toList
 
 @Entity
 class Refusjonsgrunnlag(
@@ -43,11 +42,11 @@ class Refusjonsgrunnlag(
                 val gjeldendeInntektslinje =
                     gjeldendeInntektsgrunnlag.inntekter.find { it.beløp == inntekt.beløp && it.måned == inntekt.måned && it.beskrivelse == inntekt.beskrivelse }
                 if (gjeldendeInntektslinje != null) {
-                    inntekt.skalRefunderes = gjeldendeInntektslinje.skalRefunderes
+                    inntekt.erOpptjentIPeriode = gjeldendeInntektslinje.erOpptjentIPeriode
                 }
             }
         }
-        if(inntektsgrunnlag.inntekter.filter { it.erMedIInntektsgrunnlag() }.find { it.skalRefunderes === null } !== null) {
+        if(inntektsgrunnlag.inntekter.filter { it.erMedIInntektsgrunnlag() }.find { it.erOpptjentIPeriode === null } !== null) {
             this.resetEndreBruttolønn()
         }
         this.inntektsgrunnlag = inntektsgrunnlag
@@ -115,7 +114,7 @@ class Refusjonsgrunnlag(
         if (!inntektslinje.erMedIInntektsgrunnlag()) {
             throw FeilkodeException(Feilkode.INNTEKTSLINJE_IKKE_MED_I_GRUNNLAG)
         }
-        inntektslinje.skalRefunderes = erOpptjentIPeriode
+        inntektslinje.erOpptjentIPeriode = erOpptjentIPeriode
 
         return gjørBeregning()
     }

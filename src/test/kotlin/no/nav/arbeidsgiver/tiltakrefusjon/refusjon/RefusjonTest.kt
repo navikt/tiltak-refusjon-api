@@ -53,6 +53,32 @@ internal class RefusjonTest {
 
     // Godkjennelse arbeidsgiver
     @Test
+    fun `kan ikke godkjenne for ag uten å ha tatt stilling til alle inntekstlinjer`() {
+        val enInntektslinjeIkkeTattStillingTilOpptjening = Inntektslinje(
+            inntektType = "LOENNSINNTEKT",
+            beskrivelse = "timeloenn",
+            måned = YearMonth.of(2020, 10),
+            beløp = 7777.0,
+            opptjeningsperiodeTom = null,
+            opptjeningsperiodeFom = null,
+            erOpptjentIPeriode = null
+        )
+        val enInntektslinjeOpptjentIPeriode = enInntektslinje()
+        val inntektsgrunnlag = Inntektsgrunnlag(listOf(enInntektslinjeIkkeTattStillingTilOpptjening, enInntektslinjeOpptjentIPeriode), "")
+
+        val refusjon = enRefusjon().medBedriftKontonummer().medInntektsgrunnlag(inntektsgrunnlag = inntektsgrunnlag)
+        refusjon.endreBruttolønn(true, null)
+
+        // 1 inntektslinje er ikke tatt stilling til
+        assertFeilkode(Feilkode.IKKE_TATT_STILLING_TIL_ALLE_INNTEKTSLINJER) { refusjon.godkjennForArbeidsgiver("") }
+
+        // Tar stilling til alle inntektslinjer
+        refusjon.setInntektslinjeTilOpptjentIPeriode(enInntektslinjeIkkeTattStillingTilOpptjening.id, true)
+        refusjon.godkjennForArbeidsgiver("")
+        assertThat(refusjon.godkjentAvArbeidsgiver).isNotNull
+    }
+
+    @Test
     fun `kan ikke godkjenne for ag uten beregning`() {
         val refusjon = enRefusjon()
         assertFeilkode(Feilkode.INGEN_INNTEKTER) { refusjon.godkjennForArbeidsgiver("") }

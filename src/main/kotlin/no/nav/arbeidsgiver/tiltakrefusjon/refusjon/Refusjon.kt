@@ -135,6 +135,9 @@ class Refusjon(
         if (refusjonsgrunnlag.bedriftKontonummer == null) {
             throw FeilkodeException(Feilkode.INGEN_BEDRIFTKONTONUMMER)
         }
+        if (!this.harTattStillingTilAlleInntektslinjer()) {
+            throw FeilkodeException(Feilkode.IKKE_TATT_STILLING_TIL_ALLE_INNTEKTSLINJER)
+        }
         godkjentAvArbeidsgiver = Now.instant()
         status = RefusjonStatus.SENDT_KRAV
         registerEvent(GodkjentAvArbeidsgiver(this, utførtAv))

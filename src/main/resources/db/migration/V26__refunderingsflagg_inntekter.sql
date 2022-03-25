@@ -1,0 +1,1 @@
+alter table inntektslinje add column er_opptjent_i_periode boolean default null;

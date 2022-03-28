@@ -19,3 +19,5 @@ tiltak-refusjon:
   unleash:
     enabled: true
     unleash-uri: https://unleash.nais.io/api/
+  varsling:
+    varsling-klar-cron: "0 */5 * 18 * ?"

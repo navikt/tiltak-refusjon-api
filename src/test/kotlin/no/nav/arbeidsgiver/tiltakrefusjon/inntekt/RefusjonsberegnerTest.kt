@@ -69,6 +69,7 @@ class RefusjonsberegnerTest {
             måned = måned,
             opptjeningsperiodeFom = opptjeningsperiodeFom,
             opptjeningsperiodeTom = opptjeningsperiodeTom,
+            erOpptjentIPeriode = true
         )
     }
 

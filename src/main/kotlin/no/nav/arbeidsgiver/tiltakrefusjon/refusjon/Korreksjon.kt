@@ -3,10 +3,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 import com.github.guepardoapps.kulid.ULID
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.KorreksjonBeregningUtført
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.KorreksjonMerketForOppgjort
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.KorreksjonMerketForTilbakekreving
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.KorreksjonSendtTilUtbetaling
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.*
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.springframework.data.domain.AbstractAggregateRoot
 import java.time.Instant
@@ -147,7 +144,7 @@ class Korreksjon(
         registerEvent(KorreksjonMerketForTilbakekreving(this, utførtAv))
     }
 
-    fun endreBruttolønn(inntekterKunFraTiltaket: Boolean, endretBruttoLønn: Int?) {
+    fun endreBruttolønn(inntekterKunFraTiltaket: Boolean?, endretBruttoLønn: Int?) {
         krevStatus(Korreksjonstype.UTKAST)
         val harGjortBeregning = refusjonsgrunnlag.endreBruttolønn(inntekterKunFraTiltaket, endretBruttoLønn)
         if (harGjortBeregning) {
@@ -169,7 +166,7 @@ class Korreksjon(
     }
 
     fun oppgiInntektsgrunnlag(inntektsgrunnlag: Inntektsgrunnlag) {
-        val harGjortBeregning = this.refusjonsgrunnlag.oppgiInntektsgrunnlag(inntektsgrunnlag)
+        val harGjortBeregning = this.refusjonsgrunnlag.oppgiInntektsgrunnlag(inntektsgrunnlag, null)
         if (harGjortBeregning) {
             registerEvent(KorreksjonBeregningUtført(this))
         }
@@ -177,6 +174,14 @@ class Korreksjon(
 
     fun oppgiBedriftKontonummer(bedrifKontonummer: String) {
         val harGjortBeregning = this.refusjonsgrunnlag.oppgiBedriftKontonummer(bedrifKontonummer)
+        if (harGjortBeregning) {
+            registerEvent(KorreksjonBeregningUtført(this))
+        }
+    }
+
+    fun setInntektslinjeTilOpptjentIPeriode(inntekslinjeId: String, erOpptjentIPeriode: Boolean) {
+        krevStatus(Korreksjonstype.UTKAST)
+        val harGjortBeregning = refusjonsgrunnlag.setInntektslinjeTilOpptjentIPeriode(inntekslinjeId, erOpptjentIPeriode)
         if (harGjortBeregning) {
             registerEvent(KorreksjonBeregningUtført(this))
         }

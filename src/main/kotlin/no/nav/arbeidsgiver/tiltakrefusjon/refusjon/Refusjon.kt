@@ -66,6 +66,11 @@ class Refusjon(
         return refusjonsgrunnlag.harInntektIAlleMåneder()
     }
 
+    @JsonProperty
+    fun harTattStillingTilAlleInntektslinjer(): Boolean =
+        refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.find { inntekt -> inntekt.erOpptjentIPeriode === null } === null
+
+
     private fun krevStatus(vararg gyldigeStatuser: RefusjonStatus) {
         if (status !in gyldigeStatuser) throw FeilkodeException(Feilkode.UGYLDIG_STATUS)
     }
@@ -98,11 +103,11 @@ class Refusjon(
         }
     }
 
-    fun oppgiInntektsgrunnlag(inntektsgrunnlag: Inntektsgrunnlag) {
+    fun oppgiInntektsgrunnlag(inntektsgrunnlag: Inntektsgrunnlag, gjeldendeInntektsgrunnlag: Inntektsgrunnlag? = null) {
         oppdaterStatus()
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
 
-        val harGjortBeregning = this.refusjonsgrunnlag.oppgiInntektsgrunnlag(inntektsgrunnlag)
+        val harGjortBeregning = this.refusjonsgrunnlag.oppgiInntektsgrunnlag(inntektsgrunnlag, gjeldendeInntektsgrunnlag)
         if (harGjortBeregning) {
             registerEvent(BeregningUtført(this))
         }
@@ -112,7 +117,7 @@ class Refusjon(
         refusjonsgrunnlag.oppgiBedriftKontonummer(bedrifKontonummer)
     }
 
-    fun endreBruttolønn(inntekterKunFraTiltaket: Boolean, bruttoLønn: Int?) {
+    fun endreBruttolønn(inntekterKunFraTiltaket: Boolean?, bruttoLønn: Int?) {
         oppdaterStatus()
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
         val harGjortBeregning = refusjonsgrunnlag.endreBruttolønn(inntekterKunFraTiltaket, bruttoLønn)
@@ -129,6 +134,9 @@ class Refusjon(
         }
         if (refusjonsgrunnlag.bedriftKontonummer == null) {
             throw FeilkodeException(Feilkode.INGEN_BEDRIFTKONTONUMMER)
+        }
+        if (!this.harTattStillingTilAlleInntektslinjer()) {
+            throw FeilkodeException(Feilkode.IKKE_TATT_STILLING_TIL_ALLE_INNTEKTSLINJER)
         }
         godkjentAvArbeidsgiver = Now.instant()
         status = RefusjonStatus.SENDT_KRAV
@@ -244,5 +252,14 @@ class Refusjon(
         krevStatus(RefusjonStatus.FOR_TIDLIG, RefusjonStatus.KLAR_FOR_INNSENDING)
         unntakOmInntekterToMånederFrem = merking
         registerEvent(MerketForUnntakOmInntekterToMånederFrem(this, merking, utførtAv))
+    }
+
+    fun setInntektslinjeTilOpptjentIPeriode(inntekslinjeId: String, erOpptjentIPeriode: Boolean) {
+        oppdaterStatus()
+        krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
+        var harGjortBeregning  = refusjonsgrunnlag.setInntektslinjeTilOpptjentIPeriode(inntekslinjeId, erOpptjentIPeriode)
+        if (harGjortBeregning) {
+            registerEvent(BeregningUtført(this))
+        }
     }
 }

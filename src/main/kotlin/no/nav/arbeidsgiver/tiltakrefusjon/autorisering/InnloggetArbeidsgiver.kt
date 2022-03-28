@@ -78,10 +78,17 @@ data class InnloggetArbeidsgiver(
         return true
     }
 
-    fun endreBruttolønn(id: String, inntekterKunFraTiltaket: Boolean, bruttoLønn: Int?) {
+    fun endreBruttolønn(id: String, inntekterKunFraTiltaket: Boolean?, bruttoLønn: Int?) {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
         refusjon.endreBruttolønn(inntekterKunFraTiltaket, bruttoLønn)
+        refusjonRepository.save(refusjon)
+    }
+
+    fun setInntektslinjeTilOpptjentIPeriode(refusjonId: String, inntekslinjeId: String, erOpptjentIPeriode: Boolean) {
+        val refusjon: Refusjon = refusjonRepository.findByIdOrNull(refusjonId) ?: throw RessursFinnesIkkeException()
+        sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
+        refusjon.setInntektslinjeTilOpptjentIPeriode(inntekslinjeId, erOpptjentIPeriode)
         refusjonRepository.save(refusjon)
     }
 

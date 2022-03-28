@@ -156,7 +156,7 @@ data class InnloggetSaksbehandler(
         korreksjonRepository.save(korreksjon)
     }
 
-    fun endreBruttolønn(id: String, inntekterKunFraTiltaket: Boolean, endretBruttoLønn: Int?) {
+    fun endreBruttolønn(id: String, inntekterKunFraTiltaket: Boolean?, endretBruttoLønn: Int?) {
         val korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(korreksjon)
         korreksjon.endreBruttolønn(inntekterKunFraTiltaket, endretBruttoLønn)
@@ -174,5 +174,12 @@ data class InnloggetSaksbehandler(
         val refusjon = finnRefusjon(id)
         refusjon.merkForUnntakOmInntekterToMånederFrem(merking, identifikator)
         refusjonRepository.save(refusjon)
+    }
+
+    fun setInntektslinjeTilOpptjentIPeriode(korreksjonId: String, inntekslinjeId: String, erOpptjentIPeriode: Boolean) {
+        val korreksjon = korreksjonRepository.findByIdOrNull(korreksjonId) ?: throw RessursFinnesIkkeException()
+        sjekkLesetilgang(korreksjon)
+        korreksjon.setInntektslinjeTilOpptjentIPeriode(inntekslinjeId, erOpptjentIPeriode)
+        korreksjonRepository.save(korreksjon)
     }
 }

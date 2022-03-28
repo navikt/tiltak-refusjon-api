@@ -333,6 +333,11 @@ fun Refusjon.medBedriftKontonummer(): Refusjon {
     return this
 }
 
+fun Refusjon.medInntekterKunFraTiltaket(): Refusjon {
+    this.refusjonsgrunnlag.inntekterKunFraTiltaket = true
+    return this
+}
+
 fun Refusjon.copy(
     tilskuddsgrunnlag: Tilskuddsgrunnlag = this.tilskuddsgrunnlag,
     deltakerFnr: String = this.deltakerFnr
@@ -340,7 +345,7 @@ fun Refusjon.copy(
     return Refusjon(tilskuddsgrunnlag, bedriftNr, deltakerFnr)
 }
 
-fun etInntektsgrunnlag(måned: YearMonth = YearMonth.of(2020, 10)) = Inntektsgrunnlag(
+fun etInntektsgrunnlag(måned: YearMonth = YearMonth.of(2020, 10), opptjentIPeriode: Boolean = true) = Inntektsgrunnlag(
     inntekter = listOf(
         Inntektslinje(
             inntektType = "LOENNSINNTEKT",
@@ -348,8 +353,20 @@ fun etInntektsgrunnlag(måned: YearMonth = YearMonth.of(2020, 10)) = Inntektsgru
             måned = måned,
             beløp = 7777.0,
             opptjeningsperiodeTom = null,
-            opptjeningsperiodeFom = null
+            opptjeningsperiodeFom = null,
+            erOpptjentIPeriode = opptjentIPeriode
         )
     ),
     respons = ""
 )
+
+fun enInntektslinje(måned: YearMonth = YearMonth.of(2020, 10), opptjentIPeriode: Boolean = true): Inntektslinje =
+    Inntektslinje(
+        inntektType = "LOENNSINNTEKT",
+        beskrivelse = "timeloenn",
+        måned = måned,
+        beløp = 7777.0,
+        opptjeningsperiodeTom = null,
+        opptjeningsperiodeFom = null,
+        erOpptjentIPeriode = opptjentIPeriode
+    )

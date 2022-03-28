@@ -12,7 +12,6 @@ import javax.persistence.Id
 import javax.persistence.JoinColumn
 import javax.persistence.ManyToOne
 import javax.persistence.OneToOne
-import kotlin.streams.toList
 
 @Entity
 class Refusjonsgrunnlag(
@@ -34,7 +33,22 @@ class Refusjonsgrunnlag(
     @OneToOne(orphanRemoval = true, cascade = [CascadeType.ALL])
     var beregning: Beregning? = null
 
-    fun oppgiInntektsgrunnlag(inntektsgrunnlag: Inntektsgrunnlag): Boolean {
+    fun oppgiInntektsgrunnlag(
+        inntektsgrunnlag: Inntektsgrunnlag,
+        gjeldendeInntektsgrunnlag: Inntektsgrunnlag?
+    ): Boolean {
+        if (gjeldendeInntektsgrunnlag != null) {
+            inntektsgrunnlag.inntekter.forEach { inntekt ->
+                val gjeldendeInntektslinje =
+                    gjeldendeInntektsgrunnlag.inntekter.find { it.beløp == inntekt.beløp && it.måned == inntekt.måned && it.beskrivelse == inntekt.beskrivelse }
+                if (gjeldendeInntektslinje != null) {
+                    inntekt.erOpptjentIPeriode = gjeldendeInntektslinje.erOpptjentIPeriode
+                }
+            }
+        }
+        if(inntektsgrunnlag.inntekter.filter { it.erMedIInntektsgrunnlag() }.find { it.erOpptjentIPeriode === null } !== null) {
+            this.resetEndreBruttolønn()
+        }
         this.inntektsgrunnlag = inntektsgrunnlag
         return gjørBeregning()
     }
@@ -45,8 +59,14 @@ class Refusjonsgrunnlag(
         return gjørBeregning()
     }
 
-    fun endreBruttolønn(inntekterKunFraTiltaket: Boolean, bruttoLønn: Int?): Boolean {
-        if (inntekterKunFraTiltaket && bruttoLønn != null) {
+    fun resetEndreBruttolønn() {
+        this.inntekterKunFraTiltaket = null
+        this.endretBruttoLønn = null
+        this.beregning = null
+    }
+
+    fun endreBruttolønn(inntekterKunFraTiltaket: Boolean?, bruttoLønn: Int?): Boolean {
+        if (inntekterKunFraTiltaket != null && inntekterKunFraTiltaket == true && bruttoLønn != null) {
             throw FeilkodeException(Feilkode.INNTEKTER_KUN_FRA_TILTAK_OG_OPPGIR_BELØP)
         }
         this.inntekterKunFraTiltaket = inntekterKunFraTiltaket
@@ -57,7 +77,7 @@ class Refusjonsgrunnlag(
     fun erAltOppgitt(): Boolean {
         val inntektsgrunnlag = inntektsgrunnlag
         if (inntektsgrunnlag == null || inntektsgrunnlag.inntekter.none { it.erMedIInntektsgrunnlag() }) return false
-        return bedriftKontonummer != null && (inntekterKunFraTiltaket == true && endretBruttoLønn == null || inntekterKunFraTiltaket == false && endretBruttoLønn != null)
+        return bedriftKontonummer != null && (inntekterKunFraTiltaket == true && endretBruttoLønn == null || ((inntekterKunFraTiltaket == false || inntekterKunFraTiltaket == null) && endretBruttoLønn != null))
     }
 
     private fun gjørBeregning(): Boolean {
@@ -82,8 +102,20 @@ class Refusjonsgrunnlag(
         val tilskuddFom = tilskuddsgrunnlag.tilskuddFom
         val tilskuddTom = tilskuddsgrunnlag.tilskuddTom
 
-        val månederTilskudd =  tilskuddFom.datesUntil(tilskuddTom).map { YearMonth.of(it.year, it.month) }.distinct().toList()
+        val månederTilskudd =
+            tilskuddFom.datesUntil(tilskuddTom).map { YearMonth.of(it.year, it.month) }.distinct().toList()
 
         return månederInntekter.containsAll(månederTilskudd)
+    }
+
+    fun setInntektslinjeTilOpptjentIPeriode(inntekslinjeId: String, erOpptjentIPeriode: Boolean): Boolean {
+        val inntektslinje = inntektsgrunnlag?.inntekter?.find { it.id == inntekslinjeId }
+            ?: throw RuntimeException("Finner ikke inntektslinje med id=$id")
+        if (!inntektslinje.erMedIInntektsgrunnlag()) {
+            throw FeilkodeException(Feilkode.INNTEKTSLINJE_IKKE_MED_I_GRUNNLAG)
+        }
+        inntektslinje.erOpptjentIPeriode = erOpptjentIPeriode
+
+        return gjørBeregning()
     }
 }

@@ -1,5 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.guepardoapps.kulid.ULID
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
@@ -61,6 +62,9 @@ class Korreksjon(
     var besluttetAvNavIdent: String? = null
     var besluttetTidspunkt: Instant? = null
 
+    @JsonProperty
+    fun harTattStillingTilAlleInntektslinjer(): Boolean = refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.find { inntekt -> inntekt.erOpptjentIPeriode === null } === null
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -109,6 +113,10 @@ class Korreksjon(
         if (kostnadssted.isBlank()) {
             throw FeilkodeException(Feilkode.KOSTNADSSTED_MANGLER)
         }
+        if (!this.harTattStillingTilAlleInntektslinjer()) {
+            throw FeilkodeException(Feilkode.IKKE_TATT_STILLING_TIL_ALLE_INNTEKTSLINJER)
+        }
+
         this.godkjentTidspunkt = Now.instant()
         this.godkjentAvNavIdent = utførtAv
         this.besluttetAvNavIdent = beslutterNavIdent
@@ -125,6 +133,9 @@ class Korreksjon(
         if (refusjonsbeløp == null || refusjonsbeløp != 0) {
             throw FeilkodeException(Feilkode.KORREKSJONSBELOP_IKKE_NULL)
         }
+        if (!this.harTattStillingTilAlleInntektslinjer()) {
+            throw FeilkodeException(Feilkode.IKKE_TATT_STILLING_TIL_ALLE_INNTEKTSLINJER)
+        }
         this.godkjentTidspunkt = Now.instant()
         this.godkjentAvNavIdent = utførtAv
         this.status = Korreksjonstype.OPPGJORT
@@ -137,6 +148,9 @@ class Korreksjon(
         val refusjonsbeløp = refusjonsgrunnlag.beregning?.refusjonsbeløp
         if (refusjonsbeløp == null || refusjonsbeløp >= 0) {
             throw FeilkodeException(Feilkode.KORREKSJONSBELOP_POSITIVT)
+        }
+        if (!this.harTattStillingTilAlleInntektslinjer()) {
+            throw FeilkodeException(Feilkode.IKKE_TATT_STILLING_TIL_ALLE_INNTEKTSLINJER)
         }
         this.godkjentTidspunkt = Now.instant()
         this.godkjentAvNavIdent = utførtAv

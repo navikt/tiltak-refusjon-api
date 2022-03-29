@@ -262,4 +262,13 @@ class Refusjon(
             registerEvent(BeregningUtført(this))
         }
     }
+
+    fun settFratrekkSykepenger(fratrekkSykepenger: Boolean, sykepengeBeløp: Int?) {
+        oppdaterStatus()
+        krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
+        val harGjortBeregning = refusjonsgrunnlag.settFratrekkSykepenger(fratrekkSykepenger, sykepengeBeløp)
+        if (harGjortBeregning) {
+            registerEvent(BeregningUtført(this))
+        }
+    }
 }

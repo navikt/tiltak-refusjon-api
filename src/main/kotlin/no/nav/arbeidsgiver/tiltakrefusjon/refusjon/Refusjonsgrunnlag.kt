@@ -29,6 +29,8 @@ class Refusjonsgrunnlag(
     var bedriftKontonummerInnhentetTidspunkt: LocalDateTime? = null
     var inntekterKunFraTiltaket: Boolean? = null
     var endretBruttoLønn: Int? = null
+    var fratrekkSykepenger: Boolean? = null
+    var sykepengeBeløp: Int? = null
 
     @OneToOne(orphanRemoval = true, cascade = [CascadeType.ALL])
     var beregning: Beregning? = null
@@ -62,6 +64,8 @@ class Refusjonsgrunnlag(
     fun resetEndreBruttolønn() {
         this.inntekterKunFraTiltaket = null
         this.endretBruttoLønn = null
+        this.fratrekkSykepenger = null
+        this.sykepengeBeløp = null
         this.beregning = null
     }
 
@@ -86,7 +90,8 @@ class Refusjonsgrunnlag(
                 inntekter = inntektsgrunnlag!!.inntekter.toList(),
                 tilskuddsgrunnlag = tilskuddsgrunnlag,
                 tidligereUtbetalt = tidligereUtbetalt,
-                korrigertBruttoLønn = endretBruttoLønn
+                korrigertBruttoLønn = endretBruttoLønn,
+                fratrekkSykepenger = sykepengeBeløp
             )
             return true
         }
@@ -116,6 +121,15 @@ class Refusjonsgrunnlag(
         }
         inntektslinje.erOpptjentIPeriode = erOpptjentIPeriode
 
+        return gjørBeregning()
+    }
+
+    fun settFratrekkSykepenger(fratrekkSykepenger: Boolean, sykepengeBeløp: Int?): Boolean {
+        if (!fratrekkSykepenger && sykepengeBeløp != null) {
+            throw FeilkodeException(Feilkode.INNTEKTER_KUN_FRA_TILTAK_OG_OPPGIR_BELØP)
+        }
+        this.fratrekkSykepenger = fratrekkSykepenger
+        this.sykepengeBeløp = sykepengeBeløp
         return gjørBeregning()
     }
 }

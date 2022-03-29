@@ -92,4 +92,11 @@ data class InnloggetArbeidsgiver(
         refusjonRepository.save(refusjon)
     }
 
+    fun settFratrekkSykepenger(id: String, fratrekkSykepenger: Boolean, sykepengeBeløp: Int?) {
+        val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
+        sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
+        refusjon.settFratrekkSykepenger(fratrekkSykepenger, sykepengeBeløp)
+        refusjonRepository.save(refusjon)
+    }
+
 }

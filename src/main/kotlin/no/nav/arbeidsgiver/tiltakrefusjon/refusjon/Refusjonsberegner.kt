@@ -41,12 +41,15 @@ fun beregnRefusjonsbeløp(
     inntekter: List<Inntektslinje>,
     tilskuddsgrunnlag: Tilskuddsgrunnlag,
     tidligereUtbetalt: Int,
-    korrigertBruttoLønn: Int?,
+    korrigertBruttoLønn: Int? = null,
+    fratrekkSykepenger: Int? = null,
 ): Beregning {
     val kalkulertBruttoLønn = kalkulerBruttoLønn(inntekter).roundToInt()
     val lønn = if (korrigertBruttoLønn != null) minOf(korrigertBruttoLønn, kalkulertBruttoLønn) else kalkulertBruttoLønn
     val trekkgrunnlagFerie = leggSammenTrekkGrunnlag(inntekter).roundToInt()
-    val lønnFratrukketFerie = lønn - trekkgrunnlagFerie
+    val fratrekkLonnSykepenger = fratrekkSykepenger ?: 0
+    val lønnFratrukketSykepenger = lønn - fratrekkLonnSykepenger
+    val lønnFratrukketFerie = lønnFratrukketSykepenger - trekkgrunnlagFerie
     val feriepenger = lønnFratrukketFerie * tilskuddsgrunnlag.feriepengerSats
     val tjenestepensjon = (lønnFratrukketFerie + feriepenger) * tilskuddsgrunnlag.otpSats
     val arbeidsgiveravgift = (lønnFratrukketFerie + tjenestepensjon + feriepenger) * tilskuddsgrunnlag.arbeidsgiveravgiftSats
@@ -69,7 +72,9 @@ fun beregnRefusjonsbeløp(
         refusjonsbeløp = refusjonsbeløp.roundToInt(),
         overTilskuddsbeløp = overTilskuddsbeløp,
         tidligereUtbetalt = tidligereUtbetalt,
-        fratrekkLønnFerie = trekkgrunnlagFerie
+        fratrekkLønnFerie = trekkgrunnlagFerie,
+        fratrekkLonnSykepenger = fratrekkLonnSykepenger,
+        lønnFratrukketSykepenger = lønnFratrukketSykepenger
     )
 }
 

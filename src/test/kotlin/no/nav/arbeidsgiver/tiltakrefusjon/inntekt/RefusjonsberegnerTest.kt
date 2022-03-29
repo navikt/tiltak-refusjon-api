@@ -85,6 +85,7 @@ class RefusjonsberegnerTest {
             inntektsgrunnlag.inntekter.toList(),
             tilskuddsgrunnlagSommerJobb,
             0,
+            null,
             null
         )
         val beregnetBeløpHeleInntektsgrunnlaget = 20856

@@ -138,6 +138,9 @@ class Refusjon(
         if (!this.harTattStillingTilAlleInntektslinjer()) {
             throw FeilkodeException(Feilkode.IKKE_TATT_STILLING_TIL_ALLE_INNTEKTSLINJER)
         }
+        if(!refusjonsgrunnlag.refusjonsgrunnlagetErPositivt()) {
+            throw FeilkodeException(Feilkode.REFUSJON_BELOP_NEGATIVT_TALL)
+        }
         godkjentAvArbeidsgiver = Now.instant()
         status = RefusjonStatus.SENDT_KRAV
         registerEvent(GodkjentAvArbeidsgiver(this, utførtAv))

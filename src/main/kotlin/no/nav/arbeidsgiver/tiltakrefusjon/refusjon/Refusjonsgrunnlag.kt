@@ -41,8 +41,8 @@ class Refusjonsgrunnlag(
     ): Boolean {
         if (gjeldendeInntektsgrunnlag != null) {
             inntektsgrunnlag.inntekter.forEach { inntekt ->
-                val gjeldendeInntektslinje =
-                    gjeldendeInntektsgrunnlag.inntekter.find { it.beløp == inntekt.beløp && it.måned == inntekt.måned && it.beskrivelse == inntekt.beskrivelse }
+                val gjeldendeInntektslinje = gjeldendeInntektsgrunnlag.inntekter
+                    .find { it.beløp == inntekt.beløp && it.måned == inntekt.måned && it.beskrivelse == inntekt.beskrivelse }
                 if (gjeldendeInntektslinje != null) {
                     inntekt.erOpptjentIPeriode = gjeldendeInntektslinje.erOpptjentIPeriode
                 }
@@ -81,7 +81,12 @@ class Refusjonsgrunnlag(
     fun erAltOppgitt(): Boolean {
         val inntektsgrunnlag = inntektsgrunnlag
         if (inntektsgrunnlag == null || inntektsgrunnlag.inntekter.none { it.erMedIInntektsgrunnlag() }) return false
-        return bedriftKontonummer != null && (inntekterKunFraTiltaket == true && endretBruttoLønn == null || ((inntekterKunFraTiltaket == false || inntekterKunFraTiltaket == null) && endretBruttoLønn != null))
+        return bedriftKontonummer != null && (inntekterKunFraTiltaket == true && endretBruttoLønn == null ||
+                ((inntekterKunFraTiltaket == false || inntekterKunFraTiltaket == null) && endretBruttoLønn != null))
+    }
+
+    fun refusjonsgrunnlagetErPositivt(): Boolean {
+        return this.beregning?.refusjonsbeløp != null && this.beregning!!.refusjonsbeløp > 0
     }
 
     private fun gjørBeregning(): Boolean {

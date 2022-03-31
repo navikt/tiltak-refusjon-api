@@ -92,4 +92,11 @@ data class InnloggetArbeidsgiver(
         refusjonRepository.save(refusjon)
     }
 
+    fun settFratrekkRefunderbarBeløp(id: String, fratrekkRefunderbarBeløp: Boolean, refunderbarBeløp: Int?) {
+        val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
+        sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
+        refusjon.settFratrekkRefunderbarBeløp(fratrekkRefunderbarBeløp, refunderbarBeløp)
+        refusjonRepository.save(refusjon)
+    }
+
 }

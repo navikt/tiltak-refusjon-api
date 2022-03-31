@@ -29,6 +29,8 @@ class Refusjonsgrunnlag(
     var bedriftKontonummerInnhentetTidspunkt: LocalDateTime? = null
     var inntekterKunFraTiltaket: Boolean? = null
     var endretBruttoLønn: Int? = null
+    var fratrekkRefunderbarBeløp: Boolean? = null
+    var refunderbarBeløp: Int? = null
 
     @OneToOne(orphanRemoval = true, cascade = [CascadeType.ALL])
     var beregning: Beregning? = null
@@ -39,8 +41,8 @@ class Refusjonsgrunnlag(
     ): Boolean {
         if (gjeldendeInntektsgrunnlag != null) {
             inntektsgrunnlag.inntekter.forEach { inntekt ->
-                val gjeldendeInntektslinje =
-                    gjeldendeInntektsgrunnlag.inntekter.find { it.beløp == inntekt.beløp && it.måned == inntekt.måned && it.beskrivelse == inntekt.beskrivelse }
+                val gjeldendeInntektslinje = gjeldendeInntektsgrunnlag.inntekter
+                    .find { it.beløp == inntekt.beløp && it.måned == inntekt.måned && it.beskrivelse == inntekt.beskrivelse }
                 if (gjeldendeInntektslinje != null) {
                     inntekt.erOpptjentIPeriode = gjeldendeInntektslinje.erOpptjentIPeriode
                 }
@@ -62,6 +64,8 @@ class Refusjonsgrunnlag(
     fun resetEndreBruttolønn() {
         this.inntekterKunFraTiltaket = null
         this.endretBruttoLønn = null
+        this.fratrekkRefunderbarBeløp = null
+        this.refunderbarBeløp = null
         this.beregning = null
     }
 
@@ -77,7 +81,12 @@ class Refusjonsgrunnlag(
     fun erAltOppgitt(): Boolean {
         val inntektsgrunnlag = inntektsgrunnlag
         if (inntektsgrunnlag == null || inntektsgrunnlag.inntekter.none { it.erMedIInntektsgrunnlag() }) return false
-        return bedriftKontonummer != null && (inntekterKunFraTiltaket == true && endretBruttoLønn == null || ((inntekterKunFraTiltaket == false || inntekterKunFraTiltaket == null) && endretBruttoLønn != null))
+        return bedriftKontonummer != null && (inntekterKunFraTiltaket == true && endretBruttoLønn == null ||
+                ((inntekterKunFraTiltaket == false || inntekterKunFraTiltaket == null) && endretBruttoLønn != null))
+    }
+
+    fun refusjonsgrunnlagetErPositivt(): Boolean {
+        return this.beregning?.refusjonsbeløp != null && this.beregning!!.refusjonsbeløp > 0
     }
 
     private fun gjørBeregning(): Boolean {
@@ -86,7 +95,8 @@ class Refusjonsgrunnlag(
                 inntekter = inntektsgrunnlag!!.inntekter.toList(),
                 tilskuddsgrunnlag = tilskuddsgrunnlag,
                 tidligereUtbetalt = tidligereUtbetalt,
-                korrigertBruttoLønn = endretBruttoLønn
+                korrigertBruttoLønn = endretBruttoLønn,
+                fratrekkRefunderbarSum = refunderbarBeløp
             )
             return true
         }
@@ -116,6 +126,15 @@ class Refusjonsgrunnlag(
         }
         inntektslinje.erOpptjentIPeriode = erOpptjentIPeriode
 
+        return gjørBeregning()
+    }
+
+    fun settFratrekkRefunderbarBeløp(fratrekkRefunderbarBeløp: Boolean, refunderbarBeløp: Int?): Boolean {
+        if (!fratrekkRefunderbarBeløp && refunderbarBeløp != null) {
+            throw FeilkodeException(Feilkode.INNTEKTER_KUN_FRA_TILTAK_OG_OPPGIR_BELØP)
+        }
+        this.fratrekkRefunderbarBeløp = fratrekkRefunderbarBeløp
+        this.refunderbarBeløp = refunderbarBeløp
         return gjørBeregning()
     }
 }

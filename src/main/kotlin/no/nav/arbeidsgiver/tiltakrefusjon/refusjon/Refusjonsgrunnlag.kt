@@ -29,8 +29,8 @@ class Refusjonsgrunnlag(
     var bedriftKontonummerInnhentetTidspunkt: LocalDateTime? = null
     var inntekterKunFraTiltaket: Boolean? = null
     var endretBruttoLønn: Int? = null
-    var fratrekkSykepenger: Boolean? = null
-    var sykepengeBeløp: Int? = null
+    var fratrekkRefunderbarBeløp: Boolean? = null
+    var refunderbarBeløp: Int? = null
 
     @OneToOne(orphanRemoval = true, cascade = [CascadeType.ALL])
     var beregning: Beregning? = null
@@ -64,8 +64,8 @@ class Refusjonsgrunnlag(
     fun resetEndreBruttolønn() {
         this.inntekterKunFraTiltaket = null
         this.endretBruttoLønn = null
-        this.fratrekkSykepenger = null
-        this.sykepengeBeløp = null
+        this.fratrekkRefunderbarBeløp = null
+        this.refunderbarBeløp = null
         this.beregning = null
     }
 
@@ -96,7 +96,7 @@ class Refusjonsgrunnlag(
                 tilskuddsgrunnlag = tilskuddsgrunnlag,
                 tidligereUtbetalt = tidligereUtbetalt,
                 korrigertBruttoLønn = endretBruttoLønn,
-                fratrekkSykepenger = sykepengeBeløp
+                fratrekkRefunderbarSum = refunderbarBeløp
             )
             return true
         }
@@ -129,12 +129,12 @@ class Refusjonsgrunnlag(
         return gjørBeregning()
     }
 
-    fun settFratrekkSykepenger(fratrekkSykepenger: Boolean, sykepengeBeløp: Int?): Boolean {
-        if (!fratrekkSykepenger && sykepengeBeløp != null) {
+    fun settFratrekkRefunderbarBeløp(fratrekkRefunderbarBeløp: Boolean, refunderbarBeløp: Int?): Boolean {
+        if (!fratrekkRefunderbarBeløp && refunderbarBeløp != null) {
             throw FeilkodeException(Feilkode.INNTEKTER_KUN_FRA_TILTAK_OG_OPPGIR_BELØP)
         }
-        this.fratrekkSykepenger = fratrekkSykepenger
-        this.sykepengeBeløp = sykepengeBeløp
+        this.fratrekkRefunderbarBeløp = fratrekkRefunderbarBeløp
+        this.refunderbarBeløp = refunderbarBeløp
         return gjørBeregning()
     }
 }

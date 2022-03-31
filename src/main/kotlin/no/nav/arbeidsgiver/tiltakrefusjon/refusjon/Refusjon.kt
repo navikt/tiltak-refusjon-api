@@ -266,10 +266,10 @@ class Refusjon(
         }
     }
 
-    fun settFratrekkSykepenger(fratrekkSykepenger: Boolean, sykepengeBeløp: Int?) {
+    fun settFratrekkRefunderbarBeløp(fratrekkRefunderbarBeløp: Boolean, refunderbarBeløp: Int?) {
         oppdaterStatus()
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
-        val harGjortBeregning = refusjonsgrunnlag.settFratrekkSykepenger(fratrekkSykepenger, sykepengeBeløp)
+        val harGjortBeregning = refusjonsgrunnlag.settFratrekkRefunderbarBeløp(fratrekkRefunderbarBeløp, refunderbarBeløp)
         if (harGjortBeregning) {
             registerEvent(BeregningUtført(this))
         }

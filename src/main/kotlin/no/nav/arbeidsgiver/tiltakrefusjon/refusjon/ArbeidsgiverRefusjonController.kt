@@ -73,9 +73,9 @@ class ArbeidsgiverRefusjonController(
     }
 
     @PostMapping("/{id}/fratrekk-sykepenger")
-    fun fratrekkSykepenger(@PathVariable id: String, @RequestBody request: FratrekkSykepenger) {
+    fun fratrekkSykepenger(@PathVariable id: String, @RequestBody request: FratrekkRefunderbarBeløp) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-        arbeidsgiver.settFratrekkSykepenger(id, request.fratrekkSykepenger, request.sykepengeBeløp)
+        arbeidsgiver.settFratrekkRefunderbarBeløp(id, request.fratrekkRefunderbarBeløp, request.refunderbarBeløp)
     }
 
     @PostMapping("/{id}/set-inntektslinje-opptjent-i-periode")

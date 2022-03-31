@@ -17,8 +17,8 @@ data class Beregning(
         val overTilskuddsbeløp: Boolean,
         val tidligereUtbetalt: Int,
         val fratrekkLønnFerie: Int,
-        val fratrekkLonnSykepenger: Int,
-        val lønnFratrukketSykepenger: Int
+        val tidligereRefundertBeløp: Int,
+        val sumUtgifterFratrukketRefundertBeløp: Int
 ) {
     @Id
     val id: String = ULID.random()

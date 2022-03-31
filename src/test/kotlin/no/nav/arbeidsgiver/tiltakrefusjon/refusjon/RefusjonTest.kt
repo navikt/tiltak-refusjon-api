@@ -86,7 +86,7 @@ internal class RefusjonTest {
 
     @Test
     fun `kan godkjenne for ag med beregning`() {
-        val refusjon = enRefusjon().medInntektsgrunnlag().medBedriftKontonummer()
+        val refusjon = enRefusjon().medBedriftKontonummer().medInntekterKunFraTiltaket().medInntektsgrunnlag()
         refusjon.godkjennForArbeidsgiver("")
         assertThat(refusjon.godkjentAvArbeidsgiver).isNotNull
         assertThat(refusjon.status).isEqualTo(RefusjonStatus.SENDT_KRAV)
@@ -94,7 +94,7 @@ internal class RefusjonTest {
 
     @Test
     fun `kan ikke godkjenne for ag to ganger`() {
-        val refusjon = enRefusjon().medInntektsgrunnlag().medBedriftKontonummer().medSendtKravFraArbeidsgiver()
+        val refusjon = enRefusjon().medInntekterKunFraTiltaket().medBedriftKontonummer().medInntektsgrunnlag().medSendtKravFraArbeidsgiver()
         assertFeilkode(Feilkode.UGYLDIG_STATUS) { refusjon.godkjennForArbeidsgiver("") }
     }
 
@@ -115,7 +115,7 @@ internal class RefusjonTest {
                 tilskuddFom = LocalDate.of(2021, 6, 30),
                 tilskuddTom = LocalDate.of(2021, 6, 30)
             )
-        ).medInntektsgrunnlag().medBedriftKontonummer()
+        ).medInntekterKunFraTiltaket().medBedriftKontonummer().medInntektsgrunnlag()
         refusjon.godkjennForArbeidsgiver("")
         Now.resetClock()
         assertThat(refusjon.godkjentAvArbeidsgiver).isNotNull
@@ -209,7 +209,7 @@ internal class RefusjonTest {
                 tilskuddFom = Now.localDate().minusDays(2),
                 tilskuddTom = Now.localDate().minusDays(1)
             )
-        ).medInntektsgrunnlag()
+        ).medInntekterKunFraTiltaket().medInntektsgrunnlag()
         assertFeilkode(Feilkode.INGEN_BEDRIFTKONTONUMMER) { refusjon.godkjennForArbeidsgiver("") }
         refusjon.oppgiBedriftKontonummer("10000008145")
         refusjon.godkjennForArbeidsgiver("")

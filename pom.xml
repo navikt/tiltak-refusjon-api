@@ -16,7 +16,6 @@
         <java.version>17</java.version>
         <kotlin.version>1.6.10</kotlin.version>
         <cucumber.version>6.4.0</cucumber.version>
-        <swagger.version>2.9.2</swagger.version>
     </properties>
 
     <dependencies>
@@ -220,7 +219,7 @@
                         <plugin>spring</plugin>
                         <plugin>jpa</plugin>
                     </compilerPlugins>
-                    <languageVersion>1.5</languageVersion>
+                    <languageVersion>1.6</languageVersion>
                 </configuration>
                 <dependencies>
                     <dependency>

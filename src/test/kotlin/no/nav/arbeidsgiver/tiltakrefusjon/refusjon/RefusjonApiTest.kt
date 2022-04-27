@@ -8,6 +8,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.REQUEST_MAPPING_INNLOGGET_ARBEIDSGIVER
 import no.nav.arbeidsgiver.tiltakrefusjon.hendelseslogg.HendelsesloggRepository
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjoner
+import no.nav.arbeidsgiver.tiltakrefusjon.varsling.VarslingRepository
 import no.nav.security.token.support.test.JwkGenerator
 import no.nav.security.token.support.test.JwtTokenGenerator
 import org.assertj.core.api.Assertions.assertThat
@@ -21,6 +22,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock
 import org.springframework.http.MediaType
+import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.ResultMatcher
@@ -48,11 +50,15 @@ data class RefusjonlistFraFlereOrgTest(
 @AutoConfigureMockMvc
 @AutoConfigureWireMock(port = 8091)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@DirtiesContext
 class RefusjonApiTest(
     @Autowired val refusjonRepository: RefusjonRepository,
     @Autowired val mapper: ObjectMapper,
     @Autowired val mockMvc: MockMvc,
-    @Autowired val hendelsesloggRepository: HendelsesloggRepository
+    @Autowired val hendelsesloggRepository: HendelsesloggRepository,
+    @Autowired val fristForlengetRepository: FristForlengetRepository,
+    @Autowired val korreksjonRepository: KorreksjonRepository,
+    @Autowired val varslingRepository: VarslingRepository
 ) {
 
     private final val TOKEN_X_COOKIE_NAVN = "tokenx-token"
@@ -68,6 +74,10 @@ class RefusjonApiTest(
 
     @AfterEach
     fun tearDown() {
+        varslingRepository.deleteAll()
+        fristForlengetRepository.deleteAll()
+        hendelsesloggRepository.deleteAll()
+        korreksjonRepository.deleteAll()
         refusjonRepository.deleteAll()
     }
 

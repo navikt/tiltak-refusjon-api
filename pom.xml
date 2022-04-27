@@ -15,7 +15,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <java.version>17</java.version>
+        <!-- <java.version>17</java.version> -->
         <kotlin.version>1.6.21</kotlin.version>
         <cucumber.version>6.4.0</cucumber.version>
         <maven.compiler.source>17</maven.compiler.source>

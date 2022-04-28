@@ -4,13 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.guepardoapps.kulid.ULID
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.BeregningUtført
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.FristForlenget
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.GodkjentAvArbeidsgiver
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.MerketForUnntakOmInntekterToMånederFrem
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonAnnullert
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonForkortet
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonKlar
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.*
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.antallMånederEtter
 import org.springframework.data.domain.AbstractAggregateRoot
@@ -151,6 +145,14 @@ class Refusjon(
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING, RefusjonStatus.FOR_TIDLIG)
         status = RefusjonStatus.ANNULLERT
         registerEvent(RefusjonAnnullert(this))
+    }
+
+    fun annullerManuelt(utførtAv: String, grunn: String) {
+        oppdaterStatus()
+        krevStatus(RefusjonStatus.UTGÅTT)
+        // Trenger ikke endre status til annullert. Det sendes kafka-melding på topic som både økonomi og denne appen leser fra (tilskuddsperiode_annullert)
+       // status = RefusjonStatus.ANNULLERT
+        registerEvent(RefusjonAnnullertManuelt(this, utførtAv, grunn))
     }
 
     fun gjørKlarTilInnsending() {

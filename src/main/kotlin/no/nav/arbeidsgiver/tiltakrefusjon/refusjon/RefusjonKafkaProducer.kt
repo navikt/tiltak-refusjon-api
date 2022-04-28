@@ -4,6 +4,9 @@ import no.nav.arbeidsgiver.tiltakrefusjon.Topics
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonGodkjentMelding.Companion.create
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.GodkjentAvArbeidsgiver
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.KorreksjonSendtTilUtbetaling
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonAnnullertManuelt
+import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeAnnullertMelding
+import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeAnnullertÅrsak
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -18,6 +21,8 @@ import org.springframework.util.concurrent.ListenableFutureCallback
 class RefusjonKafkaProducer(
     val refusjonGodkjentkafkaTemplate: KafkaTemplate<String, RefusjonGodkjentMelding>,
     val korreksjonKafkaTemplate: KafkaTemplate<String, KorreksjonSendtTilUtbetalingMelding>,
+    val tilskuddsperiodeOppdatertStatusKafkaTemplate: KafkaTemplate<String, TilskuddsperiodeOppdatertStatusMelding>,
+    val tilskuddperiodeAnnullertKafkaTemplate: KafkaTemplate<String, TilskuddsperiodeAnnullertMelding>,
 ) {
 
     var log: Logger = LoggerFactory.getLogger(javaClass)
@@ -65,5 +70,40 @@ class RefusjonKafkaProducer(
             }, {
                 log.warn("Feil ved sending av refusjon korrigert-melding på Kafka", it)
             })
+    }
+
+    @TransactionalEventListener
+    fun refusjonAnnullertManuelt(event: RefusjonAnnullertManuelt) {
+        val oppdatertStatusMelding = TilskuddsperiodeOppdatertStatusMelding(
+            status = RefusjonStatus.ANNULLERT,
+            tilskuddsperiodeId = event.refusjon.tilskuddsgrunnlag.tilskuddsperiodeId,
+            refusjonId = event.refusjon.id,
+            utførtAv = event.utførtAv,
+            grunn = event.annulleringsgrunn
+        )
+        // Statusendring for tiltaksgjennomforing-api
+        tilskuddsperiodeOppdatertStatusKafkaTemplate.send(Topics.TILSKUDDSPERIODE_OPPDATERT_STATUS, oppdatertStatusMelding.tilskuddsperiodeId, oppdatertStatusMelding)
+            .addCallback({
+                log.info(
+                    "Melding med id {} sendt til Kafka topic {}",
+                    it?.producerRecord?.key(),
+                    it?.recordMetadata?.topic()
+                )
+            }, {
+                log.warn("Feil ved sending av oppdatert tilskuddsperiodestatus melding på Kafka", it)
+            })
+        // Annullering av tilskuddsperiode til tiltak-okonomi og refusjon-api som
+        val tilskuddperiodeAnnullertMelding = TilskuddsperiodeAnnullertMelding(event.refusjon.tilskuddsgrunnlag.tilskuddsperiodeId, TilskuddsperiodeAnnullertÅrsak.REFUSJON_IKKE_SØKT)
+        tilskuddperiodeAnnullertKafkaTemplate.send(Topics.TILSKUDDSPERIODE_ANNULLERT, event.refusjon.id, tilskuddperiodeAnnullertMelding)
+            .addCallback({
+                log.info(
+                    "Melding med id {} sendt til Kafka topic {}",
+                    it?.producerRecord?.key(),
+                    it?.recordMetadata?.topic()
+                )
+            }, {
+                log.warn("Feil ved sending av refusjon annullert tilskuddsperiode melding på Kafka", it)
+            })
+
     }
 }

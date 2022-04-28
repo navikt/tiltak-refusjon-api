@@ -4,6 +4,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
 import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterService
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeAnnullertMelding
+import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeAnnullertÅrsak
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeForkortetMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
 import org.slf4j.LoggerFactory
@@ -90,6 +91,10 @@ class RefusjonService(
     }
 
     fun annullerRefusjon(melding: TilskuddsperiodeAnnullertMelding) {
+        if (melding.årsak != TilskuddsperiodeAnnullertÅrsak.AVTALE_ANNULLERT) {
+            log.info("Grunn for annullering av tilskuddsperiode er ${melding.årsak}, annullerer ikke refusjon.")
+            return
+        }
         log.info("Annullerer refusjon med tilskuddsperiodeId ${melding.tilskuddsperiodeId}")
         refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_TilskuddsperiodeId(melding.tilskuddsperiodeId)
             .firstOrNull()

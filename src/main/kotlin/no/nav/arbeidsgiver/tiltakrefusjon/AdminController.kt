@@ -101,12 +101,12 @@ class AdminController(
 
     @Unprotected
     @PostMapping("annuller-refusjoner-manuelt")
-    fun annullerRefusjonerManuelt(@RequestBody request: AnnullerRefusjonerRequest) {
+    fun annullerTilskuddsperioderIRefusjonManuelt(@RequestBody request: AnnullerRefusjonerRequest) {
         logger.info("Bruker AdminController for å annullere {} refusjoner", request.refusjonIder.size)
         for (id in request.refusjonIder) {
             val refusjon =
                 refusjonRepository.findByIdOrNull(id) ?: throw RuntimeException("Finner ikke refusjon med id=$id")
-            refusjon.annullerManuelt(request.utførtAv, request.årsak)
+            refusjon.annullerTilskuddsperioderIRefusjon(request.utførtAv, request.årsak)
             refusjonRepository.save(refusjon)
         }
     }

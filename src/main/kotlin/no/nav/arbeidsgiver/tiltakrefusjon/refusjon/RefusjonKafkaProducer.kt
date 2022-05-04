@@ -4,7 +4,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.Topics
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonGodkjentMelding.Companion.create
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.GodkjentAvArbeidsgiver
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.KorreksjonSendtTilUtbetaling
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonAnnullertManuelt
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.TilskuddsperioderIRefusjonAnnullertManuelt
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeAnnullertMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeAnnullertÅrsak
 import org.slf4j.Logger
@@ -73,7 +73,7 @@ class RefusjonKafkaProducer(
     }
 
     @TransactionalEventListener
-    fun refusjonAnnullertManuelt(event: RefusjonAnnullertManuelt) {
+    fun refusjonAnnullertManuelt(event: TilskuddsperioderIRefusjonAnnullertManuelt) {
         val oppdatertStatusMelding = TilskuddsperiodeOppdatertStatusMelding(
             status = RefusjonStatus.ANNULLERT,
             tilskuddsperiodeId = event.refusjon.tilskuddsgrunnlag.tilskuddsperiodeId,

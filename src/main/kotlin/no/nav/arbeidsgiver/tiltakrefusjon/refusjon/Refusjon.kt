@@ -147,12 +147,12 @@ class Refusjon(
         registerEvent(RefusjonAnnullert(this))
     }
 
-    fun annullerManuelt(utførtAv: String, grunn: String) {
+    fun annullerTilskuddsperioderIRefusjon(utførtAv: String, grunn: String) {
         oppdaterStatus()
         krevStatus(RefusjonStatus.UTGÅTT)
         // Trenger ikke endre status til annullert. Det sendes kafka-melding på topic som både økonomi og denne appen leser fra (tilskuddsperiode_annullert)
        // status = RefusjonStatus.ANNULLERT
-        registerEvent(RefusjonAnnullertManuelt(this, utførtAv, grunn))
+        registerEvent(TilskuddsperioderIRefusjonAnnullertManuelt(this, utførtAv, grunn))
     }
 
     fun gjørKlarTilInnsending() {

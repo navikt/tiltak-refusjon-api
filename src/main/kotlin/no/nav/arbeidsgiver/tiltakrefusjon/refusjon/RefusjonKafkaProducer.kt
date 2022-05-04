@@ -78,7 +78,7 @@ class RefusjonKafkaProducer(
             status = RefusjonStatus.ANNULLERT,
             tilskuddsperiodeId = event.refusjon.tilskuddsgrunnlag.tilskuddsperiodeId,
             refusjonId = event.refusjon.id,
-            utførtAv = event.utførtAv,
+            avtaleId = event.refusjon.tilskuddsgrunnlag.avtaleId,
             grunn = event.annulleringsgrunn
         )
         // Statusendring for tiltaksgjennomforing-api

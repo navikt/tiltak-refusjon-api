@@ -166,7 +166,7 @@ class RefusjonServiceTest(
             otpSats = 0.02,
             tilskuddFom = Now.localDate().minusWeeks(4).plusDays(1),
             tilskuddTom = Now.localDate(),
-            tilskuddsperiodeId = "3",
+            tilskuddsperiodeId = "5",
             veilederNavIdent = "X123456",
             lønnstilskuddsprosent = 60,
             avtaleNr = 3456,
@@ -175,10 +175,10 @@ class RefusjonServiceTest(
         )
         refusjonService.opprettRefusjon(tilskuddMelding)
         assertThat(refusjonRepository.findAll().filter { it.tilskuddsgrunnlag.tilskuddsperiodeId == tilskuddMelding.tilskuddsperiodeId }).hasSize(1)
-        var lagretRefusjon = refusjonRepository.findAllByDeltakerFnr(deltakerFnr)[0]
+        var lagretRefusjon = refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_TilskuddsperiodeId(tilskuddMelding.tilskuddsperiodeId).firstOrNull()
 
         refusjonService.annullerRefusjon(TilskuddsperiodeAnnullertMelding(tilskuddMelding.tilskuddsperiodeId, TilskuddsperiodeAnnullertÅrsak.REFUSJON_IKKE_SØKT))
-        lagretRefusjon = refusjonRepository.findByIdOrNull(lagretRefusjon.id) ?: throw RuntimeException()
+        lagretRefusjon = refusjonRepository.findByIdOrNull(lagretRefusjon?.id) ?: throw RuntimeException()
         assertThat(lagretRefusjon.status).isNotEqualTo(RefusjonStatus.ANNULLERT)
     }
 }

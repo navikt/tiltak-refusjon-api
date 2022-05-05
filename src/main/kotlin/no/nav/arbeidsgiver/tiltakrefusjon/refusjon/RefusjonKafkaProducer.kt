@@ -21,7 +21,6 @@ import org.springframework.util.concurrent.ListenableFutureCallback
 class RefusjonKafkaProducer(
     val refusjonGodkjentkafkaTemplate: KafkaTemplate<String, RefusjonGodkjentMelding>,
     val korreksjonKafkaTemplate: KafkaTemplate<String, KorreksjonSendtTilUtbetalingMelding>,
-    val tilskuddsperiodeOppdatertStatusKafkaTemplate: KafkaTemplate<String, TilskuddsperiodeOppdatertStatusMelding>,
     val tilskuddperiodeAnnullertKafkaTemplate: KafkaTemplate<String, TilskuddsperiodeAnnullertMelding>,
 ) {
 
@@ -74,9 +73,16 @@ class RefusjonKafkaProducer(
 
     @TransactionalEventListener
     fun refusjonAnnullertManuelt(event: TilskuddsperioderIRefusjonAnnullertManuelt) {
-        // Annullering av tilskuddsperiode til tiltak-okonomi og refusjon-api som
-        val tilskuddperiodeAnnullertMelding = TilskuddsperiodeAnnullertMelding(event.refusjon.tilskuddsgrunnlag.tilskuddsperiodeId, TilskuddsperiodeAnnullertÅrsak.REFUSJON_IKKE_SØKT)
-        tilskuddperiodeAnnullertKafkaTemplate.send(Topics.TILSKUDDSPERIODE_ANNULLERT, event.refusjon.id, tilskuddperiodeAnnullertMelding)
+        // Annullering av tilskuddsperiode til tiltak-okonomi. refusjon-api vil ikke gjøre noe med denne pga årsak.
+        val tilskuddperiodeAnnullertMelding = TilskuddsperiodeAnnullertMelding(
+            tilskuddsperiodeId = event.refusjon.tilskuddsgrunnlag.tilskuddsperiodeId,
+            årsak = TilskuddsperiodeAnnullertÅrsak.REFUSJON_IKKE_SØKT
+        )
+        tilskuddperiodeAnnullertKafkaTemplate.send(
+            Topics.TILSKUDDSPERIODE_ANNULLERT,
+            event.refusjon.tilskuddsgrunnlag.id,
+            tilskuddperiodeAnnullertMelding
+        )
             .addCallback({
                 log.info(
                     "Melding med id {} sendt til Kafka topic {}",

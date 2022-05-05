@@ -148,10 +148,10 @@ class Refusjon(
     }
 
     fun annullerTilskuddsperioderIRefusjon(utførtAv: String, grunn: String) {
+        // Midler som er holdt av skal frigjøres når refusjonsfristen er utgått. enten manuelt eller automatisk.
+        // Foreløpig kun manuelt.
         oppdaterStatus()
         krevStatus(RefusjonStatus.UTGÅTT)
-        // Trenger ikke endre status til annullert. Det sendes kafka-melding på topic som både økonomi og denne appen leser fra (tilskuddsperiode_annullert)
-       // status = RefusjonStatus.ANNULLERT
         registerEvent(TilskuddsperioderIRefusjonAnnullertManuelt(this, utførtAv, grunn))
     }
 

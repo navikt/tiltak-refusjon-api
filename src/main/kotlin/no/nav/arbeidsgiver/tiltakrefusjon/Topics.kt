@@ -8,5 +8,4 @@ object Topics {
     const val REFUSJON_KORRIGERT = "arbeidsgiver.tiltak-refusjon-korrigert"
     const val REFUSJON_ENDRET_BETALINGSSTATUS = "arbeidsgiver.tiltak-refusjon-endret-betalingsstatus"
     const val TILTAK_VARSEL = "arbeidsgiver.tiltak-varsel"
-    const val TILSKUDDSPERIODE_OPPDATERT_STATUS = "arbeidsgiver.tiltak-tilskuddsperiode-oppdatert-status"
 }

@@ -100,9 +100,9 @@ class AdminController(
     }
 
     @Unprotected
-    @PostMapping("annuller-refusjoner-manuelt")
-    fun annullerTilskuddsperioderIRefusjonManuelt(@RequestBody request: AnnullerRefusjonerRequest) {
-        logger.info("Bruker AdminController for å annullere {} refusjoner", request.refusjonIder.size)
+    @PostMapping("annuller-tilskuddsperioder-manuelt")
+    fun annullerTilskuddsperioderIRefusjonManuelt(@RequestBody request: AnnullerTilskuddsperioderRequest) {
+        logger.info("Bruker AdminController for å annullere tilskuddsperioder i {} refusjoner", request.refusjonIder.size)
         for (id in request.refusjonIder) {
             val refusjon =
                 refusjonRepository.findByIdOrNull(id) ?: throw RuntimeException("Finner ikke refusjon med id=$id")
@@ -116,4 +116,4 @@ data class KorreksjonRequest(val refusjonIder: List<String>, val korreksjonsgrun
 
 data class ForlengFristerRequest(val refusjonIder: List<String>, val nyFrist: LocalDate, val årsak: String)
 
-data class AnnullerRefusjonerRequest(val refusjonIder: List<String>, val utførtAv: String, val årsak: String)
+data class AnnullerTilskuddsperioderRequest(val refusjonIder: List<String>, val utførtAv: String, val årsak: String)

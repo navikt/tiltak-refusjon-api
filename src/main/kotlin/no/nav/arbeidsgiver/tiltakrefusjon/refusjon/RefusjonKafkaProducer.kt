@@ -80,7 +80,7 @@ class RefusjonKafkaProducer(
         )
         tilskuddperiodeAnnullertKafkaTemplate.send(
             Topics.TILSKUDDSPERIODE_ANNULLERT,
-            event.refusjon.tilskuddsgrunnlag.id,
+            event.refusjon.tilskuddsgrunnlag.tilskuddsperiodeId,
             tilskuddperiodeAnnullertMelding
         )
             .addCallback({
@@ -90,7 +90,7 @@ class RefusjonKafkaProducer(
                     it?.recordMetadata?.topic()
                 )
             }, {
-                log.warn("Feil ved sending av refusjon annullert tilskuddsperiode melding på Kafka", it)
+                log.warn("Feil ved sending av tilskuddsperiode annullert melding på Kafka", it)
             })
 
     }

@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration
 
 
 @EnableJwtTokenValidation(ignore = [
+    "org.springdoc",
     "springfox.documentation.swagger.web.ApiResourceController",
     "org.springframework"])
 @Configuration

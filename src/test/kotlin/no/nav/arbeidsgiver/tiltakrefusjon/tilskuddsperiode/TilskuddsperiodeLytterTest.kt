@@ -1,34 +1,43 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode
 
-import com.ninjasquad.springmockk.MockkBean
-import io.mockk.verify
 import no.nav.arbeidsgiver.tiltakrefusjon.Topics
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonService
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
+import org.apache.kafka.clients.consumer.Consumer
+import org.apache.kafka.clients.consumer.ConsumerConfig
+import org.apache.kafka.clients.consumer.ConsumerRecords
+import org.apache.kafka.common.serialization.StringDeserializer
+import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.kafka.core.ConsumerFactory
+import org.springframework.kafka.core.DefaultKafkaConsumerFactory
 import org.springframework.kafka.core.KafkaTemplate
+import org.springframework.kafka.support.serializer.JsonDeserializer
+import org.springframework.kafka.test.EmbeddedKafkaBroker
 import org.springframework.kafka.test.context.EmbeddedKafka
+import org.springframework.kafka.test.utils.KafkaTestUtils
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
-import java.util.UUID
+import org.springframework.test.context.junit.jupiter.SpringExtension
+import java.util.*
+
 
 @ActiveProfiles("local")
 @SpringBootTest(properties = ["tiltak-refusjon.kafka.enabled=true"])
 @EmbeddedKafka(partitions = 1, topics = [Topics.TILSKUDDSPERIODE_GODKJENT])
+@ExtendWith(SpringExtension::class)
 @DirtiesContext
 class TilskuddsperiodeLytterTest {
 
     @Autowired
     lateinit var kafkaTemplate: KafkaTemplate<String, TilskuddsperiodeGodkjentMelding>
 
-    @MockkBean
-    lateinit var refusjonServiceMock: RefusjonService
-
     @Autowired
-    lateinit var tilskuddsperiodeLytter: TilskuddsperiodeKafkaLytter
+    lateinit var embeddedKafkaBroker: EmbeddedKafkaBroker
+
 
     @Test
     fun `skal opprette refusjon når melding blir lest fra topic`() {
@@ -55,13 +64,20 @@ class TilskuddsperiodeLytterTest {
             løpenummer = 3,
             enhet = "1000"
         )
-        Thread.sleep(300L)
-        // NÅR
+
         kafkaTemplate.send(Topics.TILSKUDDSPERIODE_GODKJENT, tilskuddMelding.tilskuddsperiodeId, tilskuddMelding)
-
-        // SÅ
-        verify(timeout = 3000) { refusjonServiceMock.opprettRefusjon(tilskuddMelding) }
-
+        Thread.sleep(300L)
+        val consumerProps = KafkaTestUtils.consumerProps("testGroup", "true", embeddedKafkaBroker)
+        consumerProps[ConsumerConfig.AUTO_OFFSET_RESET_CONFIG] = "earliest"
+        val consumerFactory: ConsumerFactory<String, TilskuddsperiodeGodkjentMelding> = DefaultKafkaConsumerFactory<String, TilskuddsperiodeGodkjentMelding>(
+            consumerProps,
+            StringDeserializer(),
+            JsonDeserializer<TilskuddsperiodeGodkjentMelding>(TilskuddsperiodeGodkjentMelding::class.java)
+        )
+        val consumer: Consumer<String, TilskuddsperiodeGodkjentMelding> = consumerFactory.createConsumer()
+        embeddedKafkaBroker.consumeFromAnEmbeddedTopic(consumer, Topics.TILSKUDDSPERIODE_GODKJENT)
+        val replies: ConsumerRecords<String, TilskuddsperiodeGodkjentMelding> = KafkaTestUtils.getRecords(consumer)
+        Assertions.assertThat(replies.count()).isGreaterThanOrEqualTo(1)
     }
 
 }

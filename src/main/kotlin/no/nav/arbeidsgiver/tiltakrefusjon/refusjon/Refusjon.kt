@@ -45,6 +45,7 @@ class Refusjon(
 
     var korreksjonId: String? = null
 
+    @Enumerated(EnumType.STRING)
     var midlerFrigjortÅrsak: MidlerFrigjortÅrsak? = null
 
     // Midlertidige frontend-mappinger

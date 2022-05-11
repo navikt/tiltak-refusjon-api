@@ -4,6 +4,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
 import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterService
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeAnnullertMelding
+import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.MidlerFrigjortÅrsak
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeForkortetMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
 import org.slf4j.LoggerFactory
@@ -94,7 +95,12 @@ class RefusjonService(
         refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_TilskuddsperiodeId(melding.tilskuddsperiodeId)
             .firstOrNull()
             ?.let {
-                it.annuller()
+                if (melding.årsak == MidlerFrigjortÅrsak.AVTALE_ANNULLERT) {
+                    it.annuller()
+                } else {
+                    log.info("Grunn for annullering av tilskuddsperiode er ${melding.årsak}, annullerer ikke refusjon.")
+                }
+                it.midlerFrigjortÅrsak = melding.årsak
                 refusjonRepository.save(it)
             }
     }

@@ -1,10 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon
 
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.KorreksjonRepository
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Korreksjonsgrunn
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonRepository
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonService
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeForkortetMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
 import no.nav.security.token.support.core.api.Unprotected
@@ -98,8 +94,33 @@ class AdminController(
             refusjonRepository.save(refusjon)
         }
     }
+
+    @Unprotected
+    @PostMapping("annuller-tilskuddsperioder-manuelt")
+    fun annullerTilskuddsperioderIRefusjonManuelt(@RequestBody request: AnnullerTilskuddsperioderRequest) {
+        logger.info("Bruker AdminController for å annullere tilskuddsperioder i {} refusjoner", request.refusjonIder.size)
+        for (id in request.refusjonIder) {
+            val refusjon =
+                refusjonRepository.findByIdOrNull(id) ?: throw RuntimeException("Finner ikke refusjon med id=$id")
+            refusjon.annullerTilskuddsperioderIRefusjon(request.utførtAv, request.årsak)
+            refusjonRepository.save(refusjon)
+        }
+    }
+    @Unprotected
+    @PostMapping("annuller-tilskuddsperioder-manuelt-i-utgåtte-refusjoner")
+    fun annullerTilskuddsperioderIUtgåtteRefusjonManuelt(@RequestBody request: AnnullerTilskuddsperioderIUtgåtteRefusjonerRequest) {
+        val utgåtteRefusjoner = refusjonRepository.findAllByStatus(RefusjonStatus.UTGÅTT)
+        logger.info("Bruker AdminController for å annullere tilskuddsperioder i {} utgåtte refusjoner", utgåtteRefusjoner.size)
+        utgåtteRefusjoner.forEach {
+            it.annullerTilskuddsperioderIRefusjon(request.utførtAv, request.årsak)
+            refusjonRepository.save(it)
+        }
+    }
 }
 
 data class KorreksjonRequest(val refusjonIder: List<String>, val korreksjonsgrunner: Set<Korreksjonsgrunn>)
 
 data class ForlengFristerRequest(val refusjonIder: List<String>, val nyFrist: LocalDate, val årsak: String)
+
+data class AnnullerTilskuddsperioderRequest(val refusjonIder: List<String>, val utførtAv: String, val årsak: String)
+data class AnnullerTilskuddsperioderIUtgåtteRefusjonerRequest(val utførtAv: String, val årsak: String)

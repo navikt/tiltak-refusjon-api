@@ -4,13 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.guepardoapps.kulid.ULID
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.BeregningUtført
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.FristForlenget
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.GodkjentAvArbeidsgiver
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.MerketForUnntakOmInntekterToMånederFrem
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonAnnullert
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonForkortet
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonKlar
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.*
+import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.MidlerFrigjortÅrsak
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.antallMånederEtter
 import org.springframework.data.domain.AbstractAggregateRoot
@@ -49,6 +44,9 @@ class Refusjon(
     lateinit var status: RefusjonStatus
 
     var korreksjonId: String? = null
+
+    @Enumerated(EnumType.STRING)
+    var midlerFrigjortÅrsak: MidlerFrigjortÅrsak? = null
 
     // Midlertidige frontend-mappinger
     val beregning: Beregning? get() = refusjonsgrunnlag.beregning
@@ -151,6 +149,14 @@ class Refusjon(
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING, RefusjonStatus.FOR_TIDLIG)
         status = RefusjonStatus.ANNULLERT
         registerEvent(RefusjonAnnullert(this))
+    }
+
+    fun annullerTilskuddsperioderIRefusjon(utførtAv: String, grunn: String) {
+        // Midler som er holdt av skal frigjøres når refusjonsfristen er utgått. enten manuelt eller automatisk.
+        // Foreløpig kun manuelt.
+        oppdaterStatus()
+        krevStatus(RefusjonStatus.UTGÅTT)
+        registerEvent(TilskuddsperioderIRefusjonAnnullertManuelt(this, utførtAv, grunn))
     }
 
     fun gjørKlarTilInnsending() {

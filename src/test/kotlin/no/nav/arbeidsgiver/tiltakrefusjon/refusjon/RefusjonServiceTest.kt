@@ -4,6 +4,7 @@ import com.ninjasquad.springmockk.SpykBean
 import io.mockk.verify
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeAnnullertMelding
+import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.MidlerFrigjortÅrsak
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeForkortetMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
@@ -69,7 +70,7 @@ class RefusjonServiceTest(
         assertThat(lagretRefusjon.status).isEqualTo(RefusjonStatus.KLAR_FOR_INNSENDING)
 
         // Annullering
-        refusjonService.annullerRefusjon(TilskuddsperiodeAnnullertMelding(lagretRefusjon.tilskuddsgrunnlag.tilskuddsperiodeId))
+        refusjonService.annullerRefusjon(TilskuddsperiodeAnnullertMelding(lagretRefusjon.tilskuddsgrunnlag.tilskuddsperiodeId, MidlerFrigjortÅrsak.AVTALE_ANNULLERT))
         lagretRefusjon = refusjonRepository.findByIdOrNull(lagretRefusjon.id) ?: throw RuntimeException()
         assertThat(lagretRefusjon.status).isEqualTo(RefusjonStatus.ANNULLERT)
     }
@@ -145,5 +146,39 @@ class RefusjonServiceTest(
             inntektskomponentService.hentInntekter(tilskuddMelding.deltakerFnr, tilskuddMelding.bedriftNr, tilskuddMelding.tilskuddFom, tilskuddMelding.tilskuddTom.plusMonths(2))
         }
         Now.resetClock()
+    }
+
+    @Test
+    fun `Manuell annullering av tilskuddsperiode fordi det ikke vil bli søkt om refusjon annullerer ikke refusjon`() {
+        val deltakerFnr = "00000000000"
+        val tilskuddMelding = TilskuddsperiodeGodkjentMelding(
+            avtaleId = "1",
+            tilskuddsbeløp = 1000,
+            tiltakstype = Tiltakstype.SOMMERJOBB,
+            deltakerEtternavn = "Mus",
+            deltakerFornavn = "Mikke",
+            arbeidsgiveravgiftSats = 0.101,
+            avtaleInnholdId = "2",
+            bedriftNavn = "Bedriften AS",
+            bedriftNr = "999999999",
+            deltakerFnr = deltakerFnr,
+            feriepengerSats = 0.141,
+            otpSats = 0.02,
+            tilskuddFom = Now.localDate().minusWeeks(4).plusDays(1),
+            tilskuddTom = Now.localDate(),
+            tilskuddsperiodeId = "5",
+            veilederNavIdent = "X123456",
+            lønnstilskuddsprosent = 60,
+            avtaleNr = 3456,
+            løpenummer = 3,
+            enhet = "1000"
+        )
+        refusjonService.opprettRefusjon(tilskuddMelding)
+        assertThat(refusjonRepository.findAll().filter { it.tilskuddsgrunnlag.tilskuddsperiodeId == tilskuddMelding.tilskuddsperiodeId }).hasSize(1)
+        var lagretRefusjon = refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_TilskuddsperiodeId(tilskuddMelding.tilskuddsperiodeId).firstOrNull()
+
+        refusjonService.annullerRefusjon(TilskuddsperiodeAnnullertMelding(tilskuddMelding.tilskuddsperiodeId, MidlerFrigjortÅrsak.REFUSJON_IKKE_SØKT))
+        lagretRefusjon = refusjonRepository.findByIdOrNull(lagretRefusjon?.id) ?: throw RuntimeException()
+        assertThat(lagretRefusjon.status).isNotEqualTo(RefusjonStatus.ANNULLERT)
     }
 }

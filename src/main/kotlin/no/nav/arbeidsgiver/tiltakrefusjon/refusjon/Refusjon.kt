@@ -5,6 +5,7 @@ import com.github.guepardoapps.kulid.ULID
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.*
+import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.MidlerFrigjortÅrsak
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.antallMånederEtter
 import org.springframework.data.domain.AbstractAggregateRoot
@@ -43,6 +44,8 @@ class Refusjon(
     lateinit var status: RefusjonStatus
 
     var korreksjonId: String? = null
+
+    var midlerFrigjortÅrsak: MidlerFrigjortÅrsak? = null
 
     // Midlertidige frontend-mappinger
     val beregning: Beregning? get() = refusjonsgrunnlag.beregning

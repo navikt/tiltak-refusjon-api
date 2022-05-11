@@ -6,7 +6,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.GodkjentAvArbeidsgiver
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.KorreksjonSendtTilUtbetaling
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.TilskuddsperioderIRefusjonAnnullertManuelt
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeAnnullertMelding
-import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeAnnullertÅrsak
+import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.MidlerFrigjortÅrsak
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -76,7 +76,7 @@ class RefusjonKafkaProducer(
         // Annullering av tilskuddsperiode til tiltak-okonomi. refusjon-api vil ikke gjøre noe med denne pga årsak.
         val tilskuddperiodeAnnullertMelding = TilskuddsperiodeAnnullertMelding(
             tilskuddsperiodeId = event.refusjon.tilskuddsgrunnlag.tilskuddsperiodeId,
-            årsak = TilskuddsperiodeAnnullertÅrsak.REFUSJON_IKKE_SØKT
+            årsak = MidlerFrigjortÅrsak.REFUSJON_IKKE_SØKT
         )
         tilskuddperiodeAnnullertKafkaTemplate.send(
             Topics.TILSKUDDSPERIODE_ANNULLERT,

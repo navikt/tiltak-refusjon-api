@@ -2,6 +2,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon.autorisering
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.arbeidsgiver.tiltakrefusjon.RessursFinnesIkkeException
+import no.nav.arbeidsgiver.tiltakrefusjon.featuretoggles.FeatureToggleService
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
 import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
@@ -19,6 +20,7 @@ data class InnloggetSaksbehandler(
     @JsonIgnore val refusjonService: RefusjonService,
     @JsonIgnore val inntektskomponentService: InntektskomponentService,
     @JsonIgnore val kontoregisterService: KontoregisterService,
+    @JsonIgnore val harKorreksjonTilgang: Boolean
 ) {
     @JsonIgnore
     val log: Logger = LoggerFactory.getLogger(javaClass)
@@ -98,14 +100,21 @@ data class InnloggetSaksbehandler(
             throw TilgangskontrollException()
         }
     }
+    private fun sjekkKorreksjonTilgang() {
+        if (!harKorreksjonTilgang) {
+            throw TilgangskontrollException()
+        }
+    }
 
     fun opprettKorreksjonsutkast(id: String, korreksjonsgrunner: Set<Korreksjonsgrunn>): Refusjon {
+        sjekkKorreksjonTilgang()
         val gammel = finnRefusjon(id)
         refusjonService.opprettKorreksjonsutkast(gammel, korreksjonsgrunner)
         return gammel
     }
 
     fun slettKorreksjonsutkast(id: String) {
+        sjekkKorreksjonTilgang()
         val korreksjon = finnKorreksjon(id)
         sjekkLesetilgang(korreksjon)
         val refusjon = finnRefusjon(korreksjon.korrigererRefusjonId)
@@ -118,6 +127,7 @@ data class InnloggetSaksbehandler(
     }
 
     fun utbetalKorreksjon(id: String, beslutterNavIdent: String, kostnadssted: String) {
+        sjekkKorreksjonTilgang()
         val korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(korreksjon)
         val refusjon = finnRefusjon(korreksjon.korrigererRefusjonId)
@@ -131,6 +141,7 @@ data class InnloggetSaksbehandler(
     }
 
     fun fullførKorreksjonVedOppgjort(id: String) {
+        sjekkKorreksjonTilgang()
         val korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(korreksjon)
         val refusjon = finnRefusjon(korreksjon.korrigererRefusjonId)
@@ -144,6 +155,7 @@ data class InnloggetSaksbehandler(
     }
 
     fun fullførKorreksjonVedTilbakekreving(id: String) {
+        sjekkKorreksjonTilgang()
         val korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(korreksjon)
         val refusjon = finnRefusjon(korreksjon.korrigererRefusjonId)
@@ -157,6 +169,7 @@ data class InnloggetSaksbehandler(
     }
 
     fun endreBruttolønn(id: String, inntekterKunFraTiltaket: Boolean?, endretBruttoLønn: Int?) {
+        sjekkKorreksjonTilgang()
         val korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(korreksjon)
         korreksjon.endreBruttolønn(inntekterKunFraTiltaket, endretBruttoLønn)
@@ -177,6 +190,7 @@ data class InnloggetSaksbehandler(
     }
 
     fun setInntektslinjeTilOpptjentIPeriode(korreksjonId: String, inntekslinjeId: String, erOpptjentIPeriode: Boolean) {
+        sjekkKorreksjonTilgang()
         val korreksjon = korreksjonRepository.findByIdOrNull(korreksjonId) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(korreksjon)
         korreksjon.setInntektslinjeTilOpptjentIPeriode(inntekslinjeId, erOpptjentIPeriode)

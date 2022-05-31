@@ -207,7 +207,7 @@ class Refusjon(
 
     fun forlengFrist(nyFrist: LocalDate, årsak: String, utførtAv: String) {
         oppdaterStatus()
-        krevStatus(RefusjonStatus.FOR_TIDLIG, RefusjonStatus.KLAR_FOR_INNSENDING, RefusjonStatus.UTGÅTT)
+        krevStatus(RefusjonStatus.FOR_TIDLIG, RefusjonStatus.KLAR_FOR_INNSENDING)
 
         if (nyFrist <= fristForGodkjenning) {
             // Ny frist må være etter nåværende frist for at det skal være en forlengelse

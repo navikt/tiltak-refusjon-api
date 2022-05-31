@@ -56,15 +56,15 @@ class InnloggetBrukerService(
                 val (onPremisesSamAccountName, displayName) = graphApiService.hent()
                 val harKorreksjonTilgang = featureToggleService.isEnabled("arbeidsgiver.tiltak-refusjon-api.korreksjon", onPremisesSamAccountName)
                 InnloggetSaksbehandler(
-                    onPremisesSamAccountName,
-                    displayName,
-                    abacTilgangsstyringService,
-                    refusjonRepository,
-                    korreksjonRepository,
-                    refusjonService,
-                    inntektskomponentService,
-                    kontoregisterService,
-                    harKorreksjonTilgang
+                    identifikator = onPremisesSamAccountName,
+                    navn = displayName,
+                    abacTilgangsstyringService = abacTilgangsstyringService,
+                    refusjonRepository = refusjonRepository,
+                    korreksjonRepository = korreksjonRepository,
+                    refusjonService = refusjonService,
+                    inntektskomponentService = inntektskomponentService,
+                    kontoregisterService = kontoregisterService,
+                    harKorreksjonTilgang = harKorreksjonTilgang
                 )
             }
             else -> {

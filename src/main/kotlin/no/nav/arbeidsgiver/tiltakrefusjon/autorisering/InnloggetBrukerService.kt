@@ -1,6 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.autorisering
 
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
+import no.nav.arbeidsgiver.tiltakrefusjon.featuretoggles.FeatureToggleService
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
 import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterService
 import no.nav.arbeidsgiver.tiltakrefusjon.organisasjon.EregClient
@@ -24,7 +25,8 @@ class InnloggetBrukerService(
     val refusjonService: RefusjonService,
     val inntektskomponentService: InntektskomponentService,
     val kontoregisterService: KontoregisterService,
-    val eregClient: EregClient
+    val eregClient: EregClient,
+    val featureToggleService: FeatureToggleService
 ) {
     var logger: Logger = LoggerFactory.getLogger(javaClass)
 
@@ -52,15 +54,17 @@ class InnloggetBrukerService(
         return when {
             erSaksbehandler() -> {
                 val (onPremisesSamAccountName, displayName) = graphApiService.hent()
+                val harKorreksjonTilgang = featureToggleService.isEnabled("arbeidsgiver.tiltak-refusjon-api.korreksjon", onPremisesSamAccountName)
                 InnloggetSaksbehandler(
-                    onPremisesSamAccountName,
-                    displayName,
-                    abacTilgangsstyringService,
-                    refusjonRepository,
-                    korreksjonRepository,
-                    refusjonService,
-                    inntektskomponentService,
-                    kontoregisterService
+                    identifikator = onPremisesSamAccountName,
+                    navn = displayName,
+                    abacTilgangsstyringService = abacTilgangsstyringService,
+                    refusjonRepository = refusjonRepository,
+                    korreksjonRepository = korreksjonRepository,
+                    refusjonService = refusjonService,
+                    inntektskomponentService = inntektskomponentService,
+                    kontoregisterService = kontoregisterService,
+                    harKorreksjonTilgang = harKorreksjonTilgang
                 )
             }
             else -> {
@@ -68,4 +72,5 @@ class InnloggetBrukerService(
             }
         }
     }
+
 }

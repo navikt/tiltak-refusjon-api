@@ -3,7 +3,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon.featuretoggles
 import no.finn.unleash.Unleash
 import no.finn.unleash.UnleashContext
 import no.finn.unleash.Variant
-import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBrukerService
+import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetSaksbehandler
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.util.stream.Collectors
@@ -11,31 +11,34 @@ import java.util.stream.Collectors
 @Service
 class FeatureToggleService @Autowired constructor(
     private val unleash: Unleash,
-    private val innloggetBrukerService: InnloggetBrukerService,
 ) {
-    fun hentFeatureToggles(features: List<String?>): Map<String?, Boolean> {
+    fun hentFeatureToggles(features: List<String?>, innloggetSaksbehandler: InnloggetSaksbehandler): Map<String?, Boolean> {
         return features.stream().collect(Collectors.toMap(
             { feature: String? -> feature },
-            { feature: String? -> isEnabled(feature) }
+            { feature: String? -> isEnabled(feature, innloggetSaksbehandler) }
         ))
     }
 
-    fun hentVarianter(features: List<String?>): Map<String, Variant> {
+    fun hentVarianter(features: List<String?>, innloggetSaksbehandler: InnloggetSaksbehandler): Map<String, Variant> {
         return features.stream().collect(Collectors.toMap(
             { feature: String? -> feature }
         ) { feature: String? ->
             unleash.getVariant(
-                feature!!, contextMedInnloggetBruker())
+                feature!!, contextMedInnloggetBruker(innloggetSaksbehandler.identifikator))
         })
     }
 
-    fun isEnabled(feature: String?): Boolean {
-        return unleash.isEnabled(feature!!, contextMedInnloggetBruker())
+    fun isEnabled(feature: String?, innloggetSaksbehandler: InnloggetSaksbehandler): Boolean {
+        return unleash.isEnabled(feature!!, contextMedInnloggetBruker(innloggetSaksbehandler.identifikator))
     }
 
-    private fun contextMedInnloggetBruker(): UnleashContext {
+    fun isEnabled(feature: String?, identifikator: String): Boolean {
+        return unleash.isEnabled(feature!!, contextMedInnloggetBruker(identifikator))
+    }
+
+    private fun contextMedInnloggetBruker(identifikator: String): UnleashContext {
         val builder = UnleashContext.builder()
-        builder.userId(innloggetBrukerService.hentInnloggetSaksbehandler().identifikator)
+        builder.userId(identifikator)
         return builder.build()
     }
 }

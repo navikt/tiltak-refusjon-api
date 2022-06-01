@@ -2,6 +2,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.*
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.antallMånederEtter
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
@@ -340,7 +341,7 @@ internal class RefusjonTest {
     internal fun `forleng frist`() {
         val refusjon = enRefusjon().medInntektsgrunnlag().medBedriftKontonummer()
         val opprinneligFrist = refusjon.fristForGodkjenning
-        val sisteDagDetErMuligÅForlengeTil = refusjon.tilskuddsgrunnlag.tilskuddTom.plusMonths(12)
+        val sisteDagDetErMuligÅForlengeTil = antallMånederEtter(refusjon.tilskuddsgrunnlag.tilskuddTom, 3)
 
         // Positiv test
         refusjon.forlengFrist(sisteDagDetErMuligÅForlengeTil, "", "")

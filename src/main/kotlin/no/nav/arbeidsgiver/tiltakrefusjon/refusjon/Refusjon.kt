@@ -215,7 +215,7 @@ class Refusjon(
         }
 
         // Satt midlertidig maks frist til 1 mnd etter tiltak
-        if (nyFrist > antallMånederEtter(refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom, 1)) {
+        if (nyFrist > antallMånederEtter(refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom, 3)) {
             // Kan maks forlenge 1 mnd ekstra fra opprinnelig frist på 2 mnd
             throw FeilkodeException(Feilkode.FOR_LANG_FORLENGELSE_AV_FRIST)
         }

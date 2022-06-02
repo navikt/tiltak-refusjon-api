@@ -25,15 +25,20 @@ class Refusjon(
     val bedriftNr: String,
     val deltakerFnr: String
 ) : AbstractAggregateRoot<Refusjon>() {
-    constructor(tilskuddsgrunnlag: Tilskuddsgrunnlag, bedriftNr: String, deltakerFnr: String) : this(
+    constructor(
+        tilskuddsgrunnlag: Tilskuddsgrunnlag,
+        bedriftNr: String,
+        deltakerFnr: String,
+    ) : this(
         Refusjonsgrunnlag(tilskuddsgrunnlag), bedriftNr, deltakerFnr
     )
 
     @Id
     val id: String = ULID.random()
 
-    // Fristen er satt til 2 mnd ihht økonomireglementet
-    var fristForGodkjenning: LocalDate = antallMånederEtter(refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom, 2)
+    // Fristen er satt til 2 mnd ihht økonomireglementet. Hvis etterregistrert 2 mnd etter godkjent tidspunkt av beslutter
+    var fristForGodkjenning: LocalDate = lagFristForGodkjenning()
+
     var forrigeFristForGodkjenning: LocalDate? = null
 
     var unntakOmInntekterToMånederFrem: Boolean = false
@@ -57,6 +62,17 @@ class Refusjon(
 
     init {
         oppdaterStatus()
+    }
+
+    fun lagFristForGodkjenning() : LocalDate {
+        if (refusjonsgrunnlag.tilskuddsgrunnlag.godkjentAvBeslutterTidspunkt == null) {
+            return antallMånederEtter(refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom, 2)
+        }
+        if (refusjonsgrunnlag.tilskuddsgrunnlag.godkjentAvBeslutterTidspunkt.toLocalDate().isAfter(refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom)) {
+            return antallMånederEtter(refusjonsgrunnlag.tilskuddsgrunnlag.godkjentAvBeslutterTidspunkt.toLocalDate(), 2)
+        } else {
+            return antallMånederEtter(refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom, 2)
+        }
     }
 
     @JsonProperty

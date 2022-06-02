@@ -5,15 +5,17 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.varsling.VarselType
 import no.nav.arbeidsgiver.tiltakrefusjon.varsling.Varsling
-import java.time.LocalDateTime
 import java.time.YearMonth
-import javax.persistence.EnumType
-import javax.persistence.Enumerated
 
 fun enRefusjon(tilskuddsgrunnlag: Tilskuddsgrunnlag = etTilskuddsgrunnlag()): Refusjon {
     val deltakerFnr = "07098142678"
     val bedriftNr = "999999999"
-    return Refusjon(tilskuddsgrunnlag = tilskuddsgrunnlag, bedriftNr = bedriftNr, deltakerFnr = deltakerFnr)
+    return Refusjon(
+        tilskuddsgrunnlag = tilskuddsgrunnlag,
+        bedriftNr = bedriftNr,
+        deltakerFnr = deltakerFnr,
+        godkjentAvBeslutterTidspunkt = tilskuddsperiodeGodkjentMelding.godkjentTidspunkt
+    )
 }
 
 fun enVarsling(varselType: VarselType = VarselType.KLAR ) : Varsling {
@@ -133,7 +135,7 @@ fun `Jonas Lie`(): Refusjon {
             deltakerEtternavn = "Lie",
             tilskuddsbeløp = 1357,
             veilederNavIdent = "Z123456"
-        ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
+        ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr, godkjentAvBeslutterTidspunkt = tilskuddsperiodeGodkjentMelding.godkjentTidspunkt
     )
 }
 
@@ -148,7 +150,7 @@ fun `Henrik Wergeland`(): Refusjon {
             deltakerEtternavn = "Wergeland",
             tilskuddsbeløp = 1357,
             veilederNavIdent = "Z123456"
-        ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
+        ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr, godkjentAvBeslutterTidspunkt = tilskuddsperiodeGodkjentMelding.godkjentTidspunkt
     )
 }
 
@@ -163,7 +165,7 @@ fun `Sigrid Undset`(): Refusjon {
             deltakerEtternavn = "Undset",
             tilskuddsbeløp = 1357,
             veilederNavIdent = "Z123456"
-        ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
+        ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr, godkjentAvBeslutterTidspunkt = tilskuddsperiodeGodkjentMelding.godkjentTidspunkt
     )
 }
 
@@ -178,7 +180,7 @@ fun `Camilla Collett`(): Refusjon {
             deltakerEtternavn = "Collett",
             tilskuddsbeløp = 1357,
             veilederNavIdent = "Z123456"
-        ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
+        ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr, godkjentAvBeslutterTidspunkt = tilskuddsperiodeGodkjentMelding.godkjentTidspunkt
     )
 }
 
@@ -193,7 +195,7 @@ fun `Alexander Kielland`(): Refusjon {
             deltakerEtternavn = "Kielland",
             tilskuddsbeløp = 1357,
             veilederNavIdent = "Z123456"
-        ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
+        ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr, godkjentAvBeslutterTidspunkt = tilskuddsperiodeGodkjentMelding.godkjentTidspunkt
     )
 }
 
@@ -208,7 +210,7 @@ fun `Bjørnstjerne Bjørnson`(): Refusjon {
             deltakerEtternavn = "Bjørnson",
             tilskuddsbeløp = 20579,
             veilederNavIdent = "X123456"
-        ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
+        ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr, godkjentAvBeslutterTidspunkt = tilskuddsperiodeGodkjentMelding.godkjentTidspunkt
     )
 }
 
@@ -223,7 +225,7 @@ fun `Nils Nilsen`(): Refusjon {
             deltakerEtternavn = "Nilsen",
             tilskuddsbeløp = 10579,
             veilederNavIdent = "X123456"
-        ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
+        ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr, godkjentAvBeslutterTidspunkt = tilskuddsperiodeGodkjentMelding.godkjentTidspunkt
     )
 }
 
@@ -238,7 +240,7 @@ fun `Inger Hagerup`(): Refusjon {
             bedriftNr = bedriftNr,
             tilskuddsbeløp = 10579,
             veilederNavIdent = "X123456"
-        ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
+        ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr, godkjentAvBeslutterTidspunkt = tilskuddsperiodeGodkjentMelding.godkjentTidspunkt
     )
 }
 
@@ -253,7 +255,7 @@ fun `Amalie Skram`(): Refusjon {
             bedriftNr = bedriftNr,
             tilskuddsbeløp = 10579,
             veilederNavIdent = "X123456"
-        ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
+        ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr, godkjentAvBeslutterTidspunkt = tilskuddsperiodeGodkjentMelding.godkjentTidspunkt
     )
 }
 
@@ -268,7 +270,7 @@ fun `Suzanna Hansen`(): Refusjon {
             bedriftNr = bedriftNr,
             tilskuddsbeløp = 10579,
             veilederNavIdent = "X123456"
-        ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
+        ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr, godkjentAvBeslutterTidspunkt = tilskuddsperiodeGodkjentMelding.godkjentTidspunkt
     )
     refusjon.let {
         it.medInntektsgrunnlag(
@@ -296,7 +298,7 @@ fun `Siri Hansen`(): Refusjon {
             bedriftNr = bedriftNr,
             tilskuddsbeløp = 10579,
             veilederNavIdent = "X123456"
-        ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
+        ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr, godkjentAvBeslutterTidspunkt = tilskuddsperiodeGodkjentMelding.godkjentTidspunkt
     )
 
     refusjon.let {
@@ -342,7 +344,7 @@ fun Refusjon.copy(
     tilskuddsgrunnlag: Tilskuddsgrunnlag = this.tilskuddsgrunnlag,
     deltakerFnr: String = this.deltakerFnr
 ): Refusjon {
-    return Refusjon(tilskuddsgrunnlag, bedriftNr, deltakerFnr)
+    return Refusjon(tilskuddsgrunnlag, bedriftNr, deltakerFnr, tilskuddsperiodeGodkjentMelding.godkjentTidspunkt)
 }
 
 fun etInntektsgrunnlag(måned: YearMonth = YearMonth.of(2020, 10), opptjentIPeriode: Boolean = true) = Inntektsgrunnlag(

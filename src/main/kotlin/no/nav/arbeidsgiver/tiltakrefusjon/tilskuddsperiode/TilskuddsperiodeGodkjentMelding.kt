@@ -2,6 +2,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode
 
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 data class TilskuddsperiodeGodkjentMelding(
         val avtaleId: String,
@@ -24,4 +25,5 @@ data class TilskuddsperiodeGodkjentMelding(
         val avtaleNr: Int,
         val løpenummer: Int,
         val enhet: String?,
+        val godkjentTidspunkt: LocalDateTime
 )

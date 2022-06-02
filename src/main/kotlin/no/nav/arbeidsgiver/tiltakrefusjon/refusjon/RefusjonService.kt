@@ -51,11 +51,12 @@ class RefusjonService(
             avtaleNr = tilskuddsperiodeGodkjentMelding.avtaleNr,
             løpenummer = tilskuddsperiodeGodkjentMelding.løpenummer,
             enhet = tilskuddsperiodeGodkjentMelding.enhet,
+            godkjentAvBeslutterTidspunkt = tilskuddsperiodeGodkjentMelding.godkjentTidspunkt
         )
         val refusjon = Refusjon(
             tilskuddsgrunnlag = tilskuddsgrunnlag,
             deltakerFnr = tilskuddsperiodeGodkjentMelding.deltakerFnr,
-            bedriftNr = tilskuddsperiodeGodkjentMelding.bedriftNr,
+            bedriftNr = tilskuddsperiodeGodkjentMelding.bedriftNr
         )
 
         return refusjonRepository.save(refusjon)

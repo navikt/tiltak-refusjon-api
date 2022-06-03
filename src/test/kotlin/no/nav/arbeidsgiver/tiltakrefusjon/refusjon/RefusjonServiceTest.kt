@@ -17,6 +17,7 @@ import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.test.context.ActiveProfiles
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 @SpringBootTest(properties = ["NAIS_APP_IMAGE=test"])
 @ActiveProfiles("local")
@@ -53,7 +54,8 @@ class RefusjonServiceTest(
             lønnstilskuddsprosent = 60,
             avtaleNr = 3456,
             løpenummer = 3,
-            enhet = "1000"
+            enhet = "1000",
+            godkjentTidspunkt = LocalDateTime.now()
         )
         refusjonService.opprettRefusjon(tilskuddMelding)
         var lagretRefusjon = refusjonRepository.findAllByDeltakerFnr(deltakerFnr)[0]
@@ -98,7 +100,8 @@ class RefusjonServiceTest(
             lønnstilskuddsprosent = 60,
             avtaleNr = 3456,
             løpenummer = 3,
-            enhet = "1000"
+            enhet = "1000",
+            godkjentTidspunkt = LocalDateTime.now()
         )
         refusjonService.opprettRefusjon(tilskuddMelding)
         refusjonService.opprettRefusjon(tilskuddMelding)
@@ -130,7 +133,8 @@ class RefusjonServiceTest(
             lønnstilskuddsprosent = 60,
             avtaleNr = 3456,
             løpenummer = 3,
-            enhet = "1000"
+            enhet = "1000",
+            godkjentTidspunkt = LocalDateTime.now()
         )
         var refusjon = refusjonService.opprettRefusjon(tilskuddMelding) ?: fail("Skulle kunne opprette refusjon")
 
@@ -171,7 +175,8 @@ class RefusjonServiceTest(
             lønnstilskuddsprosent = 60,
             avtaleNr = 3456,
             løpenummer = 3,
-            enhet = "1000"
+            enhet = "1000",
+            godkjentTidspunkt = LocalDateTime.now()
         )
         refusjonService.opprettRefusjon(tilskuddMelding)
         assertThat(refusjonRepository.findAll().filter { it.tilskuddsgrunnlag.tilskuddsperiodeId == tilskuddMelding.tilskuddsperiodeId }).hasSize(1)

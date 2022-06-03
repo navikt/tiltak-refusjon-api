@@ -7,6 +7,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.YearMonth
 
 internal class RefusjonTest {
@@ -357,6 +358,30 @@ internal class RefusjonTest {
         assertFeilkode(Feilkode.UGYLDIG_FORLENGELSE_AV_FRIST) {
             refusjon.forlengFrist(refusjon.fristForGodkjenning.minusDays(1), "", "")
         }
+    }
+
+    @Test
+    internal fun `godkjent tilskuddsperiode som er ferdig før den godkjennes får 2mnd frist`() {
+        val iDag = LocalDate.now()
+        val tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
+            tilskuddFom = iDag.minusMonths(2),
+            tilskuddTom = iDag.minusMonths(1),
+            godkjentAvBeslutterTidspunkt = LocalDateTime.now())
+        val refusjon = enRefusjon(tilskuddsgrunnlag)
+
+        val godkjentAvBeslutterTidspunkt = tilskuddsgrunnlag.godkjentAvBeslutterTidspunkt.toLocalDate()
+        assertThat(refusjon.fristForGodkjenning).isEqualTo(antallMånederEtter(godkjentAvBeslutterTidspunkt, 2))
+    }
+
+    @Test
+    internal fun `godkjent tilskuddsperiode som ikke enda er ferdig får frist 2mnd etter tilskuddsperiode slutt`() {
+        val iDag = LocalDate.now()
+        val tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
+            tilskuddFom = iDag,
+            tilskuddTom = iDag.plusMonths(1),
+            godkjentAvBeslutterTidspunkt = LocalDateTime.now())
+        val refusjon = enRefusjon(tilskuddsgrunnlag)
+        assertThat(refusjon.fristForGodkjenning).isEqualTo(antallMånederEtter(tilskuddsgrunnlag.tilskuddTom, 2))
     }
 
     @Disabled

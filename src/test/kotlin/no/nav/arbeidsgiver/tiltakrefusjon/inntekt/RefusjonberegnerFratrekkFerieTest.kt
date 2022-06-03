@@ -13,6 +13,7 @@ import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 
 @DirtiesContext
@@ -54,7 +55,8 @@ class RefusjonberegnerFratrekkFerieTest(
             tilskuddsbeløp = tilskuddsbeløp,
             avtaleNr = 1337,
             løpenummer = 9,
-            enhet = "1104"
+            enhet = "1104",
+            godkjentTidspunkt = LocalDateTime.of(tilskuddTom.year, tilskuddTom.month, tilskuddTom.dayOfMonth, 0, 0 )
         )
         return tilskuddsperiodeGodkjentMelding
     }

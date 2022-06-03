@@ -22,6 +22,7 @@ import org.springframework.kafka.test.utils.KafkaTestUtils
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import java.time.LocalDateTime
 import java.util.*
 
 
@@ -62,7 +63,8 @@ class TilskuddsperiodeLytterTest {
             lønnstilskuddsprosent = 60,
             avtaleNr = 3456,
             løpenummer = 3,
-            enhet = "1000"
+            enhet = "1000",
+            godkjentTidspunkt = LocalDateTime.now()
         )
 
         kafkaTemplate.send(Topics.TILSKUDDSPERIODE_GODKJENT, tilskuddMelding.tilskuddsperiodeId, tilskuddMelding)

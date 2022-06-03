@@ -11,6 +11,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.Assume
 import org.springframework.test.context.ContextConfiguration
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.YearMonth
 
 @CucumberContextConfiguration
@@ -66,7 +67,8 @@ class RefusjonsberegningSteps {
             lønnstilskuddsprosent = angittLonnstilskuddProsent,
             avtaleNr = 3456,
             løpenummer = 3,
-            enhet = "1000"
+            enhet = "1000",
+            godkjentAvBeslutterTidspunkt = LocalDateTime.now()
         )
     }
 

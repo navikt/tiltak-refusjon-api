@@ -5,15 +5,16 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.varsling.VarselType
 import no.nav.arbeidsgiver.tiltakrefusjon.varsling.Varsling
-import java.time.LocalDateTime
 import java.time.YearMonth
-import javax.persistence.EnumType
-import javax.persistence.Enumerated
 
 fun enRefusjon(tilskuddsgrunnlag: Tilskuddsgrunnlag = etTilskuddsgrunnlag()): Refusjon {
     val deltakerFnr = "07098142678"
     val bedriftNr = "999999999"
-    return Refusjon(tilskuddsgrunnlag = tilskuddsgrunnlag, bedriftNr = bedriftNr, deltakerFnr = deltakerFnr)
+    return Refusjon(
+        tilskuddsgrunnlag = tilskuddsgrunnlag,
+        bedriftNr = bedriftNr,
+        deltakerFnr = deltakerFnr,
+    )
 }
 
 fun enVarsling(varselType: VarselType = VarselType.KLAR ) : Varsling {
@@ -119,7 +120,8 @@ fun etTilskuddsgrunnlag() = Tilskuddsgrunnlag(
     tilskuddsbeløp = 13579,
     avtaleNr = 3456,
     løpenummer = 3,
-    enhet = "1000"
+    enhet = "1000",
+    godkjentAvBeslutterTidspunkt = Now.localDateTime().minusMonths(3).withDayOfMonth(1),
 )
 
 fun `Jonas Lie`(): Refusjon {

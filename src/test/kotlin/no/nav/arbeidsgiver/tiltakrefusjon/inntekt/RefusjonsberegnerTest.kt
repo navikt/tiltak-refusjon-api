@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.YearMonth
 
 class RefusjonsberegnerTest {
@@ -51,7 +52,8 @@ class RefusjonsberegnerTest {
             tilskuddsbeløp = tilskuddsbeløp,
             avtaleNr = 3456,
             løpenummer = 3,
-            enhet = "1000"
+            enhet = "1000",
+            godkjentAvBeslutterTidspunkt = LocalDateTime.of(tilskuddTom.year, tilskuddTom.month, tilskuddTom.dayOfMonth, 0, 0 )
         )
         return tilskuddsgrunnlag
     }

@@ -2,6 +2,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import com.github.guepardoapps.kulid.ULID
 import java.time.LocalDate
+import java.time.LocalDateTime
 import javax.persistence.Entity
 import javax.persistence.EnumType
 import javax.persistence.Enumerated
@@ -29,6 +30,7 @@ data class Tilskuddsgrunnlag(
     val avtaleNr: Int,
     val løpenummer: Int,
     val enhet: String?,
+    val godkjentAvBeslutterTidspunkt: LocalDateTime
 ) {
     @Id
     val id: String = ULID.random()

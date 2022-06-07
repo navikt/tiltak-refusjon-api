@@ -49,7 +49,7 @@ class StatusJobb(
         refusjoner.forEach {
             try {
                 if (Now.localDate().isAfter(it.fristForGodkjenning)) {
-                    it.status = RefusjonStatus.UTGÅTT
+                    it.gjørRefusjonUtgått()
                     antallEndretTilUtgått++
                     refusjonRepository.save(it)
                 }

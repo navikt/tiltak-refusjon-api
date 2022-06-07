@@ -4,6 +4,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.Topics
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonGodkjentMelding.Companion.create
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.GodkjentAvArbeidsgiver
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.KorreksjonSendtTilUtbetaling
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonUtgått
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.TilskuddsperioderIRefusjonAnnullertManuelt
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeAnnullertMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.MidlerFrigjortÅrsak
@@ -93,5 +94,28 @@ class RefusjonKafkaProducer(
                 log.warn("Feil ved sending av tilskuddsperiode annullert melding på Kafka", it)
             })
 
+    }
+
+    @TransactionalEventListener
+    fun refusjonUtgått(event: RefusjonUtgått) {
+        // Annullering av tilskuddsperiode til tiltak-okonomi. refusjon-api vil ikke gjøre noe med denne pga årsak.
+        val tilskuddperiodeAnnullertMelding = TilskuddsperiodeAnnullertMelding(
+            tilskuddsperiodeId = event.refusjon.tilskuddsgrunnlag.tilskuddsperiodeId,
+            årsak = MidlerFrigjortÅrsak.REFUSJON_FRIST_UTGÅTT
+        )
+        tilskuddperiodeAnnullertKafkaTemplate.send(
+            Topics.TILSKUDDSPERIODE_ANNULLERT,
+            event.refusjon.tilskuddsgrunnlag.tilskuddsperiodeId,
+            tilskuddperiodeAnnullertMelding
+        )
+            .addCallback({
+                log.info(
+                    "Melding med id {} sendt til Kafka topic {}",
+                    it?.producerRecord?.key(),
+                    it?.recordMetadata?.topic()
+                )
+            }, {
+                log.warn("Feil ved sending av tilskuddsperiode annullert melding på Kafka", it)
+            })
     }
 }

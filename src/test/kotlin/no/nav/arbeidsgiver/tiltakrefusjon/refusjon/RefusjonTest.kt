@@ -151,6 +151,22 @@ internal class RefusjonTest {
     }
 
     @Test
+    fun `sett stauts til UTGÅTT`() {
+        // Nå klar for innsending
+        val refusjon = enRefusjon(
+            etTilskuddsgrunnlag().copy(
+                tilskuddFom = Now.localDate().minusMonths(1),
+                tilskuddTom = Now.localDate().minusDays(1)
+            )
+        )
+        Now.fixedDate(LocalDate.now().plusMonths(3))
+        //Frist skal nå bli utgått ved neste sjekk
+        refusjon.gjørRefusjonUtgått()
+        assertThat(refusjon.status).isEqualTo(RefusjonStatus.UTGÅTT)
+        Now.resetClock()
+    }
+
+    @Test
     fun `oppdater status til FOR_TIDLIG`() {
         val refusjon = enRefusjon(
             etTilskuddsgrunnlag().copy(

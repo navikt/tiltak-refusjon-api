@@ -182,6 +182,13 @@ class Refusjon(
             registerEvent(RefusjonKlar(this))
         }
     }
+    fun gjørRefusjonUtgått() {
+        krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
+        if (Now.localDate().isAfter(fristForGodkjenning)) {
+            status = RefusjonStatus.UTGÅTT
+            registerEvent(RefusjonUtgått(this))
+        }
+    }
 
     fun forkort(tilskuddTom: LocalDate, tilskuddsbeløp: Int) {
         oppdaterStatus()

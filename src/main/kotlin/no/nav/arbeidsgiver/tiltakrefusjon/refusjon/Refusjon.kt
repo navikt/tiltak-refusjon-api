@@ -90,13 +90,17 @@ class Refusjon(
     }
 
     fun utbetalingMislykket() {
-        if (status == RefusjonStatus.SENDT_KRAV || status == RefusjonStatus.UTBETALT) status =
-            RefusjonStatus.UTBETALING_FEILET
+        if (status == RefusjonStatus.SENDT_KRAV || status == RefusjonStatus.UTBETALT) {
+            status = RefusjonStatus.UTBETALING_FEILET
+            registerEvent(RefusjonEndretStatus(this))
+        }
     }
 
     fun utbetalingVellykket() {
-        if (status == RefusjonStatus.SENDT_KRAV || status == RefusjonStatus.UTBETALING_FEILET) status =
-            RefusjonStatus.UTBETALT
+        if (status == RefusjonStatus.SENDT_KRAV || status == RefusjonStatus.UTBETALING_FEILET) {
+            status = RefusjonStatus.UTBETALT
+            registerEvent(RefusjonEndretStatus(this))
+        }
     }
 
     fun oppdaterStatus() {
@@ -158,6 +162,7 @@ class Refusjon(
         godkjentAvArbeidsgiver = Now.instant()
         status = RefusjonStatus.SENDT_KRAV
         registerEvent(GodkjentAvArbeidsgiver(this, utførtAv))
+        registerEvent(RefusjonEndretStatus(this))
     }
 
     fun annuller() {
@@ -165,6 +170,7 @@ class Refusjon(
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING, RefusjonStatus.FOR_TIDLIG)
         status = RefusjonStatus.ANNULLERT
         registerEvent(RefusjonAnnullert(this))
+        registerEvent(RefusjonEndretStatus(this))
     }
 
     fun annullerTilskuddsperioderIRefusjon(utførtAv: String, grunn: String) {
@@ -179,7 +185,7 @@ class Refusjon(
         krevStatus(RefusjonStatus.FOR_TIDLIG)
         if (Now.localDate().isAfter(refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom)) {
             status = RefusjonStatus.KLAR_FOR_INNSENDING
-            registerEvent(RefusjonKlar(this))
+            registerEvent(RefusjonEndretStatus(this))
         }
     }
     fun gjørRefusjonUtgått() {
@@ -187,6 +193,7 @@ class Refusjon(
         if (Now.localDate().isAfter(fristForGodkjenning)) {
             status = RefusjonStatus.UTGÅTT
             registerEvent(RefusjonUtgått(this))
+            registerEvent(RefusjonEndretStatus(this))
         }
     }
 
@@ -303,4 +310,5 @@ class Refusjon(
             registerEvent(BeregningUtført(this))
         }
     }
+
 }

@@ -2,10 +2,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.Topics
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonGodkjentMelding.Companion.create
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.GodkjentAvArbeidsgiver
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.KorreksjonSendtTilUtbetaling
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonUtgått
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.TilskuddsperioderIRefusjonAnnullertManuelt
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.*
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeAnnullertMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.MidlerFrigjortÅrsak
 import org.slf4j.Logger
@@ -16,6 +13,7 @@ import org.springframework.kafka.support.SendResult
 import org.springframework.stereotype.Component
 import org.springframework.transaction.event.TransactionalEventListener
 import org.springframework.util.concurrent.ListenableFutureCallback
+import java.time.LocalDateTime
 
 @ConditionalOnProperty("tiltak-refusjon.kafka.enabled")
 @Component
@@ -23,6 +21,7 @@ class RefusjonKafkaProducer(
     val refusjonGodkjentkafkaTemplate: KafkaTemplate<String, RefusjonGodkjentMelding>,
     val korreksjonKafkaTemplate: KafkaTemplate<String, KorreksjonSendtTilUtbetalingMelding>,
     val tilskuddperiodeAnnullertKafkaTemplate: KafkaTemplate<String, TilskuddsperiodeAnnullertMelding>,
+    val refusjonEndretStatusKafkaTemplate: KafkaTemplate<String, RefusjonEndretStatusMelding>
 ) {
 
     var log: Logger = LoggerFactory.getLogger(javaClass)
@@ -118,4 +117,24 @@ class RefusjonKafkaProducer(
                 log.warn("Feil ved sending av tilskuddsperiode annullert melding på Kafka", it)
             })
     }
+    // En topic med alle statuser for en refusjon. Da kan den aggregeres av fager for å vise det de vil
+    @TransactionalEventListener
+    fun refusjonEndretStatus(event: RefusjonEndretStatus) {
+        val melding = RefusjonEndretStatusMelding(
+            refusjonId = event.refusjon.id,
+            bedriftNr = event.refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.bedriftNr,
+            avtaleId = event.refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleId,
+            status = event.refusjon.status
+        )
+        refusjonEndretStatusKafkaTemplate.send(
+            Topics.REFUSJON_ENDRET_STATUS,
+            event.refusjon.id,
+            melding
+        ).addCallback({
+            log.info("Melding med id {} sendt til Kafka topic {}", it?.producerRecord?.key(), it?.recordMetadata?.topic())
+        }, {
+            log.warn("Feil ved sending av refusjon status på Kafka", it)
+        })
+    }
+
 }

@@ -121,12 +121,14 @@ class AdminController(
 
     /**
      * Hvordan håndtere delta her? Altså, man kjører denne for å sende alle statuser på kafka. Men samtidig oppdateres en status.
-     * Får da en feilaktik "state" hos konsument?
+     * Får da en feilaktig "state" hos konsument?
      */
     @Unprotected
     @PostMapping("send-statuser-til-kafka-topic")
     fun sendStatuserTilKafkaTopic() {
+        logger.info("Sender status for alle refusjoner til kafka-topic")
         val refusjoner = refusjonRepository.findAll()
+        var antallStatuserSendt = refusjoner.size
         refusjoner.forEach { refusjon ->
             val melding = RefusjonEndretStatusMelding(
                 refusjonId = refusjon.id,
@@ -144,6 +146,7 @@ class AdminController(
                 logger.warn("Feil ved sending av refusjon status på Kafka", it)
             })
         }
+        logger.info("Sendt totalt $antallStatuserSendt statuser til kafka" )
     }
 }
 

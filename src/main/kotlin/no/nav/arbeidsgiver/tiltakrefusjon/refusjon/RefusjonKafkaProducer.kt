@@ -122,7 +122,7 @@ class RefusjonKafkaProducer(
     fun refusjonEndretStatus(event: RefusjonEndretStatus) {
         val melding = RefusjonEndretStatusMelding(
             refusjonId = event.refusjon.id,
-            bedriftNr = event.refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.bedriftNr,
+            bedriftNr = event.refusjon.bedriftNr,
             avtaleId = event.refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleId,
             status = event.refusjon.status
         )

@@ -118,11 +118,6 @@ class AdminController(
             refusjonRepository.save(it)
         }
     }
-
-    /**
-     * Hvordan håndtere delta her? Altså, man kjører denne for å sende alle statuser på kafka. Men samtidig oppdateres en status.
-     * Får da en feilaktig "state" hos konsument?
-     */
     @Unprotected
     @PostMapping("send-statuser-til-kafka-topic")
     fun sendStatuserTilKafkaTopic() {

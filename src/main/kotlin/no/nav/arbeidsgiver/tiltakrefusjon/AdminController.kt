@@ -126,11 +126,11 @@ class AdminController(
     @Unprotected
     @PostMapping("send-statuser-til-kafka-topic")
     fun sendStatuserTilKafkaTopic() {
-        val refusjoner = refusjonRepository.findAllByStatus(RefusjonStatus.FOR_TIDLIG)
+        val refusjoner = refusjonRepository.findAll()
         refusjoner.forEach { refusjon ->
             val melding = RefusjonEndretStatusMelding(
                 refusjonId = refusjon.id,
-                bedriftNr = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.bedriftNr,
+                bedriftNr = refusjon.bedriftNr,
                 avtaleId = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleId,
                 status = refusjon.status
             )

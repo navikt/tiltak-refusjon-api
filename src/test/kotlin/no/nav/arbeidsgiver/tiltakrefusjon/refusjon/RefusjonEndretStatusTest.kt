@@ -1,5 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
+import no.nav.arbeidsgiver.tiltakrefusjon.AdminController
 import no.nav.arbeidsgiver.tiltakrefusjon.Topics
 import no.nav.arbeidsgiver.tiltakrefusjon.enRefusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.etTilskuddsgrunnlag
@@ -31,6 +32,8 @@ class RefusjonEndretStatusTest(
     val refusjonRepository: RefusjonRepository,
     @Autowired
     val embeddedKafka: EmbeddedKafkaBroker,
+    @Autowired
+    val adminController: AdminController
 
     ) {
     lateinit var consumer: Consumer<String, String>
@@ -59,11 +62,29 @@ class RefusjonEndretStatusTest(
         refusjonRepository.save(refusjon)
         val record = KafkaTestUtils.getSingleRecord(consumer, Topics.REFUSJON_ENDRET_STATUS)
         val json = JSONObject(record.value())
-        println(json)
         Assertions.assertThat(json.getString("status")).isEqualTo("UTGÅTT")
         Assertions.assertThat(json.getString("bedriftNr")).isEqualTo("999999999")
         Assertions.assertThat(json.getString("avtaleId")).isNotNull
         Assertions.assertThat(json.getString("refusjonId")).isNotNull
         Now.resetClock()
+    }
+
+    @Test
+    fun `Rest-endepunkt i adminkontroller skal lage kafkameldinger med statusendringer`() {
+        // Nå klar for innsending
+        val refusjon = enRefusjon(
+            etTilskuddsgrunnlag().copy(
+                tilskuddFom = Now.localDate().minusMonths(1),
+                tilskuddTom = Now.localDate().minusDays(1)
+            )
+        )
+        refusjonRepository.save(refusjon)
+        adminController.sendStatuserTilKafkaTopic()
+        val record = KafkaTestUtils.getSingleRecord(consumer, Topics.REFUSJON_ENDRET_STATUS)
+        val json = JSONObject(record.value())
+        Assertions.assertThat(json.getString("status")).isEqualTo("KLAR_FOR_INNSENDING")
+        Assertions.assertThat(json.getString("bedriftNr")).isEqualTo("999999999")
+        Assertions.assertThat(json.getString("avtaleId")).isNotNull
+        Assertions.assertThat(json.getString("refusjonId")).isNotNull
     }
 }

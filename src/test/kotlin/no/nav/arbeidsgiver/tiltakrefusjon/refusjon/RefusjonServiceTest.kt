@@ -75,7 +75,6 @@ class RefusjonServiceTest(
         refusjonService.annullerRefusjon(TilskuddsperiodeAnnullertMelding(lagretRefusjon.tilskuddsgrunnlag.tilskuddsperiodeId, MidlerFrigjortÅrsak.AVTALE_ANNULLERT))
         lagretRefusjon = refusjonRepository.findByIdOrNull(lagretRefusjon.id) ?: throw RuntimeException()
         assertThat(lagretRefusjon.status).isEqualTo(RefusjonStatus.ANNULLERT)
-
     }
 
     @Test

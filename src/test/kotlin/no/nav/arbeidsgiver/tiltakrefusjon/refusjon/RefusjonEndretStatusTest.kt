@@ -68,23 +68,4 @@ class RefusjonEndretStatusTest(
         Assertions.assertThat(json.getString("refusjonId")).isNotNull
         Now.resetClock()
     }
-
-    @Test
-    fun `Rest-endepunkt i adminkontroller skal lage kafkameldinger med statusendringer`() {
-        // Nå klar for innsending
-        val refusjon = enRefusjon(
-            etTilskuddsgrunnlag().copy(
-                tilskuddFom = Now.localDate().minusMonths(1),
-                tilskuddTom = Now.localDate().minusDays(1)
-            )
-        )
-        refusjonRepository.save(refusjon)
-        adminController.sendStatuserTilKafkaTopic()
-        val record = KafkaTestUtils.getSingleRecord(consumer, Topics.REFUSJON_ENDRET_STATUS)
-        val json = JSONObject(record.value())
-        Assertions.assertThat(json.getString("status")).isEqualTo("KLAR_FOR_INNSENDING")
-        Assertions.assertThat(json.getString("bedriftNr")).isEqualTo("999999999")
-        Assertions.assertThat(json.getString("avtaleId")).isNotNull
-        Assertions.assertThat(json.getString("refusjonId")).isNotNull
-    }
 }

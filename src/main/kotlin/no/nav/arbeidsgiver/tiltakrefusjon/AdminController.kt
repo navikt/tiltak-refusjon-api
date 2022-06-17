@@ -7,12 +7,15 @@ import no.nav.security.token.support.core.api.Unprotected
 import org.slf4j.LoggerFactory
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.kafka.core.KafkaTemplate
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import java.time.LocalDate
 
-@RestController("/admin")
+@RestController
+@RequestMapping("/internal/admin")
 class AdminController(
     val service: RefusjonService,
     val refusjonRepository: RefusjonRepository,
@@ -141,8 +144,9 @@ class AdminController(
                 logger.warn("Feil ved sending av refusjon status på Kafka", it)
             })
         }
-        logger.info("Sendt totalt $antallStatuserSendt statuser til kafka" )
+        logger.info("Sender totalt $antallStatuserSendt statuser til kafka" )
     }
+
 }
 
 data class KorreksjonRequest(val refusjonIder: List<String>, val korreksjonsgrunner: Set<Korreksjonsgrunn>)

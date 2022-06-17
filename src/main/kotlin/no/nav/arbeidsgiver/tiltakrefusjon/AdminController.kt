@@ -6,16 +6,21 @@ import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkj
 import no.nav.security.token.support.core.api.Unprotected
 import org.slf4j.LoggerFactory
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.kafka.core.KafkaTemplate
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import java.time.LocalDate
 
-@RestController("/admin")
+@RestController
+@RequestMapping("/internal/admin")
 class AdminController(
     val service: RefusjonService,
     val refusjonRepository: RefusjonRepository,
-    val korreksjonRepository: KorreksjonRepository
+    val korreksjonRepository: KorreksjonRepository,
+    val refusjonEndretStatusKafkaTemplate: KafkaTemplate<String, RefusjonEndretStatusMelding>
 ) {
     val logger = LoggerFactory.getLogger(javaClass)
 
@@ -116,6 +121,32 @@ class AdminController(
             refusjonRepository.save(it)
         }
     }
+    @Unprotected
+    @PostMapping("send-statuser-til-kafka-topic")
+    fun sendStatuserTilKafkaTopic() {
+        logger.info("Sender status for alle refusjoner til kafka-topic")
+        val refusjoner = refusjonRepository.findAll()
+        var antallStatuserSendt = refusjoner.size
+        refusjoner.forEach { refusjon ->
+            val melding = RefusjonEndretStatusMelding(
+                refusjonId = refusjon.id,
+                bedriftNr = refusjon.bedriftNr,
+                avtaleId = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleId,
+                status = refusjon.status
+            )
+            refusjonEndretStatusKafkaTemplate.send(
+                Topics.REFUSJON_ENDRET_STATUS,
+                refusjon.id,
+                melding
+            ).addCallback({
+                logger.info("Melding med id {} sendt til Kafka topic {}", it?.producerRecord?.key(), it?.recordMetadata?.topic())
+            }, {
+                logger.warn("Feil ved sending av refusjon status på Kafka", it)
+            })
+        }
+        logger.info("Sender totalt $antallStatuserSendt statuser til kafka" )
+    }
+
 }
 
 data class KorreksjonRequest(val refusjonIder: List<String>, val korreksjonsgrunner: Set<Korreksjonsgrunn>)

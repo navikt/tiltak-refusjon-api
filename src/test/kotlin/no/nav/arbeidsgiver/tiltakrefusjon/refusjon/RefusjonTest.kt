@@ -35,9 +35,11 @@ internal class RefusjonTest {
         // NÅR
         refusjon.utbetalingVellykket()
         assertThat(refusjon.status).isEqualTo(RefusjonStatus.UTBETALT)
+        assertThat(refusjon.utbetaltTidspunkt).isBefore(Now.instant())
 
         refusjon.status = RefusjonStatus.UTBETALING_FEILET
         refusjon.utbetalingVellykket()
+        assertThat(refusjon.utbetaltTidspunkt).isBefore(Now.instant())
         assertThat(refusjon.status).isEqualTo(RefusjonStatus.UTBETALT)
     }
 

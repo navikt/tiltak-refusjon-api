@@ -1,5 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.guepardoapps.kulid.ULID
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
@@ -59,7 +60,7 @@ class Refusjon(
     val inntektsgrunnlag: Inntektsgrunnlag? get() = refusjonsgrunnlag.inntektsgrunnlag
     val bedriftKontonummer: String? get() = refusjonsgrunnlag.bedriftKontonummer
     val inntekterKunFraTiltaket: Boolean? get() = refusjonsgrunnlag.inntekterKunFraTiltaket
-
+    var utbetaltTidspunkt: Instant? = null
     init {
         oppdaterStatus()
     }
@@ -99,6 +100,7 @@ class Refusjon(
     fun utbetalingVellykket() {
         if (status == RefusjonStatus.SENDT_KRAV || status == RefusjonStatus.UTBETALING_FEILET) {
             status = RefusjonStatus.UTBETALT
+            utbetaltTidspunkt = Now.instant()
             registerEvent(RefusjonEndretStatus(this))
         }
     }

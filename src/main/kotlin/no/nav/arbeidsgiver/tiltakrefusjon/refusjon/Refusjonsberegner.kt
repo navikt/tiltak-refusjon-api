@@ -81,9 +81,11 @@ fun beregnRefusjonsbeløp(
 fun leggSammenTrekkGrunnlag(
     inntekter: List<Inntektslinje>
 ): Double =
-    inntekter.filter { it.skalTrekkesIfraInntektsgrunnlag() }.sumOf { it.beløp }
+    inntekter.filter { it.skalTrekkesIfraInntektsgrunnlag() }
+        .sumOf { inntekt -> if (inntekt.beløp < 0) (inntekt.beløp * -1) else inntekt.beløp }
 
 fun kalkulerBruttoLønn(
     inntekter: List<Inntektslinje>,
 ): Double =
-    inntekter.filter { it.erMedIInntektsgrunnlag() && it.erOpptjentIPeriode != null && it.erOpptjentIPeriode!! }.sumOf { it.beløp }
+    inntekter.filter { it.erMedIInntektsgrunnlag() && it.erOpptjentIPeriode != null && it.erOpptjentIPeriode!! }
+        .sumOf { it.beløp }

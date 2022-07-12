@@ -119,6 +119,24 @@ class RefusjonberegnerFratrekkFerieTest(
     }
 
     @Test
+    fun `hent inntektsoppslag som har minusbeløp på feriefratrekk og beregn`() {
+        val TREKKFORFERIEGRUNNLAG: Int = -7500 * -1 // trekk grunnlag fra inntektoppslag
+
+        val tilskuddsperiodeGodkjentMelding: TilskuddsperiodeGodkjentMelding = lagEnTilskuddsperiodeGodkjentMelding(
+            LocalDate.of(2021, 9, 1),
+            LocalDate.of(2021, 9, 30),
+            Tiltakstype.SOMMERJOBB,
+            60000,
+            WIREMOCK_IDENT,
+            WIREMOCK_VIRKSOMHET_IDENTIFIKATOR,
+        )
+        val refusjon = opprettRefusjonOgGjørInntektoppslag(tilskuddsperiodeGodkjentMelding)
+
+        assert(refusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp == `vis utregning med feriefratrekk`(refusjon, TREKKFORFERIEGRUNNLAG))
+        assert(refusjon.refusjonsgrunnlag.beregning!!.fratrekkLønnFerie == TREKKFORFERIEGRUNNLAG)
+    }
+
+    @Test
     fun `sjekk at leggSammenTrekkGrunnlag returnerer primiviteInt-eller-double`() {
         val etInntektsgrunnlag = etInntektsgrunnlag()
         val leggSammenTrekkGrunnlag: Double = leggSammenTrekkGrunnlag(etInntektsgrunnlag.inntekter.toList())

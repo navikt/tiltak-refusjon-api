@@ -12,7 +12,7 @@ import javax.persistence.*
 data class Inntektslinje(
     val inntektType: String,
     val beskrivelse: String?,
-    val beløp: Double,
+    var beløp: Double,
     @Convert(converter = YearMonthDateAttributeConverter::class)
     val måned: YearMonth,
     val opptjeningsperiodeFom: LocalDate?,

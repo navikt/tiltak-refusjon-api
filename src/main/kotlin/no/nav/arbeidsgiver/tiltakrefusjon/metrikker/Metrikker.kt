@@ -19,12 +19,12 @@ class Metrikker(
             .description("Tid brukt for å sende inn refusjon")
             .register(meterRegistry)
 
-        val inntektsgrunnlagInnhentet =
-            event.refusjon.inntektsgrunnlag?.innhentetTidspunkt?.atZone(ZoneId.of("Europe/Oslo"))?.toInstant()
+        val åpnetFørsteGang = event.refusjon.åpnetFørsteGang
         val godkjentAvArbeidsgiver = event.refusjon.godkjentAvArbeidsgiver
-        val tidBrukt = Duration.between(inntektsgrunnlagInnhentet, godkjentAvArbeidsgiver)
-
-        timer.record(tidBrukt)
+        if(åpnetFørsteGang != null && godkjentAvArbeidsgiver != null) {
+            val tidBrukt = Duration.between(åpnetFørsteGang, godkjentAvArbeidsgiver)
+            timer.record(tidBrukt)
+        }
     }
 
 }

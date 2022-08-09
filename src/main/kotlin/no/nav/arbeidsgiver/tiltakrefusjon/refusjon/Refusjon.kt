@@ -61,6 +61,7 @@ class Refusjon(
     val bedriftKontonummer: String? get() = refusjonsgrunnlag.bedriftKontonummer
     val inntekterKunFraTiltaket: Boolean? get() = refusjonsgrunnlag.inntekterKunFraTiltaket
     var utbetaltTidspunkt: Instant? = null
+    var åpnetFørsteGang: Instant? = null
     init {
         oppdaterStatus()
     }

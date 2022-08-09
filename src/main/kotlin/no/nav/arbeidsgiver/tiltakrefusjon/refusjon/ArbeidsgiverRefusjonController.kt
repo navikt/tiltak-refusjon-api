@@ -39,6 +39,11 @@ class ArbeidsgiverRefusjonController(
     @GetMapping("/hentliste")
     fun hentListAvBedrifter(queryParametre: HentArbeidsgiverRefusjonerQueryParametre): ResponseEntity<Map<String, Any>> {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
+        val findAllByBedriftNrAndStatusSorted = arbeidsgiver.findAllByBedriftNrAndStatusWithSortert(queryParametre.bedriftNr,
+            queryParametre.status,
+            queryParametre.tiltakstype,
+            queryParametre.page,
+            queryParametre.size)
         val pagableRefusjonlist: Page<Refusjon> = arbeidsgiver.finnAlleForGittArbeidsgiver(
             queryParametre.bedriftNr,
             queryParametre.status,

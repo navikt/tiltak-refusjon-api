@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 
 
@@ -50,20 +51,38 @@ data class InnloggetArbeidsgiver(
         return refusjonsRepositoryImpl.findAllByBedriftNrAndStatusSorted(finnAlleUnderenheterTilArbeidsgiver(), status, tiltakstype, null, paging)
         }
 
-    fun finnAlleForGittArbeidsgiver(bedrifter: String?, status: RefusjonStatus?, tiltakstype: Tiltakstype?, page: Int, size: Int): Page<Refusjon> {
-        val paging: Pageable = PageRequest.of(page, size)
-        /* Sort.by(Sort.Direction.valueOf("status.KLAR_FOR_INNSENDING, status.FOR_TIDLIG, status.SENDT_KRAV, status.UTBETALT, status.UTBETALING_FEILET, status.UTGÅTT, status.ANNULLERT, status.KORRIGERT"))*/
-       //   val orderby: String = "(CASE WHEN r.status = 'KLAR_FOR_INNSENDING' THEN 0 else 1 END)"
+    fun getSortingOrderForPageable(sortingOrder: SortingOrder): Sort.Order {
+        when (sortingOrder) {
+            SortingOrder.DELTAKER_ASC -> return Sort.Order.asc("refusjonsgrunnlag.tilskuddsgrunnlag.deltakerFornavn")
+            SortingOrder.DELTAKER_DESC -> return Sort.Order.desc("refusjonsgrunnlag.tilskuddsgrunnlag.deltakerFornavn")
+            SortingOrder.PERIODE_ASC -> return Sort.Order.asc("refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom")
+            SortingOrder.PERIODE_DESC -> return Sort.Order.desc("refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom")
+            SortingOrder.STATUS_DESC -> return Sort.Order.desc("status")
+            SortingOrder.FRISTFORGODKJENNING_ASC -> return Sort.Order.asc("fristForGodkjenning")
+            SortingOrder.FRISTFORGODKJENNING_DESC -> return Sort.Order.desc("fristForGodkjenning")
+            else -> return Sort.Order.asc("status")
+        }
+    }
 
+    fun getQueryMethodForFinnAlleForGittArbeidsgiver(bedriftNr: List<String>, status: RefusjonStatus?, tiltakstype: Tiltakstype?,  sortingOrder: SortingOrder?, page: Int, size: Int): Page<Refusjon> {
+        val paging: Pageable = PageRequest.of(page, size)
+        if(sortingOrder != null && sortingOrder != SortingOrder.STATUS_ASC) {
+            return refusjonRepository.findAllByBedriftNrAndStatusDefinedSort(bedriftNr, status, tiltakstype, PageRequest.of(page, size, Sort.by(getSortingOrderForPageable(sortingOrder))))
+        }
+        return refusjonRepository.findAllByBedriftNrAndStatusDefaultSort(bedriftNr, status, tiltakstype, paging)
+
+    }
+
+    fun finnAlleForGittArbeidsgiver(bedrifter: String?, status: RefusjonStatus?, tiltakstype: Tiltakstype?,  sortingOrder: SortingOrder?, page: Int, size: Int): Page<Refusjon> {
         if(bedrifter != null) {
             if (bedrifter != "ALLEBEDRIFTER") {
-                return refusjonRepository.findAllByBedriftNrAndStatus   (
+                return getQueryMethodForFinnAlleForGittArbeidsgiver(
                     bedrifter.split(",")
-                        .filter { org -> this.organisasjoner.any { it.organizationNumber == org } }, status, tiltakstype,  paging
+                        .filter { org -> this.organisasjoner.any { it.organizationNumber == org } }, status, tiltakstype, sortingOrder, page, size
                 )
             }
         }
-        return refusjonRepository.findAllByBedriftNrAndStatus(finnAlleUnderenheterTilArbeidsgiver(), status, tiltakstype, paging)
+        return getQueryMethodForFinnAlleForGittArbeidsgiver(finnAlleUnderenheterTilArbeidsgiver(), status, tiltakstype, sortingOrder, page, size)
     }
 
     fun godkjenn(refusjonId: String) {

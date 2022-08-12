@@ -2,8 +2,6 @@
 
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
-import org.hibernate.annotations.SQLInsert
-import org.hibernate.annotations.SqlFragmentAlias
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
@@ -23,8 +21,17 @@ interface RefusjonRepository : JpaRepository<Refusjon, String>, RefusjonReposito
 
     @Query("select r from Refusjon r where r.bedriftNr in (:bedriftNr) and (:status is null or r.status = :status) " +
             "and (:tiltakstype is null or r.refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype = :tiltakstype) " +
-            "")
-    fun findAllByBedriftNrAndStatus(
+            "order by (CASE WHEN r.status = 'KLAR_FOR_INNSENDING' THEN 0 else 1 END)")
+    fun findAllByBedriftNrAndStatusDefaultSort(
+        @Param("bedriftNr") bedriftNr: List<String>,
+        @Param("status") status: RefusjonStatus?,
+        @Param("tiltakstype") tiltakstype: Tiltakstype?,
+        pageable: Pageable
+    ): Page<Refusjon>
+
+    @Query("select r from Refusjon r where r.bedriftNr in (:bedriftNr) and (:status is null or r.status = :status) " +
+            "and (:tiltakstype is null or r.refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype = :tiltakstype)")
+    fun findAllByBedriftNrAndStatusDefinedSort(
         @Param("bedriftNr") bedriftNr: List<String>,
         @Param("status") status: RefusjonStatus?,
         @Param("tiltakstype") tiltakstype: Tiltakstype?,

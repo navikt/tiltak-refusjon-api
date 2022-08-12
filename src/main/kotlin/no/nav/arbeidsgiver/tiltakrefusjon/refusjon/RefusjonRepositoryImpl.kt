@@ -40,12 +40,16 @@ class RefusjonRepositoryImpl: RefusjonRepositoryCustom {
         }
     }
 
+    fun setDefaultSorting(sql: StringBuilder) =
+        sql.append(" order by (CASE WHEN r.status = 'KLAR_FOR_INNSENDING' THEN 0 else 1 END)")
+
     fun checkAndAppendSoringOrder(sql: StringBuilder, params: HashMap<String, Any>, sortingOrder: String?){
         if(sortingOrder != null) {
-            sql.append("")
-        }else {
-            sql.append(" order by (CASE WHEN r.status = 'KLAR_FOR_INNSENDING' THEN 0 else 1 END)")
+            when (sortingOrder) {
+                else -> setDefaultSorting(sql)
+            }
         }
+        setDefaultSorting(sql)
     }
 
     override fun findAllByBedriftNrAndStatusSorted(

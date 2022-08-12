@@ -15,6 +15,7 @@ data class HentArbeidsgiverRefusjonerQueryParametre(
     val bedriftNr: String?,
     val status: RefusjonStatus?,
     val tiltakstype: Tiltakstype?,
+    val sortingOrder: SortingOrder?,
     val page: Int = 0,
     val size: Int = 4
 )
@@ -39,15 +40,16 @@ class ArbeidsgiverRefusjonController(
     @GetMapping("/hentliste")
     fun hentListAvBedrifter(queryParametre: HentArbeidsgiverRefusjonerQueryParametre): ResponseEntity<Map<String, Any>> {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-        val findAllByBedriftNrAndStatusSorted = arbeidsgiver.findAllByBedriftNrAndStatusWithSortert(queryParametre.bedriftNr,
+        /*val findAllByBedriftNrAndStatusSorted = arbeidsgiver.findAllByBedriftNrAndStatusWithSortert(queryParametre.bedriftNr,
             queryParametre.status,
             queryParametre.tiltakstype,
             queryParametre.page,
-            queryParametre.size)
+            queryParametre.size)*/
         val pagableRefusjonlist: Page<Refusjon> = arbeidsgiver.finnAlleForGittArbeidsgiver(
             queryParametre.bedriftNr,
             queryParametre.status,
             queryParametre.tiltakstype,
+            queryParametre.sortingOrder,
             queryParametre.page,
             queryParametre.size
         );

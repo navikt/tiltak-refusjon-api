@@ -67,7 +67,14 @@ class RefusjonService(
             return
         }
 
-        val antallMånederSomSkalSjekkes: Long = if (refusjon.unntakOmInntekterToMånederFrem) 2 else 1
+
+        //var antallMånederSomSkalSjekkes: Long = if (refusjon.unntakOmInntekterToMånederFrem) 2 else if (refusjon.tilskuddsgrunnlag.tiltakstype === Tiltakstype.SOMMERJOBB) 1 else 0
+        var antallMånederSomSkalSjekkes: Long = 0
+        if (refusjon.unntakOmInntekterToMånederFrem) {
+            antallMånederSomSkalSjekkes = 2
+        } else if (refusjon.tilskuddsgrunnlag.tiltakstype === Tiltakstype.SOMMERJOBB) {
+            antallMånederSomSkalSjekkes = 1
+        }
         try {
             val inntektsoppslag = inntektskomponentService.hentInntekter(
                 fnr = refusjon.deltakerFnr,

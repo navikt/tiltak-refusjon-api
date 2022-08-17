@@ -153,6 +153,46 @@ class RefusjonServiceTest(
     }
 
     @Test
+    fun `Inntektsoppslag for andre typer enn sommerjobb skal sjekke 0 eller 1 månede ekstra`() {
+        val deltakerFnr = "00000000000"
+        val tilskuddMelding = TilskuddsperiodeGodkjentMelding(
+            avtaleId = "2",
+            tilskuddsbeløp = 1000,
+            tiltakstype = Tiltakstype.VARIG_LONNSTILSKUDD,
+            deltakerEtternavn = "Mus",
+            deltakerFornavn = "Mikke",
+            arbeidsgiveravgiftSats = 0.101,
+            avtaleInnholdId = "2",
+            bedriftNavn = "Bedriften AS",
+            bedriftNr = "999999999",
+            deltakerFnr = deltakerFnr,
+            feriepengerSats = 0.141,
+            otpSats = 0.02,
+            tilskuddFom = Now.localDate().minusWeeks(4).plusDays(1),
+            tilskuddTom = Now.localDate().minusDays(1),
+            tilskuddsperiodeId = "4",
+            veilederNavIdent = "X123456",
+            lønnstilskuddsprosent = 60,
+            avtaleNr = 3456,
+            løpenummer = 3,
+            enhet = "1000",
+            godkjentTidspunkt = LocalDateTime.now()
+        )
+        var refusjon = refusjonService.opprettRefusjon(tilskuddMelding) ?: fail("Skulle kunne opprette refusjon")
+        refusjonService.gjørInntektsoppslag(refusjon)
+        verify {
+            inntektskomponentService.hentInntekter(tilskuddMelding.deltakerFnr, tilskuddMelding.bedriftNr, tilskuddMelding.tilskuddFom, tilskuddMelding.tilskuddTom.plusMonths(0))
+        }
+        Now.fixedDate(LocalDate.now().plusDays(1))
+        refusjon.merkForUnntakOmInntekterToMånederFrem(true, "")
+        refusjonService.gjørInntektsoppslag(refusjon)
+        verify {
+            inntektskomponentService.hentInntekter(tilskuddMelding.deltakerFnr, tilskuddMelding.bedriftNr, tilskuddMelding.tilskuddFom, tilskuddMelding.tilskuddTom.plusMonths(2))
+        }
+        Now.resetClock()
+    }
+
+    @Test
     fun `Manuell annullering av tilskuddsperiode fordi det ikke vil bli søkt om refusjon annullerer ikke refusjon`() {
         val deltakerFnr = "00000000000"
         val tilskuddMelding = TilskuddsperiodeGodkjentMelding(

@@ -22,7 +22,6 @@ data class InnloggetArbeidsgiver(
     @JsonIgnore val korreksjonRepository: KorreksjonRepository,
     @JsonIgnore val refusjonService: RefusjonService,
     @JsonIgnore val eregClient: EregClient,
-    @JsonIgnore val refusjonsRepositoryImpl: RefusjonRepositoryImpl
 ) {
 
     @JsonIgnore
@@ -38,18 +37,6 @@ data class InnloggetArbeidsgiver(
     fun finnAlleUnderenheterTilArbeidsgiver() = this.organisasjoner
         .filter { org -> org.type != "Enterprise" && org.organizationForm != "FLI" && org.organizationForm != "AS" }
         .map { organisasjon -> organisasjon.organizationNumber }
-
-    fun findAllByBedriftNrAndStatusWithSortert(bedrifter: String?, status: RefusjonStatus?, tiltakstype: Tiltakstype?, page: Int, size: Int): Page<Refusjon> {
-        val paging: Pageable = PageRequest.of(page, size)
-        if(bedrifter != null) {
-            return refusjonsRepositoryImpl.findAllByBedriftNrAndStatusSorted(
-                bedrifter.split(",")
-                    .filter { org -> this.organisasjoner.any { it.organizationNumber == org } }, status, tiltakstype, null,  paging
-            )
-
-            }
-        return refusjonsRepositoryImpl.findAllByBedriftNrAndStatusSorted(finnAlleUnderenheterTilArbeidsgiver(), status, tiltakstype, null, paging)
-        }
 
     fun getSortingOrderForPageable(sortingOrder: SortingOrder): Sort.Order {
         when (sortingOrder) {

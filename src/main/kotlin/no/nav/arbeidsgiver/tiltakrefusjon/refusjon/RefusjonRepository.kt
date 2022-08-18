@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 
 
-interface RefusjonRepository : JpaRepository<Refusjon, String>, RefusjonRepositoryCustom {
+interface RefusjonRepository : JpaRepository<Refusjon, String> {
     fun findAllByDeltakerFnr(deltakerFnr: String): List<Refusjon>
     fun findAllByBedriftNr(bedriftNr: String): List<Refusjon>
     fun findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_Enhet(enhet: String): List<Refusjon>

@@ -23,8 +23,7 @@ class InnloggetBrukerService(
     val inntektskomponentService: InntektskomponentService,
     val kontoregisterService: KontoregisterService,
     val eregClient: EregClient,
-    val featureToggleService: FeatureToggleService,
-    val refusjonRepositoryImpl: RefusjonRepositoryImpl
+    val featureToggleService: FeatureToggleService
 ) {
     var logger: Logger = LoggerFactory.getLogger(javaClass)
 
@@ -40,7 +39,7 @@ class InnloggetBrukerService(
         return when {
             erArbeidsgiver() -> {
                 val fnr = Fnr(context.tokenValidationContext.getClaims("tokenx").getStringClaim("pid"))
-                InnloggetArbeidsgiver(fnr.verdi, altinnTilgangsstyringService, refusjonRepository, korreksjonRepository, refusjonService, eregClient, refusjonRepositoryImpl)
+                InnloggetArbeidsgiver(fnr.verdi, altinnTilgangsstyringService, refusjonRepository, korreksjonRepository, refusjonService, eregClient)
             }
             else -> {
                 throw RuntimeException("Feil ved token, kunne ikke identifisere arbeidsgiver")

@@ -254,7 +254,9 @@ fun `Amalie Skram`(): Refusjon {
             deltakerFnr = deltakerFnr,
             bedriftNr = bedriftNr,
             tilskuddsbeløp = 10579,
-            veilederNavIdent = "X123456"
+            veilederNavIdent = "X123456",
+            tilskuddFom = Now.localDate().minusMonths(3).withDayOfMonth(2),
+            tilskuddTom = Now.localDate().minusMonths(1).withDayOfMonth(21),
         ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
     )
 }

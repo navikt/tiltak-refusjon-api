@@ -5,10 +5,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.featuretoggles.FeatureToggleService
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
 import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterService
 import no.nav.arbeidsgiver.tiltakrefusjon.organisasjon.EregClient
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Fnr
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.KorreksjonRepository
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonRepository
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonService
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

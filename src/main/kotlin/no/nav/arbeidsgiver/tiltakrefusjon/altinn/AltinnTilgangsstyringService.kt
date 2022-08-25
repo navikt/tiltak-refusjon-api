@@ -20,24 +20,24 @@ class AltinnTilgangsstyringService(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun hentTilganger(fnr: String): Set<Organisasjon> {
+    fun hentTilganger(): Set<Organisasjon> {
         val organisasjoner = HashSet<Organisasjon>()
         var merÅHente = true
-        var i = 0;
+        var i = 0
         while (merÅHente) {
             val skip = altinnTilgangsstyringProperties.antall * i++
             logger.info("Henter organisasjoner fra Altinn, skip: $skip")
-            val nyeOrg = hentFraAltinn(fnr, skip)
+            val nyeOrg = hentFraAltinn(skip)
             organisasjoner.addAll(nyeOrg)
             merÅHente = nyeOrg.size >= altinnTilgangsstyringProperties.antall
         }
         return organisasjoner
     }
 
-    private fun hentFraAltinn(fnr: String, skip: Int): Set<Organisasjon> {
+    private fun hentFraAltinn(skip: Int): Set<Organisasjon> {
         try {
             return restTemplate.exchange(
-                lagAltinnUrl(fnr, skip),
+                lagAltinnUrl(skip),
                 HttpMethod.GET,
                 getAuthHeadersForAltinn(),
                 Array<Organisasjon>::class.java).body?.toSet()
@@ -48,10 +48,9 @@ class AltinnTilgangsstyringService(
         }
     }
 
-    private fun lagAltinnUrl(fnr: String, skip: Int): URI {
+    private fun lagAltinnUrl(skip: Int): URI {
         return UriComponentsBuilder.fromUri(altinnTilgangsstyringProperties.uri)
             .queryParam("ForceEIAuthentication")
-            .queryParam("subject", fnr)
             .queryParam("serviceCode", altinnTilgangsstyringProperties.serviceCode)
             .queryParam("serviceEdition", altinnTilgangsstyringProperties.serviceEdition)
             .queryParam("\$top", altinnTilgangsstyringProperties.antall)

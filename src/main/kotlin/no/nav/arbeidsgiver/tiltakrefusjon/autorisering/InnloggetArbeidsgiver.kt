@@ -14,7 +14,6 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
-import java.time.Instant
 
 
 data class InnloggetArbeidsgiver(
@@ -29,7 +28,7 @@ data class InnloggetArbeidsgiver(
     @JsonIgnore
     val log: Logger = LoggerFactory.getLogger(javaClass)
 
-    val organisasjoner: Set<Organisasjon> = altinnTilgangsstyringService.hentTilganger(identifikator)
+    val organisasjoner: Set<Organisasjon> = altinnTilgangsstyringService.hentTilganger()
 
     fun finnAlleMedBedriftnummer(bedriftnummer: String): List<Refusjon> {
         sjekkHarTilgangTilRefusjonerForBedrift(bedriftnummer)

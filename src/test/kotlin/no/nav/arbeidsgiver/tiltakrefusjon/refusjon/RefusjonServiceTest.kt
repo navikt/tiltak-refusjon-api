@@ -9,6 +9,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeForko
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 import org.springframework.beans.factory.annotation.Autowired
@@ -30,6 +31,11 @@ class RefusjonServiceTest(
 ) {
     @SpykBean
     lateinit var inntektskomponentService: InntektskomponentService
+
+    @BeforeEach
+    fun setup() {
+        refusjonRepository.deleteAll()
+    }
 
     @Test
     fun `oppretter, forkorter, og forlenger`() {

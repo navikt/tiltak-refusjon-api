@@ -8,6 +8,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.MidlerFrigjortÅrsak
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeForkortetMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
+import no.nav.arbeidsgiver.tiltakrefusjon.varsling.VarslingRepository
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -27,13 +28,16 @@ class RefusjonServiceTest(
     @Autowired
     val refusjonService: RefusjonService,
     @Autowired
-    val refusjonRepository: RefusjonRepository
+    val refusjonRepository: RefusjonRepository,
+    @Autowired
+    val varslingRepository: VarslingRepository
 ) {
     @SpykBean
     lateinit var inntektskomponentService: InntektskomponentService
 
     @BeforeEach
     fun setup() {
+        varslingRepository.deleteAll()
         refusjonRepository.deleteAll()
     }
 

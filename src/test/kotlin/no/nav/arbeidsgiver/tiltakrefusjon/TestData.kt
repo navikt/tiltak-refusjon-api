@@ -5,7 +5,10 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.varsling.VarselType
 import no.nav.arbeidsgiver.tiltakrefusjon.varsling.Varsling
+import java.time.LocalDate
 import java.time.YearMonth
+import java.time.temporal.TemporalAdjusters.*
+
 
 fun enRefusjon(tilskuddsgrunnlag: Tilskuddsgrunnlag = etTilskuddsgrunnlag()): Refusjon {
     val deltakerFnr = "07098142678"
@@ -67,7 +70,7 @@ fun refusjoner(): List<Refusjon> {
         kiellandNy,
         kiellandGammel,
         BjørnsonUtgått,
-        `Bjørnstjerne Bjørnson`(),
+        `Bjørnstjerne Bjørnson`().copy(tilskuddsgrunnlag = `Bjørnstjerne Bjørnson`().tilskuddsgrunnlag.copy(tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD)),
         bjørnsonSendtKrav,
         `Nils Nilsen`(),
         `Inger Hagerup`(),
@@ -115,8 +118,8 @@ fun etTilskuddsgrunnlag() = Tilskuddsgrunnlag(
     feriepengerSats = 0.12,
     arbeidsgiveravgiftSats = 0.141,
     lønnstilskuddsprosent = 40,
-    tilskuddFom = Now.localDate().minusMonths(3).withDayOfMonth(1),
-    tilskuddTom = Now.localDate().minusMonths(1).withDayOfMonth(20),
+    tilskuddFom = Now.localDate().minusMonths(1).withDayOfMonth(1),
+    tilskuddTom = Now.localDate().minusMonths(1).with(lastDayOfMonth()),
     tilskuddsbeløp = 13579,
     avtaleNr = 3456,
     løpenummer = 3,

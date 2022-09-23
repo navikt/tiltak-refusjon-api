@@ -67,8 +67,6 @@ class RefusjonService(
             return
         }
 
-
-        //var antallMånederSomSkalSjekkes: Long = if (refusjon.unntakOmInntekterToMånederFrem) 2 else if (refusjon.tilskuddsgrunnlag.tiltakstype === Tiltakstype.SOMMERJOBB) 1 else 0
         var antallEkstraMånederSomSkalSjekkes: Long = 0
         if (refusjon.unntakOmInntekterToMånederFrem) {
             antallEkstraMånederSomSkalSjekkes = 2

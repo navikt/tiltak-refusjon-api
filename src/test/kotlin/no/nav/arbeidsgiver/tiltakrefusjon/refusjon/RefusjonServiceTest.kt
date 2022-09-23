@@ -8,7 +8,9 @@ import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.MidlerFrigjortÅrsak
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeForkortetMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
+import no.nav.arbeidsgiver.tiltakrefusjon.varsling.VarslingRepository
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 import org.springframework.beans.factory.annotation.Autowired
@@ -26,10 +28,18 @@ class RefusjonServiceTest(
     @Autowired
     val refusjonService: RefusjonService,
     @Autowired
-    val refusjonRepository: RefusjonRepository
+    val refusjonRepository: RefusjonRepository,
+    @Autowired
+    val varslingRepository: VarslingRepository
 ) {
     @SpykBean
     lateinit var inntektskomponentService: InntektskomponentService
+
+    @BeforeEach
+    fun setup() {
+        varslingRepository.deleteAll()
+        refusjonRepository.deleteAll()
+    }
 
     @Test
     fun `oppretter, forkorter, og forlenger`() {
@@ -143,6 +153,46 @@ class RefusjonServiceTest(
             inntektskomponentService.hentInntekter(tilskuddMelding.deltakerFnr, tilskuddMelding.bedriftNr, tilskuddMelding.tilskuddFom, tilskuddMelding.tilskuddTom.plusMonths(1))
         }
 
+        Now.fixedDate(LocalDate.now().plusDays(1))
+        refusjon.merkForUnntakOmInntekterToMånederFrem(true, "")
+        refusjonService.gjørInntektsoppslag(refusjon)
+        verify {
+            inntektskomponentService.hentInntekter(tilskuddMelding.deltakerFnr, tilskuddMelding.bedriftNr, tilskuddMelding.tilskuddFom, tilskuddMelding.tilskuddTom.plusMonths(2))
+        }
+        Now.resetClock()
+    }
+
+    @Test
+    fun `Inntektsoppslag for andre typer enn sommerjobb skal sjekke 0 eller 1 månede ekstra`() {
+        val deltakerFnr = "00000000000"
+        val tilskuddMelding = TilskuddsperiodeGodkjentMelding(
+            avtaleId = "2",
+            tilskuddsbeløp = 1000,
+            tiltakstype = Tiltakstype.VARIG_LONNSTILSKUDD,
+            deltakerEtternavn = "Mus",
+            deltakerFornavn = "Mikke",
+            arbeidsgiveravgiftSats = 0.101,
+            avtaleInnholdId = "2",
+            bedriftNavn = "Bedriften AS",
+            bedriftNr = "999999999",
+            deltakerFnr = deltakerFnr,
+            feriepengerSats = 0.141,
+            otpSats = 0.02,
+            tilskuddFom = Now.localDate().minusWeeks(4).plusDays(1),
+            tilskuddTom = Now.localDate().minusDays(1),
+            tilskuddsperiodeId = "4",
+            veilederNavIdent = "X123456",
+            lønnstilskuddsprosent = 60,
+            avtaleNr = 3456,
+            løpenummer = 3,
+            enhet = "1000",
+            godkjentTidspunkt = LocalDateTime.now()
+        )
+        var refusjon = refusjonService.opprettRefusjon(tilskuddMelding) ?: fail("Skulle kunne opprette refusjon")
+        refusjonService.gjørInntektsoppslag(refusjon)
+        verify {
+            inntektskomponentService.hentInntekter(tilskuddMelding.deltakerFnr, tilskuddMelding.bedriftNr, tilskuddMelding.tilskuddFom, tilskuddMelding.tilskuddTom.plusMonths(0))
+        }
         Now.fixedDate(LocalDate.now().plusDays(1))
         refusjon.merkForUnntakOmInntekterToMånederFrem(true, "")
         refusjonService.gjørInntektsoppslag(refusjon)

@@ -379,6 +379,28 @@ internal class RefusjonTest {
     }
 
     @Test
+    internal fun `forlengelse av frist skal kunne gjøres 3 måned etter godkjentAvBeslutter hvis den ble godkjent etter tilskuddTom`() {
+        val refusjon = enRefusjon(
+            etTilskuddsgrunnlag().copy(
+                tilskuddFom = Now.localDate().minusMonths(2).minusDays(1),
+                tilskuddTom = Now.localDate().minusMonths(1).minusDays(1),
+                godkjentAvBeslutterTidspunkt = Now.localDateTime()
+            )
+        )
+        val godkjentAvBeslutterTidspunkt = refusjon.tilskuddsgrunnlag.godkjentAvBeslutterTidspunkt.toLocalDate()
+        val sisteDagDetErMuligÅForlengeTil = antallMånederEtter(godkjentAvBeslutterTidspunkt, 3)
+
+        assertFeilkode(Feilkode.FOR_LANG_FORLENGELSE_AV_FRIST) {
+            refusjon.forlengFrist(sisteDagDetErMuligÅForlengeTil.plusDays(1), "", "")
+        }
+
+        // Positiv test
+        refusjon.forlengFrist(sisteDagDetErMuligÅForlengeTil, "", "")
+        assertThat(refusjon.fristForGodkjenning).isEqualTo(sisteDagDetErMuligÅForlengeTil)
+        assertThat(refusjon.forrigeFristForGodkjenning).isEqualTo(antallMånederEtter(refusjon.tilskuddsgrunnlag.godkjentAvBeslutterTidspunkt.toLocalDate(), 2))
+    }
+
+    @Test
     internal fun `godkjent tilskuddsperiode som er ferdig før den godkjennes får 2mnd frist`() {
         val iDag = LocalDate.now()
         val tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(

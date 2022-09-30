@@ -7,7 +7,6 @@ import no.nav.security.token.support.core.api.Unprotected
 import org.slf4j.LoggerFactory
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.kafka.core.KafkaTemplate
-import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -95,8 +94,17 @@ class AdminController(
         for (id in request.refusjonIder) {
             val refusjon =
                 refusjonRepository.findByIdOrNull(id) ?: throw RuntimeException("Finner ikke refusjon med id=$id")
-            refusjon.forlengFrist(request.nyFrist, request.årsak, "admin")
-            refusjonRepository.save(refusjon)
+
+            try {
+                refusjon.forlengFrist(request.nyFrist, request.årsak, "admin")
+                refusjonRepository.save(refusjon)
+            } catch (e: FeilkodeException) {
+                if (e.feilkode == Feilkode.FOR_LANG_FORLENGELSE_AV_FRIST) {
+                    logger.warn("Forlengelse av frist på refusjon med id=$id overskrider grensen på 1 måned")
+                } else {
+                    throw e
+                }
+            }
         }
     }
 
@@ -111,6 +119,7 @@ class AdminController(
             refusjonRepository.save(refusjon)
         }
     }
+
     @Unprotected
     @PostMapping("annuller-tilskuddsperioder-manuelt-i-utgåtte-refusjoner")
     fun annullerTilskuddsperioderIUtgåtteRefusjonManuelt(@RequestBody request: AnnullerTilskuddsperioderIUtgåtteRefusjonerRequest) {
@@ -121,6 +130,7 @@ class AdminController(
             refusjonRepository.save(it)
         }
     }
+
     @Unprotected
     @PostMapping("send-statuser-til-kafka-topic")
     fun sendStatuserTilKafkaTopic() {

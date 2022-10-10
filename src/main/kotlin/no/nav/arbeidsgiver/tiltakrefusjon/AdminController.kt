@@ -131,32 +131,6 @@ class AdminController(
         }
     }
 
-    @Unprotected
-    @PostMapping("send-statuser-til-kafka-topic")
-    fun sendStatuserTilKafkaTopic() {
-        logger.info("Sender status for alle refusjoner til kafka-topic")
-        val refusjoner = refusjonRepository.findAll()
-        var antallStatuserSendt = refusjoner.size
-        refusjoner.forEach { refusjon ->
-            val melding = RefusjonEndretStatusMelding(
-                refusjonId = refusjon.id,
-                bedriftNr = refusjon.bedriftNr,
-                avtaleId = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleId,
-                status = refusjon.status
-            )
-            refusjonEndretStatusKafkaTemplate.send(
-                Topics.REFUSJON_ENDRET_STATUS,
-                refusjon.id,
-                melding
-            ).addCallback({
-                logger.info("Melding med id {} sendt til Kafka topic {}", it?.producerRecord?.key(), it?.recordMetadata?.topic())
-            }, {
-                logger.warn("Feil ved sending av refusjon status på Kafka", it)
-            })
-        }
-        logger.info("Sender totalt $antallStatuserSendt statuser til kafka" )
-    }
-
 }
 
 data class KorreksjonRequest(val refusjonIder: List<String>, val korreksjonsgrunner: Set<Korreksjonsgrunn>)

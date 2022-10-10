@@ -13,7 +13,6 @@ import org.springframework.kafka.support.SendResult
 import org.springframework.stereotype.Component
 import org.springframework.transaction.event.TransactionalEventListener
 import org.springframework.util.concurrent.ListenableFutureCallback
-import java.time.LocalDateTime
 
 @ConditionalOnProperty("tiltak-refusjon.kafka.enabled")
 @Component
@@ -124,7 +123,8 @@ class RefusjonKafkaProducer(
             refusjonId = event.refusjon.id,
             bedriftNr = event.refusjon.bedriftNr,
             avtaleId = event.refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleId,
-            status = event.refusjon.status
+            status = event.refusjon.status,
+            tilskuddsperiodeId = event.refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId
         )
         refusjonEndretStatusKafkaTemplate.send(
             Topics.REFUSJON_ENDRET_STATUS,

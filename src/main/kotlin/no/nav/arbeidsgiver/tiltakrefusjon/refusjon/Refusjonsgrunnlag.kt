@@ -31,6 +31,7 @@ class Refusjonsgrunnlag(
     var endretBruttoLønn: Int? = null
     var fratrekkRefunderbarBeløp: Boolean? = null
     var refunderbarBeløp: Int? = null
+    var minusBeløpFraForrigeRefusjon: Int? = null
 
     @OneToOne(orphanRemoval = true, cascade = [CascadeType.ALL])
     var beregning: Beregning? = null
@@ -81,7 +82,7 @@ class Refusjonsgrunnlag(
     fun erAltOppgitt(): Boolean {
         val inntektsgrunnlag = inntektsgrunnlag
         if (inntektsgrunnlag == null || inntektsgrunnlag.inntekter.none { it.erMedIInntektsgrunnlag() }) return false
-        return bedriftKontonummer != null && (inntekterKunFraTiltaket == true && endretBruttoLønn == null ||
+        return minusBeløpFraForrigeRefusjon != null && bedriftKontonummer != null && (inntekterKunFraTiltaket == true && endretBruttoLønn == null ||
                 ((inntekterKunFraTiltaket == false || inntekterKunFraTiltaket == null) && endretBruttoLønn != null))
     }
 
@@ -96,7 +97,8 @@ class Refusjonsgrunnlag(
                 tilskuddsgrunnlag = tilskuddsgrunnlag,
                 tidligereUtbetalt = tidligereUtbetalt,
                 korrigertBruttoLønn = endretBruttoLønn,
-                fratrekkRefunderbarSum = refunderbarBeløp
+                fratrekkRefunderbarSum = refunderbarBeløp,
+                minus
             )
             return true
         }

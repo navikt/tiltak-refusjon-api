@@ -86,6 +86,7 @@ data class InnloggetArbeidsgiver(
         if(refusjon.åpnetFørsteGang == null) {
             refusjon.åpnetFørsteGang = Now.instant()
         }
+        refusjonService.hentMinusBeløpFraForrigeRefusjon(refusjon)
         refusjonService.gjørBedriftKontonummeroppslag(refusjon)
         refusjonService.gjørInntektsoppslag(refusjon)
         return refusjon

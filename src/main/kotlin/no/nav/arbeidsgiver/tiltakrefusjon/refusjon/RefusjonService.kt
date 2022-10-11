@@ -138,4 +138,8 @@ class RefusjonService(
         refusjonRepository.save(refusjon)
         return korreksjonsutkast
     }
+
+    fun hentMinusBeløpFraForrigeRefusjon(refusjon: Refusjon) {
+        refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_AvtaleNr(refusjon.tilskuddsgrunnlag.avtaleNr, )
+    }
 }

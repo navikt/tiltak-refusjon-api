@@ -21,6 +21,8 @@ interface RefusjonRepository : JpaRepository<Refusjon, String> {
     fun findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_AvtaleNrAndAndTilskuddsgrunnlag_Løpenummer
 
 
+    fun findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_AvtaleNr_AndRefusjonsgrunnlag_Tilskuddsgrunnlag_Løpenummer(avtaleNr: Int, løpenummer: Int): List<Refusjon>
+
     @Query("select r from Refusjon r where r.bedriftNr in (:bedriftNr) and (:status is null or r.status = :status) " +
             "and (:tiltakstype is null or r.refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype = :tiltakstype) " +
             "order by (CASE WHEN r.status = 'KLAR_FOR_INNSENDING' THEN 0 else 1 END)")

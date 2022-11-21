@@ -162,7 +162,6 @@ class Refusjon(
         godkjentAvArbeidsgiver = Now.instant()
 
         if(!refusjonsgrunnlag.refusjonsgrunnlagetErPositivt()) {
-            // throw FeilkodeException(Feilkode.REFUSJON_BELOP_NEGATIVT_TALL)
             status = RefusjonStatus.GODKJENT_MINUSBELØP
             registerEvent(RefusjonMinusBeløp(this, utførtAv))
             return;

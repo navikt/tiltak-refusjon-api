@@ -8,5 +8,6 @@ enum class RefusjonStatus {
     KORRIGERT,
     UTGÅTT,
     ANNULLERT,
+    GODKJENT_MINUSBELØP,
     UTBETALING_FEILET
 }

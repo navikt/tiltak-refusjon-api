@@ -70,6 +70,7 @@ fun refusjoner(): List<Refusjon> {
         val bedriftNr = "910712306"
         return Refusjon(
             tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
+                løpenummer = 1,
                 deltakerFnr = deltakerFnr,
                 bedriftNr = bedriftNr,
                 deltakerFornavn = "Jon ",
@@ -80,11 +81,28 @@ fun refusjoner(): List<Refusjon> {
         )
     }
 
+    fun `Jon Janson Minus Beløp 2`(): Refusjon {
+        val deltakerFnr = "08098613316"
+        val bedriftNr = "910712306"
+        return Refusjon(
+            tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
+                løpenummer = 2,
+                deltakerFnr = deltakerFnr,
+                tilskuddsbeløp = 1220,
+                bedriftNr = bedriftNr,
+                deltakerFornavn = "Jon ",
+                deltakerEtternavn = "Janson Minus Beløp 2",
+                veilederNavIdent = "Z123456"
+            ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
+        )
+    }
+
 
 
 
     return listOf(
         `Jon Janson Minus Beløp`(),
+        `Jon Janson Minus Beløp 2`(),
         kiellandNy,
         kiellandGammel,
         BjørnsonUtgått,

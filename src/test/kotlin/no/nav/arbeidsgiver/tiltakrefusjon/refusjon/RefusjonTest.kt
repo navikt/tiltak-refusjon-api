@@ -192,6 +192,20 @@ internal class RefusjonTest {
         assertThat(refusjon.status).isEqualTo(RefusjonStatus.KLAR_FOR_INNSENDING)
     }
 
+   @Test
+    fun `oppdater status til GODKJENT_MINUSBELØP`() {
+        val refusjon = enRefusjon(
+            etTilskuddsgrunnlag().copy(
+                tilskuddFom = Now.localDate().minusDays(2),
+                tilskuddTom = Now.localDate().minusDays(1),
+                tilskuddsbeløp = -200
+            )
+        ).medInntekterKunFraTiltaket().medInntektsgrunnlag()
+        refusjon.oppgiBedriftKontonummer("10000008145")
+        refusjon.godkjennForArbeidsgiver("D1423706")
+        assertThat(refusjon.status).isEqualTo(RefusjonStatus.GODKJENT_MINUSBELØP)
+    }
+
     @Test
     fun `oppdaterer ikke status hvis ANNULLERT`() {
 

@@ -159,10 +159,14 @@ class Refusjon(
         if (!this.harTattStillingTilAlleInntektslinjer()) {
             throw FeilkodeException(Feilkode.IKKE_TATT_STILLING_TIL_ALLE_INNTEKTSLINJER)
         }
-        if(!refusjonsgrunnlag.refusjonsgrunnlagetErPositivt()) {
-            throw FeilkodeException(Feilkode.REFUSJON_BELOP_NEGATIVT_TALL)
-        }
         godkjentAvArbeidsgiver = Now.instant()
+
+        if(!refusjonsgrunnlag.refusjonsgrunnlagetErPositivt()) {
+            // throw FeilkodeException(Feilkode.REFUSJON_BELOP_NEGATIVT_TALL)
+            status = RefusjonStatus.GODKJENT_MINUSBELØP
+            registerEvent(RefusjonMinusBeløp(this, utførtAv))
+            return;
+        }
         status = RefusjonStatus.SENDT_KRAV
         registerEvent(GodkjentAvArbeidsgiver(this, utførtAv))
         registerEvent(RefusjonEndretStatus(this))

@@ -19,6 +19,13 @@ class FakeInntektskomponentService : InntektskomponentService {
     ): Pair<List<Inntektslinje>, String> {
         if (fnr == "07098142678") {
             return Pair(emptyList(), "")
+        }else if (fnr == "08098613316"){
+            // Simulerer minus beløp for (Jon Janson Minus Beløp) i test data
+            val inntektslinjer = ArrayList<Inntektslinje>()
+            val måned = YearMonth.of(datoFra.year, datoFra.month)
+            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "fastloenn", 31868.25,  måned, datoTil, måned.atEndOfMonth()))
+            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "trekkILoennForFerie", -36765.4,  måned, datoTil, måned.atEndOfMonth()))
+            return Pair(inntektslinjer, "fake respons")
         }
 
         val inntektslinjer = ArrayList<Inntektslinje>()

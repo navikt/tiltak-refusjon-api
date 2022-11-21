@@ -5,7 +5,6 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.varsling.VarselType
 import no.nav.arbeidsgiver.tiltakrefusjon.varsling.Varsling
-import java.time.LocalDate
 import java.time.YearMonth
 import java.time.temporal.TemporalAdjusters.*
 
@@ -66,7 +65,26 @@ fun refusjoner(): List<Refusjon> {
         it.medSendtKravFraArbeidsgiver()
     }
 
+    fun `Jon Janson Minus Beløp`(): Refusjon {
+        val deltakerFnr = "08098613316"
+        val bedriftNr = "910712306"
+        return Refusjon(
+            tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
+                deltakerFnr = deltakerFnr,
+                bedriftNr = bedriftNr,
+                deltakerFornavn = "Jon ",
+                deltakerEtternavn = "Janson Minus Beløp",
+                tilskuddsbeløp = 1357,
+                veilederNavIdent = "Z123456"
+            ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
+        )
+    }
+
+
+
+
     return listOf(
+        `Jon Janson Minus Beløp`(),
         kiellandNy,
         kiellandGammel,
         BjørnsonUtgått,

@@ -6,6 +6,8 @@ import no.nav.arbeidsgiver.tiltakrefusjon.utils.antallMånederEtter
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
+import java.lang.RuntimeException
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
@@ -202,7 +204,7 @@ internal class RefusjonTest {
             )
         ).medInntekterKunFraTiltaket().medInntektsgrunnlag()
         refusjon.oppgiBedriftKontonummer("10000008145")
-        refusjon.godkjennForArbeidsgiver("D1423706")
+        refusjon.godkjennForArbeidsgiver("12345678901")
         assertThat(refusjon.status).isEqualTo(RefusjonStatus.GODKJENT_MINUSBELØP)
     }
 

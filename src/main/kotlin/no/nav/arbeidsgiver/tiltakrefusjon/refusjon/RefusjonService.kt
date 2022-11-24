@@ -1,6 +1,8 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 
+import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
+import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
 import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterService
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeAnnullertMelding
@@ -8,6 +10,10 @@ import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.MidlerFrigjortÅrsak
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeForkortetMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
 import org.slf4j.LoggerFactory
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 
 @Service
@@ -92,8 +98,16 @@ class RefusjonService(
     }
 
     fun godkjennForArbeidsgiver(refusjon: Refusjon, utførtAv: String) {
+        if(måGodkjenneTidligereRefusjonerFørst(refusjon)){
+            throw GodkjennEldreRefusjonFørstException()
+        }
         refusjon.godkjennForArbeidsgiver(utførtAv)
         refusjonRepository.save(refusjon)
+    }
+
+    private fun måGodkjenneTidligereRefusjonerFørst(refusjon:Refusjon): Boolean{
+        val refusjonerSortertPåLøpenummer: List<Refusjon> = refusjonRepository.findAllByBedriftNrOrderByLøpenummer(refusjon.bedriftNr,refusjon.tilskuddsgrunnlag.tiltakstype) // TODO: filter by tiltakstype KLAR TIL INNSENDING....
+        return (!refusjonerSortertPåLøpenummer.first().equals(refusjon))
     }
 
     fun annullerRefusjon(melding: TilskuddsperiodeAnnullertMelding) {

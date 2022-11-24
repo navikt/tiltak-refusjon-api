@@ -37,7 +37,7 @@ class Refusjon(
     @Id
     val id: String = ULID.random()
 
-    // Fristen er satt til 2 mnd ihht økonomireglementet. Hvis etterregistrert 2 mnd etter godkjent tidspunkt av beslutter
+    // Fristen er satt til 2 mnd ihht reimplementation. Hvis etterregistrert 2 mnd etter godkjent tidspunkt av beslutter
     var fristForGodkjenning: LocalDate = lagFristForGodkjenning()
 
     var forrigeFristForGodkjenning: LocalDate? = null

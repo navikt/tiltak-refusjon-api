@@ -1,0 +1,1 @@
+alter table refusjon add column forrige_refusjon_minus_beløp numeric default 0;

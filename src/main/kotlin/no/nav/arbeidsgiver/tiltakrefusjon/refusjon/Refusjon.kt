@@ -37,6 +37,8 @@ class Refusjon(
     @Id
     val id: String = ULID.random()
 
+    val forrigeRefusjonMinusBeløp: Int? = null
+
     // Fristen er satt til 2 mnd ihht reimplementation. Hvis etterregistrert 2 mnd etter godkjent tidspunkt av beslutter
     var fristForGodkjenning: LocalDate = lagFristForGodkjenning()
 

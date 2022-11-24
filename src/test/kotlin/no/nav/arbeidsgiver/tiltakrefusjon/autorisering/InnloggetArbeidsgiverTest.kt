@@ -108,4 +108,67 @@ internal class InnloggetArbeidsgiverTest(
         assertThat(refusjonFunnet).isEqualTo(refusjon1)
     }
 
+    //TODO: Test som henter to refusjoner, hvor den første har minus beløp som kommer i den nye som skal sendes inn.
+    @Test
+    fun finnRefusjonMedMinusBeløpFraForrigeRefusjon(){
+        val deltakerFnr = "00000000000"
+        val tilskuddMelding = TilskuddsperiodeGodkjentMelding(
+            avtaleId = "1",
+            tilskuddsbeløp = 1000,
+            tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
+            deltakerEtternavn = "Mus",
+            deltakerFornavn = "Mikke",
+            arbeidsgiveravgiftSats = 0.101,
+            avtaleInnholdId = "1",
+            bedriftNavn = "Bedriften AS",
+            bedriftNr = "999999999",
+            deltakerFnr = deltakerFnr,
+            feriepengerSats = 0.141,
+            otpSats = 0.02,
+            tilskuddFom =  Now.localDate().minusWeeks(4),
+            tilskuddTom = Now.localDate().minusDays(1),
+            tilskuddsperiodeId = "1",
+            veilederNavIdent = "X123456",
+            lønnstilskuddsprosent = 60,
+            avtaleNr = 3456,
+            løpenummer = 1,
+            enhet = "1000",
+            godkjentTidspunkt = LocalDateTime.now()
+        )
+        val tilskuddMelding2LittEldreMedLøpenummer2 = TilskuddsperiodeGodkjentMelding(
+            avtaleId = "1",
+            tilskuddsbeløp = 1000,
+            tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
+            deltakerEtternavn = "Mus",
+            deltakerFornavn = "Mikke",
+            arbeidsgiveravgiftSats = 0.101,
+            avtaleInnholdId = "2",
+            bedriftNavn = "Bedriften AS",
+            bedriftNr = "999999999",
+            deltakerFnr = deltakerFnr,
+            feriepengerSats = 0.141,
+            otpSats = 0.02,
+            tilskuddFom = Now.localDate().minusWeeks(3),
+            tilskuddTom = Now.localDate().minusDays(1),
+            tilskuddsperiodeId = "2",
+            veilederNavIdent = "X123456",
+            lønnstilskuddsprosent = 60,
+            avtaleNr = 3456,
+            løpenummer = 2,
+            enhet = "1000",
+            godkjentTidspunkt = LocalDateTime.now()
+        )
+
+        val refusjon1 = refusjonService.opprettRefusjon(tilskuddMelding)!!
+        val refusjon2 = refusjonService.opprettRefusjon(tilskuddMelding2LittEldreMedLøpenummer2)!!
+
+
+        every { altinnTilgangsstyringService.hentTilganger(any()) } returns setOf<Organisasjon>(Organisasjon("Bedrift AS", "Bedrift type", "999999999","Org form","Status"))
+        val innloggetArbeidsgiver = InnloggetArbeidsgiver("12345678901",altinnTilgangsstyringService,refusjonRepository,korreksjonRepository,refusjonService,eregClient)
+        val refusjonFunnet = innloggetArbeidsgiver.finnRefusjon(refusjon2.id)
+
+        assertThat(refusjonFunnet).isEqualTo(refusjon2)
+        assertThat(refusjonFunnet.forrigeRefusjonMinusBeløp).isEqualTo(refusjon1.refusjonsgrunnlag.refunderbarBeløp)
+    }
+
 }

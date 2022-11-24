@@ -73,7 +73,7 @@ fun refusjoner(): List<Refusjon> {
                 løpenummer = 1,
                 deltakerFnr = deltakerFnr,
                 bedriftNr = bedriftNr,
-                deltakerFornavn = "Jon ",
+                deltakerFornavn = "Jon",
                 deltakerEtternavn = "Janson Minus Beløp",
                 tilskuddsbeløp = 1357,
                 veilederNavIdent = "Z123456"
@@ -90,7 +90,7 @@ fun refusjoner(): List<Refusjon> {
                 deltakerFnr = deltakerFnr,
                 tilskuddsbeløp = 1220,
                 bedriftNr = bedriftNr,
-                deltakerFornavn = "Jon ",
+                deltakerFornavn = "Jon",
                 deltakerEtternavn = "Janson Minus Beløp 2",
                 veilederNavIdent = "Z123456"
             ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr

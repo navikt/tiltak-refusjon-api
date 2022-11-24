@@ -106,8 +106,9 @@ class RefusjonService(
     }
 
     private fun måGodkjenneTidligereRefusjonerFørst(refusjon:Refusjon): Boolean{
-        val refusjonerSortertPåLøpenummer: List<Refusjon> = refusjonRepository.findAllByBedriftNrOrderByLøpenummer(refusjon.bedriftNr,refusjon.tilskuddsgrunnlag.tiltakstype) // TODO: filter by tiltakstype KLAR TIL INNSENDING....
-        return (!refusjonerSortertPåLøpenummer.first().equals(refusjon))
+        val refusjonerSortertPåLøpenummer: List<Refusjon> = refusjonRepository.findAllByBedriftNrOrderByLøpenummer(refusjon.bedriftNr,refusjon.tilskuddsgrunnlag.tiltakstype, RefusjonStatus.KLAR_FOR_INNSENDING)
+        val førsteRefusjonSomMåGodkjennesFørst = refusjonerSortertPåLøpenummer.first()
+        return førsteRefusjonSomMåGodkjennesFørst != refusjon
     }
 
     fun annullerRefusjon(melding: TilskuddsperiodeAnnullertMelding) {

@@ -43,6 +43,7 @@ fun beregnRefusjonsbeløp(
     tidligereUtbetalt: Int,
     korrigertBruttoLønn: Int? = null,
     fratrekkRefunderbarSum: Int? = null,
+    forrigeRefusjonMinusBeløp: Int = 0
 ): Beregning {
     val kalkulertBruttoLønn = kalkulerBruttoLønn(inntekter).roundToInt()
     val lønn = if (korrigertBruttoLønn != null) minOf(korrigertBruttoLønn, kalkulertBruttoLønn) else kalkulertBruttoLønn
@@ -59,7 +60,7 @@ fun beregnRefusjonsbeløp(
 
     val overTilskuddsbeløp = beregnetBeløp > tilskuddsgrunnlag.tilskuddsbeløp
     val refusjonsbeløp =
-        (if (overTilskuddsbeløp) tilskuddsgrunnlag.tilskuddsbeløp.toDouble() else beregnetBeløp) - tidligereUtbetalt
+        (if (overTilskuddsbeløp) tilskuddsgrunnlag.tilskuddsbeløp.toDouble() else beregnetBeløp) - tidligereUtbetalt + forrigeRefusjonMinusBeløp
 
     return Beregning(
         lønn = lønn,
@@ -74,8 +75,7 @@ fun beregnRefusjonsbeløp(
         tidligereUtbetalt = tidligereUtbetalt,
         fratrekkLønnFerie = trekkgrunnlagFerie,
         tidligereRefundertBeløp = fratrekkRefunderbarBeløp,
-        sumUtgifterFratrukketRefundertBeløp = sumUtgifterFratrukketRefundertBeløp.roundToInt()
-    )
+        sumUtgifterFratrukketRefundertBeløp = sumUtgifterFratrukketRefundertBeløp.roundToInt())
 }
 
 fun leggSammenTrekkGrunnlag(

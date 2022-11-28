@@ -37,8 +37,6 @@ class Refusjon(
     @Id
     val id: String = ULID.random()
 
-    val forrigeRefusjonMinusBeløp: Int? = null
-
     // Fristen er satt til 2 mnd ihht reimplementation. Hvis etterregistrert 2 mnd etter godkjent tidspunkt av beslutter
     var fristForGodkjenning: LocalDate = lagFristForGodkjenning()
 
@@ -162,13 +160,12 @@ class Refusjon(
             throw FeilkodeException(Feilkode.IKKE_TATT_STILLING_TIL_ALLE_INNTEKTSLINJER)
         }
         godkjentAvArbeidsgiver = Now.instant()
-
+        status = RefusjonStatus.SENDT_KRAV
         if(!refusjonsgrunnlag.refusjonsgrunnlagetErPositivt()) {
             status = RefusjonStatus.GODKJENT_MINUSBELØP
             registerEvent(RefusjonMinusBeløp(this, utførtAv))
-            return;
         }
-        status = RefusjonStatus.SENDT_KRAV
+
         registerEvent(GodkjentAvArbeidsgiver(this, utførtAv))
         registerEvent(RefusjonEndretStatus(this))
     }

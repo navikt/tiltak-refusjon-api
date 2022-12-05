@@ -82,7 +82,7 @@ fun refusjoner(): List<Refusjon> {
     }
 
     fun `Jon Janson Minus Beløp 2`(): Refusjon {
-        val deltakerFnr = "08098613316"
+        val deltakerFnr = "01092111111"
         val bedriftNr = "910712306"
         return Refusjon(
             tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(

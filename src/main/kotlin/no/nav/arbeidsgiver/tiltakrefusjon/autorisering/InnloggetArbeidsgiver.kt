@@ -92,7 +92,7 @@ data class InnloggetArbeidsgiver(
     }
     private fun settMinusBeløpFraForrigeRefusjonOmDenFinnes(denneRefusjon: Refusjon) {
         val tidligereRefusjonMedMinusBeløp: Refusjon =
-            refusjonRepository.finnRefusjonSomSkalSendesFørDenneMedMinusBeløp(
+            refusjonRepository.finnRefusjonSomSkalSendesMedMinusBeløpFørDenne(
                 denneRefusjon.bedriftNr,
                 denneRefusjon.tilskuddsgrunnlag.tiltakstype,
                 RefusjonStatus.GODKJENT_MINUSBELØP,

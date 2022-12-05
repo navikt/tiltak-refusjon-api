@@ -23,8 +23,8 @@ class FakeInntektskomponentService : InntektskomponentService {
             // Simulerer minus beløp for (Jon Janson Minus Beløp) i test data
             val inntektslinjer = ArrayList<Inntektslinje>()
             val måned = YearMonth.of(datoFra.year, datoFra.month)
-            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "fastloenn", 31868.25,  måned, datoTil, måned.atEndOfMonth(), erOpptjentIPeriode = true))
-            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "trekkILoennForFerie", -36765.4,  måned, datoTil, måned.atEndOfMonth(), erOpptjentIPeriode = true))
+            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "fastloenn", 31868.0,  måned, datoTil, måned.atEndOfMonth(), erOpptjentIPeriode = true))
+            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "trekkILoennForFerie", -36765.0,  måned, datoTil, måned.atEndOfMonth(), erOpptjentIPeriode = true))
             return Pair(inntektslinjer, "fake respons")
         }
 

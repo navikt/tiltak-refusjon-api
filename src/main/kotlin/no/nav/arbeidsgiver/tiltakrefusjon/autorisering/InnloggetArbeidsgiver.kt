@@ -81,7 +81,8 @@ data class InnloggetArbeidsgiver(
 
     fun finnRefusjon(id: String): Refusjon {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
-         settMinusBeløpFraForrigeRefusjonOmDenFinnes(refusjon)
+        settMinusBeløpFraForrigeRefusjonOmDenFinnes(refusjon)
+        settOmForrigeRefusjonMåSendesFørst(refusjon)
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
         if(refusjon.åpnetFørsteGang == null) {
             refusjon.åpnetFørsteGang = Now.instant()
@@ -101,6 +102,11 @@ data class InnloggetArbeidsgiver(
             ) ?: return
 
         denneRefusjon.refusjonsgrunnlag.oppgiForrigeRefusjonsbeløp(tidligereRefusjonMedMinusBeløp.beregning!!.refusjonsbeløp)
+    }
+
+    private fun settOmForrigeRefusjonMåSendesFørst(refusjon: Refusjon){
+        val forrigeRefusjonSomMåSendesInnFørst: Refusjon? = refusjonRepository.finnRefusjonSomSkalSendesFørDenne(refusjon.bedriftNr,refusjon.tilskuddsgrunnlag.avtaleNr,refusjon.tilskuddsgrunnlag.tiltakstype, RefusjonStatus.KLAR_FOR_INNSENDING, refusjon.tilskuddsgrunnlag.løpenummer)
+        refusjon.angiSkalForrigeRefusjonMåSendesFørst(forrigeRefusjonSomMåSendesInnFørst != null)
     }
 
     fun finnKorreksjon(id: String): Korreksjon {

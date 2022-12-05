@@ -102,8 +102,10 @@ internal class InnloggetArbeidsgiverTest(
         every { altinnTilgangsstyringService.hentTilganger(any()) } returns setOf<Organisasjon>(Organisasjon("Bedrift AS", "Bedrift type", "999999999","Org form","Status"))
         val innloggetArbeidsgiver = InnloggetArbeidsgiver("12345678901",altinnTilgangsstyringService,refusjonRepository,korreksjonRepository,refusjonService,eregClient)
         val refusjonFunnet = innloggetArbeidsgiver.finnRefusjon(refusjon1.id)
-
         assertThat(refusjonFunnet).isEqualTo(refusjon1)
+
+        val refusjonFunnet2 = innloggetArbeidsgiver.finnRefusjon(refusjon2.id)
+        assertThat(refusjonFunnet2).isEqualTo(refusjon2)
     }
 
     @Test
@@ -210,7 +212,12 @@ internal class InnloggetArbeidsgiverTest(
         assertThat(refusjon2FunnetViaFinnRefusjon).isEqualTo(refusjon2)
         assertThat(refusjon2FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isLessThan(0)
         assertThat(refusjon2FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(refusjon1.beregning!!.refusjonsbeløp)
-        assertThat(refusjon2FunnetViaFinnRefusjon.beregning!!.refusjonsbeløp).isEqualTo(refusjon1.beregning?.refusjonsbeløp!! + refusjon2.beregning!!.refusjonsbeløp)
+
+
+        assertThat(refusjon3FunnetViaFinnRefusjon).isEqualTo(refusjon3)
+        assertThat(refusjon3FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isLessThan(0)
+        assertThat(refusjon3FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(refusjon1.beregning!!.refusjonsbeløp)
+        assertThat(refusjon3FunnetViaFinnRefusjon.beregning!!.refusjonsbeløp).isEqualTo(refusjon2.beregning!!.refusjonsbeløp + refusjon3.beregning!!.refusjonsbeløp)
     }
 
     @Test

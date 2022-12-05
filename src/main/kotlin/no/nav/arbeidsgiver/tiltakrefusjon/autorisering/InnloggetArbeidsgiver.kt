@@ -94,6 +94,7 @@ data class InnloggetArbeidsgiver(
         val tidligereRefusjonMedMinusBeløp: Refusjon =
             refusjonRepository.finnRefusjonSomSkalSendesMedMinusBeløpFørDenne(
                 denneRefusjon.bedriftNr,
+                denneRefusjon.tilskuddsgrunnlag.avtaleNr,
                 denneRefusjon.tilskuddsgrunnlag.tiltakstype,
                 RefusjonStatus.GODKJENT_MINUSBELØP,
                 denneRefusjon.tilskuddsgrunnlag.løpenummer

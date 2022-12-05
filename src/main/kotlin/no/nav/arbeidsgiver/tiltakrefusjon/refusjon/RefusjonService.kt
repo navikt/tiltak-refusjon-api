@@ -100,7 +100,7 @@ class RefusjonService(
     }
 
     private fun måGodkjenneTidligereRefusjonerFørst(refusjon:Refusjon): Boolean{
-        val forrigeRefusjonSomMåSendesInnFørst: Refusjon? = refusjonRepository.finnRefusjonSomSkalSendesFørDenne(refusjon.bedriftNr,refusjon.tilskuddsgrunnlag.tiltakstype, RefusjonStatus.KLAR_FOR_INNSENDING, refusjon.tilskuddsgrunnlag.løpenummer)
+        val forrigeRefusjonSomMåSendesInnFørst: Refusjon? = refusjonRepository.finnRefusjonSomSkalSendesFørDenne(refusjon.bedriftNr,refusjon.tilskuddsgrunnlag.avtaleNr,refusjon.tilskuddsgrunnlag.tiltakstype, RefusjonStatus.KLAR_FOR_INNSENDING, refusjon.tilskuddsgrunnlag.løpenummer)
         return forrigeRefusjonSomMåSendesInnFørst != null
     }
 

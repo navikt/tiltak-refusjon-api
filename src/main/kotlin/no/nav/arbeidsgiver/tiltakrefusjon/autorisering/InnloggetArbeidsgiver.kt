@@ -81,13 +81,7 @@ data class InnloggetArbeidsgiver(
 
     fun finnRefusjon(id: String): Refusjon {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
-        val refusjonerSomSkalSendesForBedrift: List<Refusjon> = refusjonRepository.findAllByBedriftNrOrderByLøpenummer(refusjon.bedriftNr,refusjon.tilskuddsgrunnlag.tiltakstype, RefusjonStatus.GODKJENT_MINUSBELØP)
-        if(refusjonerSomSkalSendesForBedrift.isNotEmpty()
-            && refusjonerSomSkalSendesForBedrift.first() != refusjon
-            && refusjonerSomSkalSendesForBedrift.first().beregning != null
-            && refusjonerSomSkalSendesForBedrift.first().beregning?.refusjonsbeløp != null){
-            refusjon.refusjonsgrunnlag.oppgiForrigeRefusjonsbeløp(refusjonerSomSkalSendesForBedrift.first().refusjonsgrunnlag.forrigeRefusjonMinusBeløp + refusjonerSomSkalSendesForBedrift.first().beregning!!.refusjonsbeløp)
-        }
+         settMinusBeløpFraForrigeRefusjonOmDenFinnes(refusjon)
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
         if(refusjon.åpnetFørsteGang == null) {
             refusjon.åpnetFørsteGang = Now.instant()
@@ -95,6 +89,17 @@ data class InnloggetArbeidsgiver(
         refusjonService.gjørBedriftKontonummeroppslag(refusjon)
         refusjonService.gjørInntektsoppslag(refusjon)
         return refusjon
+    }
+    private fun settMinusBeløpFraForrigeRefusjonOmDenFinnes(denneRefusjon: Refusjon) {
+        val tidligereRefusjonMedMinusBeløp: Refusjon =
+            refusjonRepository.finnRefusjonSomSkalSendesFørDenneMedMinusBeløp(
+                denneRefusjon.bedriftNr,
+                denneRefusjon.tilskuddsgrunnlag.tiltakstype,
+                RefusjonStatus.GODKJENT_MINUSBELØP,
+                denneRefusjon.tilskuddsgrunnlag.løpenummer
+            ) ?: return
+
+        denneRefusjon.refusjonsgrunnlag.oppgiForrigeRefusjonsbeløp(tidligereRefusjonMedMinusBeløp.beregning!!.refusjonsbeløp)
     }
 
     fun finnKorreksjon(id: String): Korreksjon {

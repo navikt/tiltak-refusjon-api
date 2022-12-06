@@ -207,17 +207,17 @@ internal class InnloggetArbeidsgiverTest(
         val refusjon3FunnetViaFinnRefusjon = innloggetArbeidsgiver.finnRefusjon(refusjon3.id)
 
         assertThat(refusjon1FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(0)
-        assertThat(refusjon1FunnetViaFinnRefusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp).isLessThan(0)
+        assertThat(refusjon1FunnetViaFinnRefusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp).isEqualTo(0)
 
         assertThat(refusjon2FunnetViaFinnRefusjon).isEqualTo(refusjon2)
         assertThat(refusjon2FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isLessThan(0)
-        assertThat(refusjon2FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(refusjon1.beregning!!.refusjonsbeløp)
+        assertThat(refusjon2FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(-4897)
 
 
         assertThat(refusjon3FunnetViaFinnRefusjon).isEqualTo(refusjon3)
         assertThat(refusjon3FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isLessThan(0)
-        assertThat(refusjon3FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(refusjon1.beregning!!.refusjonsbeløp)
-        assertThat(refusjon3FunnetViaFinnRefusjon.beregning!!.refusjonsbeløp).isEqualTo(refusjon2.beregning!!.refusjonsbeløp + refusjon3.beregning!!.refusjonsbeløp)
+        assertThat(refusjon3FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(-4897)
+        assertThat(refusjon3FunnetViaFinnRefusjon.beregning!!.refusjonsbeløp).isEqualTo(0)
     }
 
     @Test
@@ -319,7 +319,7 @@ internal class InnloggetArbeidsgiverTest(
         val refusjon3FunnetViaFinnRefusjon = innloggetArbeidsgiver.finnRefusjon(refusjon3.id)
 
         assertThat(refusjon1FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(0)
-        assertThat(refusjon1FunnetViaFinnRefusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp).isLessThan(0)
+        assertThat(refusjon1FunnetViaFinnRefusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp).isEqualTo(0)
 
         assertThat(refusjon2FunnetViaFinnRefusjon).isEqualTo(refusjon2)
         assertThat(refusjon2FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(0)
@@ -430,9 +430,11 @@ internal class InnloggetArbeidsgiverTest(
 
         assertThat(refusjon2FunnetViaFinnRefusjon).isEqualTo(refusjon2)
         assertThat(refusjon2FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(0)
-        assertThat(refusjon2FunnetViaFinnRefusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp).isLessThan(0)
+        assertThat(refusjon2FunnetViaFinnRefusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp).isEqualTo(0)
+        assertThat(refusjon2FunnetViaFinnRefusjon.refusjonsgrunnlag.beregning!!.lønnFratrukketFerie).isEqualTo(-4897)
 
-        assertThat(refusjon3FunnetViaFinnRefusjon.beregning!!.refusjonsbeløp).isEqualTo(refusjon2FunnetViaFinnRefusjon.beregning?.refusjonsbeløp!! + refusjon3.beregning!!.refusjonsbeløp)
+        assertThat(refusjon3FunnetViaFinnRefusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp).isEqualTo(-3897)
+        assertThat(refusjon3FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(-4897)
     }
 
     @Test

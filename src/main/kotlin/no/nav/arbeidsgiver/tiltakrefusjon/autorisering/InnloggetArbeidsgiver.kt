@@ -101,7 +101,7 @@ data class InnloggetArbeidsgiver(
                 denneRefusjon.tilskuddsgrunnlag.løpenummer
             ) ?: return
 
-        denneRefusjon.refusjonsgrunnlag.oppgiForrigeRefusjonsbeløp(tidligereRefusjonMedMinusBeløp.beregning!!.refusjonsbeløp)
+        denneRefusjon.refusjonsgrunnlag.oppgiForrigeRefusjonsbeløp(tidligereRefusjonMedMinusBeløp.beregning!!.lønnFratrukketFerie)
     }
 
     private fun settOmForrigeRefusjonMåSendesFørst(refusjon: Refusjon){

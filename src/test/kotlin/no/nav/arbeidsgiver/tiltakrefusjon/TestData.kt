@@ -75,7 +75,7 @@ fun refusjoner(): List<Refusjon> {
                 bedriftNr = bedriftNr,
                 deltakerFornavn = "Jon",
                 deltakerEtternavn = "Janson Minus Beløp",
-                tilskuddsbeløp = 1357,
+                tilskuddsbeløp = 30000,
                 veilederNavIdent = "Z123456"
             ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
         )
@@ -88,7 +88,7 @@ fun refusjoner(): List<Refusjon> {
             tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
                 løpenummer = 2,
                 deltakerFnr = deltakerFnr,
-                tilskuddsbeløp = 1220,
+                tilskuddsbeløp = 30000,
                 bedriftNr = bedriftNr,
                 deltakerFornavn = "Jon",
                 deltakerEtternavn = "Janson Minus Beløp 2",

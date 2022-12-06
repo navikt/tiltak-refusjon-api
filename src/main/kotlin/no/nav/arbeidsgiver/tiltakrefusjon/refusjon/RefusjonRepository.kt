@@ -20,7 +20,7 @@ interface RefusjonRepository : JpaRepository<Refusjon, String> {
     fun findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_AvtaleNr(avtaleNr: Int): List<Refusjon>
     @Query("select r from Refusjon r where r.bedriftNr = :bedriftNr and (r.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr = :avtaleNr) and (:tiltakstype is null or r.refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype = :tiltakstype) and (:status is null or r.status = :status) " +
             "and :nåværendeLøpenummer not in (1) and r.refusjonsgrunnlag.tilskuddsgrunnlag.løpenummer = (:nåværendeLøpenummer - 1 ) and  r.refusjonsgrunnlag.beregning is not null and r.refusjonsgrunnlag.beregning.lønnFratrukketFerie <= 0 ")
-    fun finnRefusjonSomSkalSendesMedMinusBeløpFørDenne(
+    fun finnRefusjonSomSkalSendesMedMinusBeløpEtterFratrukketFerieFørDenne(
         @Param("bedriftNr") bedriftNr: String,
         @Param("avtaleNr") avtaleNr: Int,
         @Param("tiltakstype") tiltakstype: Tiltakstype,

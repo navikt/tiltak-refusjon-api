@@ -81,7 +81,7 @@ data class InnloggetArbeidsgiver(
 
     fun finnRefusjon(id: String): Refusjon {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
-        settMinusBeløpFraForrigeRefusjonOmDenFinnes(refusjon)
+        settMinusBeløpOmFratrukketFerieGirMinusForForrigeRefusjonOmDenFinnes(refusjon)
         settOmForrigeRefusjonMåSendesFørst(refusjon)
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
         if(refusjon.åpnetFørsteGang == null) {
@@ -91,9 +91,10 @@ data class InnloggetArbeidsgiver(
         refusjonService.gjørInntektsoppslag(refusjon)
         return refusjon
     }
-    private fun settMinusBeløpFraForrigeRefusjonOmDenFinnes(denneRefusjon: Refusjon) {
-        val tidligereRefusjonMedMinusBeløp: Refusjon =
-            refusjonRepository.finnRefusjonSomSkalSendesMedMinusBeløpFørDenne(
+
+    private fun settMinusBeløpOmFratrukketFerieGirMinusForForrigeRefusjonOmDenFinnes(denneRefusjon: Refusjon) {
+        val tidligereRefusjonMedMinusBeløpEtterFratrukketFerie: Refusjon =
+            refusjonRepository.finnRefusjonSomSkalSendesMedMinusBeløpEtterFratrukketFerieFørDenne(
                 denneRefusjon.bedriftNr,
                 denneRefusjon.tilskuddsgrunnlag.avtaleNr,
                 denneRefusjon.tilskuddsgrunnlag.tiltakstype,
@@ -101,7 +102,7 @@ data class InnloggetArbeidsgiver(
                 denneRefusjon.tilskuddsgrunnlag.løpenummer
             ) ?: return
 
-        denneRefusjon.refusjonsgrunnlag.oppgiForrigeRefusjonsbeløp(tidligereRefusjonMedMinusBeløp.beregning!!.lønnFratrukketFerie)
+        denneRefusjon.refusjonsgrunnlag.oppgiForrigeRefusjonsbeløp(tidligereRefusjonMedMinusBeløpEtterFratrukketFerie.beregning!!.lønnFratrukketFerie)
     }
 
     private fun settOmForrigeRefusjonMåSendesFørst(refusjon: Refusjon){

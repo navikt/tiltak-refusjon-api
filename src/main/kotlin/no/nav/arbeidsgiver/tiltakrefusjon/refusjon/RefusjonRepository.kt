@@ -21,7 +21,8 @@ interface RefusjonRepository : JpaRepository<Refusjon, String> {
 
     @Query("select r from Refusjon r where r.bedriftNr in (:bedriftNr) and (:status is null or r.status = :status) " +
             "and (:tiltakstype is null or r.refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype = :tiltakstype) " +
-            "order by (CASE WHEN r.status = 'KLAR_FOR_INNSENDING' THEN 0 else 1 END)")
+            "order by (CASE WHEN r.status = 'KLAR_FOR_INNSENDING' THEN 0 else 1 END)," +
+            "r.refusjonsgrunnlag.tilskuddsgrunnlag.deltakerFornavn")
     fun findAllByBedriftNrAndStatusDefaultSort(
         @Param("bedriftNr") bedriftNr: List<String>,
         @Param("status") status: RefusjonStatus?,

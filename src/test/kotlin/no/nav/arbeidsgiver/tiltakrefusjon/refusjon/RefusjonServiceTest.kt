@@ -2,6 +2,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import com.ninjasquad.springmockk.SpykBean
 import io.mockk.verify
+import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeAnnullertMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.MidlerFrigjortÅrsak
@@ -37,6 +38,45 @@ class RefusjonServiceTest(
     fun setup() {
         varslingRepository.deleteAll()
         refusjonRepository.deleteAll()
+    }
+
+    @Test
+    fun `godkjennForArbeidsgiver feiler fordi refusjon er ikke klar til innsending`(){
+
+        val deltakerFnr = "00000000000"
+        val tilskuddMelding = TilskuddsperiodeGodkjentMelding(
+            avtaleId = "1",
+            tilskuddsbeløp = 1000,
+            tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
+            deltakerEtternavn = "Mus",
+            deltakerFornavn = "Mikke",
+            arbeidsgiveravgiftSats = 0.101,
+            avtaleInnholdId = "1",
+            bedriftNavn = "Bedriften AS",
+            bedriftNr = "999999999",
+            deltakerFnr = deltakerFnr,
+            feriepengerSats = 0.141,
+            otpSats = 0.02,
+            tilskuddFom =  Now.localDate().minusWeeks(4),
+            tilskuddTom = Now.localDate().minusDays(1),
+            tilskuddsperiodeId = "1",
+            veilederNavIdent = "X123456",
+            lønnstilskuddsprosent = 60,
+            avtaleNr = 3456,
+            løpenummer = 1,
+            enhet = "1000",
+            godkjentTidspunkt = LocalDateTime.now()
+        )
+
+
+        val refusjon1 = refusjonService.opprettRefusjon(tilskuddMelding)!!
+        refusjonService.gjørBedriftKontonummeroppslag(refusjon1)
+        refusjonService.gjørInntektsoppslag(refusjon1)
+        gjørInntektoppslagForRefusjon(refusjon1)
+
+        assertThat(refusjonRepository.findAll().count()).isEqualTo(1)
+        assertDoesNotThrow { refusjonService.godkjennForArbeidsgiver(refusjon1,"999999999")}
+        assertThrows<FeilkodeException> { refusjonService.godkjennForArbeidsgiver(refusjon1,"999999999")}
     }
 
     @Test

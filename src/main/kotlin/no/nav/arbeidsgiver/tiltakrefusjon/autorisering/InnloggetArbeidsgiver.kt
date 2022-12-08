@@ -112,6 +112,7 @@ data class InnloggetArbeidsgiver(
     }
 
     private fun settOmForrigeRefusjonMåSendesFørst(refusjon: Refusjon){
+        if(refusjon.status != RefusjonStatus.KLAR_FOR_INNSENDING) return
         val forrigeRefusjonSomMåSendesInnFørst: Refusjon = refusjonRepository.finnRefusjonSomSkalSendesFørDenne(refusjon.bedriftNr,refusjon.tilskuddsgrunnlag.avtaleNr,refusjon.tilskuddsgrunnlag.tiltakstype, RefusjonStatus.KLAR_FOR_INNSENDING, refusjon.tilskuddsgrunnlag.løpenummer).firstOrNull()
             ?: return
         if(forrigeRefusjonSomMåSendesInnFørst != refusjon) refusjon.angiRefusjonSomMåSendesFørst(forrigeRefusjonSomMåSendesInnFørst)

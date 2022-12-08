@@ -200,12 +200,119 @@ internal class InnloggetArbeidsgiverTest(
         assertThat(refusjon2FunnetViaFinnRefusjon).isEqualTo(refusjon2)
         assertThat(refusjon2FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isLessThan(0)
         assertThat(refusjon2FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(-4897)
+        assertThat(refusjon2FunnetViaFinnRefusjon.forrigeRefusjonSomSkalSendesFørst).isEqualTo(null)
 
 
         assertThat(refusjon3FunnetViaFinnRefusjon).isEqualTo(refusjon3)
         assertThat(refusjon3FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isLessThan(0)
         assertThat(refusjon3FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(-4897)
         assertThat(refusjon3FunnetViaFinnRefusjon.beregning).isNull()
+        assertThat(refusjon3FunnetViaFinnRefusjon.forrigeRefusjonSomSkalSendesFørst).isEqualTo(null)
+    }
+
+    @Test
+    fun testSettOmForrigeRefusjonMåSendesFørst(){
+        val deltakerFnr = "08098613316"
+        val tilskuddMelding = TilskuddsperiodeGodkjentMelding(
+            avtaleId = "1",
+            tilskuddsbeløp = 1000,
+            tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
+            deltakerEtternavn = "Mus",
+            deltakerFornavn = "Mikke",
+            arbeidsgiveravgiftSats = 0.101,
+            avtaleInnholdId = "1",
+            bedriftNavn = "Bedriften AS",
+            bedriftNr = "999999999",
+            deltakerFnr = deltakerFnr,
+            feriepengerSats = 0.141,
+            otpSats = 0.02,
+            tilskuddFom =  Now.localDate().minusWeeks(4),
+            tilskuddTom = Now.localDate().minusDays(1),
+            tilskuddsperiodeId = "1",
+            veilederNavIdent = "X123456",
+            lønnstilskuddsprosent = 60,
+            avtaleNr = 3456,
+            løpenummer = 1,
+            enhet = "1000",
+            godkjentTidspunkt = LocalDateTime.now()
+        )
+        val tilskuddMelding2LittEldreMedLøpenummer2 = TilskuddsperiodeGodkjentMelding(
+            avtaleId = "1",
+            tilskuddsbeløp = 1000,
+            tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
+            deltakerEtternavn = "Mus",
+            deltakerFornavn = "Mikke",
+            arbeidsgiveravgiftSats = 0.101,
+            avtaleInnholdId = "2",
+            bedriftNavn = "Bedriften AS",
+            bedriftNr = "999999999",
+            deltakerFnr = deltakerFnr,
+            feriepengerSats = 0.141,
+            otpSats = 0.02,
+            tilskuddFom = Now.localDate().minusWeeks(3),
+            tilskuddTom = Now.localDate().minusDays(1),
+            tilskuddsperiodeId = "2",
+            veilederNavIdent = "X123456",
+            lønnstilskuddsprosent = 60,
+            avtaleNr = 3456,
+            løpenummer = 2,
+            enhet = "1000",
+            godkjentTidspunkt = LocalDateTime.now()
+        )
+
+        val tilskuddMelding3LittEldreMedLøpenummer3 = TilskuddsperiodeGodkjentMelding(
+            avtaleId = "1",
+            tilskuddsbeløp = 1000,
+            tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
+            deltakerEtternavn = "Mus",
+            deltakerFornavn = "Mikke",
+            arbeidsgiveravgiftSats = 0.101,
+            avtaleInnholdId = "2",
+            bedriftNavn = "Bedriften AS",
+            bedriftNr = "999999999",
+            deltakerFnr = deltakerFnr,
+            feriepengerSats = 0.141,
+            otpSats = 0.02,
+            tilskuddFom = Now.localDate().minusWeeks(3),
+            tilskuddTom = Now.localDate().minusDays(1),
+            tilskuddsperiodeId = "3",
+            veilederNavIdent = "X123456",
+            lønnstilskuddsprosent = 60,
+            avtaleNr = 3456,
+            løpenummer = 3,
+            enhet = "1000",
+            godkjentTidspunkt = LocalDateTime.now()
+        )
+
+        val refusjon1 = opprettRefusjonOgGjørInntektoppslag(tilskuddMelding)
+        refusjonService.godkjennForArbeidsgiver(refusjon1,"999999999")
+
+        val refusjon2 = opprettRefusjonOgGjørInntektoppslag(tilskuddMelding2LittEldreMedLøpenummer2)
+
+        val refusjon3 = opprettRefusjonOgGjørInntektoppslag(tilskuddMelding3LittEldreMedLøpenummer3)
+
+        every { altinnTilgangsstyringService.hentTilganger(any()) } returns setOf<Organisasjon>(Organisasjon("Bedrift AS", "Bedrift type", "999999999","Org form","Status"))
+        val innloggetArbeidsgiver = InnloggetArbeidsgiver("12345678901",altinnTilgangsstyringService,refusjonRepository,korreksjonRepository,refusjonService,eregClient)
+
+        val refusjon2FunnetViaFinnRefusjon = innloggetArbeidsgiver.finnRefusjon(refusjon2.id)
+        val refusjon1FunnetViaFinnRefusjon = innloggetArbeidsgiver.finnRefusjon(refusjon1.id)
+        val refusjon3FunnetViaFinnRefusjon = innloggetArbeidsgiver.finnRefusjon(refusjon3.id)
+
+        assertThat(refusjon1FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(0)
+        assertThat(refusjon1FunnetViaFinnRefusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp).isEqualTo(0)
+
+        assertThat(refusjon2FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isLessThan(0)
+        assertThat(refusjon2FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(-4897)
+        assertThat(refusjon2FunnetViaFinnRefusjon.forrigeRefusjonSomSkalSendesFørst).isEqualTo(null)
+
+
+        assertThat(refusjon3FunnetViaFinnRefusjon.forrigeRefusjonSomSkalSendesFørst).isEqualTo(refusjon2)
+
+        refusjonService.godkjennForArbeidsgiver(refusjon2,"999999999")
+        val refusjon3FunnetViaFinnRefusjonIgjen = innloggetArbeidsgiver.finnRefusjon(refusjon3.id)
+        // PEKER IKKE PÅ SEG SELV i settOmForrigeRefusjonMåSendesFørst Og er derfor null
+        assertThat(refusjon3FunnetViaFinnRefusjonIgjen.forrigeRefusjonSomSkalSendesFørst).isEqualTo(null)
+
     }
 
     @Test

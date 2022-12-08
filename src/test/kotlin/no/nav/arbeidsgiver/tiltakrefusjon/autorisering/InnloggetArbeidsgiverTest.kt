@@ -7,10 +7,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
 import no.nav.arbeidsgiver.tiltakrefusjon.organisasjon.EregClient
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.KorreksjonRepository
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonRepository
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonService
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.varsling.VarslingRepository
@@ -182,22 +179,13 @@ internal class InnloggetArbeidsgiverTest(
             godkjentTidspunkt = LocalDateTime.now()
         )
 
-        val refusjon1 = refusjonService.opprettRefusjon(tilskuddMelding)!!
-        refusjonService.gjørBedriftKontonummeroppslag(refusjon1)
-        refusjon1.endreBruttolønn(true,null)
-        refusjonService.gjørInntektsoppslag(refusjon1)
+        val refusjon1 = opprettRefusjonOgGjørInntektoppslag(tilskuddMelding)
         refusjonService.godkjennForArbeidsgiver(refusjon1,"999999999")
 
-        val refusjon2 = refusjonService.opprettRefusjon(tilskuddMelding2LittEldreMedLøpenummer2)!!
-        refusjonService.gjørBedriftKontonummeroppslag(refusjon2)
-        refusjon2.endreBruttolønn(true,null)
-        refusjonService.gjørInntektsoppslag(refusjon2)
+        val refusjon2 = opprettRefusjonOgGjørInntektoppslag(tilskuddMelding2LittEldreMedLøpenummer2)
         refusjonService.godkjennForArbeidsgiver(refusjon2,"999999999")
 
-        val refusjon3 = refusjonService.opprettRefusjon(tilskuddMelding3LittEldreMedLøpenummer3)!!
-        refusjonService.gjørBedriftKontonummeroppslag(refusjon3)
-        refusjon3.endreBruttolønn(true,null)
-        refusjonService.gjørInntektsoppslag(refusjon3)
+        val refusjon3 = opprettRefusjonOgGjørInntektoppslag(tilskuddMelding3LittEldreMedLøpenummer3)
 
         every { altinnTilgangsstyringService.hentTilganger(any()) } returns setOf<Organisasjon>(Organisasjon("Bedrift AS", "Bedrift type", "999999999","Org form","Status"))
         val innloggetArbeidsgiver = InnloggetArbeidsgiver("12345678901",altinnTilgangsstyringService,refusjonRepository,korreksjonRepository,refusjonService,eregClient)
@@ -217,7 +205,7 @@ internal class InnloggetArbeidsgiverTest(
         assertThat(refusjon3FunnetViaFinnRefusjon).isEqualTo(refusjon3)
         assertThat(refusjon3FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isLessThan(0)
         assertThat(refusjon3FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(-4897)
-        assertThat(refusjon3FunnetViaFinnRefusjon.beregning!!.refusjonsbeløp).isEqualTo(0)
+        assertThat(refusjon3FunnetViaFinnRefusjon.beregning).isNull()
     }
 
     @Test
@@ -294,21 +282,13 @@ internal class InnloggetArbeidsgiverTest(
             godkjentTidspunkt = LocalDateTime.now()
         )
 
-        val refusjon1 = refusjonService.opprettRefusjon(tilskuddMelding)!!
-        refusjonService.gjørBedriftKontonummeroppslag(refusjon1)
-        refusjon1.endreBruttolønn(true,null)
-        refusjonService.gjørInntektsoppslag(refusjon1)
+        val refusjon1 = opprettRefusjonOgGjørInntektoppslag(tilskuddMelding)!!
         refusjonService.godkjennForArbeidsgiver(refusjon1,"999999999")
 
-        val refusjon2 = refusjonService.opprettRefusjon(tilskuddMelding2LittEldreMedLøpenummer2)!!
-        refusjonService.gjørBedriftKontonummeroppslag(refusjon2)
-        refusjon2.endreBruttolønn(true,null)
-        refusjonService.gjørInntektsoppslag(refusjon2)
+        val refusjon2 = opprettRefusjonOgGjørInntektoppslag(tilskuddMelding2LittEldreMedLøpenummer2)!!
         refusjonService.godkjennForArbeidsgiver(refusjon2,"999999999")
 
-        val refusjon3 = refusjonService.opprettRefusjon(tilskuddMelding3LittEldreMedLøpenummer3)!!
-        refusjonService.gjørBedriftKontonummeroppslag(refusjon3)
-        refusjon3.endreBruttolønn(true,null)
+        val refusjon3 = opprettRefusjonOgGjørInntektoppslag(tilskuddMelding3LittEldreMedLøpenummer3)!!
         refusjonService.gjørInntektsoppslag(refusjon3)
 
         every { altinnTilgangsstyringService.hentTilganger(any()) } returns setOf<Organisasjon>(Organisasjon("Bedrift AS", "Bedrift type", "999999999","Org form","Status"))
@@ -401,22 +381,14 @@ internal class InnloggetArbeidsgiverTest(
             godkjentTidspunkt = LocalDateTime.now()
         )
 
-        val refusjon1 = refusjonService.opprettRefusjon(tilskuddMeldingUtenFerieTrekk)!!
-        refusjonService.gjørBedriftKontonummeroppslag(refusjon1)
-        refusjon1.endreBruttolønn(true,null)
-        refusjonService.gjørInntektsoppslag(refusjon1)
+        val refusjon1 = opprettRefusjonOgGjørInntektoppslag(tilskuddMeldingUtenFerieTrekk)
         refusjonService.godkjennForArbeidsgiver(refusjon1,"999999999")
 
-        val refusjon2 = refusjonService.opprettRefusjon(tilskuddMelding2LittEldreMedLøpenummer2MedMinusBeløp)!!
-        refusjonService.gjørBedriftKontonummeroppslag(refusjon2)
-        refusjon2.endreBruttolønn(true,null)
-        refusjonService.gjørInntektsoppslag(refusjon2)
+        val refusjon2 = opprettRefusjonOgGjørInntektoppslag(tilskuddMelding2LittEldreMedLøpenummer2MedMinusBeløp)
         refusjonService.godkjennForArbeidsgiver(refusjon2,"999999999")
 
-        val refusjon3 = refusjonService.opprettRefusjon(tilskuddMelding3LittEldreMedLøpenummer3UtenFerieTrekk)!!
-        refusjonService.gjørBedriftKontonummeroppslag(refusjon3)
-        refusjon3.endreBruttolønn(true,null)
-        refusjonService.gjørInntektsoppslag(refusjon3)
+        val refusjon3 = opprettRefusjonOgGjørInntektoppslag(tilskuddMelding3LittEldreMedLøpenummer3UtenFerieTrekk)
+        refusjonService.godkjennForArbeidsgiver(refusjon3,"999999999")
 
         every { altinnTilgangsstyringService.hentTilganger(any()) } returns setOf<Organisasjon>(Organisasjon("Bedrift AS", "Bedrift type", "999999999","Org form","Status"))
         val innloggetArbeidsgiver = InnloggetArbeidsgiver("12345678901",altinnTilgangsstyringService,refusjonRepository,korreksjonRepository,refusjonService,eregClient)
@@ -464,10 +436,7 @@ internal class InnloggetArbeidsgiverTest(
         )
 
 
-        val refusjon1 = refusjonService.opprettRefusjon(tilskuddMeldingUtenFerieTrekk)!!
-        refusjonService.gjørBedriftKontonummeroppslag(refusjon1)
-        refusjon1.endreBruttolønn(true,null)
-        refusjonService.gjørInntektsoppslag(refusjon1)
+        val refusjon1 = opprettRefusjonOgGjørInntektoppslag(tilskuddMeldingUtenFerieTrekk)!!
         refusjonService.godkjennForArbeidsgiver(refusjon1,"999999999")
 
 
@@ -478,6 +447,20 @@ internal class InnloggetArbeidsgiverTest(
 
         assertThat(refusjon1FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(0)
         assertThat(refusjon1FunnetViaFinnRefusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp).isGreaterThan(0)
+    }
+
+    fun opprettRefusjonOgGjørInntektoppslag(tilskuddsperiodeGodkjentMelding: TilskuddsperiodeGodkjentMelding): Refusjon {
+        val refusjon = refusjonService.opprettRefusjon(tilskuddsperiodeGodkjentMelding) ?: throw Exception()
+        refusjon.status = RefusjonStatus.KLAR_FOR_INNSENDING
+        refusjon.unntakOmInntekterToMånederFrem = false
+        refusjon.fristForGodkjenning = Now.localDate().plusDays(1)
+        refusjonService.gjørBedriftKontonummeroppslag(refusjon)
+        refusjonService.gjørInntektsoppslag(refusjon)
+        // Sett innhentede inntekter til opptjent i periode
+        refusjon.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.forEach { it.erOpptjentIPeriode = true }
+        // Bekreft at alle inntektene kun er fra tiltaket
+        refusjon.endreBruttolønn(true, null)
+        return refusjon;
     }
 
 }

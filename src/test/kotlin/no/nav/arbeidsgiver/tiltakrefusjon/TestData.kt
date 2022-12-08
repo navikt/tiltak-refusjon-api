@@ -65,44 +65,61 @@ fun refusjoner(): List<Refusjon> {
         it.medSendtKravFraArbeidsgiver()
     }
 
-    fun `Jon Janson Minus Beløp`(): Refusjon {
+    fun `Jon Janson Ferietrekk minus beløp 1`(): Refusjon {
         val deltakerFnr = "08098613316"
         val bedriftNr = "910712306"
         return Refusjon(
             tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
+                avtaleNr = 7,
                 løpenummer = 1,
                 deltakerFnr = deltakerFnr,
                 bedriftNr = bedriftNr,
                 deltakerFornavn = "Jon",
-                deltakerEtternavn = "Janson Minus Beløp",
+                deltakerEtternavn = "Janson Ferietrekk minus beløp 1",
                 tilskuddsbeløp = 30000,
                 veilederNavIdent = "Z123456"
             ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
         )
     }
 
-    fun `Jon Janson Minus Beløp 2`(): Refusjon {
+    fun `Jon Janson Ferietrekk minus beløp 2`(): Refusjon {
         val deltakerFnr = "01092111111"
         val bedriftNr = "910712306"
         return Refusjon(
             tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
                 løpenummer = 2,
+                avtaleNr = 7,
                 deltakerFnr = deltakerFnr,
-                tilskuddsbeløp = 30000,
+                tilskuddsbeløp = 20000,
                 bedriftNr = bedriftNr,
                 deltakerFornavn = "Jon",
-                deltakerEtternavn = "Janson Minus Beløp 2",
+                deltakerEtternavn = "Janson Ferietrekk minus beløp 2",
                 veilederNavIdent = "Z123456"
             ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
         )
     }
 
-
-
+    fun `Jon Janson Ferietrekk minus beløp 3`(): Refusjon {
+        val deltakerFnr = "01092111111"
+        val bedriftNr = "910712306"
+        return Refusjon(
+            tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
+                løpenummer = 3,
+                avtaleNr = 7,
+                deltakerFnr = deltakerFnr,
+                tilskuddsbeløp = 30000,
+                bedriftNr = bedriftNr,
+                deltakerFornavn = "Jon",
+                deltakerEtternavn = "Janson Ferietrekk minus beløp 3",
+                veilederNavIdent = "Z123456"
+            ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
+        )
+    }
 
     return listOf(
-        `Jon Janson Minus Beløp`(),
-        `Jon Janson Minus Beløp 2`(),
+        `Jon Janson Ferietrekk minus beløp 1`(),
+        `Jon Janson Ferietrekk minus beløp 2`(),
+        `Jon Janson Ferietrekk minus beløp 3`(),
         kiellandNy,
         kiellandGammel,
         BjørnsonUtgått,

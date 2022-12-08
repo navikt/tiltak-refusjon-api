@@ -1,5 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.guepardoapps.kulid.ULID
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
@@ -61,7 +62,9 @@ class Refusjon(
     val inntekterKunFraTiltaket: Boolean? get() = refusjonsgrunnlag.inntekterKunFraTiltaket
     var utbetaltTidspunkt: Instant? = null
     var åpnetFørsteGang: Instant? = null
-    var skalForrigeRefusjonSendesFørst: Boolean = false
+    @Transient
+    @JsonInclude
+    var forrigeRefusjonSomSkalSendesFørst: Refusjon? = null
     init {
         oppdaterStatus()
     }
@@ -82,8 +85,8 @@ class Refusjon(
         return refusjonsgrunnlag.harInntektIAlleMåneder()
     }
 
-    fun angiSkalForrigeRefusjonMåSendesFørst(skalForrigeMåSettesFørst:Boolean){
-        this.skalForrigeRefusjonSendesFørst = skalForrigeMåSettesFørst
+    fun angiRefusjonSomMåSendesFørst(skalForrigeMåSettesFørst:Refusjon){
+        this.forrigeRefusjonSomSkalSendesFørst = skalForrigeMåSettesFørst
     }
 
     @JsonProperty

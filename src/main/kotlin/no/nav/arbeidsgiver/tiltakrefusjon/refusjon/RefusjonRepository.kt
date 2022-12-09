@@ -22,7 +22,7 @@ interface RefusjonRepository : JpaRepository<Refusjon, String> {
 
     @Query("SELECT r FROM Refusjon r WHERE r.bedriftNr = :bedriftNr AND (r.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr = :avtaleNr) AND (:tiltakstype is null or r.refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype = :tiltakstype) AND (:status is null or r.status = :status) " +
             "AND :nåværendeLøpenummer NOT IN (1) AND r.refusjonsgrunnlag.tilskuddsgrunnlag.løpenummer = (:nåværendeLøpenummer - 1 ) AND  r.refusjonsgrunnlag.beregning IS NOT NULL AND (r.refusjonsgrunnlag.beregning.lønnFratrukketFerie <= 0 OR r.refusjonsgrunnlag.beregning.refusjonsbeløp <= 0) ")
-    fun finnRefusjonSomSkalSendesMedMinusBeløpEtterFratrukketFerieEllerMinusRefusjonsbeløpFørDenne(
+    fun finnRefusjonSomSkalSendesMedMinusBeløpEtterFratrukketFerieFørDenne(
         @Param("bedriftNr") bedriftNr: String,
         @Param("avtaleNr") avtaleNr: Int,
         @Param("tiltakstype") tiltakstype: Tiltakstype,

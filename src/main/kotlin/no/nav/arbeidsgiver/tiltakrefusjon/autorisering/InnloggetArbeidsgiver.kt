@@ -99,7 +99,7 @@ data class InnloggetArbeidsgiver(
      */
     private fun settMinusBeløpOmFratrukketFerieGirMinusForForrigeRefusjonOmDenFinnes(denneRefusjon: Refusjon) {
         val tidligereRefusjonMedMinusBeløpEtterFratrukketFerie: Refusjon =
-            refusjonRepository.finnRefusjonSomSkalSendesMedMinusBeløpEtterFratrukketFerieEllerMinusRefusjonsbeløpFørDenne(
+            refusjonRepository.finnRefusjonSomSkalSendesMedMinusBeløpEtterFratrukketFerieFørDenne(
                 denneRefusjon.bedriftNr,
                 denneRefusjon.tilskuddsgrunnlag.avtaleNr,
                 denneRefusjon.tilskuddsgrunnlag.tiltakstype,

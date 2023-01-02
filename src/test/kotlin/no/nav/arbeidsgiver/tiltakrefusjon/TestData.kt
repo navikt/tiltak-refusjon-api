@@ -72,6 +72,10 @@ fun refusjoner(): List<Refusjon> {
             tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
                 avtaleNr = 7,
                 løpenummer = 1,
+                lønnstilskuddsprosent = 60,
+                otpSats = 0.03,
+                feriepengerSats = 0.125,
+                arbeidsgiveravgiftSats = 0.141,
                 deltakerFnr = deltakerFnr,
                 bedriftNr = bedriftNr,
                 deltakerFornavn = "Jon",
@@ -89,6 +93,10 @@ fun refusjoner(): List<Refusjon> {
             tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
                 løpenummer = 2,
                 avtaleNr = 7,
+                lønnstilskuddsprosent = 60,
+                otpSats = 0.03,
+                feriepengerSats = 0.125,
+                arbeidsgiveravgiftSats = 0.141,
                 deltakerFnr = deltakerFnr,
                 tilskuddsbeløp = 20000,
                 bedriftNr = bedriftNr,
@@ -105,6 +113,10 @@ fun refusjoner(): List<Refusjon> {
         return Refusjon(
             tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
                 løpenummer = 3,
+                lønnstilskuddsprosent = 60,
+                otpSats = 0.03,
+                feriepengerSats = 0.125,
+                arbeidsgiveravgiftSats = 0.141,
                 avtaleNr = 7,
                 deltakerFnr = deltakerFnr,
                 tilskuddsbeløp = 30000,

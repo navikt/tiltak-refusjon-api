@@ -51,13 +51,13 @@ internal class InnloggetArbeidsgiverTest(
             tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
             deltakerEtternavn = "Mus",
             deltakerFornavn = "Mikke",
-            arbeidsgiveravgiftSats = 0.101,
+            arbeidsgiveravgiftSats = 0.141,
             avtaleInnholdId = "1",
             bedriftNavn = "Bedriften AS",
             bedriftNr = "999999999",
             deltakerFnr = deltakerFnr,
-            feriepengerSats = 0.141,
-            otpSats = 0.02,
+            feriepengerSats = 0.125,
+            otpSats = 0.03,
             tilskuddFom =  Now.localDate().minusWeeks(4),
             tilskuddTom = Now.localDate().minusDays(1),
             tilskuddsperiodeId = "1",
@@ -74,13 +74,13 @@ internal class InnloggetArbeidsgiverTest(
             tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
             deltakerEtternavn = "Mus",
             deltakerFornavn = "Mikke",
-            arbeidsgiveravgiftSats = 0.101,
+            arbeidsgiveravgiftSats = 0.141,
             avtaleInnholdId = "2",
             bedriftNavn = "Bedriften AS",
             bedriftNr = "999999999",
             deltakerFnr = deltakerFnr,
-            feriepengerSats = 0.141,
-            otpSats = 0.02,
+            feriepengerSats = 0.125,
+            otpSats = 0.03,
             tilskuddFom = Now.localDate().minusWeeks(3),
             tilskuddTom = Now.localDate().minusDays(1),
             tilskuddsperiodeId = "2",
@@ -114,13 +114,13 @@ internal class InnloggetArbeidsgiverTest(
             tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
             deltakerEtternavn = "Mus",
             deltakerFornavn = "Mikke",
-            arbeidsgiveravgiftSats = 0.101,
+            arbeidsgiveravgiftSats = 0.141,
             avtaleInnholdId = "1",
             bedriftNavn = "Bedriften AS",
             bedriftNr = "999999999",
             deltakerFnr = deltakerFnr,
-            feriepengerSats = 0.141,
-            otpSats = 0.02,
+            feriepengerSats = 0.125,
+            otpSats = 0.03,
             tilskuddFom =  Now.localDate().minusWeeks(4),
             tilskuddTom = Now.localDate().minusDays(1),
             tilskuddsperiodeId = "1",
@@ -137,13 +137,13 @@ internal class InnloggetArbeidsgiverTest(
             tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
             deltakerEtternavn = "Mus",
             deltakerFornavn = "Mikke",
-            arbeidsgiveravgiftSats = 0.101,
+            arbeidsgiveravgiftSats = 0.141,
             avtaleInnholdId = "2",
             bedriftNavn = "Bedriften AS",
             bedriftNr = "999999999",
             deltakerFnr = deltakerFnr,
-            feriepengerSats = 0.141,
-            otpSats = 0.02,
+            feriepengerSats = 0.125,
+            otpSats = 0.03,
             tilskuddFom = Now.localDate().minusWeeks(3),
             tilskuddTom = Now.localDate().minusDays(1),
             tilskuddsperiodeId = "2",
@@ -161,13 +161,13 @@ internal class InnloggetArbeidsgiverTest(
             tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
             deltakerEtternavn = "Mus",
             deltakerFornavn = "Mikke",
-            arbeidsgiveravgiftSats = 0.101,
+            arbeidsgiveravgiftSats = 0.141,
             avtaleInnholdId = "2",
             bedriftNavn = "Bedriften AS",
             bedriftNr = "999999999",
             deltakerFnr = deltakerFnr,
-            feriepengerSats = 0.141,
-            otpSats = 0.02,
+            feriepengerSats = 0.125,
+            otpSats = 0.03,
             tilskuddFom = Now.localDate().minusWeeks(3),
             tilskuddTom = Now.localDate().minusDays(1),
             tilskuddsperiodeId = "3",
@@ -195,17 +195,17 @@ internal class InnloggetArbeidsgiverTest(
         val refusjon3FunnetViaFinnRefusjon = innloggetArbeidsgiver.finnRefusjon(refusjon3.id)
 
         assertThat(refusjon1FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(0)
-        assertThat(refusjon1FunnetViaFinnRefusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp).isEqualTo(0)
+        assertThat(refusjon1FunnetViaFinnRefusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp).isEqualTo(-3966)
 
         assertThat(refusjon2FunnetViaFinnRefusjon).isEqualTo(refusjon2)
         assertThat(refusjon2FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isLessThan(0)
-        assertThat(refusjon2FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(-4897)
+        assertThat(refusjon2FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(-3966)
         assertThat(refusjon2FunnetViaFinnRefusjon.forrigeRefusjonSomSkalSendesFørst).isEqualTo(null)
 
 
         assertThat(refusjon3FunnetViaFinnRefusjon).isEqualTo(refusjon3)
         assertThat(refusjon3FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isLessThan(0)
-        assertThat(refusjon3FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(-4897)
+        assertThat(refusjon3FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(-3966)
         assertThat(refusjon3FunnetViaFinnRefusjon.beregning).isNull()
         assertThat(refusjon3FunnetViaFinnRefusjon.forrigeRefusjonSomSkalSendesFørst).isEqualTo(null)
     }
@@ -219,13 +219,13 @@ internal class InnloggetArbeidsgiverTest(
             tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
             deltakerEtternavn = "Mus",
             deltakerFornavn = "Mikke",
-            arbeidsgiveravgiftSats = 0.101,
+            arbeidsgiveravgiftSats = 0.141,
             avtaleInnholdId = "1",
             bedriftNavn = "Bedriften AS",
             bedriftNr = "999999999",
             deltakerFnr = deltakerFnr,
-            feriepengerSats = 0.141,
-            otpSats = 0.02,
+            feriepengerSats = 0.125,
+            otpSats = 0.03,
             tilskuddFom =  Now.localDate().minusWeeks(4),
             tilskuddTom = Now.localDate().minusDays(1),
             tilskuddsperiodeId = "1",
@@ -242,13 +242,13 @@ internal class InnloggetArbeidsgiverTest(
             tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
             deltakerEtternavn = "Mus",
             deltakerFornavn = "Mikke",
-            arbeidsgiveravgiftSats = 0.101,
+            arbeidsgiveravgiftSats = 0.141,
             avtaleInnholdId = "2",
             bedriftNavn = "Bedriften AS",
             bedriftNr = "999999999",
             deltakerFnr = deltakerFnr,
-            feriepengerSats = 0.141,
-            otpSats = 0.02,
+            feriepengerSats = 0.125,
+            otpSats = 0.03,
             tilskuddFom = Now.localDate().minusWeeks(3),
             tilskuddTom = Now.localDate().minusDays(1),
             tilskuddsperiodeId = "2",
@@ -266,13 +266,13 @@ internal class InnloggetArbeidsgiverTest(
             tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
             deltakerEtternavn = "Mus",
             deltakerFornavn = "Mikke",
-            arbeidsgiveravgiftSats = 0.101,
+            arbeidsgiveravgiftSats = 0.141,
             avtaleInnholdId = "2",
             bedriftNavn = "Bedriften AS",
             bedriftNr = "999999999",
             deltakerFnr = deltakerFnr,
-            feriepengerSats = 0.141,
-            otpSats = 0.02,
+            feriepengerSats = 0.125,
+            otpSats = 0.03,
             tilskuddFom = Now.localDate().minusWeeks(3),
             tilskuddTom = Now.localDate().minusDays(1),
             tilskuddsperiodeId = "3",
@@ -299,10 +299,10 @@ internal class InnloggetArbeidsgiverTest(
         val refusjon3FunnetViaFinnRefusjon = innloggetArbeidsgiver.finnRefusjon(refusjon3.id)
 
         assertThat(refusjon1FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(0)
-        assertThat(refusjon1FunnetViaFinnRefusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp).isEqualTo(0)
+        assertThat(refusjon1FunnetViaFinnRefusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp).isEqualTo(-3966)
 
         assertThat(refusjon2FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isLessThan(0)
-        assertThat(refusjon2FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(-4897)
+        assertThat(refusjon2FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(-3966)
         assertThat(refusjon2FunnetViaFinnRefusjon.forrigeRefusjonSomSkalSendesFørst).isEqualTo(null)
 
 
@@ -324,13 +324,13 @@ internal class InnloggetArbeidsgiverTest(
             tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
             deltakerEtternavn = "Mus",
             deltakerFornavn = "Mikke",
-            arbeidsgiveravgiftSats = 0.101,
+            arbeidsgiveravgiftSats = 0.141,
             avtaleInnholdId = "1",
             bedriftNavn = "Bedriften AS",
             bedriftNr = "999999999",
             deltakerFnr = deltakerFnr,
-            feriepengerSats = 0.141,
-            otpSats = 0.02,
+            feriepengerSats = 0.125,
+            otpSats = 0.03,
             tilskuddFom =  Now.localDate().minusWeeks(4),
             tilskuddTom = Now.localDate().minusDays(1),
             tilskuddsperiodeId = "1",
@@ -347,13 +347,13 @@ internal class InnloggetArbeidsgiverTest(
             tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
             deltakerEtternavn = "Mus",
             deltakerFornavn = "Mikke",
-            arbeidsgiveravgiftSats = 0.101,
+            arbeidsgiveravgiftSats = 0.141,
             avtaleInnholdId = "2",
             bedriftNavn = "Bedriften AS",
             bedriftNr = "999999999",
             deltakerFnr = deltakerFnr,
-            feriepengerSats = 0.141,
-            otpSats = 0.02,
+            feriepengerSats = 0.125,
+            otpSats = 0.03,
             tilskuddFom = Now.localDate().minusWeeks(3),
             tilskuddTom = Now.localDate().minusDays(1),
             tilskuddsperiodeId = "2",
@@ -371,13 +371,13 @@ internal class InnloggetArbeidsgiverTest(
             tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
             deltakerEtternavn = "Mus",
             deltakerFornavn = "Mikke",
-            arbeidsgiveravgiftSats = 0.101,
+            arbeidsgiveravgiftSats = 0.141,
             avtaleInnholdId = "2",
             bedriftNavn = "Bedriften AS",
             bedriftNr = "999999999",
             deltakerFnr = deltakerFnr,
-            feriepengerSats = 0.141,
-            otpSats = 0.02,
+            feriepengerSats = 0.125,
+            otpSats = 0.03,
             tilskuddFom = Now.localDate().minusWeeks(3),
             tilskuddTom = Now.localDate().minusDays(1),
             tilskuddsperiodeId = "3",
@@ -406,7 +406,8 @@ internal class InnloggetArbeidsgiverTest(
         val refusjon3FunnetViaFinnRefusjon = innloggetArbeidsgiver.finnRefusjon(refusjon3.id)
 
         assertThat(refusjon1FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(0)
-        assertThat(refusjon1FunnetViaFinnRefusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp).isEqualTo(0)
+        assertThat(refusjon1FunnetViaFinnRefusjon.refusjonsgrunnlag.beregning!!.lønnFratrukketFerie).isEqualTo(-5000)
+        assertThat(refusjon1FunnetViaFinnRefusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp).isEqualTo(-3966)
 
         assertThat(refusjon2FunnetViaFinnRefusjon).isEqualTo(refusjon2)
         assertThat(refusjon2FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(0)
@@ -423,13 +424,13 @@ internal class InnloggetArbeidsgiverTest(
             tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
             deltakerEtternavn = "Mus",
             deltakerFornavn = "Mikke",
-            arbeidsgiveravgiftSats = 0.101,
+            arbeidsgiveravgiftSats = 0.141,
             avtaleInnholdId = "1",
             bedriftNavn = "Bedriften AS",
             bedriftNr = "999999999",
             deltakerFnr = "01092211111",
-            feriepengerSats = 0.141,
-            otpSats = 0.02,
+            feriepengerSats = 0.125,
+            otpSats = 0.03,
             tilskuddFom =  Now.localDate().minusWeeks(4),
             tilskuddTom = Now.localDate().minusDays(1),
             tilskuddsperiodeId = "1",
@@ -446,13 +447,13 @@ internal class InnloggetArbeidsgiverTest(
             tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
             deltakerEtternavn = "Mus",
             deltakerFornavn = "Mikke",
-            arbeidsgiveravgiftSats = 0.101,
+            arbeidsgiveravgiftSats = 0.141,
             avtaleInnholdId = "2",
             bedriftNavn = "Bedriften AS",
             bedriftNr = "999999999",
             deltakerFnr = deltakerFnr,
-            feriepengerSats = 0.141,
-            otpSats = 0.02,
+            feriepengerSats = 0.125,
+            otpSats = 0.03,
             tilskuddFom = Now.localDate().minusWeeks(3),
             tilskuddTom = Now.localDate().minusDays(1),
             tilskuddsperiodeId = "2",
@@ -470,13 +471,13 @@ internal class InnloggetArbeidsgiverTest(
             tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
             deltakerEtternavn = "Mus",
             deltakerFornavn = "Mikke",
-            arbeidsgiveravgiftSats = 0.101,
+            arbeidsgiveravgiftSats = 0.141,
             avtaleInnholdId = "2",
             bedriftNavn = "Bedriften AS",
             bedriftNr = "999999999",
             deltakerFnr = "01092211111",
-            feriepengerSats = 0.141,
-            otpSats = 0.02,
+            feriepengerSats = 0.125,
+            otpSats = 0.03,
             tilskuddFom = Now.localDate().minusWeeks(3),
             tilskuddTom = Now.localDate().minusDays(1),
             tilskuddsperiodeId = "3",
@@ -509,11 +510,11 @@ internal class InnloggetArbeidsgiverTest(
 
         assertThat(refusjon2FunnetViaFinnRefusjon).isEqualTo(refusjon2)
         assertThat(refusjon2FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(0)
-        assertThat(refusjon2FunnetViaFinnRefusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp).isEqualTo(0)
-        assertThat(refusjon2FunnetViaFinnRefusjon.refusjonsgrunnlag.beregning!!.lønnFratrukketFerie).isEqualTo(-4897)
+        assertThat(refusjon2FunnetViaFinnRefusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp).isEqualTo(-3966)
+        assertThat(refusjon2FunnetViaFinnRefusjon.refusjonsgrunnlag.beregning!!.lønnFratrukketFerie).isEqualTo(-5000)
 
-        assertThat(refusjon3FunnetViaFinnRefusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp).isEqualTo(-3897)
-        assertThat(refusjon3FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(-4897)
+        assertThat(refusjon3FunnetViaFinnRefusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp).isEqualTo(-2966)
+        assertThat(refusjon3FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(-3966)
     }
 
     @Test
@@ -524,13 +525,13 @@ internal class InnloggetArbeidsgiverTest(
             tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
             deltakerEtternavn = "Mus",
             deltakerFornavn = "Mikke",
-            arbeidsgiveravgiftSats = 0.101,
+            arbeidsgiveravgiftSats = 0.141,
             avtaleInnholdId = "1",
             bedriftNavn = "Bedriften AS",
             bedriftNr = "999999999",
             deltakerFnr = "01092211111",
-            feriepengerSats = 0.141,
-            otpSats = 0.02,
+            feriepengerSats = 0.125,
+            otpSats = 0.03,
             tilskuddFom =  Now.localDate().minusWeeks(4),
             tilskuddTom = Now.localDate().minusDays(1),
             tilskuddsperiodeId = "1",

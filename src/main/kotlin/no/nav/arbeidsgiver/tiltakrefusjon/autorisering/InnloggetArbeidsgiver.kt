@@ -107,8 +107,8 @@ data class InnloggetArbeidsgiver(
                 denneRefusjon.tilskuddsgrunnlag.løpenummer
             ) ?: return
 
-        val beløpFraForrigeRefusjon = if (tidligereRefusjonMedMinusBeløpEtterFratrukketFerie.beregning!!.lønnFratrukketFerie <= 0)  tidligereRefusjonMedMinusBeløpEtterFratrukketFerie.beregning!!.lønnFratrukketFerie else tidligereRefusjonMedMinusBeløpEtterFratrukketFerie.beregning!!.refusjonsbeløp
-        denneRefusjon.refusjonsgrunnlag.oppgiForrigeRefusjonsbeløp(beløpFraForrigeRefusjon)
+        if (tidligereRefusjonMedMinusBeløpEtterFratrukketFerie.beregning!!.lønnFratrukketFerie <= 0)
+            denneRefusjon.refusjonsgrunnlag.oppgiForrigeRefusjonsbeløp(tidligereRefusjonMedMinusBeløpEtterFratrukketFerie.beregning!!.refusjonsbeløp)
     }
 
     private fun settOmForrigeRefusjonMåSendesFørst(refusjon: Refusjon){

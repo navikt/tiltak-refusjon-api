@@ -60,7 +60,6 @@ fun beregnRefusjonsbeløp(
     val overTilskuddsbeløp = beregnetBeløp > tilskuddsgrunnlag.tilskuddsbeløp
     var refusjonsbeløp =
         (if (overTilskuddsbeløp) tilskuddsgrunnlag.tilskuddsbeløp.toDouble() else beregnetBeløp) - tidligereUtbetalt + forrigeRefusjonMinusBeløp
-    if(lønnFratrukketFerie <= 0) refusjonsbeløp = sumUtgifter  * (tilskuddsgrunnlag.lønnstilskuddsprosent / 100.0) // Minus beløp - ferie trekk
 
     return Beregning(
         lønn = lønn,

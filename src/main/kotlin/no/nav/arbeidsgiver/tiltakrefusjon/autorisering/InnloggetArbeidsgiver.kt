@@ -81,8 +81,8 @@ data class InnloggetArbeidsgiver(
 
     fun finnRefusjon(id: String): Refusjon {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
-        settMinusBeløpOmFratrukketFerieGirMinusForForrigeRefusjonOmDenFinnes(refusjon)
-        settOmForrigeRefusjonMåSendesFørst(refusjon)
+        refusjonService.settMinusBeløpOmFratrukketFerieGirMinusForForrigeRefusjonOmDenFinnes(refusjon)
+        refusjonService.settOmForrigeRefusjonMåSendesFørst(refusjon)
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
         if(refusjon.åpnetFørsteGang == null) {
             refusjon.åpnetFørsteGang = Now.instant()
@@ -92,31 +92,7 @@ data class InnloggetArbeidsgiver(
         return refusjon
     }
 
-    /**
-     * Avklart med resultatseksjonen og virkemiddelseksjonen at ved minusbeløp en måned vil det ikke bli noen refusjon den måneden,
-     * men at vi overfører minusbeløp til neste måned dersom tiltaket fortsetter måneden etter. Hvis tiltaket avsluttes den samme måneden hvor det går i minus,
-     * så går refusjonen bare i 0,-.
-     */
-    private fun settMinusBeløpOmFratrukketFerieGirMinusForForrigeRefusjonOmDenFinnes(denneRefusjon: Refusjon) {
-        val tidligereRefusjonMedMinusBeløpEtterFratrukketFerie: Refusjon =
-            refusjonRepository.finnRefusjonSomSkalSendesMedMinusBeløpEtterFratrukketFerieFørDenne(
-                denneRefusjon.bedriftNr,
-                denneRefusjon.tilskuddsgrunnlag.avtaleNr,
-                denneRefusjon.tilskuddsgrunnlag.tiltakstype,
-                RefusjonStatus.GODKJENT_MINUSBELØP,
-                denneRefusjon.tilskuddsgrunnlag.løpenummer
-            ) ?: return
 
-        if (tidligereRefusjonMedMinusBeløpEtterFratrukketFerie.beregning!!.lønnFratrukketFerie <= 0)
-            denneRefusjon.refusjonsgrunnlag.oppgiForrigeRefusjonsbeløp(tidligereRefusjonMedMinusBeløpEtterFratrukketFerie.beregning!!.refusjonsbeløp)
-    }
-
-    private fun settOmForrigeRefusjonMåSendesFørst(refusjon: Refusjon){
-        if(refusjon.status != RefusjonStatus.KLAR_FOR_INNSENDING) return
-        val forrigeRefusjonSomMåSendesInnFørst: Refusjon = refusjonRepository.finnRefusjonSomSkalSendesFørDenne(refusjon.bedriftNr,refusjon.tilskuddsgrunnlag.avtaleNr,refusjon.tilskuddsgrunnlag.tiltakstype, RefusjonStatus.KLAR_FOR_INNSENDING, refusjon.tilskuddsgrunnlag.løpenummer).firstOrNull()
-            ?: return
-        if(forrigeRefusjonSomMåSendesInnFørst != refusjon) refusjon.angiRefusjonSomMåSendesFørst(forrigeRefusjonSomMåSendesInnFørst)
-    }
 
     fun finnKorreksjon(id: String): Korreksjon {
         val korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()

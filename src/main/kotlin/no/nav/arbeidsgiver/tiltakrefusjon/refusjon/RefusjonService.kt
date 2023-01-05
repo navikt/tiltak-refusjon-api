@@ -62,6 +62,32 @@ class RefusjonService(
         return refusjonRepository.save(refusjon)
     }
 
+    /**
+     * Avklart med resultatseksjonen og virkemiddelseksjonen at ved minusbeløp en måned vil det ikke bli noen refusjon den måneden,
+     * men at vi overfører minusbeløp til neste måned dersom tiltaket fortsetter måneden etter. Hvis tiltaket avsluttes den samme måneden hvor det går i minus,
+     * så går refusjonen bare i 0,-.
+     */
+    fun settMinusBeløpOmFratrukketFerieGirMinusForForrigeRefusjonOmDenFinnes(denneRefusjon: Refusjon) {
+        val tidligereRefusjonMedMinusBeløpEtterFratrukketFerie: Refusjon =
+            refusjonRepository.finnRefusjonSomSkalSendesMedMinusBeløpEtterFratrukketFerieFørDenne(
+                denneRefusjon.bedriftNr,
+                denneRefusjon.tilskuddsgrunnlag.avtaleNr,
+                denneRefusjon.tilskuddsgrunnlag.tiltakstype,
+                RefusjonStatus.GODKJENT_MINUSBELØP,
+                denneRefusjon.tilskuddsgrunnlag.løpenummer
+            ) ?: return
+
+        if (tidligereRefusjonMedMinusBeløpEtterFratrukketFerie.beregning!!.lønnFratrukketFerie <= 0)
+            denneRefusjon.refusjonsgrunnlag.oppgiForrigeRefusjonsbeløp(tidligereRefusjonMedMinusBeløpEtterFratrukketFerie.beregning!!.refusjonsbeløp)
+    }
+
+    fun settOmForrigeRefusjonMåSendesFørst(refusjon: Refusjon){
+        if(refusjon.status != RefusjonStatus.KLAR_FOR_INNSENDING) return
+        val forrigeRefusjonSomMåSendesInnFørst: Refusjon = refusjonRepository.finnRefusjonSomSkalSendesFørDenne(refusjon.bedriftNr,refusjon.tilskuddsgrunnlag.avtaleNr,refusjon.tilskuddsgrunnlag.tiltakstype, RefusjonStatus.KLAR_FOR_INNSENDING, refusjon.tilskuddsgrunnlag.løpenummer).firstOrNull()
+                ?: return
+        if(forrigeRefusjonSomMåSendesInnFørst != refusjon) refusjon.angiRefusjonSomMåSendesFørst(forrigeRefusjonSomMåSendesInnFørst)
+    }
+
     fun gjørInntektsoppslag(refusjon: Refusjon) {
         if (!refusjon.skalGjøreInntektsoppslag()) {
             return

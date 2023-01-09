@@ -147,6 +147,7 @@ data class InnloggetSaksbehandler(
     fun fullførKorreksjonVedOppgjort(id: String) {
         sjekkKorreksjonTilgang()
         val korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
+        refusjonService.settMinusBeløpOmFratrukketFerieGirMinusForForrigeRefusjonOmDenFinnes(korreksjon)
         sjekkLesetilgang(korreksjon)
         val refusjon = finnRefusjon(korreksjon.korrigererRefusjonId)
         sjekkLesetilgang(refusjon)
@@ -161,6 +162,7 @@ data class InnloggetSaksbehandler(
     fun fullførKorreksjonVedTilbakekreving(id: String) {
         sjekkKorreksjonTilgang()
         val korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
+        refusjonService.settMinusBeløpOmFratrukketFerieGirMinusForForrigeRefusjonOmDenFinnes(korreksjon)
         sjekkLesetilgang(korreksjon)
         val refusjon = finnRefusjon(korreksjon.korrigererRefusjonId)
         sjekkLesetilgang(refusjon)
@@ -175,6 +177,7 @@ data class InnloggetSaksbehandler(
     fun endreBruttolønn(id: String, inntekterKunFraTiltaket: Boolean?, endretBruttoLønn: Int?) {
         sjekkKorreksjonTilgang()
         val korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
+        refusjonService.settMinusBeløpOmFratrukketFerieGirMinusForForrigeRefusjonOmDenFinnes(korreksjon)
         sjekkLesetilgang(korreksjon)
         korreksjon.endreBruttolønn(inntekterKunFraTiltaket, endretBruttoLønn)
         korreksjonRepository.save(korreksjon)

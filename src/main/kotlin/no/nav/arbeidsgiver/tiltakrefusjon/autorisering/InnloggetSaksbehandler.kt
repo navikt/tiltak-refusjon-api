@@ -132,6 +132,7 @@ data class InnloggetSaksbehandler(
     fun utbetalKorreksjon(id: String, beslutterNavIdent: String, kostnadssted: String) {
         sjekkKorreksjonTilgang()
         val korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
+        refusjonService.settMinusBeløpOmFratrukketFerieGirMinusForForrigeRefusjonOmDenFinnes(korreksjon)
         sjekkLesetilgang(korreksjon)
         val refusjon = finnRefusjon(korreksjon.korrigererRefusjonId)
         sjekkLesetilgang(refusjon)

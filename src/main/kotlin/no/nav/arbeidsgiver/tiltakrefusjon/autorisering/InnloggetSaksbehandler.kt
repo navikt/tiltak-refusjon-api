@@ -53,11 +53,14 @@ data class InnloggetSaksbehandler(
     fun finnRefusjon(id: String): Refusjon {
         val refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(refusjon)
+        refusjonService.settMinusBeløpOmFratrukketFerieGirMinusForForrigeRefusjonOmDenFinnes(refusjon)
+        refusjonService.settOmForrigeRefusjonMåSendesFørst(refusjon)
         return refusjon
     }
 
     fun finnKorreksjon(id: String): Korreksjon {
         val korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
+        refusjonService.settMinusBeløpOmFratrukketFerieGirMinusForForrigeRefusjonOmDenFinnes(korreksjon)
         sjekkLesetilgang(korreksjon)
         if (korreksjon.skalGjøreKontonummerOppslag()) {
             val kontonummer = kontoregisterService.hentBankkontonummer(korreksjon.bedriftNr)

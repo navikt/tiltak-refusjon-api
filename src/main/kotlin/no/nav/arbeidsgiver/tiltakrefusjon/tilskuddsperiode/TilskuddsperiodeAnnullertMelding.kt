@@ -8,5 +8,6 @@ data class TilskuddsperiodeAnnullertMelding(
 enum class MidlerFrigjortÅrsak {
     AVTALE_ANNULLERT,
     REFUSJON_FRIST_UTGÅTT,
+    REFUSJON_MINUS_BELØP,
     REFUSJON_IKKE_SØKT,
 }

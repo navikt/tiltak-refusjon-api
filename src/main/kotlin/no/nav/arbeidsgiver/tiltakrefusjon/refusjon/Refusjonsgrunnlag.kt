@@ -18,7 +18,7 @@ class Refusjonsgrunnlag(
     @ManyToOne(cascade = [CascadeType.PERSIST, CascadeType.MERGE], optional = false)
     @JoinColumn(name = "tilskuddsgrunnlag_id")
     val tilskuddsgrunnlag: Tilskuddsgrunnlag,
-    val tidligereUtbetalt: Int = 0,
+    val tidligereUtbetalt: Int = 0
 ) {
     @Id
     val id = ULID.random()
@@ -31,6 +31,7 @@ class Refusjonsgrunnlag(
     var endretBruttoLønn: Int? = null
     var fratrekkRefunderbarBeløp: Boolean? = null
     var refunderbarBeløp: Int? = null
+    var forrigeRefusjonMinusBeløp: Int = 0
 
     @OneToOne(orphanRemoval = true, cascade = [CascadeType.ALL])
     var beregning: Beregning? = null
@@ -52,6 +53,11 @@ class Refusjonsgrunnlag(
             this.resetEndreBruttolønn()
         }
         this.inntektsgrunnlag = inntektsgrunnlag
+        return gjørBeregning()
+    }
+
+    fun oppgiForrigeRefusjonsbeløp(forrigeRefusjonMinusBeløp: Int): Boolean{
+        this.forrigeRefusjonMinusBeløp = forrigeRefusjonMinusBeløp
         return gjørBeregning()
     }
 
@@ -96,8 +102,8 @@ class Refusjonsgrunnlag(
                 tilskuddsgrunnlag = tilskuddsgrunnlag,
                 tidligereUtbetalt = tidligereUtbetalt,
                 korrigertBruttoLønn = endretBruttoLønn,
-                fratrekkRefunderbarSum = refunderbarBeløp
-            )
+                fratrekkRefunderbarSum = refunderbarBeløp,
+            forrigeRefusjonMinusBeløp = forrigeRefusjonMinusBeløp)
             return true
         }
         return false

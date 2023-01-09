@@ -19,6 +19,30 @@ interface RefusjonRepository : JpaRepository<Refusjon, String> {
     fun findAllByStatus(status: RefusjonStatus): List<Refusjon>
     fun findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_AvtaleNr(avtaleNr: Int): List<Refusjon>
 
+
+    @Query("SELECT r FROM Refusjon r WHERE r.bedriftNr = :bedriftNr AND (r.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr = :avtaleNr) AND (:tiltakstype is null or r.refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype = :tiltakstype) AND (:status is null or r.status = :status) " +
+            "AND :nåværendeLøpenummer NOT IN (1) AND r.refusjonsgrunnlag.tilskuddsgrunnlag.løpenummer = (:nåværendeLøpenummer - 1 ) AND  r.refusjonsgrunnlag.beregning IS NOT NULL AND (r.refusjonsgrunnlag.beregning.lønnFratrukketFerie <= 0 OR r.refusjonsgrunnlag.beregning.refusjonsbeløp <= 0) ")
+    fun finnRefusjonSomSkalSendesMedMinusBeløpEtterFratrukketFerieFørDenne(
+        @Param("bedriftNr") bedriftNr: String,
+        @Param("avtaleNr") avtaleNr: Int,
+        @Param("tiltakstype") tiltakstype: Tiltakstype,
+        @Param("status") status: RefusjonStatus,
+        @Param("nåværendeLøpenummer") nåværendeLøpenummer: Int
+    ): Refusjon?
+
+    @Query("from Refusjon r where r.bedriftNr = :bedriftNr " +
+            "and (r.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr = :avtaleNr)  " +
+            "and (:tiltakstype is null or r.refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype = :tiltakstype) " +
+            "and (:status is null or r.status = :status) " +
+            "and :nåværendeLøpenummer not in (1) " +
+            "ORDER BY r.refusjonsgrunnlag.tilskuddsgrunnlag.løpenummer ASC")
+    fun finnRefusjonSomSkalSendesFørDenne(
+        @Param("bedriftNr") bedriftNr: String,
+        @Param("avtaleNr") avtaleNr: Int,
+        @Param("tiltakstype") tiltakstype: Tiltakstype,
+        @Param("status") status: RefusjonStatus,
+        @Param("nåværendeLøpenummer") nåværendeLøpenummer: Int
+    ): List<Refusjon>
     @Query("select r from Refusjon r where r.bedriftNr in (:bedriftNr) and (:status is null or r.status = :status) " +
             "and (:tiltakstype is null or r.refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype = :tiltakstype) " +
             "order by (CASE WHEN r.status = 'KLAR_FOR_INNSENDING' THEN 0 else 1 END)," +

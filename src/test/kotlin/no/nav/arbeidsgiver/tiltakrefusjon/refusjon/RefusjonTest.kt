@@ -6,6 +6,8 @@ import no.nav.arbeidsgiver.tiltakrefusjon.utils.antallMånederEtter
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
+import java.lang.RuntimeException
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
@@ -190,6 +192,20 @@ internal class RefusjonTest {
         )
         refusjon.oppdaterStatus()
         assertThat(refusjon.status).isEqualTo(RefusjonStatus.KLAR_FOR_INNSENDING)
+    }
+
+   @Test
+    fun `oppdater status til GODKJENT_MINUSBELØP`() {
+        val refusjon = enRefusjon(
+            etTilskuddsgrunnlag().copy(
+                tilskuddFom = Now.localDate().minusDays(2),
+                tilskuddTom = Now.localDate().minusDays(1),
+                tilskuddsbeløp = -200
+            )
+        ).medInntekterKunFraTiltaket().medInntektsgrunnlag()
+        refusjon.oppgiBedriftKontonummer("10000008145")
+        refusjon.godkjennForArbeidsgiver("12345678901")
+        assertThat(refusjon.status).isEqualTo(RefusjonStatus.GODKJENT_MINUSBELØP)
     }
 
     @Test

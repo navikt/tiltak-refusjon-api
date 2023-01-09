@@ -1,6 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
-import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.guepardoapps.kulid.ULID
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
@@ -37,7 +37,7 @@ class Refusjon(
     @Id
     val id: String = ULID.random()
 
-    // Fristen er satt til 2 mnd ihht økonomireglementet. Hvis etterregistrert 2 mnd etter godkjent tidspunkt av beslutter
+    // Fristen er satt til 2 mnd ihht reimplementation. Hvis etterregistrert 2 mnd etter godkjent tidspunkt av beslutter
     var fristForGodkjenning: LocalDate = lagFristForGodkjenning()
 
     var forrigeFristForGodkjenning: LocalDate? = null
@@ -62,6 +62,9 @@ class Refusjon(
     val inntekterKunFraTiltaket: Boolean? get() = refusjonsgrunnlag.inntekterKunFraTiltaket
     var utbetaltTidspunkt: Instant? = null
     var åpnetFørsteGang: Instant? = null
+    @Transient
+    @JsonInclude
+    var forrigeRefusjonSomSkalSendesFørst: Refusjon? = null
     init {
         oppdaterStatus()
     }
@@ -80,6 +83,10 @@ class Refusjon(
     @JsonProperty
     fun harInntektIAlleMåneder(): Boolean {
         return refusjonsgrunnlag.harInntektIAlleMåneder()
+    }
+
+    fun angiRefusjonSomMåSendesFørst(skalForrigeMåSettesFørst:Refusjon){
+        this.forrigeRefusjonSomSkalSendesFørst = skalForrigeMåSettesFørst
     }
 
     @JsonProperty
@@ -159,11 +166,13 @@ class Refusjon(
         if (!this.harTattStillingTilAlleInntektslinjer()) {
             throw FeilkodeException(Feilkode.IKKE_TATT_STILLING_TIL_ALLE_INNTEKTSLINJER)
         }
-        if(!refusjonsgrunnlag.refusjonsgrunnlagetErPositivt()) {
-            throw FeilkodeException(Feilkode.REFUSJON_BELOP_NEGATIVT_TALL)
-        }
         godkjentAvArbeidsgiver = Now.instant()
         status = RefusjonStatus.SENDT_KRAV
+        if(!refusjonsgrunnlag.refusjonsgrunnlagetErPositivt()) {
+            status = RefusjonStatus.GODKJENT_MINUSBELØP
+            registerEvent(RefusjonMinusBeløp(this, utførtAv))
+        }
+
         registerEvent(GodkjentAvArbeidsgiver(this, utførtAv))
         registerEvent(RefusjonEndretStatus(this))
     }
@@ -210,7 +219,7 @@ class Refusjon(
     }
 
     fun opprettKorreksjonsutkast(korreksjonsgrunner: Set<Korreksjonsgrunn>): Korreksjon {
-        krevStatus(RefusjonStatus.UTBETALT, RefusjonStatus.SENDT_KRAV, RefusjonStatus.UTGÅTT)
+        krevStatus(RefusjonStatus.UTBETALT, RefusjonStatus.SENDT_KRAV,RefusjonStatus.GODKJENT_MINUSBELØP, RefusjonStatus.UTGÅTT)
         if (korreksjonId != null) {
             throw FeilkodeException(Feilkode.HAR_KORREKSJON)
         }

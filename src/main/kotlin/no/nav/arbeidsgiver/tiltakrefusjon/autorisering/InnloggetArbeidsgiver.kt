@@ -14,7 +14,6 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
-import java.time.Instant
 
 
 data class InnloggetArbeidsgiver(
@@ -82,6 +81,8 @@ data class InnloggetArbeidsgiver(
 
     fun finnRefusjon(id: String): Refusjon {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
+        refusjonService.settMinusBeløpOmFratrukketFerieGirMinusForForrigeRefusjonOmDenFinnes(refusjon)
+        refusjonService.settOmForrigeRefusjonMåSendesFørst(refusjon)
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
         if(refusjon.åpnetFørsteGang == null) {
             refusjon.åpnetFørsteGang = Now.instant()
@@ -90,6 +91,8 @@ data class InnloggetArbeidsgiver(
         refusjonService.gjørInntektsoppslag(refusjon)
         return refusjon
     }
+
+
 
     fun finnKorreksjon(id: String): Korreksjon {
         val korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()

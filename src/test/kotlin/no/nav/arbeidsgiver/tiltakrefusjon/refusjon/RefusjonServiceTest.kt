@@ -2,6 +2,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import com.ninjasquad.springmockk.SpykBean
 import io.mockk.verify
+import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeAnnullertMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.MidlerFrigjortÅrsak
@@ -10,9 +11,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkj
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.varsling.VarslingRepository
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.fail
+import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock
@@ -40,6 +39,206 @@ class RefusjonServiceTest(
         varslingRepository.deleteAll()
         refusjonRepository.deleteAll()
     }
+
+    @Test
+    fun `godkjennForArbeidsgiver feiler fordi refusjon er ikke klar til innsending`(){
+
+        val deltakerFnr = "00000000000"
+        val tilskuddMelding = TilskuddsperiodeGodkjentMelding(
+            avtaleId = "1",
+            tilskuddsbeløp = 1000,
+            tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
+            deltakerEtternavn = "Mus",
+            deltakerFornavn = "Mikke",
+            arbeidsgiveravgiftSats = 0.101,
+            avtaleInnholdId = "1",
+            bedriftNavn = "Bedriften AS",
+            bedriftNr = "999999999",
+            deltakerFnr = deltakerFnr,
+            feriepengerSats = 0.141,
+            otpSats = 0.02,
+            tilskuddFom =  Now.localDate().minusWeeks(4),
+            tilskuddTom = Now.localDate().minusDays(1),
+            tilskuddsperiodeId = "1",
+            veilederNavIdent = "X123456",
+            lønnstilskuddsprosent = 60,
+            avtaleNr = 3456,
+            løpenummer = 1,
+            enhet = "1000",
+            godkjentTidspunkt = LocalDateTime.now()
+        )
+
+
+        val refusjon1 = refusjonService.opprettRefusjon(tilskuddMelding)!!
+        refusjonService.gjørBedriftKontonummeroppslag(refusjon1)
+        refusjonService.gjørInntektsoppslag(refusjon1)
+        gjørInntektoppslagForRefusjon(refusjon1)
+
+        assertThat(refusjonRepository.findAll().count()).isEqualTo(1)
+        assertDoesNotThrow { refusjonService.godkjennForArbeidsgiver(refusjon1,"999999999")}
+        assertThrows<FeilkodeException> { refusjonService.godkjennForArbeidsgiver(refusjon1,"999999999")}
+    }
+
+    @Test
+    fun `rekkefølge GODKJENNING av refusjon, sperre for løpenummer 2 om løpenummer 1 ikke er godkjent først`(){
+
+        val deltakerFnr = "00000000000"
+        val tilskuddMelding = TilskuddsperiodeGodkjentMelding(
+            avtaleId = "1",
+            tilskuddsbeløp = 1000,
+            tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
+            deltakerEtternavn = "Mus",
+            deltakerFornavn = "Mikke",
+            arbeidsgiveravgiftSats = 0.101,
+            avtaleInnholdId = "1",
+            bedriftNavn = "Bedriften AS",
+            bedriftNr = "999999999",
+            deltakerFnr = deltakerFnr,
+            feriepengerSats = 0.141,
+            otpSats = 0.02,
+            tilskuddFom =  Now.localDate().minusWeeks(4),
+            tilskuddTom = Now.localDate().minusDays(1),
+            tilskuddsperiodeId = "1",
+            veilederNavIdent = "X123456",
+            lønnstilskuddsprosent = 60,
+            avtaleNr = 3456,
+            løpenummer = 1,
+            enhet = "1000",
+            godkjentTidspunkt = LocalDateTime.now()
+        )
+        val tilskuddMelding2LittEldreMedLøpenummer2 = TilskuddsperiodeGodkjentMelding(
+            avtaleId = "1",
+            tilskuddsbeløp = 1000,
+            tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
+            deltakerEtternavn = "Mus",
+            deltakerFornavn = "Mikke",
+            arbeidsgiveravgiftSats = 0.101,
+            avtaleInnholdId = "2",
+            bedriftNavn = "Bedriften AS",
+            bedriftNr = "999999999",
+            deltakerFnr = deltakerFnr,
+            feriepengerSats = 0.141,
+            otpSats = 0.02,
+            tilskuddFom = Now.localDate().minusWeeks(3),
+            tilskuddTom = Now.localDate().minusDays(1),
+            tilskuddsperiodeId = "2",
+            veilederNavIdent = "X123456",
+            lønnstilskuddsprosent = 60,
+            avtaleNr = 3456,
+            løpenummer = 2,
+            enhet = "1000",
+            godkjentTidspunkt = LocalDateTime.now()
+        )
+
+        val refusjon1 = refusjonService.opprettRefusjon(tilskuddMelding)!!
+        refusjonService.gjørBedriftKontonummeroppslag(refusjon1)
+        refusjonService.gjørInntektsoppslag(refusjon1)
+
+        val refusjon2 = refusjonService.opprettRefusjon(tilskuddMelding2LittEldreMedLøpenummer2)!!
+        refusjonService.gjørBedriftKontonummeroppslag(refusjon2)
+        refusjonService.gjørInntektsoppslag(refusjon2)
+
+        assertThat(refusjonRepository.findAll().count()).isEqualTo(2)
+        assertThrows<GodkjennEldreRefusjonFørstException> { refusjonService.godkjennForArbeidsgiver(refusjon2,"999999999")}
+    }
+
+    @Test
+    fun `rekkefølge GODKJENNING av refusjon, sperre for løpenummer 3 om løpenummer 2 ikke er godkjent først`(){
+
+        val deltakerFnr = "00000000000"
+        val tilskuddMelding = TilskuddsperiodeGodkjentMelding(
+            avtaleId = "1",
+            tilskuddsbeløp = 1000,
+            tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
+            deltakerEtternavn = "Mus",
+            deltakerFornavn = "Mikke",
+            arbeidsgiveravgiftSats = 0.101,
+            avtaleInnholdId = "1",
+            bedriftNavn = "Bedriften AS",
+            bedriftNr = "999999999",
+            deltakerFnr = deltakerFnr,
+            feriepengerSats = 0.141,
+            otpSats = 0.02,
+            tilskuddFom =  Now.localDate().minusWeeks(4),
+            tilskuddTom = Now.localDate().minusDays(1),
+            tilskuddsperiodeId = "1",
+            veilederNavIdent = "X123456",
+            lønnstilskuddsprosent = 60,
+            avtaleNr = 3456,
+            løpenummer = 1,
+            enhet = "1000",
+            godkjentTidspunkt = LocalDateTime.now()
+        )
+        val tilskuddMelding2LittEldreMedLøpenummer2 = TilskuddsperiodeGodkjentMelding(
+            avtaleId = "1",
+            tilskuddsbeløp = 1000,
+            tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
+            deltakerEtternavn = "Mus",
+            deltakerFornavn = "Mikke",
+            arbeidsgiveravgiftSats = 0.101,
+            avtaleInnholdId = "2",
+            bedriftNavn = "Bedriften AS",
+            bedriftNr = "999999999",
+            deltakerFnr = deltakerFnr,
+            feriepengerSats = 0.141,
+            otpSats = 0.02,
+            tilskuddFom = Now.localDate().minusWeeks(3),
+            tilskuddTom = Now.localDate().minusDays(1),
+            tilskuddsperiodeId = "2",
+            veilederNavIdent = "X123456",
+            lønnstilskuddsprosent = 60,
+            avtaleNr = 3456,
+            løpenummer = 2,
+            enhet = "1000",
+            godkjentTidspunkt = LocalDateTime.now()
+        )
+
+            val tilskuddMelding3LittEldreMedLøpenummer3 = TilskuddsperiodeGodkjentMelding(
+            avtaleId = "1",
+            tilskuddsbeløp = 1000,
+            tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
+            deltakerEtternavn = "Mus",
+            deltakerFornavn = "Mikke",
+            arbeidsgiveravgiftSats = 0.101,
+            avtaleInnholdId = "2",
+            bedriftNavn = "Bedriften AS",
+            bedriftNr = "999999999",
+            deltakerFnr = deltakerFnr,
+            feriepengerSats = 0.141,
+            otpSats = 0.02,
+            tilskuddFom = Now.localDate().minusWeeks(3),
+            tilskuddTom = Now.localDate().minusDays(1),
+            tilskuddsperiodeId = "3",
+            veilederNavIdent = "X123456",
+            lønnstilskuddsprosent = 60,
+            avtaleNr = 3456,
+            løpenummer = 3,
+            enhet = "1000",
+            godkjentTidspunkt = LocalDateTime.now()
+        )
+
+        val refusjon1 = refusjonService.opprettRefusjon(tilskuddMelding)!!
+        refusjonService.gjørBedriftKontonummeroppslag(refusjon1)
+        refusjonService.gjørInntektsoppslag(refusjon1)
+        gjørInntektoppslagForRefusjon(refusjon1)
+
+        val refusjon2 = refusjonService.opprettRefusjon(tilskuddMelding2LittEldreMedLøpenummer2)!!
+        refusjonService.gjørBedriftKontonummeroppslag(refusjon2)
+        refusjonService.gjørInntektsoppslag(refusjon2)
+        gjørInntektoppslagForRefusjon(refusjon2)
+
+        val refusjon3 = refusjonService.opprettRefusjon(tilskuddMelding3LittEldreMedLøpenummer3)!!
+        refusjonService.gjørBedriftKontonummeroppslag(refusjon3)
+        refusjonService.gjørInntektsoppslag(refusjon3)
+        gjørInntektoppslagForRefusjon(refusjon3)
+
+        assertThat(refusjonRepository.findAll().count()).isEqualTo(3)
+        assertDoesNotThrow { refusjonService.godkjennForArbeidsgiver(refusjon1,"999999999")}
+        assertDoesNotThrow { refusjonService.godkjennForArbeidsgiver(refusjon2,"999999999")}
+        assertDoesNotThrow { refusjonService.godkjennForArbeidsgiver(refusjon3,"999999999")}
+    }
+
+
 
     @Test
     fun `oppretter, forkorter, og forlenger`() {
@@ -235,5 +434,12 @@ class RefusjonServiceTest(
         refusjonService.annullerRefusjon(TilskuddsperiodeAnnullertMelding(tilskuddMelding.tilskuddsperiodeId, MidlerFrigjortÅrsak.REFUSJON_IKKE_SØKT))
         lagretRefusjon = refusjonRepository.findByIdOrNull(lagretRefusjon?.id) ?: throw RuntimeException()
         assertThat(lagretRefusjon.status).isNotEqualTo(RefusjonStatus.ANNULLERT)
+    }
+
+    fun gjørInntektoppslagForRefusjon(refusjon: Refusjon) {
+        // Sett innhentede inntekter til opptjent i periode
+        refusjon.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.forEach { it.erOpptjentIPeriode = true }
+        // Bekreft at alle inntektene kun er fra tiltaket
+        refusjon.endreBruttolønn(true, null)
     }
 }

@@ -23,8 +23,8 @@ class FakeInntektskomponentService : InntektskomponentService {
             // Simulerer minus beløp for (Jon Janson Minus Beløp) i test data
             val inntektslinjer = ArrayList<Inntektslinje>()
             val måned = YearMonth.of(datoFra.year, datoFra.month)
-            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "fastloenn", 31868.25,  måned, datoTil, måned.atEndOfMonth()))
-            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "trekkILoennForFerie", -36765.4,  måned, datoTil, måned.atEndOfMonth()))
+            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "fastloenn", 20000.0,  måned, datoTil, måned.atEndOfMonth()))
+            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "trekkILoennForFerie", -25000.0,  måned, datoTil, måned.atEndOfMonth()))
             return Pair(inntektslinjer, "fake respons")
         }
 
@@ -32,6 +32,7 @@ class FakeInntektskomponentService : InntektskomponentService {
         datoFra.datesUntil(datoTil, Period.ofMonths(1)).forEach {
             val måned = YearMonth.of(it.year, it.month)
 //            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "timeloenn", 250000.0, måned, it, måned.atEndOfMonth()))
+            //inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "fastloenn", 10000.0, måned, it, måned.atEndOfMonth()))
             inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "fastloenn", 10000.0, måned, it, måned.atEndOfMonth()))
             if (Math.random() > 0.5) {
                 inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "fastloenn", 2000.0, måned, it, måned.atEndOfMonth()))
@@ -39,7 +40,7 @@ class FakeInntektskomponentService : InntektskomponentService {
             inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "trekkILoennForFerie", -1200.0, måned, it, måned.atEndOfMonth()))
 //            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "fastTillegg", 10000.0, måned, null, null))
 //            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "overtidsgodtgjoerelse", 7683.0, måned, it, måned.atEndOfMonth()))
-            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "loennUtbetaltAvVeldedigEllerAllmennyttigInstitusjonEllerOrganisasjon", 423.0, måned, it, måned.atEndOfMonth()))
+            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "loennUtbetaltAvVeldedigEllerAllmennyttigInstitusjonEllerOrganisasjon", 423.0, måned, it, måned.atEndOfMonth(), erOpptjentIPeriode = false))
         }
         return Pair(inntektslinjer, "fake respons")
     }

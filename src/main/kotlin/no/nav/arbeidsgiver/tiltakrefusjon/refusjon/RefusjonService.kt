@@ -88,6 +88,20 @@ class RefusjonService(
         if(forrigeRefusjonSomMåSendesInnFørst != refusjon) refusjon.angiRefusjonSomMåSendesFørst(forrigeRefusjonSomMåSendesInnFørst)
     }
 
+    fun settMinusBeløpOmFratrukketFerieGirMinusForForrigeRefusjonOmDenFinnes(denneKorreksjon: Korreksjon) {
+        val tidligereRefusjonMedMinusBeløpEtterFratrukketFerie: Refusjon =
+            refusjonRepository.finnRefusjonSomSkalSendesMedMinusBeløpEtterFratrukketFerieFørDenne(
+                denneKorreksjon.bedriftNr,
+                denneKorreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr,
+                denneKorreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype,
+                RefusjonStatus.GODKJENT_MINUSBELØP,
+                denneKorreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.løpenummer
+            ) ?: return
+
+        if (tidligereRefusjonMedMinusBeløpEtterFratrukketFerie.beregning!!.lønnFratrukketFerie <= 0)
+            denneKorreksjon.refusjonsgrunnlag.oppgiForrigeRefusjonsbeløp(tidligereRefusjonMedMinusBeløpEtterFratrukketFerie.beregning!!.refusjonsbeløp)
+    }
+
     fun gjørInntektsoppslag(refusjon: Refusjon) {
         if (!refusjon.skalGjøreInntektsoppslag()) {
             return

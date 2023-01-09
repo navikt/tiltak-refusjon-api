@@ -60,6 +60,7 @@ data class InnloggetSaksbehandler(
 
     fun finnKorreksjon(id: String): Korreksjon {
         val korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
+        refusjonService.settMinusBeløpOmFratrukketFerieGirMinusForForrigeRefusjonOmDenFinnes(korreksjon)
         sjekkLesetilgang(korreksjon)
         if (korreksjon.skalGjøreKontonummerOppslag()) {
             val kontonummer = kontoregisterService.hentBankkontonummer(korreksjon.bedriftNr)

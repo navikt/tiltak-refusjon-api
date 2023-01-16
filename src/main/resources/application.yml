@@ -117,6 +117,8 @@ tiltak-refusjon:
     apiGwApiKey: ${ALTINN_API_GW_API_KEY}
   graph-api:
     uri: "https://graph.microsoft.com/v1.0/me?$select=onPremisesSamAccountName,displayName"
+  dokgen:
+    uri: "http://tiltak-dokgen.arbeidsgiver.svc.nais.local/template/tiltak-avtale/create-pdf"
   statusjobb:
     fixed-delay: 3600000
   varslingsjobb:

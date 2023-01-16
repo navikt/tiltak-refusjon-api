@@ -2,10 +2,10 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.UgyldigRequestException
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBrukerService
+import no.nav.arbeidsgiver.tiltakrefusjon.dokgen.DokgenService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.data.domain.Page
-import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
+import org.springframework.http.*
 import org.springframework.web.bind.annotation.*
 
 
@@ -25,6 +25,7 @@ data class HentArbeidsgiverRefusjonerQueryParametre(
 @ProtectedWithClaims(issuer = "tokenx")
 class ArbeidsgiverRefusjonController(
     val innloggetBrukerService: InnloggetBrukerService,
+    val dokgenService: DokgenService
 ) {
     @GetMapping
     fun hentAlle(queryParametre: HentArbeidsgiverRefusjonerQueryParametre): List<Refusjon> {
@@ -35,6 +36,21 @@ class ArbeidsgiverRefusjonController(
         return arbeidsgiver.finnAlleMedBedriftnummer(queryParametre.bedriftNr)
             .filter { queryParametre.status == null || queryParametre.status == it.status }
             .filter { queryParametre.tiltakstype == null || queryParametre.tiltakstype == it.refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype }
+    }
+
+    @GetMapping("/{id}/pdf")
+    fun hentPDF(@PathVariable id:String): HttpEntity<ByteArray>{
+        if(id.trim().isEmpty()) return HttpEntity.EMPTY as HttpEntity<ByteArray>
+        val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
+        val refusjon = arbeidsgiver.finnRefusjon(id)
+        val pdfDataAsByteArray: ByteArray = dokgenService.refusjonPdf(refusjon)
+
+        val header = HttpHeaders()
+        header.contentType = MediaType.APPLICATION_PDF
+        header[HttpHeaders.CONTENT_DISPOSITION] = "inline; filename=Refusjon om " + refusjon.tilskuddsgrunnlag.tiltakstype.name + ".pdf"
+        header.contentLength = pdfDataAsByteArray.size.toLong()
+        return HttpEntity<ByteArray>(pdfDataAsByteArray, header)
+
     }
 
     @GetMapping("/hentliste")

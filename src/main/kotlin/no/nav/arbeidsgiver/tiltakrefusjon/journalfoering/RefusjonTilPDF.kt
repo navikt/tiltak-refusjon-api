@@ -2,7 +2,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon.journalfoering
 
 import java.time.LocalDate
 
-data class RefusjonTilJournalfoering(
+data class RefusjonTilPDF(
     val id: String,
     val deltakerFornavn: String,
     val deltakerEtternavn: String,

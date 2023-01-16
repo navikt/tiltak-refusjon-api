@@ -1,16 +1,16 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.dokgen
 
-import no.nav.arbeidsgiver.tiltakrefusjon.journalfoering.RefusjonTilJournalfoering
+import no.nav.arbeidsgiver.tiltakrefusjon.journalfoering.RefusjonTilPDF
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
 
-object RefusjonTilJournalfoeringMapper {
-    fun tilJournalfoering(refusjon : Refusjon) : RefusjonTilJournalfoering {
+object RefusjonTilPDFMapper {
+    fun tilPDFdata(refusjon : Refusjon) : RefusjonTilPDF {
 
-        if(refusjon.refusjonsgrunnlag?.beregning == null){
+        if(refusjon.refusjonsgrunnlag.beregning == null){
             throw RuntimeException("refusjonsgrunnlag er null")
         }
 
-        return RefusjonTilJournalfoering(
+        return RefusjonTilPDF(
             refusjon.id,
             refusjon.tilskuddsgrunnlag.deltakerFornavn,
             refusjon.tilskuddsgrunnlag.deltakerEtternavn,

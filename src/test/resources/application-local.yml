@@ -53,7 +53,8 @@ tiltak-refusjon:
     uri: http://localhost:${wiremock.port}/ereg
     consumer-id: tiltak-refusjon-api
   dokgen:
-    uri: "http://tiltak-dokgen.arbeidsgiver.svc.nais.local/template/tiltak-avtale/create-pdf"
+      uri: http://localhost:5913/template/tiltak-refusjon/create-pdf
+      #uri: http://tiltak-dokgen.arbeidsgiver.svc.nais.local/template/tiltak-refusjon/create-pdf
   inntektskomponenten:
     fake: true
     uri: http://localhost:${wiremock.port}/inntektskomponenten-ws/rs/api/v1/hentinntektliste

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import io.micrometer.core.instrument.MeterRegistry
 import lombok.RequiredArgsConstructor
 import lombok.extern.slf4j.Slf4j
-import no.nav.arbeidsgiver.tiltakrefusjon.journalfoering.RefusjonTilJournalfoering
+import no.nav.arbeidsgiver.tiltakrefusjon.journalfoering.RefusjonTilPDF
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter
 import org.springframework.stereotype.Service
@@ -24,18 +24,18 @@ class DokgenService(
     private val meterRegistry: MeterRegistry
 ) {
 
-    fun avtalePdf(refusjon: Refusjon): ByteArray {
-        val refusjonTilJournalfoering : RefusjonTilJournalfoering =
-            RefusjonTilJournalfoeringMapper.tilJournalfoering(refusjon)
+    fun refusjonPdf(refusjon: Refusjon): ByteArray {
+        val refusjonTilPDF : RefusjonTilPDF =
+            RefusjonTilPDFMapper.tilPDFdata(refusjon)
         return try {
             val bytes: ByteArray = restOperations().postForObject(
-                dokgenProperties.uri!!, refusjonTilJournalfoering,
+                dokgenProperties.uri!!, refusjonTilPDF,
                 ByteArray::class.java
             )!!
-            meterRegistry!!.counter("tiltaksgjennomforing.pdf.ok").increment()
+            meterRegistry.counter("refusjon.pdf.ok").increment()
             bytes
         } catch (e: RestClientException) {
-            meterRegistry!!.counter("tiltaksgjennomforing.pdf.feil").increment()
+            meterRegistry.counter("refusjon.pdf.feil").increment()
             throw e
         }
     }

@@ -1,7 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode
 
 import no.nav.arbeidsgiver.tiltakrefusjon.Topics
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerConfig
@@ -51,6 +51,9 @@ class TilskuddsperiodeLytterTest {
             deltakerFornavn = "Donald",
             deltakerEtternavn = "Duck",
             deltakerFnr = "12345678901",
+            arbeidsgiverFornavn = "Arne",
+            arbeidsgiverEtternavn = "Arbeidsgiver",
+            arbeidsgiverTlf = "41111111",
             veilederNavIdent = "X123456",
             bedriftNavn = "Duck Levering AS",
             bedriftNr = "99999999",

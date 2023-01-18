@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import io.micrometer.core.instrument.MeterRegistry
 import lombok.RequiredArgsConstructor
 import lombok.extern.slf4j.Slf4j
-import no.nav.arbeidsgiver.tiltakrefusjon.journalfoering.RefusjonTilPDF
+import no.nav.arbeidsgiver.tiltakrefusjon.pdf.RefusjonTilPDF
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter
 import org.springframework.stereotype.Service

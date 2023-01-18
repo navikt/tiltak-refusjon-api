@@ -1,0 +1,37 @@
+package no.nav.arbeidsgiver.tiltakrefusjon.pdf
+
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
+
+data class RefusjonTilPDF(
+    val type: Tiltakstype,
+    val avtaleNr: String,
+    val deltakerFornavn: String,
+    val deltakerEtternavn: String,
+    val arbeidsgiverFornavn: String,
+    val arbeidsgiverEtternavn: String,
+    val arbeidsgiverTlf: String,
+    val sendtKravDato: String,
+    val utbetaltKravDato: String,
+    val tilskuddFom: String,
+    val tilskuddTom: String,
+    val kontonummer: String,
+    val lønn: Int,
+    val feriepengerSats:Double,
+    val feriepenger: Int,
+    val optSats: Double,
+    val tjenestepensjon: Int,
+    val arbeidsgiveravgiftSats: Double,
+    val arbeidsgiveravgift: Int,
+    val lønnstilskuddsprosent: Int,
+    val refusjonsbeløp: Int,
+    val beregnetBeløp: Int,
+    val overTilskuddsbeløp: Boolean,
+    val sumUtgifter: Int,
+    val tidligereUtbetalt: Int,
+    val fratrekkLønnFerie: Int,
+    val lønnFratrukketFerie: Int,
+    val tidligereRefundertBeløp: Int,
+    val sumUtgifterFratrukketRefundertBeløp: Int,
+    val tilskuddsbeløp: Int
+)
+

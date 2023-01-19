@@ -16,6 +16,7 @@ object RefusjonTilPDFMapper {
         val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.YYYY")
         var godkjentArbeidsgiverDato: String =  ""
         var utbetaltDato:String = ""
+
         if(refusjon.godkjentAvArbeidsgiver != null)   godkjentArbeidsgiverDato = formatter.format(LocalDate.ofInstant(refusjon.godkjentAvArbeidsgiver,ZoneId.systemDefault()))
         if(refusjon.utbetaltTidspunkt != null)   utbetaltDato =
             formatter.format(LocalDate.ofInstant(refusjon.utbetaltTidspunkt,ZoneId.systemDefault()))

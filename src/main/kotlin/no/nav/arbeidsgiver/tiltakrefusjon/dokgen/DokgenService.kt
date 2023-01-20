@@ -13,7 +13,6 @@ import org.springframework.web.client.RestOperations
 import org.springframework.web.client.RestTemplate
 import java.math.BigDecimal
 
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -25,8 +24,10 @@ class DokgenService(
 ) {
 
     fun refusjonPdf(refusjon: Refusjon): ByteArray {
-        val refusjonTilPDF : RefusjonTilPDF =
+        var refusjonTilPDF : RefusjonTilPDF =
             RefusjonTilPDFMapper.tilPDFdata(refusjon)
+            gangOppSatserMed100(refusjonTilPDF)
+
         return try {
             val bytes: ByteArray = restOperations().postForObject(
                 dokgenProperties.uri!!, refusjonTilPDF,
@@ -37,6 +38,18 @@ class DokgenService(
         } catch (e: RestClientException) {
             meterRegistry.counter("refusjon.pdf.feil").increment()
             throw e
+        }
+    }
+
+    private fun gangOppSatserMed100(refusjonTilPDF: RefusjonTilPDF)  {
+        if (refusjonTilPDF.arbeidsgiveravgiftSats != null) {
+           refusjonTilPDF.arbeidsgiveravgiftSats = String.format("%.1f", refusjonTilPDF.arbeidsgiveravgiftSats * 100).toDouble()
+        }
+        if (refusjonTilPDF.feriepengerSats != null) {
+            refusjonTilPDF.feriepengerSats = String.format("%.1f", refusjonTilPDF.feriepengerSats * 100).toDouble()
+        }
+        if (refusjonTilPDF.optSats != null) {
+            refusjonTilPDF.optSats = String.format("%.1f", refusjonTilPDF.optSats * 100).toDouble()
         }
     }
 

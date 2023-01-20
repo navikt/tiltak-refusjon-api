@@ -18,7 +18,7 @@ data class RefusjonTilPDF(
     val lønn: Int,
     var feriepengerSats:Double,
     val feriepenger: Int,
-    var optSats: Double,
+    var otpSats: Double,
     val tjenestepensjon: Int,
     var arbeidsgiveravgiftSats: Double,
     val arbeidsgiveravgift: Int,

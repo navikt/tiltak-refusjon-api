@@ -48,8 +48,8 @@ class DokgenService(
         if (refusjonTilPDF.feriepengerSats != null) {
             refusjonTilPDF.feriepengerSats = String.format("%.1f", refusjonTilPDF.feriepengerSats * 100).toDouble()
         }
-        if (refusjonTilPDF.optSats != null) {
-            refusjonTilPDF.optSats = String.format("%.1f", refusjonTilPDF.optSats * 100).toDouble()
+        if (refusjonTilPDF.otpSats != null) {
+            refusjonTilPDF.otpSats = String.format("%.1f", refusjonTilPDF.otpSats * 100).toDouble()
         }
     }
 

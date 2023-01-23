@@ -12,6 +12,7 @@ import org.springframework.web.client.RestClientException
 import org.springframework.web.client.RestOperations
 import org.springframework.web.client.RestTemplate
 import java.math.BigDecimal
+import java.util.*
 
 @Service
 @RequiredArgsConstructor
@@ -41,15 +42,15 @@ class DokgenService(
         }
     }
 
-    private fun gangOppSatserMed100(refusjonTilPDF: RefusjonTilPDF)  {
+    fun gangOppSatserMed100(refusjonTilPDF: RefusjonTilPDF)  {
         if (refusjonTilPDF.arbeidsgiveravgiftSats != null) {
-           refusjonTilPDF.arbeidsgiveravgiftSats = String.format("%.1f", refusjonTilPDF.arbeidsgiveravgiftSats * 100).toDouble()
+           refusjonTilPDF.arbeidsgiveravgiftSats = String.format(Locale.ENGLISH,"%.1f", refusjonTilPDF.arbeidsgiveravgiftSats * 100).toDouble()
         }
         if (refusjonTilPDF.feriepengerSats != null) {
-            refusjonTilPDF.feriepengerSats = String.format("%.1f", refusjonTilPDF.feriepengerSats * 100).toDouble()
+            refusjonTilPDF.feriepengerSats = String.format(Locale.ENGLISH,"%.1f", refusjonTilPDF.feriepengerSats * 100).toDouble()
         }
         if (refusjonTilPDF.otpSats != null) {
-            refusjonTilPDF.otpSats = String.format("%.1f", refusjonTilPDF.otpSats * 100).toDouble()
+            refusjonTilPDF.otpSats = String.format(Locale.ENGLISH,"%.1f", refusjonTilPDF.otpSats * 100).toDouble()
         }
     }
 

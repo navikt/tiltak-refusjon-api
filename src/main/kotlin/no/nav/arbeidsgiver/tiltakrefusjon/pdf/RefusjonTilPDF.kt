@@ -31,6 +31,8 @@ data class RefusjonTilPDF(
     val fratrekkLønnFerie: Int,
     val lønnFratrukketFerie: Int,
     val tidligereRefundertBeløp: Int,
-    val tilskuddsbeløp: Int
+    val tilskuddsbeløp: Int,
+    val forrigeRefusjonMinusBeløp: Int,
+    val forrigeRefusjonsnummer: String
 )
 

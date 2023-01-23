@@ -3,8 +3,8 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
 import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterService
-import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeAnnullertMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.MidlerFrigjortÅrsak
+import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeAnnullertMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeForkortetMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
 import org.slf4j.LoggerFactory
@@ -37,6 +37,9 @@ class RefusjonService(
             deltakerFornavn = tilskuddsperiodeGodkjentMelding.deltakerFornavn,
             deltakerEtternavn = tilskuddsperiodeGodkjentMelding.deltakerEtternavn,
             deltakerFnr = tilskuddsperiodeGodkjentMelding.deltakerFnr,
+            arbeidsgiverFornavn = tilskuddsperiodeGodkjentMelding.arbeidsgiverFornavn,
+            arbeidsgiverEtternavn = tilskuddsperiodeGodkjentMelding.arbeidsgiverEtternavn,
+            arbeidsgiverTlf = tilskuddsperiodeGodkjentMelding.arbeidsgiverTlf,
             veilederNavIdent = tilskuddsperiodeGodkjentMelding.veilederNavIdent,
             bedriftNavn = tilskuddsperiodeGodkjentMelding.bedriftNavn,
             bedriftNr = tilskuddsperiodeGodkjentMelding.bedriftNr,

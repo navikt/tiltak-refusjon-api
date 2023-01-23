@@ -33,6 +33,7 @@ spec:
       {{/each}}
       rules:
         - application: altinn-rettigheter-proxy
+        - application: tiltak-dokgen
   kafka:
     pool: {{kafka-pool}}
   envFrom:

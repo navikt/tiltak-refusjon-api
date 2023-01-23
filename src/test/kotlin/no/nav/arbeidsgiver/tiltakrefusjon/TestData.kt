@@ -6,7 +6,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.varsling.VarselType
 import no.nav.arbeidsgiver.tiltakrefusjon.varsling.Varsling
 import java.time.YearMonth
-import java.time.temporal.TemporalAdjusters.*
+import java.time.temporal.TemporalAdjusters.lastDayOfMonth
 
 
 fun enRefusjon(tilskuddsgrunnlag: Tilskuddsgrunnlag = etTilskuddsgrunnlag()): Refusjon {
@@ -174,6 +174,9 @@ fun etTilskuddsgrunnlag() = Tilskuddsgrunnlag(
     tilskuddsperiodeId = ULID.random(),
     deltakerFornavn = "",
     deltakerEtternavn = "",
+    arbeidsgiverFornavn = "Arne",
+    arbeidsgiverEtternavn = "Arbeidsgiver",
+    arbeidsgiverTlf = "41111111",
     tiltakstype = Tiltakstype.SOMMERJOBB,
     deltakerFnr = "",
     veilederNavIdent = "",

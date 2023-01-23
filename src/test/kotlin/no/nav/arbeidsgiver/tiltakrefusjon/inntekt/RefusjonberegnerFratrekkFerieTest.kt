@@ -1,12 +1,12 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.inntekt
 
 import com.github.guepardoapps.kulid.ULID
+import no.nav.arbeidsgiver.tiltakrefusjon.etInntektsgrunnlag
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
-import org.junit.jupiter.api.Test
-import no.nav.arbeidsgiver.tiltakrefusjon.etInntektsgrunnlag
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock
@@ -41,6 +41,9 @@ class RefusjonberegnerFratrekkFerieTest(
             avtaleInnholdId = ULID.random(),
             deltakerFornavn = "Henrik",
             deltakerEtternavn = "Wergeland",
+            arbeidsgiverFornavn = "Arne",
+            arbeidsgiverEtternavn = "Arbeidsgiver",
+            arbeidsgiverTlf = "41111111",
             tiltakstype = tiltakstype,
             deltakerFnr = deltakerFnr,
             veilederNavIdent = "X123456",

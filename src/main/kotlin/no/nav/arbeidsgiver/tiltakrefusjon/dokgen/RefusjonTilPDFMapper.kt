@@ -56,7 +56,6 @@ object RefusjonTilPDFMapper {
             refusjon.refusjonsgrunnlag.beregning!!.fratrekkLønnFerie,
             refusjon.refusjonsgrunnlag.beregning!!.lønnFratrukketFerie,
             refusjon.refusjonsgrunnlag.beregning!!.tidligereRefundertBeløp,
-            refusjon.refusjonsgrunnlag.beregning!!.sumUtgifterFratrukketRefundertBeløp,
             refusjon.tilskuddsgrunnlag.tilskuddsbeløp
         )
     }

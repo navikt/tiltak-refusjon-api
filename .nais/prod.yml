@@ -7,3 +7,4 @@ slack_alert_channel: arbeidsgiver-tiltak-alerts
 kafka-pool: nav-prod
 env:
   PROXY_CLIENT_ID: prod-fss.arbeidsgiver.tiltak-proxy
+db-tier: db-custom-1-3840

@@ -7,3 +7,4 @@ slack_alert_channel: arbeidsgiver-notifications-test
 kafka-pool: nav-dev
 env:
   PROXY_CLIENT_ID: dev-fss.arbeidsgiver.tiltak-proxy
+db-tier: db-f1-micro

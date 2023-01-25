@@ -7,6 +7,9 @@ metadata:
     team: arbeidsgiver
 spec:
   image: {{image}}
+  replicas:
+    min: 0
+    max: 0
   env:
     {{#each env}}
     - name: "{{@key}}"

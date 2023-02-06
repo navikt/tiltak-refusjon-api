@@ -158,11 +158,6 @@ class Refusjon(
         oppdaterStatus()
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
 
-        // TODO: FJERNE DENNE ASAP NÅR FEIL ER KARTLAGT OG EVT FIKSET IFBM. MAGNLEDE REDUKSJON AV SATS
-        if (refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype == Tiltakstype.VARIG_LONNSTILSKUDD) {
-            throw FeilkodeException(Feilkode.VARIG_LONNSTILSKUDD_MIDLERTIDIG_AVSKURDD)
-        }
-
         if (refusjonsgrunnlag.inntektsgrunnlag == null || refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.isEmpty()) {
             throw FeilkodeException(Feilkode.INGEN_INNTEKTER)
         }

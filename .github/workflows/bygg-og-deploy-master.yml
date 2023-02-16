@@ -98,3 +98,4 @@ jobs:
           RESOURCE: .nais/labs.yml,.nais/wiremock.yml,.nais/wiremock-mappings.yml
           VAR: deploytrigger=${{ github.run_number }}
           PRINT_PAYLOAD: true
+          DEPLOY_SERVER: deploy.nais.io:443

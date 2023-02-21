@@ -54,7 +54,7 @@ class RefusjonsberegnerTest {
             tilskuddTom = tilskuddTom,
             tilskuddsbeløp = tilskuddsbeløp,
             avtaleNr = 3456,
-            resendingsNummer = null,
+            resendingsnummer = null,
             løpenummer = 3,
             enhet = "1000",
             godkjentAvBeslutterTidspunkt = LocalDateTime.of(tilskuddTom.year, tilskuddTom.month, tilskuddTom.dayOfMonth, 0, 0 )

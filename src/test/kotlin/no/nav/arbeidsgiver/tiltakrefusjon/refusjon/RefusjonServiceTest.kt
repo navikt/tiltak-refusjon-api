@@ -67,7 +67,7 @@ class RefusjonServiceTest(
             lønnstilskuddsprosent = 60,
             avtaleNr = 3456,
             løpenummer = 1,
-            resendingsNummer = null,
+            resendingsnummer = null,
             enhet = "1000",
             godkjentTidspunkt = LocalDateTime.now()
         )
@@ -110,7 +110,7 @@ class RefusjonServiceTest(
             lønnstilskuddsprosent = 60,
             avtaleNr = 3456,
             løpenummer = 1,
-            resendingsNummer = null,
+            resendingsnummer = null,
             enhet = "1000",
             godkjentTidspunkt = LocalDateTime.now()
         )
@@ -137,7 +137,7 @@ class RefusjonServiceTest(
             lønnstilskuddsprosent = 60,
             avtaleNr = 3456,
             løpenummer = 2,
-            resendingsNummer = null,
+            resendingsnummer = null,
             enhet = "1000",
             godkjentTidspunkt = LocalDateTime.now()
         )
@@ -181,7 +181,7 @@ class RefusjonServiceTest(
             lønnstilskuddsprosent = 60,
             avtaleNr = 3456,
             løpenummer = 1,
-            resendingsNummer = null,
+            resendingsnummer = null,
             enhet = "1000",
             godkjentTidspunkt = LocalDateTime.now()
         )
@@ -208,7 +208,7 @@ class RefusjonServiceTest(
             lønnstilskuddsprosent = 60,
             avtaleNr = 3456,
             løpenummer = 2,
-            resendingsNummer = null,
+            resendingsnummer = null,
             enhet = "1000",
             godkjentTidspunkt = LocalDateTime.now()
         )
@@ -236,7 +236,7 @@ class RefusjonServiceTest(
             lønnstilskuddsprosent = 60,
             avtaleNr = 3456,
             løpenummer = 3,
-            resendingsNummer = null,
+            resendingsnummer = null,
             enhet = "1000",
             godkjentTidspunkt = LocalDateTime.now()
         )
@@ -290,7 +290,7 @@ class RefusjonServiceTest(
             lønnstilskuddsprosent = 60,
             avtaleNr = 3456,
             løpenummer = 3,
-            resendingsNummer = null,
+            resendingsnummer = null,
             enhet = "1000",
             godkjentTidspunkt = LocalDateTime.now()
         )
@@ -340,7 +340,7 @@ class RefusjonServiceTest(
             lønnstilskuddsprosent = 60,
             avtaleNr = 3456,
             løpenummer = 3,
-            resendingsNummer = null,
+            resendingsnummer = null,
             enhet = "1000",
             godkjentTidspunkt = LocalDateTime.now()
         )
@@ -377,7 +377,7 @@ class RefusjonServiceTest(
             lønnstilskuddsprosent = 60,
             avtaleNr = 3456,
             løpenummer = 3,
-            resendingsNummer = null,
+            resendingsnummer = null,
             enhet = "1000",
             godkjentTidspunkt = LocalDateTime.now()
         )
@@ -423,7 +423,7 @@ class RefusjonServiceTest(
             lønnstilskuddsprosent = 60,
             avtaleNr = 3456,
             løpenummer = 3,
-            resendingsNummer = null,
+            resendingsnummer = null,
             enhet = "1000",
             godkjentTidspunkt = LocalDateTime.now()
         )
@@ -467,7 +467,7 @@ class RefusjonServiceTest(
             lønnstilskuddsprosent = 60,
             avtaleNr = 3456,
             løpenummer = 3,
-            resendingsNummer = null,
+            resendingsnummer = null,
             enhet = "1000",
             godkjentTidspunkt = LocalDateTime.now()
         )

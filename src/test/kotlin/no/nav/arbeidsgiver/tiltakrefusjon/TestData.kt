@@ -191,7 +191,7 @@ fun etTilskuddsgrunnlag() = Tilskuddsgrunnlag(
     tilskuddsbeløp = 13579,
     avtaleNr = 3456,
     løpenummer = 3,
-    resendingsNummer = null,
+    resendingsnummer = null,
     enhet = "1000",
     godkjentAvBeslutterTidspunkt = Now.localDateTime().minusMonths(3).withDayOfMonth(1),
 )

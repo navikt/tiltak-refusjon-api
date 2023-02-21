@@ -66,7 +66,7 @@ class TilskuddsperiodeLytterTest {
             lønnstilskuddsprosent = 60,
             avtaleNr = 3456,
             løpenummer = 3,
-            resendingsNummer = null,
+            resendingsnummer = null,
             enhet = "1000",
             godkjentTidspunkt = LocalDateTime.now()
         )

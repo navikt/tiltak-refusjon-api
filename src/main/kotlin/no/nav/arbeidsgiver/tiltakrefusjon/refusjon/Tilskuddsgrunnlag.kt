@@ -32,7 +32,7 @@ data class Tilskuddsgrunnlag(
     val lønnstilskuddsprosent: Int,
     val avtaleNr: Int,
     val løpenummer: Int,
-    val resendingsNummer: Int?,
+    val resendingsnummer: Int?,
     val enhet: String?,
     val godkjentAvBeslutterTidspunkt: LocalDateTime
 ) {

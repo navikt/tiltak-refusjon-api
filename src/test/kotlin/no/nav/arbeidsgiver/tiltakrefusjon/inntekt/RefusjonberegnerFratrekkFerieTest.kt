@@ -58,7 +58,7 @@ class RefusjonberegnerFratrekkFerieTest(
             tilskuddsbeløp = tilskuddsbeløp,
             avtaleNr = 1337,
             løpenummer = 9,
-            resendingsNummer = null,
+            resendingsnummer = null,
             enhet = "1104",
             godkjentTidspunkt = LocalDateTime.of(tilskuddTom.year, tilskuddTom.month, tilskuddTom.dayOfMonth, 0, 0 )
         )

@@ -70,7 +70,7 @@ class RefusjonsberegningSteps {
             lønnstilskuddsprosent = angittLonnstilskuddProsent,
             avtaleNr = 3456,
             løpenummer = 3,
-            resendingsNummer = null,
+            resendingsnummer = null,
             enhet = "1000",
             godkjentAvBeslutterTidspunkt = LocalDateTime.now()
         )

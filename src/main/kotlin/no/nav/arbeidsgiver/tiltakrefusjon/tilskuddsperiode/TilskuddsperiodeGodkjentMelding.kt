@@ -27,6 +27,7 @@ data class TilskuddsperiodeGodkjentMelding(
         val lønnstilskuddsprosent: Int,
         val avtaleNr: Int,
         val løpenummer: Int,
+        val resendingsNummer: Int?,
         val enhet: String?,
         val godkjentTidspunkt: LocalDateTime
 )

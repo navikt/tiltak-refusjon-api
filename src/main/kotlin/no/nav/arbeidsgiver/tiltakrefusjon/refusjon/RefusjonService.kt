@@ -53,6 +53,7 @@ class RefusjonService(
             lønnstilskuddsprosent = tilskuddsperiodeGodkjentMelding.lønnstilskuddsprosent,
             avtaleNr = tilskuddsperiodeGodkjentMelding.avtaleNr,
             løpenummer = tilskuddsperiodeGodkjentMelding.løpenummer,
+            resendingsnummer = tilskuddsperiodeGodkjentMelding.resendingsnummer,
             enhet = tilskuddsperiodeGodkjentMelding.enhet,
             godkjentAvBeslutterTidspunkt = tilskuddsperiodeGodkjentMelding.godkjentTidspunkt
         )

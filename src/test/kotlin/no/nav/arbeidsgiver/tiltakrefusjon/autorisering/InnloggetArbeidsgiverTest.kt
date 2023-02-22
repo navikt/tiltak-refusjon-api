@@ -67,6 +67,7 @@ internal class InnloggetArbeidsgiverTest(
             lønnstilskuddsprosent = 60,
             avtaleNr = 3456,
             løpenummer = 1,
+            resendingsnummer = null,
             enhet = "1000",
             godkjentTidspunkt = LocalDateTime.now()
         )
@@ -93,6 +94,7 @@ internal class InnloggetArbeidsgiverTest(
             lønnstilskuddsprosent = 60,
             avtaleNr = 3456,
             løpenummer = 2,
+            resendingsnummer = null,
             enhet = "1000",
             godkjentTidspunkt = LocalDateTime.now()
         )
@@ -136,6 +138,7 @@ internal class InnloggetArbeidsgiverTest(
             lønnstilskuddsprosent = 60,
             avtaleNr = 3456,
             løpenummer = 1,
+            resendingsnummer = null,
             enhet = "1000",
             godkjentTidspunkt = LocalDateTime.now()
         )
@@ -162,6 +165,7 @@ internal class InnloggetArbeidsgiverTest(
             lønnstilskuddsprosent = 60,
             avtaleNr = 3456,
             løpenummer = 2,
+            resendingsnummer = null,
             enhet = "1000",
             godkjentTidspunkt = LocalDateTime.now()
         )
@@ -189,6 +193,7 @@ internal class InnloggetArbeidsgiverTest(
             lønnstilskuddsprosent = 60,
             avtaleNr = 3456,
             løpenummer = 3,
+            resendingsnummer = null,
             enhet = "1000",
             godkjentTidspunkt = LocalDateTime.now()
         )
@@ -250,6 +255,7 @@ internal class InnloggetArbeidsgiverTest(
             lønnstilskuddsprosent = 60,
             avtaleNr = 3456,
             løpenummer = 1,
+            resendingsnummer = null,
             enhet = "1000",
             godkjentTidspunkt = LocalDateTime.now()
         )
@@ -275,6 +281,7 @@ internal class InnloggetArbeidsgiverTest(
             veilederNavIdent = "X123456",
             lønnstilskuddsprosent = 60,
             avtaleNr = 3456,
+            resendingsnummer = null,
             løpenummer = 2,
             enhet = "1000",
             godkjentTidspunkt = LocalDateTime.now()
@@ -303,6 +310,7 @@ internal class InnloggetArbeidsgiverTest(
             lønnstilskuddsprosent = 60,
             avtaleNr = 3456,
             løpenummer = 3,
+            resendingsnummer = null,
             enhet = "1000",
             godkjentTidspunkt = LocalDateTime.now()
         )
@@ -364,6 +372,7 @@ internal class InnloggetArbeidsgiverTest(
             lønnstilskuddsprosent = 60,
             avtaleNr = 1234,
             løpenummer = 1,
+            resendingsnummer = null,
             enhet = "1000",
             godkjentTidspunkt = LocalDateTime.now()
         )
@@ -390,6 +399,7 @@ internal class InnloggetArbeidsgiverTest(
             lønnstilskuddsprosent = 60,
             avtaleNr = 12038,
             løpenummer = 2,
+            resendingsnummer = null,
             enhet = "1000",
             godkjentTidspunkt = LocalDateTime.now()
         )
@@ -417,6 +427,7 @@ internal class InnloggetArbeidsgiverTest(
             lønnstilskuddsprosent = 60,
             avtaleNr = 310178,
             løpenummer = 3,
+            resendingsnummer = null,
             enhet = "1000",
             godkjentTidspunkt = LocalDateTime.now()
         )
@@ -473,6 +484,7 @@ internal class InnloggetArbeidsgiverTest(
             lønnstilskuddsprosent = 60,
             avtaleNr = 3456,
             løpenummer = 1,
+            resendingsnummer = null,
             enhet = "1000",
             godkjentTidspunkt = LocalDateTime.now()
         )
@@ -499,6 +511,7 @@ internal class InnloggetArbeidsgiverTest(
             lønnstilskuddsprosent = 60,
             avtaleNr = 3456,
             løpenummer = 2,
+            resendingsnummer = null,
             enhet = "1000",
             godkjentTidspunkt = LocalDateTime.now()
         )
@@ -526,6 +539,7 @@ internal class InnloggetArbeidsgiverTest(
             lønnstilskuddsprosent = 60,
             avtaleNr = 3456,
             løpenummer = 3,
+            resendingsnummer = null,
             enhet = "1000",
             godkjentTidspunkt = LocalDateTime.now()
         )
@@ -583,6 +597,7 @@ internal class InnloggetArbeidsgiverTest(
             lønnstilskuddsprosent = 60,
             avtaleNr = 3456,
             løpenummer = 1,
+            resendingsnummer = null,
             enhet = "1000",
             godkjentTidspunkt = LocalDateTime.now()
         )

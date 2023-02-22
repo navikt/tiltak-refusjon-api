@@ -22,6 +22,7 @@ data class RefusjonGodkjentMelding(
         val tilskuddsprosent: Int,
         val avtaleNr: Int,
         val løpenummer: Int,
+        val resendingsnummer: Int? = null,
         val bedriftKontonummer: String)
         {
         companion object{
@@ -43,6 +44,7 @@ data class RefusjonGodkjentMelding(
                                 refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.lønnstilskuddsprosent,
                                 refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr,
                                 refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.løpenummer,
+                                refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.resendingsnummer,
                                 refusjon.refusjonsgrunnlag.bedriftKontonummer!!
                         )
                 }

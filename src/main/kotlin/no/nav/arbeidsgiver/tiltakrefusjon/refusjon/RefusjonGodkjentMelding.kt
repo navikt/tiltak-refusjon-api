@@ -22,7 +22,7 @@ data class RefusjonGodkjentMelding(
         val tilskuddsprosent: Int,
         val avtaleNr: Int,
         val løpenummer: Int,
-        val resendingsnummer: Int?,
+        val resendingsnummer: Int? = null,
         val bedriftKontonummer: String)
         {
         companion object{

@@ -1,2 +1,2 @@
-alter table tilskuddsgrunnlag add column resendingsnummer numeric default null;
+alter table tilskuddsgrunnlag add column resendingsnummer integer;
 

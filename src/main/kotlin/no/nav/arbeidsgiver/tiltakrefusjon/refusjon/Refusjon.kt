@@ -169,12 +169,20 @@ class Refusjon(
         }
         godkjentAvArbeidsgiver = Now.instant()
         status = RefusjonStatus.SENDT_KRAV
-        if(!refusjonsgrunnlag.refusjonsgrunnlagetErPositivt()) {
+
+        // Hva om beløp er eksakt 0 kr? Skal vi annullere da? Må vel det.. Men trenger ikke lagre et minusbeløp til neste
+
+        if(refusjonsgrunnlag.refusjonsgrunnlagetErNullSomIZero()) {
+            status = RefusjonStatus.GODKJENT_NULLBELØP
+            registerEvent(RefusjonGodkjentNullBeløp(this, utførtAv)) // Denne annullerer
+        } else if(!refusjonsgrunnlag.refusjonsgrunnlagetErPositivt()) {
             status = RefusjonStatus.GODKJENT_MINUSBELØP
-            registerEvent(RefusjonMinusBeløp(this, utførtAv))
+            // Her bør det vel annulleres? Og ikke sende minus-ordre til oebs. Det vil de ikke ha..
+            registerEvent(RefusjonGodkjentMinusBeløp(this, utførtAv)) // Denne annullerer
+        } else {
+            registerEvent(GodkjentAvArbeidsgiver(this, utførtAv))
         }
 
-        registerEvent(GodkjentAvArbeidsgiver(this, utførtAv))
         registerEvent(RefusjonEndretStatus(this))
     }
 

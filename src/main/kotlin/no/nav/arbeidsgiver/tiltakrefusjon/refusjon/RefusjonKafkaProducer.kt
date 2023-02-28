@@ -117,14 +117,24 @@ class RefusjonKafkaProducer(
             })
     }
 
-    fun refusjonMinusBeløp(event: RefusjonMinusBeløp) {
+    @TransactionalEventListener
+    fun refusjonGodkjentMinusBeløp(event: RefusjonGodkjentMinusBeløp) {
+        annullerTilskuddsperiodeEtterNullEllerMinusBeløp(event.refusjon.tilskuddsgrunnlag.tilskuddsperiodeId, MidlerFrigjortÅrsak.REFUSJON_MINUS_BELØP)
+    }
+
+    @TransactionalEventListener
+    fun refusjonGodkjentNullBeløp(event: RefusjonGodkjentNullBeløp) {
+        annullerTilskuddsperiodeEtterNullEllerMinusBeløp(event.refusjon.tilskuddsgrunnlag.tilskuddsperiodeId, MidlerFrigjortÅrsak.REFUSJON_GODKJENT_NULL_BELØP)
+    }
+
+    private fun annullerTilskuddsperiodeEtterNullEllerMinusBeløp(tilskuddsperiodeId: String, årsak: MidlerFrigjortÅrsak) {
         val tilskuddperiodeAnnullertMelding = TilskuddsperiodeAnnullertMelding(
-            tilskuddsperiodeId = event.refusjon.tilskuddsgrunnlag.tilskuddsperiodeId,
-            årsak = MidlerFrigjortÅrsak.REFUSJON_MINUS_BELØP
+            tilskuddsperiodeId = tilskuddsperiodeId,
+            årsak = årsak
         )
         tilskuddperiodeAnnullertKafkaTemplate.send(
             Topics.TILSKUDDSPERIODE_ANNULLERT,
-            event.refusjon.tilskuddsgrunnlag.tilskuddsperiodeId,
+            tilskuddsperiodeId,
             tilskuddperiodeAnnullertMelding
         )
             .addCallback({
@@ -137,6 +147,7 @@ class RefusjonKafkaProducer(
                 log.warn("Feil ved sending av tilskuddsperiode annullert melding på Kafka", it)
             })
     }
+
     // En topic med alle statuser for en refusjon. Da kan den aggregeres av fager for å vise det de vil
     @TransactionalEventListener
     fun refusjonEndretStatus(event: RefusjonEndretStatus) {

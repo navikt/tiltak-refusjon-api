@@ -209,6 +209,20 @@ internal class RefusjonTest {
     }
 
     @Test
+    fun `oppdater status til GODKJENT_NULLBELØP`() {
+        val refusjon = enRefusjon(
+            etTilskuddsgrunnlag().copy(
+                tilskuddFom = Now.localDate().minusDays(2),
+                tilskuddTom = Now.localDate().minusDays(1),
+                tilskuddsbeløp = 0
+            )
+        ).medInntekterKunFraTiltaket().medInntektsgrunnlag()
+        refusjon.oppgiBedriftKontonummer("10000008145")
+        refusjon.godkjennForArbeidsgiver("12345678901")
+        assertThat(refusjon.status).isEqualTo(RefusjonStatus.GODKJENT_NULLBELØP)
+    }
+
+    @Test
     fun `oppdaterer ikke status hvis ANNULLERT`() {
 
         val refusjon = enRefusjon(

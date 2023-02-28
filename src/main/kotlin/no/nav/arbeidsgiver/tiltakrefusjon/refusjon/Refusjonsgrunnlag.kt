@@ -95,6 +95,10 @@ class Refusjonsgrunnlag(
         return this.beregning?.refusjonsbeløp != null && this.beregning!!.refusjonsbeløp > 0
     }
 
+    fun refusjonsgrunnlagetErNullSomIZero(): Boolean {
+        return this.beregning?.refusjonsbeløp != null && this.beregning!!.refusjonsbeløp == 0
+    }
+
     private fun gjørBeregning(): Boolean {
         if (erAltOppgitt()) {
             this.beregning = beregnRefusjonsbeløp(

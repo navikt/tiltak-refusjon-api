@@ -262,7 +262,48 @@ class RefusjonServiceTest(
         assertDoesNotThrow { refusjonService.godkjennForArbeidsgiver(refusjon3,"999999999")}
     }
 
-
+    @Test
+    fun `godkjenner refusjon med 0 kr, skal bli en annullering til oebs`() {
+        val deltakerFnr = "00000000000"
+        // Tilskuddsperiode med nullbeløp. Skal gi godkjent med nullbeløpstatus
+        val tilskuddMelding = TilskuddsperiodeGodkjentMelding(
+            avtaleId = "1",
+            tilskuddsbeløp = 0,
+            tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
+            deltakerEtternavn = "Mus",
+            deltakerFornavn = "Mikke",
+            arbeidsgiverFornavn = "Arne",
+            arbeidsgiverEtternavn = "Arbeidsgiver",
+            arbeidsgiverTlf = "41111111",
+            arbeidsgiveravgiftSats = 0.101,
+            avtaleInnholdId = "1",
+            bedriftNavn = "Bedriften AS",
+            bedriftNr = "999999999",
+            deltakerFnr = deltakerFnr,
+            feriepengerSats = 0.141,
+            otpSats = 0.02,
+            tilskuddFom =  Now.localDate().minusWeeks(4),
+            tilskuddTom = Now.localDate().minusDays(1),
+            tilskuddsperiodeId = "1",
+            veilederNavIdent = "X123456",
+            lønnstilskuddsprosent = 60,
+            avtaleNr = 3456,
+            løpenummer = 1,
+            resendingsnummer = null,
+            enhet = "1000",
+            godkjentTidspunkt = LocalDateTime.now()
+        )
+        val refusjon = refusjonService.opprettRefusjon(tilskuddMelding)!!
+        refusjonService.gjørBedriftKontonummeroppslag(refusjon)
+        refusjonService.gjørInntektsoppslag(refusjon)
+        gjørInntektoppslagForRefusjon(refusjon)
+        assertThat(refusjonRepository.findAll().count()).isEqualTo(1)
+        assertDoesNotThrow { refusjonService.godkjennForArbeidsgiver(refusjon,"999999999")}
+        val lagretRefusjon = refusjonRepository.findAll().firstOrNull()
+        if (lagretRefusjon != null) {
+            assertThat(lagretRefusjon.status).isEqualTo(RefusjonStatus.GODKJENT_NULLBELØP)
+        }
+    }
 
     @Test
     fun `oppretter, forkorter, og forlenger`() {
@@ -486,4 +527,5 @@ class RefusjonServiceTest(
         // Bekreft at alle inntektene kun er fra tiltaket
         refusjon.endreBruttolønn(true, null)
     }
+
 }

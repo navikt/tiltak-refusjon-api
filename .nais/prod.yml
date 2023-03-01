@@ -8,3 +8,5 @@ kafka-pool: nav-prod
 env:
   PROXY_CLIENT_ID: prod-fss.arbeidsgiver.tiltak-proxy
 db-tier: db-custom-1-3840
+memory-limit: 6000Mi
+memory-requests: 4000Mi

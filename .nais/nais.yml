@@ -17,7 +17,11 @@ spec:
     {{/each}}
   resources:
     limits:
-      cpu: 1500m
+      cpu: 2000m
+      memory: {{memory-limit}}
+    requests:
+      cpu: 1000m
+      memory: {{memory-requests}}
   liveness:
     path: /internal/actuator/health
     initialDelay: 20

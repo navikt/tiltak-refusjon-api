@@ -8,3 +8,5 @@ kafka-pool: nav-dev
 env:
   PROXY_CLIENT_ID: dev-fss.arbeidsgiver.tiltak-proxy
 db-tier: db-f1-micro
+memory-limit: 3000Mi
+memory-requests: 1000Mi

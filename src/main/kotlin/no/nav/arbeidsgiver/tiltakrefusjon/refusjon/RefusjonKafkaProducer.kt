@@ -117,26 +117,38 @@ class RefusjonKafkaProducer(
             })
     }
 
-    fun refusjonMinusBeløp(event: RefusjonMinusBeløp) {
+    @TransactionalEventListener
+    fun refusjonGodkjentMinusBeløp(event: RefusjonGodkjentMinusBeløp) {
+        log.info("Godkjent refusjon ${event.refusjon.id} med minusbeløp, sender annullering")
+        annullerTilskuddsperiodeEtterNullEllerMinusBeløp(event.refusjon.tilskuddsgrunnlag.tilskuddsperiodeId, MidlerFrigjortÅrsak.REFUSJON_MINUS_BELØP)
+    }
+
+    @TransactionalEventListener
+    fun refusjonGodkjentNullBeløp(event: RefusjonGodkjentNullBeløp) {
+        log.info("Godkjent refusjon ${event.refusjon.id} med nullbeløp, sender annullering")
+        annullerTilskuddsperiodeEtterNullEllerMinusBeløp(event.refusjon.tilskuddsgrunnlag.tilskuddsperiodeId, MidlerFrigjortÅrsak.REFUSJON_GODKJENT_NULL_BELØP)
+    }
+
+    private fun annullerTilskuddsperiodeEtterNullEllerMinusBeløp(tilskuddsperiodeId: String, årsak: MidlerFrigjortÅrsak) {
         val tilskuddperiodeAnnullertMelding = TilskuddsperiodeAnnullertMelding(
-            tilskuddsperiodeId = event.refusjon.tilskuddsgrunnlag.tilskuddsperiodeId,
-            årsak = MidlerFrigjortÅrsak.REFUSJON_MINUS_BELØP
+            tilskuddsperiodeId = tilskuddsperiodeId,
+            årsak = årsak
         )
         tilskuddperiodeAnnullertKafkaTemplate.send(
             Topics.TILSKUDDSPERIODE_ANNULLERT,
-            event.refusjon.tilskuddsgrunnlag.tilskuddsperiodeId,
+            tilskuddsperiodeId,
             tilskuddperiodeAnnullertMelding
-        )
-            .addCallback({
-                log.info(
-                    "Melding med id {} sendt til Kafka topic {}",
-                    it?.producerRecord?.key(),
-                    it?.recordMetadata?.topic()
-                )
-            }, {
-                log.warn("Feil ved sending av tilskuddsperiode annullert melding på Kafka", it)
-            })
+        ).addCallback({
+            log.info(
+                "Melding med id {} sendt til Kafka topic {}",
+                it?.producerRecord?.key(),
+                it?.recordMetadata?.topic()
+            )
+        }, {
+            log.warn("Feil ved sending av tilskuddsperiode annullert melding på Kafka", it)
+        })
     }
+
     // En topic med alle statuser for en refusjon. Da kan den aggregeres av fager for å vise det de vil
     @TransactionalEventListener
     fun refusjonEndretStatus(event: RefusjonEndretStatus) {

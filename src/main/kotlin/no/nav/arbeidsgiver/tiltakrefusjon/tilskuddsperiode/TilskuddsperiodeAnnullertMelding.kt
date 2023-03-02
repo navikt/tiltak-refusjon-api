@@ -10,4 +10,5 @@ enum class MidlerFrigjortÅrsak {
     REFUSJON_FRIST_UTGÅTT,
     REFUSJON_MINUS_BELØP,
     REFUSJON_IKKE_SØKT,
+    REFUSJON_GODKJENT_NULL_BELØP
 }

@@ -169,12 +169,17 @@ class Refusjon(
         }
         godkjentAvArbeidsgiver = Now.instant()
         status = RefusjonStatus.SENDT_KRAV
-        if(!refusjonsgrunnlag.refusjonsgrunnlagetErPositivt()) {
+
+        if(refusjonsgrunnlag.refusjonsgrunnlagetErNullSomIZero()) {
+            status = RefusjonStatus.GODKJENT_NULLBELØP
+            registerEvent(RefusjonGodkjentNullBeløp(this, utførtAv))
+        } else if(!refusjonsgrunnlag.refusjonsgrunnlagetErPositivt()) {
             status = RefusjonStatus.GODKJENT_MINUSBELØP
-            registerEvent(RefusjonMinusBeløp(this, utførtAv))
+            registerEvent(RefusjonGodkjentMinusBeløp(this, utførtAv))
+        } else {
+            registerEvent(GodkjentAvArbeidsgiver(this, utførtAv))
         }
 
-        registerEvent(GodkjentAvArbeidsgiver(this, utførtAv))
         registerEvent(RefusjonEndretStatus(this))
     }
 

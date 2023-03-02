@@ -136,16 +136,15 @@ class RefusjonKafkaProducer(
             Topics.TILSKUDDSPERIODE_ANNULLERT,
             tilskuddsperiodeId,
             tilskuddperiodeAnnullertMelding
-        )
-            .addCallback({
-                log.info(
-                    "Melding med id {} sendt til Kafka topic {}",
-                    it?.producerRecord?.key(),
-                    it?.recordMetadata?.topic()
-                )
-            }, {
-                log.warn("Feil ved sending av tilskuddsperiode annullert melding på Kafka", it)
-            })
+        ).addCallback({
+            log.info(
+                "Melding med id {} sendt til Kafka topic {}",
+                it?.producerRecord?.key(),
+                it?.recordMetadata?.topic()
+            )
+        }, {
+            log.warn("Feil ved sending av tilskuddsperiode annullert melding på Kafka", it)
+        })
     }
 
     // En topic med alle statuser for en refusjon. Da kan den aggregeres av fager for å vise det de vil

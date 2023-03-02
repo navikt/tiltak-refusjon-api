@@ -119,11 +119,13 @@ class RefusjonKafkaProducer(
 
     @TransactionalEventListener
     fun refusjonGodkjentMinusBeløp(event: RefusjonGodkjentMinusBeløp) {
+        log.info("Godkjent refusjon ${event.refusjon.id} med minusbeløp, sender annullering")
         annullerTilskuddsperiodeEtterNullEllerMinusBeløp(event.refusjon.tilskuddsgrunnlag.tilskuddsperiodeId, MidlerFrigjortÅrsak.REFUSJON_MINUS_BELØP)
     }
 
     @TransactionalEventListener
     fun refusjonGodkjentNullBeløp(event: RefusjonGodkjentNullBeløp) {
+        log.info("Godkjent refusjon ${event.refusjon.id} med nullbeløp, sender annullering")
         annullerTilskuddsperiodeEtterNullEllerMinusBeløp(event.refusjon.tilskuddsgrunnlag.tilskuddsperiodeId, MidlerFrigjortÅrsak.REFUSJON_GODKJENT_NULL_BELØP)
     }
 

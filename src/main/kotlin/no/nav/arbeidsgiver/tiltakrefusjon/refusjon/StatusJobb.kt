@@ -15,7 +15,8 @@ class StatusJobb(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    @Scheduled(fixedDelayString = "\${tiltak-refusjon.statusjobb.fixed-delay}")
+    // Kjør to ganger på natten, kl 1 og kl 3
+    @Scheduled(cron = "0 0 1,3 * * *")
     fun sjekkForStatusEndring() {
         if (!leaderPodCheck.isLeaderPod()) {
             logger.info("Pod er ikke leader, så kjører ikke jobb for å finne refusjoner med statusendring")
@@ -26,6 +27,7 @@ class StatusJobb(
     }
 
     fun sjekkOmKlarForInnsending() {
+        logger.info("Sjekker statuser som skal får KLAR_FOR_INNSENDING")
         val refusjoner = refusjonRepository.findAllByStatus(RefusjonStatus.FOR_TIDLIG)
         var antallEndretTilKlarForInnsending: Int = 0;
         refusjoner.forEach {

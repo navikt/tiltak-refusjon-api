@@ -139,7 +139,6 @@ class Refusjonsgrunnlag(
         var erNoenOpptjentIPerioden = false
         inntektsgrunnlag?.inntekter?.forEach {
             if(it.erOpptjentIPeriode == true) {
-                println("AAAAAAAAAAAAAAAAAAAAAAAAA ${it.id}")
                 erNoenOpptjentIPerioden = true
             }
         }
@@ -149,10 +148,6 @@ class Refusjonsgrunnlag(
             endretBruttoLønn = null
             fratrekkRefunderbarBeløp = null
             inntekterKunFraTiltaket = null
-            // Slett beregning
-            // Slett endret bruttolønn
-            // Slett sykefravær
-            println("FSEDDDDDDDDDDDD >>>>>>>>>>>>>>>>>>>>>> Returnal false")
             return false
         }
 

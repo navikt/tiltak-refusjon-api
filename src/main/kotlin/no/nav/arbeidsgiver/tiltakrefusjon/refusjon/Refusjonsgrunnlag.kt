@@ -42,9 +42,12 @@ class Refusjonsgrunnlag(
     ): Boolean {
         if (gjeldendeInntektsgrunnlag != null) {
             inntektsgrunnlag.inntekter.forEach { inntekt ->
-                val gjeldendeInntektslinje = gjeldendeInntektsgrunnlag.inntekter
-                    .find { it.beløp == inntekt.beløp && it.måned == inntekt.måned && it.beskrivelse == inntekt.beskrivelse }
+//                val gjeldendeInntektslinje = gjeldendeInntektsgrunnlag.inntekter
+//                    .find { it.beløp == inntekt.beløp && it.måned == inntekt.måned && it.beskrivelse == inntekt.beskrivelse }
+                val gjeldendeInntektslinje = finnInntektslinjeIListeMedInntekter(inntekt, gjeldendeInntektsgrunnlag.inntekter)
                 if (gjeldendeInntektslinje != null) {
+                    inntektsgrunnlag.inntekter.minusElement(inntekt)
+                    inntektsgrunnlag.inntekter.plusElement(gjeldendeInntektslinje)
                     inntekt.erOpptjentIPeriode = gjeldendeInntektslinje.erOpptjentIPeriode
                 }
             }
@@ -54,6 +57,17 @@ class Refusjonsgrunnlag(
         }
         this.inntektsgrunnlag = inntektsgrunnlag
         return gjørBeregning()
+    }
+
+    fun finnInntektslinjeIListeMedInntekter(linje1: Inntektslinje, inntektslinjer: Set<Inntektslinje>): Inntektslinje? {
+        return inntektslinjer.find {
+                    it.inntektType == linje1.inntektType &&
+                    it.beskrivelse == linje1.beskrivelse &&
+                    it.beløp == linje1.beløp &&
+                    it.måned == linje1.måned &&
+                    it.opptjeningsperiodeFom == linje1.opptjeningsperiodeFom &&
+                    it.opptjeningsperiodeTom == linje1.opptjeningsperiodeTom
+        }
     }
 
     fun oppgiForrigeRefusjonsbeløp(forrigeRefusjonMinusBeløp: Int): Boolean{

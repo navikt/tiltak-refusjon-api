@@ -439,7 +439,7 @@ class RefusjonServiceTest(
     }
 
     @Test
-    fun `Inntektsoppslag for andre typer enn sommerjobb skal sjekke 0 eller 1 månede ekstra`() {
+    fun `Inntektsoppslag for andre typer enn sommerjobb skal sjekke 1 måned ekstra`() {
         val deltakerFnr = "00000000000"
         val tilskuddMelding = TilskuddsperiodeGodkjentMelding(
             avtaleId = "2",
@@ -471,7 +471,7 @@ class RefusjonServiceTest(
         var refusjon = refusjonService.opprettRefusjon(tilskuddMelding) ?: fail("Skulle kunne opprette refusjon")
         refusjonService.gjørInntektsoppslag(refusjon)
         verify {
-            inntektskomponentService.hentInntekter(tilskuddMelding.deltakerFnr, tilskuddMelding.bedriftNr, tilskuddMelding.tilskuddFom, tilskuddMelding.tilskuddTom.plusMonths(0))
+            inntektskomponentService.hentInntekter(tilskuddMelding.deltakerFnr, tilskuddMelding.bedriftNr, tilskuddMelding.tilskuddFom, tilskuddMelding.tilskuddTom.plusMonths(1))
         }
         Now.fixedDate(LocalDate.now().plusDays(1))
         refusjon.merkForUnntakOmInntekterToMånederFrem(true, "")

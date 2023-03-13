@@ -4,6 +4,7 @@ import com.github.guepardoapps.kulid.ULID
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
+import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.time.YearMonth
 import javax.persistence.CascadeType
@@ -40,14 +41,14 @@ class Refusjonsgrunnlag(
         inntektsgrunnlag: Inntektsgrunnlag,
         gjeldendeInntektsgrunnlag: Inntektsgrunnlag?
     ): Boolean {
+        val log = LoggerFactory.getLogger(javaClass)
         if (gjeldendeInntektsgrunnlag != null) {
             inntektsgrunnlag.inntekter.forEach { inntekt ->
 //                val gjeldendeInntektslinje = gjeldendeInntektsgrunnlag.inntekter
 //                    .find { it.beløp == inntekt.beløp && it.måned == inntekt.måned && it.beskrivelse == inntekt.beskrivelse }
                 val gjeldendeInntektslinje = finnInntektslinjeIListeMedInntekter(inntekt, gjeldendeInntektsgrunnlag.inntekter)
                 if (gjeldendeInntektslinje != null) {
-                    inntektsgrunnlag.inntekter.minusElement(inntekt)
-                    inntektsgrunnlag.inntekter.plusElement(gjeldendeInntektslinje)
+                    inntekt.id = gjeldendeInntektslinje.id
                     inntekt.erOpptjentIPeriode = gjeldendeInntektslinje.erOpptjentIPeriode
                 }
             }

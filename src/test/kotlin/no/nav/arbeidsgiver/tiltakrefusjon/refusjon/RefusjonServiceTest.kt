@@ -84,77 +84,7 @@ class RefusjonServiceTest(
     }
 
     @Test
-    fun `rekkefølge GODKJENNING av refusjon, sperre for løpenummer 2 om løpenummer 1 ikke er godkjent først`(){
-
-        val deltakerFnr = "00000000000"
-        val tilskuddMelding = TilskuddsperiodeGodkjentMelding(
-            avtaleId = "1",
-            tilskuddsbeløp = 1000,
-            tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
-            deltakerEtternavn = "Mus",
-            deltakerFornavn = "Mikke",
-            arbeidsgiverFornavn = "Arne",
-            arbeidsgiverEtternavn = "Arbeidsgiver",
-            arbeidsgiverTlf = "41111111",
-            arbeidsgiveravgiftSats = 0.101,
-            avtaleInnholdId = "1",
-            bedriftNavn = "Bedriften AS",
-            bedriftNr = "999999999",
-            deltakerFnr = deltakerFnr,
-            feriepengerSats = 0.141,
-            otpSats = 0.02,
-            tilskuddFom =  Now.localDate().minusWeeks(4),
-            tilskuddTom = Now.localDate().minusDays(1),
-            tilskuddsperiodeId = "1",
-            veilederNavIdent = "X123456",
-            lønnstilskuddsprosent = 60,
-            avtaleNr = 3456,
-            løpenummer = 1,
-            resendingsnummer = null,
-            enhet = "1000",
-            godkjentTidspunkt = LocalDateTime.now()
-        )
-        val tilskuddMelding2LittEldreMedLøpenummer2 = TilskuddsperiodeGodkjentMelding(
-            avtaleId = "1",
-            tilskuddsbeløp = 1000,
-            tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
-            deltakerEtternavn = "Mus",
-            deltakerFornavn = "Mikke",
-            arbeidsgiverFornavn = "Arne",
-            arbeidsgiverEtternavn = "Arbeidsgiver",
-            arbeidsgiverTlf = "41111111",
-            arbeidsgiveravgiftSats = 0.101,
-            avtaleInnholdId = "2",
-            bedriftNavn = "Bedriften AS",
-            bedriftNr = "999999999",
-            deltakerFnr = deltakerFnr,
-            feriepengerSats = 0.141,
-            otpSats = 0.02,
-            tilskuddFom = Now.localDate().minusWeeks(3),
-            tilskuddTom = Now.localDate().minusDays(1),
-            tilskuddsperiodeId = "2",
-            veilederNavIdent = "X123456",
-            lønnstilskuddsprosent = 60,
-            avtaleNr = 3456,
-            løpenummer = 2,
-            resendingsnummer = null,
-            enhet = "1000",
-            godkjentTidspunkt = LocalDateTime.now()
-        )
-
-        val refusjon1 = refusjonService.opprettRefusjon(tilskuddMelding)!!
-        refusjonService.gjørBedriftKontonummeroppslag(refusjon1)
-        refusjonService.gjørInntektsoppslag(refusjon1)
-
-        val refusjon2 = refusjonService.opprettRefusjon(tilskuddMelding2LittEldreMedLøpenummer2)!!
-        refusjonService.gjørBedriftKontonummeroppslag(refusjon2)
-        refusjonService.gjørInntektsoppslag(refusjon2)
-
-        assertThat(refusjonRepository.findAll().count()).isEqualTo(2)
-    }
-
-    @Test
-    fun `rekkefølge GODKJENNING av refusjon, sperre for løpenummer 3 om løpenummer 2 ikke er godkjent først`(){
+    fun `rekkefølge GODKJENNING av refusjon, ingen krav til godkjenning i rekkefølge`(){
 
         val deltakerFnr = "00000000000"
         val tilskuddMelding = TilskuddsperiodeGodkjentMelding(
@@ -256,9 +186,9 @@ class RefusjonServiceTest(
         gjørInntektoppslagForRefusjon(refusjon3)
 
         assertThat(refusjonRepository.findAll().count()).isEqualTo(3)
-        assertDoesNotThrow { refusjonService.godkjennForArbeidsgiver(refusjon1,"999999999")}
-        assertDoesNotThrow { refusjonService.godkjennForArbeidsgiver(refusjon2,"999999999")}
         assertDoesNotThrow { refusjonService.godkjennForArbeidsgiver(refusjon3,"999999999")}
+        assertDoesNotThrow { refusjonService.godkjennForArbeidsgiver(refusjon2,"999999999")}
+        assertDoesNotThrow { refusjonService.godkjennForArbeidsgiver(refusjon1,"999999999")}
     }
 
     @Test

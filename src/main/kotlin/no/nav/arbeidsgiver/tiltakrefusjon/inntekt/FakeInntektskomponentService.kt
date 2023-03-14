@@ -40,7 +40,7 @@ class FakeInntektskomponentService : InntektskomponentService {
             if (Math.random() > 0.5) {
                 inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "trekkILoennForFerie", -25000.0,  måned, datoTil, måned.atEndOfMonth()))
             }
-            return Pair(inntektslinjer, "fake respons med minus")
+            return Pair(inntektslinjer, "fake respons med mulig minus")
         }
 
         val inntektslinjer = ArrayList<Inntektslinje>()

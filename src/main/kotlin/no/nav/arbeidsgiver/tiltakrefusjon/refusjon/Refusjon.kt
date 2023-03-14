@@ -171,11 +171,6 @@ class Refusjon(
             status = RefusjonStatus.GODKJENT_NULLBELØP
             registerEvent(RefusjonGodkjentNullBeløp(this, utførtAv))
         } else if(!refusjonsgrunnlag.refusjonsgrunnlagetErPositivt()) {
-            // Lagre et minusbeløp
-            minusbelop = Minusbelop(
-                avtaleNr = refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr,
-                beløp = refusjonsgrunnlag.beregning?.refusjonsbeløp,
-                løpenummer = refusjonsgrunnlag.tilskuddsgrunnlag.løpenummer)
             status = RefusjonStatus.GODKJENT_MINUSBELØP
             registerEvent(RefusjonGodkjentMinusBeløp(this, utførtAv))
         } else {

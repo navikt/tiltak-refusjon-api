@@ -66,7 +66,7 @@ fun refusjoner(): List<Refusjon> {
     }
 
     fun `Jon Janson Ferietrekk minus beløp 1`(): Refusjon {
-        val deltakerFnr = "08098613316"
+        val deltakerFnr = "08124521514"
         val bedriftNr = "910712306"
         return Refusjon(
             tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
@@ -87,7 +87,7 @@ fun refusjoner(): List<Refusjon> {
     }
 
     fun `Jon Janson Ferietrekk minus beløp 2`(): Refusjon {
-        val deltakerFnr = "01092111111"
+        val deltakerFnr = "08124521514"
         val bedriftNr = "910712306"
         return Refusjon(
             tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
@@ -108,7 +108,7 @@ fun refusjoner(): List<Refusjon> {
     }
 
     fun `Jon Janson Ferietrekk minus beløp 3`(): Refusjon {
-        val deltakerFnr = "01092111111"
+        val deltakerFnr = "08124521514"
         val bedriftNr = "910712306"
         return Refusjon(
             tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
@@ -128,10 +128,32 @@ fun refusjoner(): List<Refusjon> {
         )
     }
 
+    fun `Jon Janson Ferietrekk minus beløp 4`(): Refusjon {
+        val deltakerFnr = "08124521514"
+        val bedriftNr = "910712306"
+        return Refusjon(
+            tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
+                løpenummer = 4,
+                lønnstilskuddsprosent = 60,
+                otpSats = 0.03,
+                feriepengerSats = 0.125,
+                arbeidsgiveravgiftSats = 0.141,
+                avtaleNr = 7,
+                deltakerFnr = deltakerFnr,
+                tilskuddsbeløp = 30000,
+                bedriftNr = bedriftNr,
+                deltakerFornavn = "Jon",
+                deltakerEtternavn = "Janson Ferietrekk minus beløp 4",
+                veilederNavIdent = "Z123456"
+            ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
+        )
+    }
+
     return listOf(
         `Jon Janson Ferietrekk minus beløp 1`(),
         `Jon Janson Ferietrekk minus beløp 2`(),
         `Jon Janson Ferietrekk minus beløp 3`(),
+        `Jon Janson Ferietrekk minus beløp 4`(),
         kiellandNy,
         kiellandGammel,
         BjørnsonUtgått,

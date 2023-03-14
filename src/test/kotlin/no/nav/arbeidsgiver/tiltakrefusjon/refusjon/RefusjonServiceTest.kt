@@ -151,7 +151,6 @@ class RefusjonServiceTest(
         refusjonService.gjørInntektsoppslag(refusjon2)
 
         assertThat(refusjonRepository.findAll().count()).isEqualTo(2)
-        assertThrows<GodkjennEldreRefusjonFørstException> { refusjonService.godkjennForArbeidsgiver(refusjon2,"999999999")}
     }
 
     @Test

@@ -62,9 +62,8 @@ class Refusjon(
     val inntekterKunFraTiltaket: Boolean? get() = refusjonsgrunnlag.inntekterKunFraTiltaket
     var utbetaltTidspunkt: Instant? = null
     var åpnetFørsteGang: Instant? = null
-    @Transient
-    @JsonInclude
-    var forrigeRefusjonSomSkalSendesFørst: Refusjon? = null
+    @OneToOne(orphanRemoval = true, cascade = [CascadeType.ALL])
+    var minusbelop: Minusbelop? = null
     init {
         oppdaterStatus()
     }
@@ -83,10 +82,6 @@ class Refusjon(
     @JsonProperty
     fun harInntektIAlleMåneder(): Boolean {
         return refusjonsgrunnlag.harInntektIAlleMåneder()
-    }
-
-    fun angiRefusjonSomMåSendesFørst(skalForrigeMåSettesFørst:Refusjon){
-        this.forrigeRefusjonSomSkalSendesFørst = skalForrigeMåSettesFørst
     }
 
     @JsonProperty
@@ -170,10 +165,17 @@ class Refusjon(
         godkjentAvArbeidsgiver = Now.instant()
         status = RefusjonStatus.SENDT_KRAV
 
+        // Hvordan håndtere at "nullstille" minusbeløp her?
+        // Summere en sorts total?
         if(refusjonsgrunnlag.refusjonsgrunnlagetErNullSomIZero()) {
             status = RefusjonStatus.GODKJENT_NULLBELØP
             registerEvent(RefusjonGodkjentNullBeløp(this, utførtAv))
         } else if(!refusjonsgrunnlag.refusjonsgrunnlagetErPositivt()) {
+            // Lagre et minusbeløp
+            minusbelop = Minusbelop(
+                avtaleNr = refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr,
+                beløp = refusjonsgrunnlag.beregning?.refusjonsbeløp,
+                løpenummer = refusjonsgrunnlag.tilskuddsgrunnlag.løpenummer)
             status = RefusjonStatus.GODKJENT_MINUSBELØP
             registerEvent(RefusjonGodkjentMinusBeløp(this, utførtAv))
         } else {

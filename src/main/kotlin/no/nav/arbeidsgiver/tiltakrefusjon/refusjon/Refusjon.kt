@@ -251,6 +251,10 @@ class Refusjon(
     }
 
     fun forlengFrist(nyFrist: LocalDate, årsak: String, utførtAv: String) {
+        forlengFrist(nyFrist, årsak, utførtAv, false)
+    }
+
+    fun forlengFrist(nyFrist: LocalDate, årsak: String, utførtAv: String, enforce: Boolean) {
         oppdaterStatus()
         krevStatus(RefusjonStatus.FOR_TIDLIG, RefusjonStatus.KLAR_FOR_INNSENDING)
 
@@ -262,7 +266,7 @@ class Refusjon(
         // Opprinnelig frist er er 2 mnd. Det er enten 2 mnd etter tilskuddTom eller 2 mnd etter godkjentAvBeslutterTidspunkt.
         // Maks forlengelse er 1 mnd.
         val opprinneligFrist = lagFristForGodkjenning()
-        if (nyFrist > antallMånederEtter(opprinneligFrist, 1)) {
+        if (!enforce && (nyFrist > antallMånederEtter(opprinneligFrist, 1))) {
             throw FeilkodeException(Feilkode.FOR_LANG_FORLENGELSE_AV_FRIST)
         }
 

@@ -132,9 +132,14 @@ data class InnloggetArbeidsgiver(
     fun utsettFriskSykepenger(id: String) {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
-        log.info("Utsetter frist på refusjon ${refusjon.id} grunnet ukjent sykepengebeløp")
-        val treMåneder = antallMånederEtter(refusjon.tilskuddsgrunnlag.tilskuddTom, 3)
-        refusjon.forlengFrist(treMåneder, "Sykepenger", identifikator);
+        log.info("Utsetter frist på refusjon ${refusjon.id} grunnet sykepenger/fravær i perioden")
+        val treMåneder = antallMånederEtter(refusjon.tilskuddsgrunnlag.tilskuddTom, 6)
+        refusjon.forlengFrist(
+            nyFrist = treMåneder,
+            årsak = "Sykepenger",
+            utførtAv = identifikator,
+            enforce = true
+        );
         refusjonRepository.save(refusjon)
     }
 

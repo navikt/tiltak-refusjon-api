@@ -80,6 +80,7 @@ class RefusjonService(
         val alleMinusbeløp = minusbelopRepository.findAllByAvtaleNr(avtaleNr = avtaleNr)
         if(!alleMinusbeløp.isNullOrEmpty()) {
             val sumMinusbelop = alleMinusbeløp
+                .filter { !it.gjortOpp }
                 .map { minusbelop -> minusbelop.beløp}
                 .filterNotNull()
                 .reduceOrNull{sum, beløp -> sum + beløp}

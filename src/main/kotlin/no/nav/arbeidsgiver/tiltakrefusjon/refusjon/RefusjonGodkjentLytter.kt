@@ -20,7 +20,7 @@ class RefusjonGodkjentLytter(
         val alleMinusBeløpPåAvtalen = minusbelopRepository.findAllByAvtaleNr(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr);
         // Er det minusbeløp på avtalen kan de nå nullstilles da refusjonen er godkjent uten minusbeløp
         alleMinusBeløpPåAvtalen.forEach{
-            it.beløp = 0
+            it.gjortOpp = true
             minusbelopRepository.save(it)
         }
     }

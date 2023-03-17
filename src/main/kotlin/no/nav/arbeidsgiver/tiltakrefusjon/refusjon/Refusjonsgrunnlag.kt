@@ -44,8 +44,6 @@ class Refusjonsgrunnlag(
         val log = LoggerFactory.getLogger(javaClass)
         if (gjeldendeInntektsgrunnlag != null) {
             inntektsgrunnlag.inntekter.forEach { inntekt ->
-//                val gjeldendeInntektslinje = gjeldendeInntektsgrunnlag.inntekter
-//                    .find { it.beløp == inntekt.beløp && it.måned == inntekt.måned && it.beskrivelse == inntekt.beskrivelse }
                 val gjeldendeInntektslinje = finnInntektslinjeIListeMedInntekter(inntekt, gjeldendeInntektsgrunnlag.inntekter)
                 if (gjeldendeInntektslinje != null) {
                     inntekt.id = gjeldendeInntektslinje.id

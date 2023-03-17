@@ -281,8 +281,7 @@ class Refusjon(
             return false
         }
         return refusjonsgrunnlag.inntektsgrunnlag?.innhentetTidspunkt?.isBefore(
-            Now.localDateTime().minusSeconds(10)
-            //Now.localDateTime().minusMinutes(1)
+            Now.localDateTime().minusMinutes(1)
         ) ?: true
     }
 

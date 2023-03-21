@@ -21,7 +21,7 @@ data class Inntektslinje(
     var erOpptjentIPeriode: Boolean? = null,
 ) {
     @Id
-    val id: String = ULID.random()
+    var id: String = ULID.random()
 
     @ManyToOne
     @JoinColumn(name = "inntektsgrunnlag_id")

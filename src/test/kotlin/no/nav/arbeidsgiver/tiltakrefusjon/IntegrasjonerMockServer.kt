@@ -16,7 +16,7 @@ class IntegrasjonerMockServer(@Value("\${wiremock.port}") val wiremockPort: Int)
     private val server: WireMockServer = WireMockServer(WireMockConfiguration
         .options()
         .usingFilesUnderClasspath(".")
-        .notifier(ConsoleNotifier(true))
+        .notifier(ConsoleNotifier(false))
         .port(wiremockPort))
 
     init {

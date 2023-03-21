@@ -4,6 +4,7 @@ import com.github.guepardoapps.kulid.ULID
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
+import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.time.YearMonth
 import javax.persistence.CascadeType
@@ -40,11 +41,13 @@ class Refusjonsgrunnlag(
         inntektsgrunnlag: Inntektsgrunnlag,
         gjeldendeInntektsgrunnlag: Inntektsgrunnlag?
     ): Boolean {
+        val log = LoggerFactory.getLogger(javaClass)
         if (gjeldendeInntektsgrunnlag != null) {
             inntektsgrunnlag.inntekter.forEach { inntekt ->
-                val gjeldendeInntektslinje = gjeldendeInntektsgrunnlag.inntekter
-                    .find { it.beløp == inntekt.beløp && it.måned == inntekt.måned && it.beskrivelse == inntekt.beskrivelse }
+                val gjeldendeInntektslinje = finnInntektslinjeIListeMedInntekter(inntekt, gjeldendeInntektsgrunnlag.inntekter)
                 if (gjeldendeInntektslinje != null) {
+                    // inntekt er identisk med en inntekt fra tidligere inntektsgrunnlag (gjeldendeInntektslinje)
+                    inntekt.id = gjeldendeInntektslinje.id
                     inntekt.erOpptjentIPeriode = gjeldendeInntektslinje.erOpptjentIPeriode
                 }
             }
@@ -54,6 +57,17 @@ class Refusjonsgrunnlag(
         }
         this.inntektsgrunnlag = inntektsgrunnlag
         return gjørBeregning()
+    }
+
+    fun finnInntektslinjeIListeMedInntekter(linje1: Inntektslinje, inntektslinjer: Set<Inntektslinje>): Inntektslinje? {
+        return inntektslinjer.find {
+                    it.inntektType == linje1.inntektType &&
+                    it.beskrivelse == linje1.beskrivelse &&
+                    it.beløp == linje1.beløp &&
+                    it.måned == linje1.måned &&
+                    it.opptjeningsperiodeFom == linje1.opptjeningsperiodeFom &&
+                    it.opptjeningsperiodeTom == linje1.opptjeningsperiodeTom
+        }
     }
 
     fun oppgiForrigeRefusjonsbeløp(forrigeRefusjonMinusBeløp: Int): Boolean{

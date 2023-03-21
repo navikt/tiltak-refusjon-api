@@ -74,9 +74,9 @@ class RefusjonService(
      * men at vi overfører minusbeløp til neste måned dersom tiltaket fortsetter måneden etter. Hvis tiltaket avsluttes den samme måneden hvor det går i minus,
      * så går refusjonen bare i 0,-.
      */
-    fun settMinusBeløpFraTidligereRefusjonerPåAvtalen(denneRefusjon: Refusjon) {
+    fun settMinusBeløpFraTidligereRefusjonerPåAvtalen(refusjon: Refusjon) {
 
-        val avtaleNr = denneRefusjon.tilskuddsgrunnlag.avtaleNr
+        val avtaleNr = refusjon.tilskuddsgrunnlag.avtaleNr
         val alleMinusbeløp = minusbelopRepository.findAllByAvtaleNr(avtaleNr = avtaleNr)
         if(!alleMinusbeløp.isNullOrEmpty()) {
             val sumMinusbelop = alleMinusbeløp
@@ -85,7 +85,8 @@ class RefusjonService(
                 .filterNotNull()
                 .reduceOrNull{sum, beløp -> sum + beløp}
             if (sumMinusbelop != null) {
-                denneRefusjon.refusjonsgrunnlag.oppgiForrigeRefusjonsbeløp(sumMinusbelop)
+                refusjon.refusjonsgrunnlag.oppgiForrigeRefusjonsbeløp(sumMinusbelop)
+                refusjonRepository.save(refusjon)
             }
         }
     }

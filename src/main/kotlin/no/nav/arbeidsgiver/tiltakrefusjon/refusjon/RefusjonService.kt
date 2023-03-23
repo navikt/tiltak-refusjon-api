@@ -87,6 +87,9 @@ class RefusjonService(
             if (sumMinusbelop != null) {
                 refusjon.refusjonsgrunnlag.oppgiForrigeRefusjonsbeløp(sumMinusbelop)
                 refusjonRepository.save(refusjon)
+            } else {
+                refusjon.refusjonsgrunnlag.oppgiForrigeRefusjonsbeløp(0)
+                refusjonRepository.save(refusjon)
             }
         }
     }

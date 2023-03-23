@@ -61,7 +61,7 @@ class InnloggetBrukerService(
                     refusjonService = refusjonService,
                     inntektskomponentService = inntektskomponentService,
                     kontoregisterService = kontoregisterService,
-                    harKorreksjonTilgang = harKorreksjonTilgang
+                    harKorreksjonTilgang = true
                 )
             }
             else -> {

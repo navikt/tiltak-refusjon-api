@@ -29,7 +29,8 @@ class FeatureToggleService @Autowired constructor(
     }
 
     fun isEnabled(feature: String?, innloggetSaksbehandler: InnloggetSaksbehandler): Boolean {
-        return unleash.isEnabled(feature!!, contextMedInnloggetBruker(innloggetSaksbehandler.identifikator))
+        return true
+        //return unleash.isEnabled(feature!!, contextMedInnloggetBruker(innloggetSaksbehandler.identifikator))
     }
 
     fun isEnabled(feature: String?, identifikator: String): Boolean {

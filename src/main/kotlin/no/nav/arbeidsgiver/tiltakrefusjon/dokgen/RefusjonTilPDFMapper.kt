@@ -59,6 +59,7 @@ object RefusjonTilPDFMapper {
             refusjon.tilskuddsgrunnlag.tilskuddsbeløp,
             refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
             refusjon.tilskuddsgrunnlag.avtaleNr.toString() + "-" + (refusjon.tilskuddsgrunnlag.løpenummer -1),
+            refusjon.refusjonsgrunnlag.beregning!!.sumUtgifterFratrukketRefundertBeløp
         )
     }
 }

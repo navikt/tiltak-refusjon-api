@@ -95,7 +95,7 @@ class RefusjonApiTest(
 
         assertNull(liste.find { it.refusjonsgrunnlag.tilskuddsgrunnlag.enhet != "1000" })
         assertNull(liste.find { it.deltakerFnr == "07098142678" })
-        assertEquals(18, liste.size) // Det er 9 stk i TestData som ikke har det fødselsnummeret som gir 'Deny'
+        assertEquals(19, liste.size) // Det er 19 stk i TestData som ikke har det fødselsnummeret som gir 'Deny'
 
     }
 

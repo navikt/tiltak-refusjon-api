@@ -9,13 +9,16 @@ import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeForko
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
+@Transactional
 class RefusjonService(
     val inntektskomponentService: InntektskomponentService,
     val refusjonRepository: RefusjonRepository,
     val korreksjonRepository: KorreksjonRepository,
     val kontoregisterService: KontoregisterService,
+    val minusbelopRepository: MinusbelopRepository
 ) {
     val log = LoggerFactory.getLogger(javaClass)
 
@@ -71,28 +74,27 @@ class RefusjonService(
      * men at vi overfører minusbeløp til neste måned dersom tiltaket fortsetter måneden etter. Hvis tiltaket avsluttes den samme måneden hvor det går i minus,
      * så går refusjonen bare i 0,-.
      */
-    fun settMinusBeløpOmFratrukketFerieGirMinusForForrigeRefusjonOmDenFinnes(denneRefusjon: Refusjon) {
-        val tidligereRefusjonMedMinusBeløpEtterFratrukketFerie: Refusjon =
-            refusjonRepository.finnRefusjonSomSkalSendesMedMinusBeløpEtterFratrukketFerieFørDenne(
-                denneRefusjon.bedriftNr,
-                denneRefusjon.tilskuddsgrunnlag.avtaleNr,
-                denneRefusjon.tilskuddsgrunnlag.tiltakstype,
-                RefusjonStatus.GODKJENT_MINUSBELØP,
-                denneRefusjon.tilskuddsgrunnlag.løpenummer
-            ) ?: return
+    fun settMinusBeløpFraTidligereRefusjonerPåAvtalen(refusjon: Refusjon) {
 
-        if (tidligereRefusjonMedMinusBeløpEtterFratrukketFerie.beregning!!.lønnFratrukketFerie <= 0)
-            denneRefusjon.refusjonsgrunnlag.oppgiForrigeRefusjonsbeløp(tidligereRefusjonMedMinusBeløpEtterFratrukketFerie.beregning!!.refusjonsbeløp)
+        val avtaleNr = refusjon.tilskuddsgrunnlag.avtaleNr
+        val alleMinusbeløp = minusbelopRepository.findAllByAvtaleNr(avtaleNr = avtaleNr)
+        if(!alleMinusbeløp.isNullOrEmpty()) {
+            val sumMinusbelop = alleMinusbeløp
+                .filter { !it.gjortOpp }
+                .map { minusbelop -> minusbelop.beløp}
+                .filterNotNull()
+                .reduceOrNull{sum, beløp -> sum + beløp}
+            if (sumMinusbelop != null) {
+                refusjon.refusjonsgrunnlag.oppgiForrigeRefusjonsbeløp(sumMinusbelop)
+                refusjonRepository.save(refusjon)
+            } else {
+                refusjon.refusjonsgrunnlag.oppgiForrigeRefusjonsbeløp(0)
+                refusjonRepository.save(refusjon)
+            }
+        }
     }
 
-    fun settOmForrigeRefusjonMåSendesFørst(refusjon: Refusjon){
-        if(refusjon.status != RefusjonStatus.KLAR_FOR_INNSENDING) return
-        val forrigeRefusjonSomMåSendesInnFørst: Refusjon = refusjonRepository.finnRefusjonSomSkalSendesFørDenne(refusjon.bedriftNr,refusjon.tilskuddsgrunnlag.avtaleNr,refusjon.tilskuddsgrunnlag.tiltakstype, RefusjonStatus.KLAR_FOR_INNSENDING, refusjon.tilskuddsgrunnlag.løpenummer).firstOrNull()
-                ?: return
-        if(forrigeRefusjonSomMåSendesInnFørst != refusjon) refusjon.angiRefusjonSomMåSendesFørst(forrigeRefusjonSomMåSendesInnFørst)
-    }
-
-    fun settMinusBeløpOmFratrukketFerieGirMinusForForrigeRefusjonOmDenFinnes(denneKorreksjon: Korreksjon) {
+    fun settMinusBeløpFraTidligereRefusjonerPåAvtalen(denneKorreksjon: Korreksjon) {
         val tidligereRefusjonMedMinusBeløpEtterFratrukketFerie: Refusjon =
             refusjonRepository.finnRefusjonSomSkalSendesMedMinusBeløpEtterFratrukketFerieFørDenne(
                 denneKorreksjon.bedriftNr,
@@ -128,6 +130,7 @@ class RefusjonService(
                 inntekter = inntektsoppslag.first,
                 respons = inntektsoppslag.second
             )
+            println(inntektsgrunnlag)
             refusjon.oppgiInntektsgrunnlag(inntektsgrunnlag, refusjon.inntektsgrunnlag)
             refusjonRepository.save(refusjon)
         } catch (e: Exception) {
@@ -136,17 +139,8 @@ class RefusjonService(
     }
 
     fun godkjennForArbeidsgiver(refusjon: Refusjon, utførtAv: String) {
-        if(måGodkjenneTidligereRefusjonerFørst(refusjon)){
-            throw GodkjennEldreRefusjonFørstException()
-        }
         refusjon.godkjennForArbeidsgiver(utførtAv)
         refusjonRepository.save(refusjon)
-    }
-
-    private fun måGodkjenneTidligereRefusjonerFørst(refusjon:Refusjon): Boolean{
-        if(refusjon.status != RefusjonStatus.KLAR_FOR_INNSENDING) return false
-        val forrigeRefusjonSomMåSendesInnFørst: Refusjon? = refusjonRepository.finnRefusjonSomSkalSendesFørDenne(refusjon.bedriftNr,refusjon.tilskuddsgrunnlag.avtaleNr,refusjon.tilskuddsgrunnlag.tiltakstype, RefusjonStatus.KLAR_FOR_INNSENDING, refusjon.tilskuddsgrunnlag.løpenummer).firstOrNull()
-        return  forrigeRefusjonSomMåSendesInnFørst != null && forrigeRefusjonSomMåSendesInnFørst != refusjon
     }
 
     fun annullerRefusjon(melding: TilskuddsperiodeAnnullertMelding) {

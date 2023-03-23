@@ -62,9 +62,8 @@ class Refusjon(
     val inntekterKunFraTiltaket: Boolean? get() = refusjonsgrunnlag.inntekterKunFraTiltaket
     var utbetaltTidspunkt: Instant? = null
     var åpnetFørsteGang: Instant? = null
-    @Transient
-    @JsonInclude
-    var forrigeRefusjonSomSkalSendesFørst: Refusjon? = null
+    @OneToOne(orphanRemoval = true, cascade = [CascadeType.ALL])
+    var minusbelop: Minusbelop? = null
     init {
         oppdaterStatus()
     }
@@ -83,10 +82,6 @@ class Refusjon(
     @JsonProperty
     fun harInntektIAlleMåneder(): Boolean {
         return refusjonsgrunnlag.harInntektIAlleMåneder()
-    }
-
-    fun angiRefusjonSomMåSendesFørst(skalForrigeMåSettesFørst:Refusjon){
-        this.forrigeRefusjonSomSkalSendesFørst = skalForrigeMåSettesFørst
     }
 
     @JsonProperty
@@ -170,6 +165,8 @@ class Refusjon(
         godkjentAvArbeidsgiver = Now.instant()
         status = RefusjonStatus.SENDT_KRAV
 
+        // Hvordan håndtere at "nullstille" minusbeløp her?
+        // Summere en sorts total?
         if(refusjonsgrunnlag.refusjonsgrunnlagetErNullSomIZero()) {
             status = RefusjonStatus.GODKJENT_NULLBELØP
             registerEvent(RefusjonGodkjentNullBeløp(this, utførtAv))
@@ -254,6 +251,10 @@ class Refusjon(
     }
 
     fun forlengFrist(nyFrist: LocalDate, årsak: String, utførtAv: String) {
+        forlengFrist(nyFrist, årsak, utførtAv, false)
+    }
+
+    fun forlengFrist(nyFrist: LocalDate, årsak: String, utførtAv: String, enforce: Boolean) {
         oppdaterStatus()
         krevStatus(RefusjonStatus.FOR_TIDLIG, RefusjonStatus.KLAR_FOR_INNSENDING)
 
@@ -265,7 +266,7 @@ class Refusjon(
         // Opprinnelig frist er er 2 mnd. Det er enten 2 mnd etter tilskuddTom eller 2 mnd etter godkjentAvBeslutterTidspunkt.
         // Maks forlengelse er 1 mnd.
         val opprinneligFrist = lagFristForGodkjenning()
-        if (nyFrist > antallMånederEtter(opprinneligFrist, 1)) {
+        if (!enforce && (nyFrist > antallMånederEtter(opprinneligFrist, 1))) {
             throw FeilkodeException(Feilkode.FOR_LANG_FORLENGELSE_AV_FRIST)
         }
 

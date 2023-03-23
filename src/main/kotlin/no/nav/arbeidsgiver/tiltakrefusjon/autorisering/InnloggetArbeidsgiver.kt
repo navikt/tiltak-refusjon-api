@@ -7,6 +7,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
 import no.nav.arbeidsgiver.tiltakrefusjon.organisasjon.EregClient
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.antallMånederEtter
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
@@ -81,8 +82,12 @@ data class InnloggetArbeidsgiver(
 
     fun finnRefusjon(id: String): Refusjon {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
-        refusjonService.settMinusBeløpOmFratrukketFerieGirMinusForForrigeRefusjonOmDenFinnes(refusjon)
-        refusjonService.settOmForrigeRefusjonMåSendesFørst(refusjon)
+
+        // Ikke sett minusbeløp på allerede sendt inn refusjoner
+        if(refusjon.status == RefusjonStatus.KLAR_FOR_INNSENDING || refusjon.status == RefusjonStatus.FOR_TIDLIG) {
+            refusjonService.settMinusBeløpFraTidligereRefusjonerPåAvtalen(refusjon)
+        }
+
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
         if(refusjon.åpnetFørsteGang == null) {
             refusjon.åpnetFørsteGang = Now.instant()
@@ -91,8 +96,6 @@ data class InnloggetArbeidsgiver(
         refusjonService.gjørInntektsoppslag(refusjon)
         return refusjon
     }
-
-
 
     fun finnKorreksjon(id: String): Korreksjon {
         val korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
@@ -125,6 +128,20 @@ data class InnloggetArbeidsgiver(
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
         refusjon.settFratrekkRefunderbarBeløp(fratrekkRefunderbarBeløp, refunderbarBeløp)
+        refusjonRepository.save(refusjon)
+    }
+
+    fun utsettFriskSykepenger(id: String) {
+        val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
+        sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
+        log.info("Utsetter frist på refusjon ${refusjon.id} grunnet sykepenger/fravær i perioden")
+        val treMåneder = antallMånederEtter(refusjon.tilskuddsgrunnlag.tilskuddTom, 6)
+        refusjon.forlengFrist(
+            nyFrist = treMåneder,
+            årsak = "Sykepenger",
+            utførtAv = identifikator,
+            enforce = true
+        );
         refusjonRepository.save(refusjon)
     }
 

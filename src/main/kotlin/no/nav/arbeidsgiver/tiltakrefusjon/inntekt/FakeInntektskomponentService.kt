@@ -1,11 +1,13 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.inntekt
 
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Inntektslinje
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.time.Period
 import java.time.YearMonth
+import java.time.temporal.TemporalAdjusters
 import kotlin.streams.toList
 
 @Service
@@ -24,8 +26,21 @@ class FakeInntektskomponentService : InntektskomponentService {
             val inntektslinjer = ArrayList<Inntektslinje>()
             val måned = YearMonth.of(datoFra.year, datoFra.month)
             inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "fastloenn", 20000.0,  måned, datoTil, måned.atEndOfMonth()))
-            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "trekkILoennForFerie", -25000.0,  måned, datoTil, måned.atEndOfMonth()))
-            return Pair(inntektslinjer, "fake respons")
+            // Kan ikke ha minus på alle. Må kunne teste positivt. Så kun minus på en inntekt to måneder bak
+            println(Period.between(datoFra, Now.localDate().with(TemporalAdjusters.firstDayOfMonth())).months == 3)
+            if(Period.between(datoFra, Now.localDate().with(TemporalAdjusters.firstDayOfMonth())).months == 3) {
+                inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "trekkILoennForFerie", -25000.0,  måned, datoTil, måned.atEndOfMonth()))
+            }
+            return Pair(inntektslinjer, "fake respons med minus")
+        } else if (fnr == "08124521514") {
+            // Simulerer minus beløp for (Jon Janson Minus Beløp) i test data
+            val inntektslinjer = ArrayList<Inntektslinje>()
+            val måned = YearMonth.of(datoFra.year, datoFra.month)
+            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "fastloenn", 20000.0,  måned, datoTil, måned.atEndOfMonth()))
+            if (Math.random() > 0.5) {
+                inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "trekkILoennForFerie", -25000.0,  måned, datoTil, måned.atEndOfMonth()))
+            }
+            return Pair(inntektslinjer, "fake respons med mulig minus")
         }
 
         val inntektslinjer = ArrayList<Inntektslinje>()

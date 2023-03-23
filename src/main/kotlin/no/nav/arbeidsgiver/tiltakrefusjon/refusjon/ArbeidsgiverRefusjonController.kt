@@ -6,6 +6,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.dokgen.DokgenService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.data.domain.Page
 import org.springframework.http.*
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
 
 
@@ -96,6 +97,12 @@ class ArbeidsgiverRefusjonController(
         arbeidsgiver.settFratrekkRefunderbarBeløp(id, request.fratrekkRefunderbarBeløp, request.refunderbarBeløp)
     }
 
+    @PostMapping("/{id}/utsett-frist")
+    fun utsettFrist(@PathVariable id: String) {
+        val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
+        arbeidsgiver.utsettFriskSykepenger(id);
+    }
+
     @PostMapping("/{id}/set-inntektslinje-opptjent-i-periode")
     fun endreRefundertInntekslinje(@PathVariable id: String, @RequestBody request: EndreRefundertInntektslinjeRequest) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
@@ -107,6 +114,7 @@ class ArbeidsgiverRefusjonController(
     }
 
     @PostMapping("/{id}/godkjenn")
+    @Transactional
     fun godkjenn(@PathVariable id: String) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
         arbeidsgiver.godkjenn(id)

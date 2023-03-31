@@ -96,7 +96,7 @@ class AdminController(
                 refusjonRepository.findByIdOrNull(id) ?: throw RuntimeException("Finner ikke refusjon med id=$id")
 
             try {
-                refusjon.forlengFrist(request.nyFrist, request.årsak, "admin")
+                refusjon.forlengFrist(request.nyFrist, request.årsak, "admin", request.enforce)
                 refusjonRepository.save(refusjon)
             } catch (e: FeilkodeException) {
                 if (e.feilkode == Feilkode.FOR_LANG_FORLENGELSE_AV_FRIST) {
@@ -135,7 +135,7 @@ class AdminController(
 
 data class KorreksjonRequest(val refusjonIder: List<String>, val korreksjonsgrunner: Set<Korreksjonsgrunn>)
 
-data class ForlengFristerRequest(val refusjonIder: List<String>, val nyFrist: LocalDate, val årsak: String)
+data class ForlengFristerRequest(val refusjonIder: List<String>, val nyFrist: LocalDate, val årsak: String, val enforce: Boolean)
 
 data class AnnullerTilskuddsperioderRequest(val refusjonIder: List<String>, val utførtAv: String, val årsak: String)
 data class AnnullerTilskuddsperioderIUtgåtteRefusjonerRequest(val utførtAv: String, val årsak: String)

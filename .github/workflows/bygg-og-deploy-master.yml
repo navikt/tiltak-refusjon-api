@@ -75,8 +75,8 @@ jobs:
           VARS: .nais/prod.yml
           PRINT_PAYLOAD: true
 
-  deploy-labs:
-    name: Deploy til labs
+  deploy-dev-gcp-labs:
+    name: Deploy til dev-gcp (tidligere labs)
     runs-on: ubuntu-latest
     needs: bygg
     steps:
@@ -90,12 +90,11 @@ jobs:
           ./kubectl create configmap --dry-run=client -o yaml --from-file src/test/resources/mappings -n arbeidsgiver tiltak-refusjon-api-wiremock > .nais/wiremock-mappings.yml
           cat .nais/wiremock-mappings.yml # debug
 
-      - name: Deploy til labs-gcp
+      - name: Deploy til dev-gcp
         uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-          CLUSTER: labs-gcp
-          RESOURCE: .nais/labs.yml,.nais/wiremock.yml,.nais/wiremock-mappings.yml
+          CLUSTER: dev-gcp
+          RESOURCE: .nais/dev-gcp-labs.yml,.nais/wiremock.yml,.nais/wiremock-mappings.yml
           VAR: deploytrigger=${{ github.run_number }}
           PRINT_PAYLOAD: true
-          DEPLOY_SERVER: deploy.nais.io:443

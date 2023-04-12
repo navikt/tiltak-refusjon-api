@@ -7,6 +7,7 @@ slack_alert_channel: arbeidsgiver-tiltak-alerts
 kafka-pool: nav-prod
 env:
   PROXY_CLIENT_ID: prod-fss.arbeidsgiver.tiltak-proxy
+  ENV: prod-gcp
 db-tier: db-custom-1-3840
 memory-limit: 6000Mi
 memory-requests: 4000Mi

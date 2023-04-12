@@ -1,11 +1,14 @@
 apiVersion: nais.io/v1alpha1
 kind: Application
 metadata:
-  name: tiltak-refusjon-api
+  name: tiltak-refusjon-api-labs
   namespace: arbeidsgiver
   labels:
     team: arbeidsgiver
 spec:
+  env:
+    - name: ENV
+      value: dev-gcp-labs
   image: {{image}}
   resources:
     limits:
@@ -22,9 +25,9 @@ spec:
   accessPolicy:
     inbound:
       rules:
-        - application: tiltak-refusjon-saksbehandler
-        - application: tiltak-refusjon-arbeidsgiver
-        - application: tiltaksgjennomforing-api
+        - application: tiltak-refusjon-saksbehandler-labs
+        - application: tiltak-refusjon-arbeidsgiver-labs
+        - application: tiltaksgjennomforing-api-labs
     outbound:
       rules:
         - application: tiltak-fakelogin

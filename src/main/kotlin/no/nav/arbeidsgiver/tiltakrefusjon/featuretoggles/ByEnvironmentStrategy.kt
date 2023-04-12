@@ -19,6 +19,6 @@ class ByEnvironmentStrategy : Strategy {
     }
 
     init {
-        environment = Optional.ofNullable(System.getenv("NAIS_CLUSTER_NAME")).orElse("local")
+        environment = Optional.ofNullable(System.getenv("MILJO")).orElse("local")
     }
 }

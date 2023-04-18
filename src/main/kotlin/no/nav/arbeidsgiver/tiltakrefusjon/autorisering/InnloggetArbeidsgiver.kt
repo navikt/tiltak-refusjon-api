@@ -16,7 +16,6 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 
-
 data class InnloggetArbeidsgiver(
     val identifikator: String,
     @JsonIgnore val altinnTilgangsstyringService: AltinnTilgangsstyringService,

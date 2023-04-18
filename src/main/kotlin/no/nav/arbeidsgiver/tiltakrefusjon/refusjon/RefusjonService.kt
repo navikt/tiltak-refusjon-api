@@ -130,7 +130,6 @@ class RefusjonService(
                 inntekter = inntektsoppslag.first,
                 respons = inntektsoppslag.second
             )
-            println(inntektsgrunnlag)
             refusjon.oppgiInntektsgrunnlag(inntektsgrunnlag, refusjon.inntektsgrunnlag)
             refusjonRepository.save(refusjon)
         } catch (e: Exception) {

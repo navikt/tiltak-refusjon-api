@@ -40,6 +40,7 @@ class ArbeidsgiverRefusjonController(
     }
 
     @GetMapping("/{id}/pdf")
+    @Transactional
     fun hentPDF(@PathVariable id:String): HttpEntity<ByteArray>{
         if(id.trim().isEmpty()) return HttpEntity.EMPTY as HttpEntity<ByteArray>
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
@@ -76,12 +77,14 @@ class ArbeidsgiverRefusjonController(
     }
 
     @GetMapping("/{id}")
+    @Transactional
     fun hent(@PathVariable id: String): Refusjon? {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
         return arbeidsgiver.finnRefusjon(id)
     }
 
     @PostMapping("/{id}/endre-bruttolønn")
+    @Transactional
     fun endreBruttolønn(@PathVariable id: String, @RequestBody request: EndreBruttolønnRequest) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
          arbeidsgiver.endreBruttolønn(
@@ -92,18 +95,21 @@ class ArbeidsgiverRefusjonController(
     }
 
     @PostMapping("/{id}/fratrekk-sykepenger")
+    @Transactional
     fun fratrekkSykepenger(@PathVariable id: String, @RequestBody request: FratrekkRefunderbarBeløp) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
         arbeidsgiver.settFratrekkRefunderbarBeløp(id, request.fratrekkRefunderbarBeløp, request.refunderbarBeløp)
     }
 
     @PostMapping("/{id}/utsett-frist")
+    @Transactional
     fun utsettFrist(@PathVariable id: String) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
         arbeidsgiver.utsettFriskSykepenger(id);
     }
 
     @PostMapping("/{id}/set-inntektslinje-opptjent-i-periode")
+    @Transactional
     fun endreRefundertInntekslinje(@PathVariable id: String, @RequestBody request: EndreRefundertInntektslinjeRequest) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
         arbeidsgiver.setInntektslinjeTilOpptjentIPeriode(

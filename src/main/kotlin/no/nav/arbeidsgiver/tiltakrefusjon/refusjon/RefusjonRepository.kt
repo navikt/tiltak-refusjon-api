@@ -2,11 +2,13 @@
 
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
+
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
+import java.time.LocalDate
 
 
 interface RefusjonRepository : JpaRepository<Refusjon, String> {
@@ -18,6 +20,7 @@ interface RefusjonRepository : JpaRepository<Refusjon, String> {
     fun findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_TilskuddsperiodeId(tilskuddsperiodeId: String): List<Refusjon>
     fun findAllByStatus(status: RefusjonStatus): List<Refusjon>
     fun findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_AvtaleNr(avtaleNr: Int): List<Refusjon>
+    fun findAllByFristForGodkjenningBefore(fristForGodkjenning: LocalDate): List<Refusjon>
 
     @Query("select r from Refusjon r where r.bedriftNr in (:bedriftNr) and (:status is null or r.status = :status) " +
             "and (:tiltakstype is null or r.refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype = :tiltakstype) " +

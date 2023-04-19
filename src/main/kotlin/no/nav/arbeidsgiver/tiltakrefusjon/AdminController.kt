@@ -109,6 +109,29 @@ class AdminController(
     }
 
     @Unprotected
+    @PostMapping("forleng-frister-til-og-med-dato")
+    fun forlengFristerTilOgMedDato(@RequestBody request: ForlengFristerTilOgMedRequest) {
+        logger.info("Bruker AdminController for å forlenge refusjoner med frist før ${request.tilDato} til ny frist: ${request.nyFrist}")
+        val refusjoner = refusjonRepository.findAllByFristForGodkjenningBefore(request.tilDato)
+        logger.info("Fant ${refusjoner.size} refusjoner som skal forlenges")
+        var fristerForlenget = 0
+        for (refusjon in refusjoner) {
+            try {
+                refusjon.forlengFrist(request.nyFrist, request.årsak, "admin", request.enforce)
+                refusjonRepository.save(refusjon)
+                fristerForlenget++
+            } catch (e: FeilkodeException) {
+                if (e.feilkode == Feilkode.FOR_LANG_FORLENGELSE_AV_FRIST) {
+                    logger.warn("Forlengelse av frist på refusjon med id=${refusjon.id} overskrider grensen på 1 måned")
+                } else {
+                    throw e
+                }
+            }
+        }
+        logger.info("Forlengte frister på $fristerForlenget refusjoner")
+    }
+
+    @Unprotected
     @PostMapping("annuller-tilskuddsperioder-manuelt")
     fun annullerTilskuddsperioderIRefusjonManuelt(@RequestBody request: AnnullerTilskuddsperioderRequest) {
         logger.info("Bruker AdminController for å annullere tilskuddsperioder i {} refusjoner", request.refusjonIder.size)
@@ -136,6 +159,7 @@ class AdminController(
 data class KorreksjonRequest(val refusjonIder: List<String>, val korreksjonsgrunner: Set<Korreksjonsgrunn>)
 
 data class ForlengFristerRequest(val refusjonIder: List<String>, val nyFrist: LocalDate, val årsak: String, val enforce: Boolean)
+data class ForlengFristerTilOgMedRequest(val tilDato: LocalDate, val nyFrist: LocalDate, val årsak: String, val enforce: Boolean)
 
 data class AnnullerTilskuddsperioderRequest(val refusjonIder: List<String>, val utførtAv: String, val årsak: String)
 data class AnnullerTilskuddsperioderIUtgåtteRefusjonerRequest(val utførtAv: String, val årsak: String)

@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
 
 @Configuration
-@Profile("labs-gcp")
+@Profile("dev-gcp-labs")
 class LabsSecurityClientConfiguration(val restTemplateBuilder: RestTemplateBuilder) {
     @Bean
     fun påVegneAvSaksbehandlerGraphRestTemplate() = restTemplateBuilder.build()

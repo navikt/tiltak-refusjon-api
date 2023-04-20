@@ -124,6 +124,7 @@ class AdminController(
                 if (e.feilkode == Feilkode.FOR_LANG_FORLENGELSE_AV_FRIST) {
                     logger.warn("Forlengelse av frist på refusjon med id=${refusjon.id} overskrider grensen på 1 måned")
                 } else {
+                    logger.error("Feil ved forlengelse av frist på refusjon med id=${refusjon.id}", e.stackTrace)
                     throw e
                 }
             }

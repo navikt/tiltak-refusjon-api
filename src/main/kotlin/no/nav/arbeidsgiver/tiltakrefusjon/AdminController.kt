@@ -112,7 +112,7 @@ class AdminController(
     @PostMapping("forleng-frister-til-og-med-dato")
     fun forlengFristerTilOgMedDato(@RequestBody request: ForlengFristerTilOgMedRequest) {
         logger.info("Bruker AdminController for å forlenge refusjoner med frist før ${request.tilDato} til ny frist: ${request.nyFrist}")
-        val refusjoner = refusjonRepository.findAllByFristForGodkjenningBefore(request.tilDato)
+        val refusjoner = refusjonRepository.findAllByFristForGodkjenningBeforeAndStatus(request.tilDato, RefusjonStatus.KLAR_FOR_INNSENDING)
         logger.info("Fant ${refusjoner.size} refusjoner som skal forlenges")
         var fristerForlenget = 0
         for (refusjon in refusjoner) {
@@ -129,7 +129,7 @@ class AdminController(
                 }
             }
         }
-        logger.info("Forlengte frister på $fristerForlenget refusjoner")
+        logger.info("Forlenget frister på $fristerForlenget refusjoner")
     }
 
     @Unprotected

@@ -47,7 +47,6 @@ class Refusjonsgrunnlag(
                 val gjeldendeInntektslinje = finnInntektslinjeIListeMedInntekter(inntekt, gjeldendeInntektsgrunnlag.inntekter)
                 if (gjeldendeInntektslinje != null) {
                     // inntekt er identisk med en inntekt fra tidligere inntektsgrunnlag (gjeldendeInntektslinje)
-                    inntekt.id = gjeldendeInntektslinje.id
                     inntekt.erOpptjentIPeriode = gjeldendeInntektslinje.erOpptjentIPeriode
                 }
             }

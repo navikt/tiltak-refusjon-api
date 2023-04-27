@@ -32,7 +32,7 @@ class KidValidator(kid: String?) {
      */
     private fun validate() {
         if (!isValidKid) {
-            throw FeilkodeException(Feilkode.FEIL_BEDRIFT_KID_NUMMER)
+            throw FeilkodeException(Feilkode.FEIL_BEDRIFT_KIDNUMMER)
         }
     }
 

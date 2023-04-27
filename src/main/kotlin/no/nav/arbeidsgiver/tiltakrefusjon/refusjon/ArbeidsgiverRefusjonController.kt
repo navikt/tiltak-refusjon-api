@@ -91,6 +91,12 @@ class ArbeidsgiverRefusjonController(
         )
     }
 
+    @PostMapping("/{id}/lagre-bedriftKID")
+    fun lagreBedriftKID(@PathVariable id: String, @RequestBody request: EndreBedriftKIDRequest ) {
+        val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
+        arbeidsgiver.lagreBedriftKID(id, request.bedriftKID)
+    }
+
     @PostMapping("/{id}/fratrekk-sykepenger")
     fun fratrekkSykepenger(@PathVariable id: String, @RequestBody request: FratrekkRefunderbarBeløp) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()

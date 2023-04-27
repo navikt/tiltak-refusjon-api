@@ -1,6 +1,5 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
-import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.guepardoapps.kulid.ULID
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
@@ -12,12 +11,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.utils.antallMånederEtter
 import org.springframework.data.domain.AbstractAggregateRoot
 import java.time.Instant
 import java.time.LocalDate
-import javax.persistence.CascadeType
-import javax.persistence.Entity
-import javax.persistence.EnumType
-import javax.persistence.Enumerated
-import javax.persistence.Id
-import javax.persistence.OneToOne
+import javax.persistence.*
 
 @Entity
 class Refusjon(
@@ -147,6 +141,12 @@ class Refusjon(
         if (harGjortBeregning) {
             registerEvent(BeregningUtført(this))
         }
+    }
+
+    fun endreBedriftKID( bedriftKID: String?) {
+        oppdaterStatus()
+        krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
+        refusjonsgrunnlag.bedriftKid = bedriftKID
     }
 
     fun godkjennForArbeidsgiver(utførtAv: String) {

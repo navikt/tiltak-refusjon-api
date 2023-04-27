@@ -91,6 +91,14 @@ internal class RefusjonTest {
     }
 
     @Test
+    fun `kan ikke godkjenne for invalid KID`() {
+        val refusjon = enRefusjon().medBedriftKontonummer().medInntekterKunFraTiltaket().medInntektsgrunnlag()
+        refusjon.refusjonsgrunnlag.bedriftKid = "INVALID KID"
+        assertThrows<FeilkodeException>{refusjon.godkjennForArbeidsgiver("")}
+
+    }
+
+    @Test
     fun `kan godkjenne for ag med beregning`() {
         val refusjon = enRefusjon().medBedriftKontonummer().medInntekterKunFraTiltaket().medInntektsgrunnlag()
         refusjon.godkjennForArbeidsgiver("")

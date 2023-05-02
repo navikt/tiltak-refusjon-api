@@ -1,5 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon
 
+import no.nav.arbeidsgiver.tiltakrefusjon.leader.LeaderPodCheck
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeForkortetMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
@@ -19,7 +20,8 @@ class AdminController(
     val service: RefusjonService,
     val refusjonRepository: RefusjonRepository,
     val korreksjonRepository: KorreksjonRepository,
-    val refusjonEndretStatusKafkaTemplate: KafkaTemplate<String, RefusjonEndretStatusMelding>
+    val refusjonEndretStatusKafkaTemplate: KafkaTemplate<String, RefusjonEndretStatusMelding>,
+    val leaderPodCheck: LeaderPodCheck
 ) {
     val logger = LoggerFactory.getLogger(javaClass)
 
@@ -153,6 +155,18 @@ class AdminController(
             it.annullerTilskuddsperioderIRefusjon(request.utførtAv, request.årsak)
             refusjonRepository.save(it)
         }
+    }
+
+    @Unprotected
+    @PostMapping("sjekk-for-klar-for-innsending")
+    fun sjekkForKlarforInnsending() {
+        StatusJobb(refusjonRepository, leaderPodCheck).sjekkOmKlarForInnsending()
+    }
+
+    @Unprotected
+    @PostMapping("sjekk-for-utgått")
+    fun sjekkForUtgått() {
+        StatusJobb(refusjonRepository, leaderPodCheck).sjekkOmUtgått()
     }
 
 }

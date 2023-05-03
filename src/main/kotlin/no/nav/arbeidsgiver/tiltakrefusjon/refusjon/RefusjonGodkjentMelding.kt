@@ -23,7 +23,8 @@ data class RefusjonGodkjentMelding(
         val avtaleNr: Int,
         val løpenummer: Int,
         val resendingsnummer: Int? = null,
-        val bedriftKontonummer: String)
+        val bedriftKontonummer: String,
+        val bedriftKid: String? = null)
         {
         companion object{
                 @JvmStatic
@@ -45,7 +46,8 @@ data class RefusjonGodkjentMelding(
                                 refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr,
                                 refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.løpenummer,
                                 refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.resendingsnummer,
-                                refusjon.refusjonsgrunnlag.bedriftKontonummer!!
+                                refusjon.refusjonsgrunnlag.bedriftKontonummer!!,
+                                refusjon.refusjonsgrunnlag.bedriftKid
                         )
                 }
         }

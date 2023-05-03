@@ -433,6 +433,8 @@ fun Refusjon.medBedriftKontonummer(): Refusjon {
 
 fun Refusjon.medInntekterKunFraTiltaket(): Refusjon {
     this.refusjonsgrunnlag.inntekterKunFraTiltaket = true
+    val gyldigKID = "2345676"
+    this.refusjonsgrunnlag.bedriftKid = gyldigKID
     return this
 }
 

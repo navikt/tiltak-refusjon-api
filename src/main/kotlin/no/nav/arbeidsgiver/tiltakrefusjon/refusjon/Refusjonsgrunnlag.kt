@@ -7,12 +7,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.time.YearMonth
-import javax.persistence.CascadeType
-import javax.persistence.Entity
-import javax.persistence.Id
-import javax.persistence.JoinColumn
-import javax.persistence.ManyToOne
-import javax.persistence.OneToOne
+import javax.persistence.*
 
 @Entity
 class Refusjonsgrunnlag(
@@ -27,6 +22,7 @@ class Refusjonsgrunnlag(
     @OneToOne(orphanRemoval = true, cascade = [CascadeType.ALL])
     var inntektsgrunnlag: Inntektsgrunnlag? = null
     var bedriftKontonummer: String? = null
+    var bedriftKid: String? = null
     var bedriftKontonummerInnhentetTidspunkt: LocalDateTime? = null
     var inntekterKunFraTiltaket: Boolean? = null
     var endretBruttoLønn: Int? = null

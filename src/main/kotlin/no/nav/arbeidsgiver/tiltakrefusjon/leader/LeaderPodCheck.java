@@ -40,7 +40,7 @@ public class LeaderPodCheck {
         String hostname;
         String leader;
         try {
-            leader = getJSONFromUrl(path).name;
+            leader = getJSONFromUrl(path).getName();
             hostname = InetAddress.getLocalHost().getHostName();
         } catch (UnknownHostException e) {
             log.error("Feil v/henting av host for leader-election", e);
@@ -62,5 +62,13 @@ public class LeaderPodCheck {
 
     private static class Elector {
         String name;
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
     }
 }

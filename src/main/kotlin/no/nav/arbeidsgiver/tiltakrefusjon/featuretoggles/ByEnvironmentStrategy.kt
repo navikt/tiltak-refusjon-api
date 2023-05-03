@@ -19,6 +19,6 @@ class ByEnvironmentStrategy : Strategy {
     }
 
     init {
-        environment = Optional.ofNullable(System.getenv("ENV")).orElse("local")
+        environment = Optional.ofNullable(System.getenv("MILJO")).orElse("local")
     }
 }

@@ -16,7 +16,6 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 
-
 data class InnloggetArbeidsgiver(
     val identifikator: String,
     @JsonIgnore val altinnTilgangsstyringService: AltinnTilgangsstyringService,
@@ -85,7 +84,7 @@ data class InnloggetArbeidsgiver(
 
         // Ikke sett minusbeløp på allerede sendt inn refusjoner
         if(refusjon.status == RefusjonStatus.KLAR_FOR_INNSENDING || refusjon.status == RefusjonStatus.FOR_TIDLIG) {
-            refusjonService.settMinusBeløpFraTidligereRefusjonerPåAvtalen(refusjon)
+            refusjonService.settMinusBeløpFraTidligereRefusjonerTilknyttetAvtalen(refusjon)
         }
 
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)

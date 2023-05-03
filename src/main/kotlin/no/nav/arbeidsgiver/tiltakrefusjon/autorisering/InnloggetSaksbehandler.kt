@@ -52,13 +52,12 @@ data class InnloggetSaksbehandler(
     fun finnRefusjon(id: String): Refusjon {
         val refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(refusjon)
-        refusjonService.settMinusBeløpFraTidligereRefusjonerPåAvtalen(refusjon)
+        refusjonService.settMinusBeløpFraTidligereRefusjonerTilknyttetAvtalen(refusjon)
         return refusjon
     }
 
     fun finnKorreksjon(id: String): Korreksjon {
         val korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
-        refusjonService.settMinusBeløpFraTidligereRefusjonerPåAvtalen(korreksjon)
         sjekkLesetilgang(korreksjon)
         if (korreksjon.skalGjøreKontonummerOppslag()) {
             val kontonummer = kontoregisterService.hentBankkontonummer(korreksjon.bedriftNr)
@@ -130,7 +129,6 @@ data class InnloggetSaksbehandler(
     fun utbetalKorreksjon(id: String, beslutterNavIdent: String, kostnadssted: String) {
         sjekkKorreksjonTilgang()
         val korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
-        refusjonService.settMinusBeløpFraTidligereRefusjonerPåAvtalen(korreksjon)
         sjekkLesetilgang(korreksjon)
         val refusjon = finnRefusjon(korreksjon.korrigererRefusjonId)
         sjekkLesetilgang(refusjon)
@@ -145,7 +143,6 @@ data class InnloggetSaksbehandler(
     fun fullførKorreksjonVedOppgjort(id: String) {
         sjekkKorreksjonTilgang()
         val korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
-        refusjonService.settMinusBeløpFraTidligereRefusjonerPåAvtalen(korreksjon)
         sjekkLesetilgang(korreksjon)
         val refusjon = finnRefusjon(korreksjon.korrigererRefusjonId)
         sjekkLesetilgang(refusjon)
@@ -160,7 +157,6 @@ data class InnloggetSaksbehandler(
     fun fullførKorreksjonVedTilbakekreving(id: String) {
         sjekkKorreksjonTilgang()
         val korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
-        refusjonService.settMinusBeløpFraTidligereRefusjonerPåAvtalen(korreksjon)
         sjekkLesetilgang(korreksjon)
         val refusjon = finnRefusjon(korreksjon.korrigererRefusjonId)
         sjekkLesetilgang(refusjon)
@@ -175,7 +171,6 @@ data class InnloggetSaksbehandler(
     fun endreBruttolønn(id: String, inntekterKunFraTiltaket: Boolean?, endretBruttoLønn: Int?) {
         sjekkKorreksjonTilgang()
         val korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
-        refusjonService.settMinusBeløpFraTidligereRefusjonerPåAvtalen(korreksjon)
         sjekkLesetilgang(korreksjon)
         korreksjon.endreBruttolønn(inntekterKunFraTiltaket, endretBruttoLønn)
         korreksjonRepository.save(korreksjon)

@@ -39,4 +39,4 @@ spec:
   accessPolicy:
     inbound:
       rules:
-      - application: tiltak-refusjon-api
+      - application: tiltak-refusjon-api-labs

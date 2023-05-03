@@ -74,7 +74,7 @@ class RefusjonService(
      * men at vi overfører minusbeløp til neste måned dersom tiltaket fortsetter måneden etter. Hvis tiltaket avsluttes den samme måneden hvor det går i minus,
      * så går refusjonen bare i 0,-.
      */
-    fun settMinusBeløpFraTidligereRefusjonerPåAvtalen(refusjon: Refusjon) {
+    fun settMinusBeløpFraTidligereRefusjonerTilknyttetAvtalen(refusjon: Refusjon) {
 
         val avtaleNr = refusjon.tilskuddsgrunnlag.avtaleNr
         val alleMinusbeløp = minusbelopRepository.findAllByAvtaleNr(avtaleNr = avtaleNr)
@@ -92,20 +92,6 @@ class RefusjonService(
                 refusjonRepository.save(refusjon)
             }
         }
-    }
-
-    fun settMinusBeløpFraTidligereRefusjonerPåAvtalen(denneKorreksjon: Korreksjon) {
-        val tidligereRefusjonMedMinusBeløpEtterFratrukketFerie: Refusjon =
-            refusjonRepository.finnRefusjonSomSkalSendesMedMinusBeløpEtterFratrukketFerieFørDenne(
-                denneKorreksjon.bedriftNr,
-                denneKorreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr,
-                denneKorreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype,
-                RefusjonStatus.GODKJENT_MINUSBELØP,
-                denneKorreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.løpenummer
-            ) ?: return
-
-        if (tidligereRefusjonMedMinusBeløpEtterFratrukketFerie.beregning!!.lønnFratrukketFerie <= 0)
-            denneKorreksjon.refusjonsgrunnlag.oppgiForrigeRefusjonsbeløp(tidligereRefusjonMedMinusBeløpEtterFratrukketFerie.beregning!!.refusjonsbeløp)
     }
 
     fun gjørInntektsoppslag(refusjon: Refusjon) {
@@ -130,7 +116,6 @@ class RefusjonService(
                 inntekter = inntektsoppslag.first,
                 respons = inntektsoppslag.second
             )
-            println(inntektsgrunnlag)
             refusjon.oppgiInntektsgrunnlag(inntektsgrunnlag, refusjon.inntektsgrunnlag)
             refusjonRepository.save(refusjon)
         } catch (e: Exception) {

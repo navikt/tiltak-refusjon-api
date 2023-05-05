@@ -56,7 +56,7 @@ class AltinnTilgangsstyringService(
             .queryParam("serviceEdition", altinnTilgangsstyringProperties.serviceEdition)
             .queryParam("\$top", altinnTilgangsstyringProperties.antall)
             .queryParam("\$skip", skip)
-            .queryParam("\$filter", "Type+ne+'Person'")
+            .queryParam("\$filter", "Type+ne+'Person'+and+Status+eq+'Active'")
             .build()
             .toUri()
     }

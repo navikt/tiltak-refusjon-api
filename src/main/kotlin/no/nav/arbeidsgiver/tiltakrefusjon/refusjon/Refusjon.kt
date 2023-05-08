@@ -75,11 +75,6 @@ class Refusjon(
     }
 
     @JsonProperty
-    fun harInntektIAlleMåneder(): Boolean {
-        return refusjonsgrunnlag.harInntektIAlleMåneder()
-    }
-
-    @JsonProperty
     fun harTattStillingTilAlleInntektslinjer(): Boolean =
         refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.find { inntekt -> inntekt.erOpptjentIPeriode === null } === null
 

@@ -275,95 +275,6 @@ internal class RefusjonTest {
     }
 
     @Test
-    internal fun `har inntekt for alle måneder i tilskuddsperioden`() {
-        val refusjon = enRefusjon(
-            etTilskuddsgrunnlag().copy(
-                tilskuddFom = Now.localDate().minusDays(2),
-                tilskuddTom = Now.localDate().minusDays(1)
-            )
-        ).medInntektsgrunnlag(
-            YearMonth.now(),
-            Inntektsgrunnlag(
-                inntekter = listOf(
-                    Inntektslinje(
-                        "LOENNSINNTEKT",
-                        "fastloenn",
-                        99.0,
-                        YearMonth.now(),
-                        null,
-                        null
-                    ),
-                    Inntektslinje(
-                        "LOENNSINNTEKT",
-                        "fastloenn",
-                        99.0,
-                        YearMonth.now(),
-                        null,
-                        null
-                    ),
-                    Inntektslinje(
-                        "LOENNSINNTEKT",
-                        "fastloenn",
-                        99.0,
-                        YearMonth.now().minusMonths(1),
-                        null,
-                        null
-                    ),
-                    Inntektslinje(
-                        "LOENNSINNTEKT",
-                        "fastloenn",
-                        99.0,
-                        YearMonth.now().plusMonths(1),
-                        null,
-                        null
-                    )
-                ), respons = ""
-            )
-        )
-        assertThat(refusjon.harInntektIAlleMåneder()).isTrue
-    }
-
-    @Test
-    internal fun `har ikke inntekt for alle måneder`() {
-        val refusjon = enRefusjon(
-            etTilskuddsgrunnlag().copy(
-                tilskuddFom = Now.localDate().minusMonths(1).minusDays(2),
-                tilskuddTom = Now.localDate().minusDays(1)
-            )
-        ).medInntektsgrunnlag(
-            YearMonth.now(), Inntektsgrunnlag(
-                inntekter = listOf(
-                    Inntektslinje("LOENNSINNTEKT", "fastloenn", 99.0, YearMonth.now(), null, null),
-                    Inntektslinje("LOENNSINNTEKT", "feriepenger", 99.0, YearMonth.now().minusMonths(1), null, null)
-                ), respons = ""
-            )
-        )
-        assertThat(refusjon.harInntektIAlleMåneder()).isFalse()
-    }
-
-    @Test
-    internal fun `har ingen inntekt for alle måneder`() {
-        val refusjon = enRefusjon(
-            etTilskuddsgrunnlag().copy(
-                tilskuddFom = Now.localDate().minusMonths(1).minusDays(2),
-                tilskuddTom = Now.localDate().minusDays(1)
-            )
-        ).medInntektsgrunnlag(YearMonth.now(), Inntektsgrunnlag(inntekter = listOf(), respons = ""))
-        assertThat(refusjon.harInntektIAlleMåneder()).isFalse()
-    }
-
-    @Test
-    internal fun `har ikke gjort inntektsoppslag`() {
-        val refusjon = enRefusjon(
-            etTilskuddsgrunnlag().copy(
-                tilskuddFom = Now.localDate().minusMonths(1).minusDays(2),
-                tilskuddTom = Now.localDate().minusDays(1)
-            )
-        )
-        assertThat(refusjon.harInntektIAlleMåneder()).isFalse()
-    }
-
-    @Test
     internal fun `kun avhukede inntetslinjer blir medregnet`() {
         val inntektslinjeOpptjentIPeriode = enInntektslinje(opptjentIPeriode = true)
         val inntektslinjeIkkeOptjentIPeriode = enInntektslinje(opptjentIPeriode = false)
@@ -374,19 +285,6 @@ internal class RefusjonTest {
         refusjon.oppgiInntektsgrunnlag(inntektsgrunnlag)
         assertThat(refusjon.refusjonsgrunnlag.beregning?.lønn).isEqualTo(inntektslinjeOpptjentIPeriode.beløp.toInt())
     }
-
-    // @Test
-    // internal fun `korreksjon`() {
-    //     val refusjon = enRefusjon().medInntektsgrunnlag().medBedriftKontonummer().medSendtKravFraArbeidsgiver()
-    //     val korreksjon = refusjon.opprettKorreksjonsutkast(setOf(Korreksjonsgrunn.UTBETALT_HELE_TILSKUDDSBELØP))
-    //     assertThat(refusjon.tilskuddsgrunnlag).isEqualTo(korreksjon.tilskuddsgrunnlag)
-    //     assertThat(refusjon.korrigeresAvId).isEqualTo(korreksjon.id)
-    //     assertThat(korreksjon.korreksjonAvId).isEqualTo(refusjon.id)
-    //     assertThat(korreksjon.status).isEqualTo(RefusjonStatus.KORREKSJON_UTKAST)
-    //
-    //     // Kan kun ha en korreksjon av refusjonen
-    //     assertFeilkode(Feilkode.HAR_KORREKSJON) { refusjon.opprettKorreksjonsutkast(emptySet()) }
-    // }
 
     @Test
     internal fun `korreksjon av uriktig status`() {

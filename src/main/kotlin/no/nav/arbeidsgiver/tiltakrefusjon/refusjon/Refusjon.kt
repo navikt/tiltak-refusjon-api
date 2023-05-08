@@ -149,7 +149,7 @@ class Refusjon(
         oppdaterStatus()
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
 
-        if(!refusjonsgrunnlag.bedriftKid.isNullOrEmpty()){
+        if(refusjonsgrunnlag.bedriftKid != null){
             KidValidator(refusjonsgrunnlag.bedriftKid)
         }
         if (refusjonsgrunnlag.inntektsgrunnlag == null || refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.isEmpty()) {

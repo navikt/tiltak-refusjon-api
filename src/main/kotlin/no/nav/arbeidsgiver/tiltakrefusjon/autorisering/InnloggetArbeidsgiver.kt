@@ -151,4 +151,11 @@ data class InnloggetArbeidsgiver(
         refusjonRepository.save(refusjon)
     }
 
+    fun merkForHentInntekterFrem(id: String, merking: Boolean) {
+        val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
+        sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
+        refusjon.merkForHentInntekterFrem(merking, identifikator)
+        refusjonRepository.save(refusjon)
+    }
+
 }

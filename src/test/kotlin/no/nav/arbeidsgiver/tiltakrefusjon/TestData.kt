@@ -181,7 +181,8 @@ fun refusjoner(): List<Refusjon> {
         `Camilla Collett`(),
         `Sigrid Undset`(),
         `Henrik Wergeland`(),
-        `Jonas Lie`()
+        `Jonas Lie`(),
+        `Geir Geirsen`()
 
     )
 }
@@ -191,7 +192,7 @@ private fun Refusjon.medSvarPåInntekter(): Refusjon {
     return this
 }
 
-fun etTilskuddsgrunnlag() = Tilskuddsgrunnlag(
+fun etTilskuddsgrunnlag(tiltakstype: Tiltakstype = Tiltakstype.SOMMERJOBB) = Tilskuddsgrunnlag(
     avtaleId = ULID.random(),
     tilskuddsperiodeId = ULID.random(),
     deltakerFornavn = "",
@@ -199,7 +200,7 @@ fun etTilskuddsgrunnlag() = Tilskuddsgrunnlag(
     arbeidsgiverFornavn = "Arne",
     arbeidsgiverEtternavn = "Arbeidsgiver",
     arbeidsgiverTlf = "41111111",
-    tiltakstype = Tiltakstype.SOMMERJOBB,
+    tiltakstype = tiltakstype,
     deltakerFnr = "",
     veilederNavIdent = "",
     bedriftNavn = "Kiwi Majorstuen",
@@ -289,6 +290,22 @@ fun `Alexander Kielland`(): Refusjon {
             deltakerEtternavn = "Kielland",
             tilskuddsbeløp = 1357,
             veilederNavIdent = "Z123456"
+        ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
+    )
+}
+
+fun `Geir Geirsen`(): Refusjon {
+    val deltakerFnr = "18079238011"
+    val bedriftNr = "999999999"
+    return Refusjon(
+        tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
+            deltakerFnr = deltakerFnr,
+            bedriftNr = bedriftNr,
+            deltakerFornavn = "Geir",
+            deltakerEtternavn = "Geirsen",
+            tilskuddsbeløp = 13337,
+            veilederNavIdent = "Z123456",
+            tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD
         ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
     )
 }

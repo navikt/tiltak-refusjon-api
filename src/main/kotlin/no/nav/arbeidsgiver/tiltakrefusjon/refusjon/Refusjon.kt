@@ -77,11 +77,6 @@ class Refusjon(
     }
 
     @JsonProperty
-    fun harInntektIAlleMåneder(): Boolean {
-        return refusjonsgrunnlag.harInntektIAlleMåneder()
-    }
-
-    @JsonProperty
     fun harTattStillingTilAlleInntektslinjer(): Boolean =
         refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.find { inntekt -> inntekt.erOpptjentIPeriode === null } === null
 
@@ -156,7 +151,7 @@ class Refusjon(
         oppdaterStatus()
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
 
-        if(!refusjonsgrunnlag.bedriftKid.isNullOrEmpty()){
+        if(!refusjonsgrunnlag.bedriftKid?.trim().isNullOrEmpty()){
             KidValidator(refusjonsgrunnlag.bedriftKid)
         }
         if (refusjonsgrunnlag.inntektsgrunnlag == null || refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.isEmpty()) {

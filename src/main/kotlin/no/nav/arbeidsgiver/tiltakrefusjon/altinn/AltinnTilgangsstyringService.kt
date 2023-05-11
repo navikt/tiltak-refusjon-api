@@ -26,7 +26,6 @@ class AltinnTilgangsstyringService(
         var i = 0;
         while (merÅHente) {
             val skip = altinnTilgangsstyringProperties.antall * i++
-            logger.info("Henter organisasjoner fra Altinn, skip: $skip")
             val nyeOrg = hentFraAltinn(fnr, skip)
             organisasjoner.addAll(nyeOrg)
             merÅHente = nyeOrg.size >= altinnTilgangsstyringProperties.antall

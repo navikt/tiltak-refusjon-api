@@ -1,6 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.utils
 
-import org.junit.jupiter.api.Assertions.*
+import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
+import org.junit.jupiter.api.Assertions.assertDoesNotThrow
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -8,11 +9,21 @@ class KidValidatorTest{
 
     @Test
     fun `Test invalid kid`(){
-        assertThrows<Exception> { KidValidator("123") }
+        assertThrows<FeilkodeException> { KidValidator("") }
+        assertThrows<FeilkodeException> { KidValidator("   ") }
+        assertThrows<FeilkodeException> { KidValidator("123") }
+    }
+
+    @Test
+    fun `Test invalid kid med 000`(){
+        assertThrows<FeilkodeException> { KidValidator("0") }
+        assertThrows<FeilkodeException> { KidValidator("000") }
     }
 
     @Test
     fun `Test valid kid`(){
         assertDoesNotThrow{KidValidator("2345676")}
     }
+
+
 }

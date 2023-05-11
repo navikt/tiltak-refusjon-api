@@ -15,6 +15,7 @@ data class RefusjonTilPDF(
     val tilskuddFom: String,
     val tilskuddTom: String,
     val kontonummer: String,
+    val bedriftKid: String,
     val lønn: Int,
     var feriepengerSats:Double,
     val feriepenger: Int,

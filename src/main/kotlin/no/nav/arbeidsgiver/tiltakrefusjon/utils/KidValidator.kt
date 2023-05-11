@@ -31,6 +31,9 @@ class KidValidator(kid: String?) {
      * If the KID number is not valid an exception is thrown.
      */
     private fun validate() {
+        if(kid!!.isBlank() || kid!!.matches(Regex("^0+$"))){
+            throw FeilkodeException(Feilkode.FEIL_BEDRIFT_KIDNUMMER)
+        }
         if (!isValidKid) {
             throw FeilkodeException(Feilkode.FEIL_BEDRIFT_KIDNUMMER)
         }

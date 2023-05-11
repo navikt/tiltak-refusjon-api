@@ -122,24 +122,9 @@ class Refusjonsgrunnlag(
         return false
     }
 
-    fun harInntektIAlleMåneder(): Boolean {
-        val månederInntekter =
-            inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.map { it.måned }
-                ?.sorted()?.distinct()
-                ?: emptyList()
-
-        val tilskuddFom = tilskuddsgrunnlag.tilskuddFom
-        val tilskuddTom = tilskuddsgrunnlag.tilskuddTom
-
-        val månederTilskudd =
-        tilskuddFom.datesUntil(tilskuddTom).map { YearMonth.of(it.year, it.month) }.distinct().toList()
-
-        return månederInntekter.containsAll(månederTilskudd)
-    }
-
     fun setInntektslinjeTilOpptjentIPeriode(inntekslinjeId: String, erOpptjentIPeriode: Boolean): Boolean {
         val inntektslinje = inntektsgrunnlag?.inntekter?.find { it.id == inntekslinjeId }
-            ?: throw RuntimeException("Finner ikke inntektslinje med id=$id")
+            ?: throw RuntimeException("Finner ikke inntektslinje med id=$inntekslinjeId for refusjongrunnlag=$id")
         if (!inntektslinje.erMedIInntektsgrunnlag()) {
             throw FeilkodeException(Feilkode.INNTEKTSLINJE_IKKE_MED_I_GRUNNLAG)
         }

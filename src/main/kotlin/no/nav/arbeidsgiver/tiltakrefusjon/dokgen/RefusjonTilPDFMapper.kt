@@ -16,10 +16,17 @@ object RefusjonTilPDFMapper {
         val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.YYYY")
         var godkjentArbeidsgiverDato: String =  ""
         var utbetaltDato:String = ""
+        var bedriftKid:String = ""
 
         if(refusjon.godkjentAvArbeidsgiver != null)   godkjentArbeidsgiverDato = formatter.format(LocalDate.ofInstant(refusjon.godkjentAvArbeidsgiver,ZoneId.systemDefault()))
         if(refusjon.utbetaltTidspunkt != null)   utbetaltDato =
             formatter.format(LocalDate.ofInstant(refusjon.utbetaltTidspunkt,ZoneId.systemDefault()))
+
+        if(refusjon.refusjonsgrunnlag.bedriftKid != null){
+            bedriftKid = refusjon.refusjonsgrunnlag.bedriftKid!!
+        }
+
+
 
         val tilskuddFom =
             formatter.format(refusjon.tilskuddsgrunnlag.tilskuddFom)
@@ -40,6 +47,7 @@ object RefusjonTilPDFMapper {
             tilskuddFom,
             tilskuddTom,
             refusjon.refusjonsgrunnlag.bedriftKontonummer!!,
+            bedriftKid,
             refusjon.refusjonsgrunnlag.beregning!!.lønn,
             refusjon.refusjonsgrunnlag.tilskuddsgrunnlag!!.feriepengerSats,
             refusjon.refusjonsgrunnlag.beregning!!.feriepenger,

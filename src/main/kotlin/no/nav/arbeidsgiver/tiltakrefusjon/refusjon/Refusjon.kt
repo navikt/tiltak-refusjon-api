@@ -325,6 +325,10 @@ class Refusjon(
 
     fun merkForHentInntekterFrem(merking: Boolean, utførtAv: String) {
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
+        if (unntakOmInntekterToMånederFrem) {
+            throw FeilkodeException(Feilkode.HAR_ALLERDE_UNNTAK_OM_INNTEKTER_2_MND_FREM)
+        }
+
         if (merking) {
             hentInntekterLengerFrem = Now.localDateTime()
         } else {

@@ -6,6 +6,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.utils.antallMånederEtter
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import java.lang.RuntimeException
 import java.time.LocalDate
@@ -95,6 +96,14 @@ internal class RefusjonTest {
         val refusjon = enRefusjon().medBedriftKontonummer().medInntekterKunFraTiltaket().medInntektsgrunnlag()
         refusjon.refusjonsgrunnlag.bedriftKid = "INVALID KID"
         assertThrows<FeilkodeException>{refusjon.godkjennForArbeidsgiver("")}
+
+    }
+
+    @Test
+    fun `kan ikke godkjenne for TOM invalid KID`() {
+        val refusjon = enRefusjon().medBedriftKontonummer().medInntekterKunFraTiltaket().medInntektsgrunnlag()
+        refusjon.refusjonsgrunnlag.bedriftKid = ""
+        assertDoesNotThrow {refusjon.godkjennForArbeidsgiver("")}
 
     }
 

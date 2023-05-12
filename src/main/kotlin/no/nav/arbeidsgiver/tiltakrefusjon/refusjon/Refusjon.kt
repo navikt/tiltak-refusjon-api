@@ -12,6 +12,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.utils.antallMånederEtter
 import org.springframework.data.domain.AbstractAggregateRoot
 import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalDateTime
 import javax.persistence.*
 
 @Entity
@@ -38,6 +39,7 @@ class Refusjon(
     var forrigeFristForGodkjenning: LocalDate? = null
 
     var unntakOmInntekterToMånederFrem: Boolean = false
+    var hentInntekterLengerFrem: LocalDateTime? = null
 
     var godkjentAvArbeidsgiver: Instant? = null
 
@@ -280,6 +282,10 @@ class Refusjon(
         if (status != RefusjonStatus.KLAR_FOR_INNSENDING) {
             return false
         }
+        if (hentInntekterLengerFrem != null && refusjonsgrunnlag.inntektsgrunnlag?.innhentetTidspunkt?.isBefore(hentInntekterLengerFrem) ?: true) {
+            return true
+        }
+
         return refusjonsgrunnlag.inntektsgrunnlag?.innhentetTidspunkt?.isBefore(
             Now.localDateTime().minusMinutes(1)
         ) ?: true
@@ -310,6 +316,20 @@ class Refusjon(
         krevStatus(RefusjonStatus.FOR_TIDLIG, RefusjonStatus.KLAR_FOR_INNSENDING)
         unntakOmInntekterToMånederFrem = merking
         registerEvent(MerketForUnntakOmInntekterToMånederFrem(this, merking, utførtAv))
+    }
+
+    fun merkForHentInntekterFrem(merking: Boolean, utførtAv: String) {
+        krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
+        if (unntakOmInntekterToMånederFrem) {
+            throw FeilkodeException(Feilkode.HAR_ALLERDE_UNNTAK_OM_INNTEKTER_2_MND_FREM)
+        }
+
+        if (merking) {
+            hentInntekterLengerFrem = Now.localDateTime()
+        } else {
+            hentInntekterLengerFrem = null
+        }
+        registerEvent(MerketForInntekterFrem(this, merking, utførtAv))
     }
 
     fun setInntektslinjeTilOpptjentIPeriode(inntekslinjeId: String, erOpptjentIPeriode: Boolean) {

@@ -369,6 +369,13 @@ internal class RefusjonTest {
         assertThat(refusjon.fristForGodkjenning).isEqualTo(antallMånederEtter(tilskuddsgrunnlag.tilskuddTom, 2))
     }
 
+    @Test
+    internal fun `merk refusjon for henting av inntekt frem skal ikke gå når den allerde er merket med unntak om 2 måneder av saksbehandler`() {
+        val refusjon = enRefusjon().medInntektsgrunnlag().medBedriftKontonummer()
+        refusjon.merkForUnntakOmInntekterToMånederFrem(true, "")
+        assertFeilkode(Feilkode.HAR_ALLERDE_UNNTAK_OM_INNTEKTER_2_MND_FREM) { refusjon.merkForHentInntekterFrem(true, "") }
+    }
+
     @Disabled
     @Test
     internal fun `forleng frist på utgått refusjon skal endre status tilbake til klar for innsending`() {

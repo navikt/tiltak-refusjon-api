@@ -131,4 +131,11 @@ class ArbeidsgiverRefusjonController(
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
         arbeidsgiver.godkjenn(id)
     }
+
+    @PostMapping("/{id}/merk-for-hent-inntekter-frem")
+    @Transactional
+    fun merkForHentInntekterFrem(@PathVariable id: String, @RequestBody request: MerkInntekterFremRequest) {
+        val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
+        arbeidsgiver.merkForHentInntekterFrem(id, request.merking)
+    }
 }

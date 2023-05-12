@@ -19,6 +19,7 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.test.context.ActiveProfiles
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.YearMonth
 
 @SpringBootTest(properties = ["NAIS_APP_IMAGE=test"])
 @ActiveProfiles("local")
@@ -363,6 +364,53 @@ class RefusjonServiceTest(
         refusjonService.gjørInntektsoppslag(refusjon)
         verify {
             inntektskomponentService.hentInntekter(tilskuddMelding.deltakerFnr, tilskuddMelding.bedriftNr, tilskuddMelding.tilskuddFom, tilskuddMelding.tilskuddTom.plusMonths(2))
+        }
+        Now.resetClock()
+    }
+
+    @Test
+    internal fun `inntektsoppslag skal ta hensyn til at arbeidsgiver klikker på knapp for å hente neste måneds inntekter`() {
+        val deltakerFnr = "00000000000"
+        val tilskuddMelding = TilskuddsperiodeGodkjentMelding(
+            avtaleId = "2",
+            tilskuddsbeløp = 1000,
+            tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
+            deltakerEtternavn = "Mus",
+            deltakerFornavn = "Mikke",
+            arbeidsgiverFornavn = "Arne",
+            arbeidsgiverEtternavn = "Arbeidsgiver",
+            arbeidsgiverTlf = "41111111",
+            arbeidsgiveravgiftSats = 0.101,
+            avtaleInnholdId = "2",
+            bedriftNavn = "Bedriften AS",
+            bedriftNr = "999999999",
+            deltakerFnr = deltakerFnr,
+            feriepengerSats = 0.141,
+            otpSats = 0.02,
+            tilskuddFom = YearMonth.from(Now.localDate().minusMonths(1)).atDay(1), //Now.localDate().minusWeeks(4).plusDays(1),
+            tilskuddTom =YearMonth.from(Now.localDate().minusMonths(1)).atEndOfMonth(), //Now.localDate().minusDays(1),
+            tilskuddsperiodeId = "4",
+            veilederNavIdent = "X123456",
+            lønnstilskuddsprosent = 60,
+            avtaleNr = 3456,
+            løpenummer = 3,
+            resendingsnummer = null,
+            enhet = "1000",
+            godkjentTidspunkt = LocalDateTime.now()
+        )
+        var refusjon = refusjonService.opprettRefusjon(tilskuddMelding) ?: fail("Skulle kunne opprette refusjon")
+
+        refusjonService.gjørInntektsoppslag(refusjon)
+        verify {
+            inntektskomponentService.hentInntekter(tilskuddMelding.deltakerFnr, tilskuddMelding.bedriftNr, tilskuddMelding.tilskuddFom, tilskuddMelding.tilskuddTom.plusMonths(0))
+        }
+
+        Now.fixedDate(LocalDate.now().plusDays(1))
+        //refusjon.merkForUnntakOmInntekterToMånederFrem(true, "")
+        refusjon.merkForHentInntekterFrem(true, "")
+        refusjonService.gjørInntektsoppslag(refusjon)
+        verify {
+            inntektskomponentService.hentInntekter(tilskuddMelding.deltakerFnr, tilskuddMelding.bedriftNr, tilskuddMelding.tilskuddFom, tilskuddMelding.tilskuddTom.plusMonths(1))
         }
         Now.resetClock()
     }

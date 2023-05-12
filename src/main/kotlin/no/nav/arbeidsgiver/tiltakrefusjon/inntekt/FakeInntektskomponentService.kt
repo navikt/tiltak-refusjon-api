@@ -41,6 +41,17 @@ class FakeInntektskomponentService : InntektskomponentService {
                 inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "trekkILoennForFerie", -25000.0,  måned, datoTil, måned.atEndOfMonth()))
             }
             return Pair(inntektslinjer, "fake respons med mulig minus")
+        } else if (fnr == "18079238011") {
+            // Geir Geirsen har kun inntekter i måneden etter tilskuddsperioden
+            val inntektslinjer = ArrayList<Inntektslinje>()
+            val måneder = datoFra.datesUntil(datoTil, Period.ofMonths(1)).toList()
+            if (måneder.size == 1) {
+                return Pair(emptyList(), "fake respons med ingen inntekter i tilskuddsperioden")
+            } else {
+                val måned = YearMonth.of(datoFra.year, datoFra.month.plus(1))
+                inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "fastloenn", 20000.0,  måned, datoTil, måned.atEndOfMonth()))
+                return Pair(inntektslinjer, "fake respons med kun inntekter i måneden etter tilskuddsperioden")
+            }
         }
 
         val inntektslinjer = ArrayList<Inntektslinje>()

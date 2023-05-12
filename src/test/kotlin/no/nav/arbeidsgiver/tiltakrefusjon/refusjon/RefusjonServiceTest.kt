@@ -448,7 +448,7 @@ class RefusjonServiceTest(
         var refusjon = refusjonService.opprettRefusjon(tilskuddMelding) ?: fail("Skulle kunne opprette refusjon")
         refusjonService.gjørInntektsoppslag(refusjon)
         verify {
-            inntektskomponentService.hentInntekter(tilskuddMelding.deltakerFnr, tilskuddMelding.bedriftNr, tilskuddMelding.tilskuddFom, tilskuddMelding.tilskuddTom.plusMonths(1))
+            inntektskomponentService.hentInntekter(tilskuddMelding.deltakerFnr, tilskuddMelding.bedriftNr, tilskuddMelding.tilskuddFom, tilskuddMelding.tilskuddTom.plusMonths(0))
         }
         Now.fixedDate(LocalDate.now().plusDays(1))
         refusjon.merkForUnntakOmInntekterToMånederFrem(true, "")

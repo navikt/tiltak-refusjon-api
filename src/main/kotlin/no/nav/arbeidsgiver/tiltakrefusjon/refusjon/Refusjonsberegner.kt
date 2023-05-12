@@ -55,7 +55,15 @@ fun beregnRefusjonsbeløp(
     val arbeidsgiveravgift = (lønnFratrukketFerie + tjenestepensjon + feriepenger) * tilskuddsgrunnlag.arbeidsgiveravgiftSats
     val sumUtgifter = lønnFratrukketFerie + tjenestepensjon + feriepenger + arbeidsgiveravgift
     val sumUtgifterFratrukketRefundertBeløp = sumUtgifter - fratrekkRefunderbarBeløp
-    val beregnetBeløp = sumUtgifterFratrukketRefundertBeløp * (tilskuddsgrunnlag.lønnstilskuddsprosent / 100.0)
+    val beregnetBeløpUtenFratrukketRefundertBeløp = sumUtgifter  * (tilskuddsgrunnlag.lønnstilskuddsprosent / 100.0)
+    var beregnetBeløp = sumUtgifterFratrukketRefundertBeløp * (tilskuddsgrunnlag.lønnstilskuddsprosent / 100.0)
+
+    if (beregnetBeløpUtenFratrukketRefundertBeløp > 0 && beregnetBeløp < 0) {
+        beregnetBeløp = 0.0
+    }
+    if (beregnetBeløpUtenFratrukketRefundertBeløp < 0) {
+        beregnetBeløp = beregnetBeløpUtenFratrukketRefundertBeløp
+    }
 
     val overTilskuddsbeløp = beregnetBeløp > tilskuddsgrunnlag.tilskuddsbeløp
     var refusjonsbeløp =

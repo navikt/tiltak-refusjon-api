@@ -58,8 +58,8 @@ class Refusjonsgrunnlag(
                         && eldreInntekt.beskrivelse.equals(nyInntekt.beskrivelse)
                         && eldreInntekt.inntektType == nyInntekt.inntektType
                         && eldreInntekt.måned == nyInntekt.måned
-                        && eldreInntekt.opptjeningsperiodeFom?.isEqual(nyInntekt.opptjeningsperiodeFom) ?: true
-                        && eldreInntekt.opptjeningsperiodeTom?.isEqual(nyInntekt.opptjeningsperiodeTom) ?: true
+                        && eldreInntekt.opptjeningsperiodeFom == nyInntekt.opptjeningsperiodeFom
+                        && eldreInntekt.opptjeningsperiodeTom == nyInntekt.opptjeningsperiodeTom
                 }}
             return Inntektsgrunnlag(
                 inntekter = eldreInntekter.plus(nyeInntekter),
@@ -74,16 +74,6 @@ class Refusjonsgrunnlag(
 
     }
 
-    fun finnInntektslinjeIListeMedInntekter(nyInntektLinje: Inntektslinje, gjeldendeInntektslinjer: Set<Inntektslinje>): Inntektslinje? {
-        return gjeldendeInntektslinjer.find {
-                    it.inntektType == nyInntektLinje.inntektType &&
-                    it.beskrivelse == nyInntektLinje.beskrivelse &&
-                    it.beløp == nyInntektLinje.beløp &&
-                    it.måned == nyInntektLinje.måned &&
-                    it.opptjeningsperiodeFom == nyInntektLinje.opptjeningsperiodeFom &&
-                    it.opptjeningsperiodeTom == nyInntektLinje.opptjeningsperiodeTom
-        }
-    }
 
     fun oppgiForrigeRefusjonsbeløp(forrigeRefusjonMinusBeløp: Int): Boolean{
         this.forrigeRefusjonMinusBeløp = forrigeRefusjonMinusBeløp

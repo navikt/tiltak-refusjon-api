@@ -36,7 +36,7 @@ internal class InnloggetArbeidsgiverTest(
     @Autowired
     val varslingRepository: VarslingRepository,
 ) {
-    @MockkBean lateinit var inntektskomponentService: InntektskomponentService
+    @SpykBean lateinit var inntektskomponentService: InntektskomponentService
     @MockkBean lateinit var altinnTilgangsstyringService: AltinnTilgangsstyringService
     @MockkBean lateinit var korreksjonRepository: KorreksjonRepository
     @MockkBean lateinit var eregClient: EregClient
@@ -106,32 +106,49 @@ internal class InnloggetArbeidsgiverTest(
         )
         val refusjonFunnet = innloggetArbeidsgiver.finnRefusjon(refusjon1.id)
         assertThat(refusjonFunnet).isEqualTo(refusjon1)
-
+        assertEquals(2,refusjonFunnet.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.size)
 
         val førsteInntekt = refusjonFunnet.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.first()
         val andreInntekt = refusjonFunnet.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.toList()?.get(1)
 
         // ANDRE FORSØK MED ULIKT INNTEKTER FRA AMELDING -> DEN SKAL IKKE SLETTE OM GAMLE INNTEKTER ER LIKE NYE
-
-        val inntektslinje3 = Inntektslinje(
+        val inntektslinje1AndreGangKall = Inntektslinje(
             inntektType = "LOENNSINNTEKT",
             beskrivelse = null,
-            beløp = 12000.0,
+            beløp = 25000.0,
             måned = YearMonth.now(),
             opptjeningsperiodeFom = Now.localDate(),
             opptjeningsperiodeTom = Now.localDate().plusDays(30)
         )
-        val inntektslinjerAndreGang: List<Inntektslinje> = listOf(inntektslinje1,inntektslinje2,inntektslinje3)
+        val inntektslinje2AndreGangKall = Inntektslinje(
+            inntektType = "LOENNSINNTEKT",
+            beskrivelse = null,
+            beløp = -25000.0,
+            måned = YearMonth.now(),
+            opptjeningsperiodeFom = Now.localDate(),
+            opptjeningsperiodeTom = Now.localDate().plusDays(30)
+        )
+        val inntektslinjerAndreGang: List<Inntektslinje> = listOf(inntektslinje1AndreGangKall,inntektslinje2AndreGangKall)
         every { inntektskomponentService.hentInntekter(any(),any(),any(),any()) } returns Pair<List<Inntektslinje>, String>(
-            emptyList(),"RESPONSE JSON STRING"
+            inntektslinjerAndreGang,"RESPONSE JSON STRING"
         )
 
         Now.fixedDateTime(Now.localDateTime().plusMinutes(2))
         val refusjonFunnetAndreGangMedNyInntekterKall = innloggetArbeidsgiver.finnRefusjon(refusjon1.id)
 
-       assertTrue(refusjonFunnetAndreGangMedNyInntekterKall.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.contains(førsteInntekt)!!)
-       assertTrue(refusjonFunnetAndreGangMedNyInntekterKall.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.contains(andreInntekt)!!)
-       assertEquals(3,refusjonFunnetAndreGangMedNyInntekterKall.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.size)
+       assertTrue(refusjonFunnetAndreGangMedNyInntekterKall.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.any{ it.id == førsteInntekt!!.id }!!)
+       assertTrue(refusjonFunnetAndreGangMedNyInntekterKall.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.any{ it.id == andreInntekt!!.id }!!)
+       assertEquals(2,refusjonFunnetAndreGangMedNyInntekterKall.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.size)
+
+        // TREDJE FORSØK MED TOM INNTEKTER FRA AMELDING -> DEN SKAL DA SLETTE GAMLE INNTEKTER
+
+        every { inntektskomponentService.hentInntekter(any(),any(),any(),any()) } returns Pair<List<Inntektslinje>, String>(
+            emptyList(),"RESPONSE JSON STRING"
+        )
+
+        Now.fixedDateTime(Now.localDateTime().plusMinutes(2))
+        val refusjonFunnetTredkeGangMedNyInntekterKallSomErTOM = innloggetArbeidsgiver.finnRefusjon(refusjon1.id)
+        assertEquals(0,refusjonFunnetTredkeGangMedNyInntekterKallSomErTOM.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.size)
 
         Now.resetClock()
     }

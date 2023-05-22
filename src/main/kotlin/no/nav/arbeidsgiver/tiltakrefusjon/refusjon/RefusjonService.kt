@@ -116,10 +116,28 @@ class RefusjonService(
                 datoFra = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
                 datoTil = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom.plusMonths(antallEkstraMånederSomSkalSjekkes)
             )
-            val inntektsgrunnlag = Inntektsgrunnlag(
+            var inntektsgrunnlag = Inntektsgrunnlag(
                 inntekter = inntektsoppslag.first,
                 respons = inntektsoppslag.second
             )
+            // IKKE OVERSKRIV (ID) ELDRE INNTEKTER OM NYE INNTEKTER FRA AMELDING ER LIK ELDRE;
+            val eldreInntekter = refusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter
+            if(!eldreInntekter.isNullOrEmpty() && !inntektsoppslag.first.isNullOrEmpty()){
+                // merge KUN ULIKE eldre og nye inntektslinjer
+                val nyeInntekter = inntektsoppslag.first.filter { nyInntekt ->
+                    eldreInntekter.none { eldreInntekt -> eldreInntekt.beløp.equals(nyInntekt.beløp)
+                            && eldreInntekt.beskrivelse.equals(nyInntekt.beskrivelse)
+                            && eldreInntekt.inntektType == nyInntekt.inntektType
+                            && eldreInntekt.måned == nyInntekt.måned
+                            && eldreInntekt.opptjeningsperiodeFom?.isEqual(nyInntekt.opptjeningsperiodeFom) ?: true
+                            && eldreInntekt.opptjeningsperiodeTom?.isEqual(nyInntekt.opptjeningsperiodeTom) ?: true
+                    }}
+                inntektsgrunnlag = Inntektsgrunnlag(
+                    inntekter = eldreInntekter.plus(nyeInntekter),
+                    respons = inntektsoppslag.second
+                )
+            }
+
             refusjon.oppgiInntektsgrunnlag(inntektsgrunnlag, refusjon.inntektsgrunnlag)
             refusjonRepository.save(refusjon)
         } catch (e: Exception) {

@@ -6,7 +6,6 @@ import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
-import java.time.YearMonth
 import javax.persistence.*
 
 @Entity
@@ -34,34 +33,55 @@ class Refusjonsgrunnlag(
     var beregning: Beregning? = null
 
     fun oppgiInntektsgrunnlag(
-        inntektsgrunnlag: Inntektsgrunnlag,
+        nyInntektsgrunnlag: Inntektsgrunnlag,
         gjeldendeInntektsgrunnlag: Inntektsgrunnlag?
     ): Boolean {
         val log = LoggerFactory.getLogger(javaClass)
-        if (gjeldendeInntektsgrunnlag != null) {
-            inntektsgrunnlag.inntekter.forEach { inntekt ->
-                val gjeldendeInntektslinje = finnInntektslinjeIListeMedInntekter(inntekt, gjeldendeInntektsgrunnlag.inntekter)
-                if (gjeldendeInntektslinje != null) {
-                    // inntekt er identisk med en inntekt fra tidligere inntektsgrunnlag (gjeldendeInntektslinje)
-                    inntekt.erOpptjentIPeriode = gjeldendeInntektslinje.erOpptjentIPeriode
-                }
-            }
-        }
-        if(inntektsgrunnlag.inntekter.filter { it.erMedIInntektsgrunnlag() }.find { it.erOpptjentIPeriode === null } !== null) {
+        val nyInntektsgrunnlag = hentOppdatertInnteksgrunnlag(nyInntektsgrunnlag,gjeldendeInntektsgrunnlag)
+        if(nyInntektsgrunnlag.inntekter.filter { it.erMedIInntektsgrunnlag() }.find { it.erOpptjentIPeriode === null } !== null) {
             this.resetEndreBruttolønn()
         }
-        this.inntektsgrunnlag = inntektsgrunnlag
+        this.inntektsgrunnlag = nyInntektsgrunnlag
         return gjørBeregning()
     }
 
-    fun finnInntektslinjeIListeMedInntekter(linje1: Inntektslinje, inntektslinjer: Set<Inntektslinje>): Inntektslinje? {
-        return inntektslinjer.find {
-                    it.inntektType == linje1.inntektType &&
-                    it.beskrivelse == linje1.beskrivelse &&
-                    it.beløp == linje1.beløp &&
-                    it.måned == linje1.måned &&
-                    it.opptjeningsperiodeFom == linje1.opptjeningsperiodeFom &&
-                    it.opptjeningsperiodeTom == linje1.opptjeningsperiodeTom
+    fun hentOppdatertInnteksgrunnlag(nyInntektsgrunnlag: Inntektsgrunnlag,
+                                     gjeldendeInntektsgrunnlag: Inntektsgrunnlag?):Inntektsgrunnlag{
+
+        // IKKE OVERSKRIV (ID) ELDRE INNTEKTER OM NYE INNTEKTER FRA AMELDING ER LIK ELDRE;
+        val eldreInntekter = gjeldendeInntektsgrunnlag?.inntekter
+        val nyeInntekter = nyInntektsgrunnlag.inntekter
+        if(!eldreInntekter.isNullOrEmpty() && !nyeInntekter.isNullOrEmpty()){
+            // merge KUN ULIKE eldre og nye inntektslinjer
+            val nyeInntekter = nyeInntekter.filter { nyInntekt ->
+                eldreInntekter.none { eldreInntekt -> eldreInntekt.beløp.equals(nyInntekt.beløp)
+                        && eldreInntekt.beskrivelse.equals(nyInntekt.beskrivelse)
+                        && eldreInntekt.inntektType == nyInntekt.inntektType
+                        && eldreInntekt.måned == nyInntekt.måned
+                        && eldreInntekt.opptjeningsperiodeFom?.isEqual(nyInntekt.opptjeningsperiodeFom) ?: true
+                        && eldreInntekt.opptjeningsperiodeTom?.isEqual(nyInntekt.opptjeningsperiodeTom) ?: true
+                }}
+            return Inntektsgrunnlag(
+                inntekter = eldreInntekter.plus(nyeInntekter),
+                respons = nyInntektsgrunnlag.respons.plus(gjeldendeInntektsgrunnlag.respons)
+            )
+        }
+
+        return Inntektsgrunnlag(
+                inntekter = nyeInntekter,
+                respons = nyInntektsgrunnlag.respons
+            )
+
+    }
+
+    fun finnInntektslinjeIListeMedInntekter(nyInntektLinje: Inntektslinje, gjeldendeInntektslinjer: Set<Inntektslinje>): Inntektslinje? {
+        return gjeldendeInntektslinjer.find {
+                    it.inntektType == nyInntektLinje.inntektType &&
+                    it.beskrivelse == nyInntektLinje.beskrivelse &&
+                    it.beløp == nyInntektLinje.beløp &&
+                    it.måned == nyInntektLinje.måned &&
+                    it.opptjeningsperiodeFom == nyInntektLinje.opptjeningsperiodeFom &&
+                    it.opptjeningsperiodeTom == nyInntektLinje.opptjeningsperiodeTom
         }
     }
 

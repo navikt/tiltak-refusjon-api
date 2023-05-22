@@ -118,11 +118,11 @@ class Refusjon(
         }
     }
 
-    fun oppgiInntektsgrunnlag(inntektsgrunnlag: Inntektsgrunnlag, gjeldendeInntektsgrunnlag: Inntektsgrunnlag? = null) {
+    fun oppgiInntektsgrunnlag(nyInntektsgrunnlag: Inntektsgrunnlag, gjeldendeInntektsgrunnlag: Inntektsgrunnlag? = null) {
         oppdaterStatus()
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
 
-        val harGjortBeregning = this.refusjonsgrunnlag.oppgiInntektsgrunnlag(inntektsgrunnlag, gjeldendeInntektsgrunnlag)
+        val harGjortBeregning = this.refusjonsgrunnlag.oppgiInntektsgrunnlag(nyInntektsgrunnlag, gjeldendeInntektsgrunnlag)
         if (harGjortBeregning) {
             registerEvent(BeregningUtført(this))
         }

@@ -45,7 +45,7 @@ internal class InnloggetArbeidsgiverTest(
         varslingRepository.deleteAll()
         refusjonRepository.deleteAll()
     }
-    // Ikke glem refusjon.setInntektslinjeTilOpptjentIPeriode()
+
     @Test
     fun finnRefusjonMedUlikeInntenkter() {
         val deltakerFnr = "00000000000"

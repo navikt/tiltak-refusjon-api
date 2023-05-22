@@ -110,35 +110,17 @@ class RefusjonService(
             antallEkstraMånederSomSkalSjekkes = 1
         }
         try {
-            val inntektsoppslag = inntektskomponentService.hentInntekter(
+            val nyInntektsoppslag = inntektskomponentService.hentInntekter(
                 fnr = refusjon.deltakerFnr,
                 bedriftnummerDetSøkesPå = refusjon.bedriftNr,
                 datoFra = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
                 datoTil = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom.plusMonths(antallEkstraMånederSomSkalSjekkes)
             )
-            var inntektsgrunnlag = Inntektsgrunnlag(
-                inntekter = inntektsoppslag.first,
-                respons = inntektsoppslag.second
+            val nyInntektsgrunnlag = Inntektsgrunnlag(
+                inntekter = nyInntektsoppslag.first,
+                respons = nyInntektsoppslag.second
             )
-            // IKKE OVERSKRIV (ID) ELDRE INNTEKTER OM NYE INNTEKTER FRA AMELDING ER LIK ELDRE;
-            val eldreInntekter = refusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter
-            if(!eldreInntekter.isNullOrEmpty() && !inntektsoppslag.first.isNullOrEmpty()){
-                // merge KUN ULIKE eldre og nye inntektslinjer
-                val nyeInntekter = inntektsoppslag.first.filter { nyInntekt ->
-                    eldreInntekter.none { eldreInntekt -> eldreInntekt.beløp.equals(nyInntekt.beløp)
-                            && eldreInntekt.beskrivelse.equals(nyInntekt.beskrivelse)
-                            && eldreInntekt.inntektType == nyInntekt.inntektType
-                            && eldreInntekt.måned == nyInntekt.måned
-                            && eldreInntekt.opptjeningsperiodeFom?.isEqual(nyInntekt.opptjeningsperiodeFom) ?: true
-                            && eldreInntekt.opptjeningsperiodeTom?.isEqual(nyInntekt.opptjeningsperiodeTom) ?: true
-                    }}
-                inntektsgrunnlag = Inntektsgrunnlag(
-                    inntekter = eldreInntekter.plus(nyeInntekter),
-                    respons = inntektsoppslag.second
-                )
-            }
-
-            refusjon.oppgiInntektsgrunnlag(inntektsgrunnlag, refusjon.inntektsgrunnlag)
+            refusjon.oppgiInntektsgrunnlag(nyInntektsgrunnlag, refusjon.inntektsgrunnlag)
             refusjonRepository.save(refusjon)
         } catch (e: Exception) {
             log.error("Feil ved henting av inntekter for refusjon ${refusjon.id}", e)

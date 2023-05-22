@@ -95,7 +95,7 @@ class RefusjonService(
     }
 
     fun gjørInntektsoppslag(refusjon: Refusjon) {
-        if (!refusjon.skalGjøreInntektsoppslag()) {
+        if (!refusjon.skalGjøreInntektsoppslagForKlarForInnsendingNyereEnn1Minutt()) {
             return
         }
 

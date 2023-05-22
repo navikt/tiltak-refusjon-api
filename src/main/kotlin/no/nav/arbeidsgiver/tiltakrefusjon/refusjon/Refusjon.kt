@@ -278,7 +278,7 @@ class Refusjon(
         registerEvent(FristForlenget(this, gammelFristForGodkjenning, fristForGodkjenning, årsak, utførtAv))
     }
 
-    fun skalGjøreInntektsoppslag(): Boolean {
+    fun skalGjøreInntektsoppslagForKlarForInnsendingNyereEnn1Minutt(): Boolean {
         if (status != RefusjonStatus.KLAR_FOR_INNSENDING) {
             return false
         }

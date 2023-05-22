@@ -123,6 +123,7 @@ class Refusjonsgrunnlag(
     }
 
     fun setInntektslinjeTilOpptjentIPeriode(inntekslinjeId: String, erOpptjentIPeriode: Boolean): Boolean {
+        /* FRONTEND HAR INTEKSLINJE MEN BACKEND SIER DEN IKKE ER DER. */
         val inntektslinje = inntektsgrunnlag?.inntekter?.find { it.id == inntekslinjeId }
             ?: throw RuntimeException("Finner ikke inntektslinje med id=$inntekslinjeId for refusjongrunnlag=$id")
         if (!inntektslinje.erMedIInntektsgrunnlag()) {

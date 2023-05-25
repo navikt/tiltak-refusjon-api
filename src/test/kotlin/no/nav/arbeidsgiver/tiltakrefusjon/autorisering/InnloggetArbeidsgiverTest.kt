@@ -18,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock
 import org.springframework.test.context.ActiveProfiles
-import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 import java.time.temporal.TemporalAdjusters
 
@@ -478,7 +477,7 @@ internal class InnloggetArbeidsgiverTest(
     fun opprettRefusjonOgGjørInntektoppslag(tilskuddsperiodeGodkjentMelding: TilskuddsperiodeGodkjentMelding): Refusjon {
         val refusjon = refusjonService.opprettRefusjon(tilskuddsperiodeGodkjentMelding) ?: throw Exception()
         refusjon.status = RefusjonStatus.KLAR_FOR_INNSENDING
-        refusjon.unntakOmInntekterToMånederFrem = false
+        refusjon.unntakOmInntekterFremitid = 0
         refusjon.fristForGodkjenning = Now.localDate().plusDays(1)
         refusjonService.gjørBedriftKontonummeroppslag(refusjon)
         refusjonService.gjørInntektsoppslag(refusjon)

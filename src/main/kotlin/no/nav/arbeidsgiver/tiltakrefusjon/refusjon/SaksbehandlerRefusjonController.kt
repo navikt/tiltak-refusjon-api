@@ -17,7 +17,7 @@ data class HentSaksbehandlerRefusjonerQueryParametre(
     val avtaleNr: Int? = null,
 )
 
-data class MerkForUnntakOmInntekterToMånederFremRequest(val merking: Boolean)
+data class MerkForUnntakOmInntekterToMånederFremRequest(val merking: Int)
 
 @RestController
 @RequestMapping(REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON)

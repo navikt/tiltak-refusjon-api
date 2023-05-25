@@ -68,7 +68,7 @@ class RefusjonberegnerFratrekkFerieTest(
     fun opprettRefusjonOgGjørInntektoppslag(tilskuddsperiodeGodkjentMelding: TilskuddsperiodeGodkjentMelding): Refusjon {
         val refusjon = refusjonService.opprettRefusjon(tilskuddsperiodeGodkjentMelding) ?: throw Exception()
         refusjon.status = RefusjonStatus.KLAR_FOR_INNSENDING
-        refusjon.unntakOmInntekterToMånederFrem = false
+        refusjon.unntakOmInntekterFremitid = 0
         refusjon.fristForGodkjenning = Now.localDate().plusDays(1)
         refusjonService.gjørBedriftKontonummeroppslag(refusjon)
         refusjonService.gjørInntektsoppslag(refusjon)

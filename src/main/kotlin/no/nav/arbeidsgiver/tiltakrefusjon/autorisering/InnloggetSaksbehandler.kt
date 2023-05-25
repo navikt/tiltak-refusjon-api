@@ -183,9 +183,9 @@ data class InnloggetSaksbehandler(
         return refusjon
     }
 
-    fun merkForUnntakOmInntekterToMånederFrem(id: String, merking: Boolean) {
+    fun merkForUnntakOmInntekterToMånederFrem(id: String, merking: Int) {
         val refusjon = finnRefusjon(id)
-        refusjon.merkForUnntakOmInntekterToMånederFrem(merking, identifikator)
+        refusjon.merkForUnntakOmInntekterToMånederFrem(merking)
         refusjonRepository.save(refusjon)
     }
 

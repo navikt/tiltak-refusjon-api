@@ -99,13 +99,13 @@ class RefusjonService(
             return
         }
 
-        var antallEkstraMånederSomSkalSjekkes: Long = 0
+        var antallEkstraMånederSomSkalSjekkes: Int = 0
 
         if (refusjon.hentInntekterLengerFrem != null) {
             antallEkstraMånederSomSkalSjekkes = 1
         }
-        if (refusjon.unntakOmInntekterToMånederFrem) {
-            antallEkstraMånederSomSkalSjekkes = 2
+        if (refusjon.unntakOmInntekterFremitid > 0) {
+            antallEkstraMånederSomSkalSjekkes = refusjon.unntakOmInntekterFremitid
         } else if (refusjon.tilskuddsgrunnlag.tiltakstype === Tiltakstype.SOMMERJOBB) {
             antallEkstraMånederSomSkalSjekkes = 1
         }
@@ -114,7 +114,7 @@ class RefusjonService(
                 fnr = refusjon.deltakerFnr,
                 bedriftnummerDetSøkesPå = refusjon.bedriftNr,
                 datoFra = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
-                datoTil = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom.plusMonths(antallEkstraMånederSomSkalSjekkes)
+                datoTil = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom.plusMonths(antallEkstraMånederSomSkalSjekkes.toLong())
             )
             val inntektsgrunnlag = Inntektsgrunnlag(
                 inntekter = inntektsoppslag.first,

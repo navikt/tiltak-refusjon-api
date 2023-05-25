@@ -38,7 +38,7 @@ class Refusjon(
 
     var forrigeFristForGodkjenning: LocalDate? = null
 
-    var unntakOmInntekterToMånederFrem: Boolean = false
+    var unntakOmInntekterFremitid: Int = 0
     var hentInntekterLengerFrem: LocalDateTime? = null
 
     var godkjentAvArbeidsgiver: Instant? = null
@@ -312,15 +312,17 @@ class Refusjon(
         return id.hashCode()
     }
 
-    fun merkForUnntakOmInntekterToMånederFrem(merking: Boolean, utførtAv: String) {
+    fun merkForUnntakOmInntekterToMånederFrem(merking: Int) {
         krevStatus(RefusjonStatus.FOR_TIDLIG, RefusjonStatus.KLAR_FOR_INNSENDING)
-        unntakOmInntekterToMånederFrem = merking
-        registerEvent(MerketForUnntakOmInntekterToMånederFrem(this, merking, utførtAv))
+        if(merking == 1 && hentInntekterLengerFrem != null) {
+            throw FeilkodeException(Feilkode.HAR_ALLERDE_UNNTAK_OM_INNTEKTER_1_MND_FREM)
+        }
+        unntakOmInntekterFremitid = merking
     }
 
     fun merkForHentInntekterFrem(merking: Boolean, utførtAv: String) {
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
-        if (unntakOmInntekterToMånederFrem) {
+        if (unntakOmInntekterFremitid > 0) {
             throw FeilkodeException(Feilkode.HAR_ALLERDE_UNNTAK_OM_INNTEKTER_2_MND_FREM)
         }
 

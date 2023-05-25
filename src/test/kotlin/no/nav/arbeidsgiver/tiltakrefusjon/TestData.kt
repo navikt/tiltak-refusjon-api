@@ -158,7 +158,7 @@ fun refusjoner(): List<Refusjon> {
         kiellandGammel,
         BjørnsonUtgått,
         `Bjørnstjerne Bjørnson`().copy(tilskuddsgrunnlag = `Bjørnstjerne Bjørnson`().tilskuddsgrunnlag.copy(tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD)),
-        bjørnsonSendtKrav,
+        `Bjørnstjerne Bjørnson unntak`(),
         `Nils Nilsen`(),
         `Inger Hagerup`(),
         `Amalie Skram`(),
@@ -325,6 +325,23 @@ fun `Bjørnstjerne Bjørnson`(): Refusjon {
     )
 }
 
+fun `Bjørnstjerne Bjørnson unntak`(): Refusjon {
+    val deltakerFnr = "28128521498"
+    val bedriftNr = "999999999"
+    val refusjon = Refusjon(
+        tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
+            deltakerFnr = deltakerFnr,
+            bedriftNr = bedriftNr,
+            deltakerFornavn = "Bjørnstjerne",
+            deltakerEtternavn = "Bjørnson",
+            tilskuddsbeløp = 20579,
+            veilederNavIdent = "X123456"
+        ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
+    )
+    refusjon.unntakOmInntekterFremitid = 4
+    return refusjon
+}
+
 fun `Nils Nilsen`(): Refusjon {
     val deltakerFnr = "07049223188"
     val bedriftNr = "998877665"
@@ -461,7 +478,6 @@ fun Refusjon.copy(
 ): Refusjon {
     return Refusjon(tilskuddsgrunnlag, bedriftNr, deltakerFnr)
 }
-
 fun etInntektsgrunnlag(måned: YearMonth = YearMonth.of(2020, 10), opptjentIPeriode: Boolean = true) = Inntektsgrunnlag(
     inntekter = listOf(
         Inntektslinje(

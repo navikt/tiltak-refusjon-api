@@ -42,4 +42,4 @@ data class Inntektslinje(
 
 val inkluderteFratrekkbeskrivelser = listOf<String>("trekkILoennForFerie")
 
-val inkluderteLønnsbeskrivelser = listOf("fastloenn", "timeloenn", "fastTillegg")
+val inkluderteLønnsbeskrivelser = listOf("fastloenn", "timeloenn", "fastTillegg", "uregelmessigeTilleggKnyttetTilArbeidetTid")

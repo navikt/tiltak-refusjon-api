@@ -14,8 +14,10 @@ class RefusjonsberegnerTest {
 
     lateinit var juni: Inntektslinje
     lateinit var juli: Inntektslinje
+    lateinit var juniUregelmessig: Inntektslinje
     lateinit var inntektsliste: List<Inntektslinje>
     lateinit var inntektsgrunnlag: Inntektsgrunnlag
+    lateinit var inntektsgrunnlagUregelmessig: Inntektsgrunnlag
 
     @BeforeEach
     fun init() {
@@ -25,6 +27,10 @@ class RefusjonsberegnerTest {
             lagEnInntektslinje(20000.00, YearMonth.of(2021, 7), LocalDate.of(2021, 7, 1), LocalDate.of(2021, 7, 31))
         inntektsliste = listOf(juni, juli)
         inntektsgrunnlag = Inntektsgrunnlag(inntektsliste, "repons fra Inntekt")
+
+        juniUregelmessig =
+            lagEnInntektslinjeUregelmessigeTillegg(20000.00, YearMonth.of(2021, 7), LocalDate.of(2021, 6, 1), LocalDate.of(2021, 6, 30))
+        inntektsgrunnlagUregelmessig = Inntektsgrunnlag(listOf(juniUregelmessig, juni), "repons fra Inntekt")
     }
 
     fun lagEtTilskuddsgrunnlag(
@@ -79,6 +85,23 @@ class RefusjonsberegnerTest {
         )
     }
 
+    private fun lagEnInntektslinjeUregelmessigeTillegg(
+        beløp: Double,
+        måned: YearMonth,
+        opptjeningsperiodeFom: LocalDate,
+        opptjeningsperiodeTom: LocalDate,
+    ): Inntektslinje {
+        return Inntektslinje(
+            inntektType = "LOENNSINNTEKT",
+            beskrivelse = "uregelmessigeTilleggKnyttetTilArbeidetTid",
+            beløp = beløp,
+            måned = måned,
+            opptjeningsperiodeFom = opptjeningsperiodeFom,
+            opptjeningsperiodeTom = opptjeningsperiodeTom,
+            erOpptjentIPeriode = true
+        )
+    }
+
     @Test
     fun `beregning av sommerjobb, skal ikke beregne på dagsats`() {
         val tilskuddsgrunnlagSommerJobb = lagEtTilskuddsgrunnlag(
@@ -99,21 +122,20 @@ class RefusjonsberegnerTest {
     }
 
     @Test
-    @Disabled("Finne ut hvordan lønnstilskudd skal beregnes")
     fun `beregning av lønnstilskudd, skal beregne på dagsats`() {
-        val tilskuddsgrunnlagSommerJobb = lagEtTilskuddsgrunnlag(
+        val tilskuddsgrunnlagLønnstilskudd = lagEtTilskuddsgrunnlag(
             LocalDate.of(2021, 6, 1),
-            LocalDate.of(2021, 7, 16),
+            LocalDate.of(2021, 6, 30),
             Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
             40000
         )
         val beregning = beregnRefusjonsbeløp(
-            inntektsgrunnlag.inntekter.toList(),
-            tilskuddsgrunnlagSommerJobb,
+            inntektsgrunnlagUregelmessig.inntekter.toList(),
+            tilskuddsgrunnlagLønnstilskudd,
             0,
             null
         )
-        val beregnetBeløpAvAntallDagerJobbetInnenforInntektsgrunnlaget = 15810
+        val beregnetBeløpAvAntallDagerJobbetInnenforInntektsgrunnlaget = 20856
         assertThat(beregning.refusjonsbeløp).isEqualTo(beregnetBeløpAvAntallDagerJobbetInnenforInntektsgrunnlaget)
     }
 }

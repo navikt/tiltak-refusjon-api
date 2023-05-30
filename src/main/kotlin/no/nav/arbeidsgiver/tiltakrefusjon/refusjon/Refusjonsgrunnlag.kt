@@ -50,10 +50,10 @@ class Refusjonsgrunnlag(
 
         // IKKE OVERSKRIV (ID) ELDRE INNTEKTER OM NYE INNTEKTER FRA AMELDING ER LIK ELDRE;
         val eldreInntekter = gjeldendeInntektsgrunnlag?.inntekter
-        val nyeInntekter = nyInntektsgrunnlag.inntekter
-        if(!eldreInntekter.isNullOrEmpty() && !nyeInntekter.isNullOrEmpty()){
-            // merge KUN ULIKE eldre og nye inntektslinjer
-            val nyeInntekter = nyeInntekter.filter { nyInntekt ->
+        val nyeInntektslinjer = nyInntektsgrunnlag.inntekter
+        if(!eldreInntekter.isNullOrEmpty() && !nyeInntektslinjer.isNullOrEmpty()){
+            // finn KUN ULIKE eldre og nye inntektslinjer
+            val unikeInntektslinjer = nyeInntektslinjer.filter { nyInntekt ->
                 eldreInntekter.none { eldreInntekt -> eldreInntekt.beløp.equals(nyInntekt.beløp)
                         && eldreInntekt.beskrivelse.equals(nyInntekt.beskrivelse)
                         && eldreInntekt.inntektType == nyInntekt.inntektType
@@ -61,14 +61,30 @@ class Refusjonsgrunnlag(
                         && eldreInntekt.opptjeningsperiodeFom == nyInntekt.opptjeningsperiodeFom
                         && eldreInntekt.opptjeningsperiodeTom == nyInntekt.opptjeningsperiodeTom
                 }}
+            // finner helt nye inntektslinjer
+            if(unikeInntektslinjer.isNotEmpty() && unikeInntektslinjer.all {
+                    nyeInntektslinjer.any{ nyInntekt->
+                        it.beløp.equals(nyInntekt.beløp)
+                                && it.beskrivelse.equals(nyInntekt.beskrivelse)
+                                && it.inntektType == nyInntekt.inntektType
+                                && it.måned == nyInntekt.måned
+                                && it.opptjeningsperiodeFom == nyInntekt.opptjeningsperiodeFom
+                                && it.opptjeningsperiodeTom == nyInntekt.opptjeningsperiodeTom
+
+                    }
+                } )
+                return Inntektsgrunnlag(
+                    inntekter = nyeInntektslinjer,
+                    respons = nyInntektsgrunnlag.respons
+                )
             return Inntektsgrunnlag(
-                inntekter = eldreInntekter.plus(nyeInntekter),
+                inntekter = eldreInntekter.plus(unikeInntektslinjer),
                 respons = nyInntektsgrunnlag.respons.plus(gjeldendeInntektsgrunnlag.respons)
             )
         }
 
         return Inntektsgrunnlag(
-                inntekter = nyeInntekter,
+                inntekter = nyeInntektslinjer,
                 respons = nyInntektsgrunnlag.respons
             )
 

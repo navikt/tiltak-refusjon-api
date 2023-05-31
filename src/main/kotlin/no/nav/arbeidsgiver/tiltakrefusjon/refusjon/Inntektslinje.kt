@@ -41,5 +41,6 @@ data class Inntektslinje(
 }
 
 val inkluderteFratrekkbeskrivelser = listOf<String>("trekkILoennForFerie")
-
+// Dette er verdier som settes av inntektskomponenten
+// https://github.com/navikt/inntektskomponenten/blob/a2ea187cc77c43ef696ecba98b7b06f69ebc75d6/inntektskomponenten-core/src/main/java/no/nav/inntektskomponenten/domain/kodeverk/beskrivelser/LoennsinntektBeskrivelser.java
 val inkluderteLønnsbeskrivelser = listOf("fastloenn", "timeloenn", "fastTillegg", "uregelmessigeTilleggKnyttetTilArbeidetTid")

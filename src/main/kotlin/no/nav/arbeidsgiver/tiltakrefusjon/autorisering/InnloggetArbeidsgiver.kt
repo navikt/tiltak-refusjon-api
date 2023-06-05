@@ -15,6 +15,7 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
+import java.time.Instant
 
 data class InnloggetArbeidsgiver(
     val identifikator: String,
@@ -73,8 +74,9 @@ data class InnloggetArbeidsgiver(
         return getQueryMethodForFinnAlleForGittArbeidsgiver(finnAlleUnderenheterTilArbeidsgiver(), status, tiltakstype, sortingOrder, page, size)
     }
 
-    fun godkjenn(refusjonId: String) {
+    fun godkjenn(sistEndret: Instant, refusjonId: String) {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(refusjonId) ?: throw RessursFinnesIkkeException()
+        refusjon.sjekkSistEndret(sistEndret)
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
         refusjonService.godkjennForArbeidsgiver(refusjon, this.identifikator)
     }

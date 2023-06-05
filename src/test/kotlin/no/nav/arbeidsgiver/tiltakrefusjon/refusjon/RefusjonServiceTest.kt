@@ -80,8 +80,8 @@ class RefusjonServiceTest(
         gjørInntektoppslagForRefusjon(refusjon1)
 
         assertThat(refusjonRepository.findAll().count()).isEqualTo(1)
-        assertDoesNotThrow { refusjonService.godkjennForArbeidsgiver(refusjon1,"999999999")}
-        assertThrows<FeilkodeException> { refusjonService.godkjennForArbeidsgiver(refusjon1,"999999999")}
+        assertDoesNotThrow { refusjonService.godkjennForArbeidsgiver(Now.instant(),refusjon1,"999999999")}
+        assertThrows<FeilkodeException> { refusjonService.godkjennForArbeidsgiver(Now.instant(),refusjon1,"999999999")}
     }
 
     @Test
@@ -187,9 +187,9 @@ class RefusjonServiceTest(
         gjørInntektoppslagForRefusjon(refusjon3)
 
         assertThat(refusjonRepository.findAll().count()).isEqualTo(3)
-        assertDoesNotThrow { refusjonService.godkjennForArbeidsgiver(refusjon3,"999999999")}
-        assertDoesNotThrow { refusjonService.godkjennForArbeidsgiver(refusjon2,"999999999")}
-        assertDoesNotThrow { refusjonService.godkjennForArbeidsgiver(refusjon1,"999999999")}
+        assertDoesNotThrow { refusjonService.godkjennForArbeidsgiver(Now.instant(),refusjon3,"999999999")}
+        assertDoesNotThrow { refusjonService.godkjennForArbeidsgiver(Now.instant(),refusjon2,"999999999")}
+        assertDoesNotThrow { refusjonService.godkjennForArbeidsgiver(Now.instant(),refusjon1,"999999999")}
     }
 
     @Test
@@ -228,7 +228,7 @@ class RefusjonServiceTest(
         refusjonService.gjørInntektsoppslag(refusjon)
         gjørInntektoppslagForRefusjon(refusjon)
         assertThat(refusjonRepository.findAll().count()).isEqualTo(1)
-        assertDoesNotThrow { refusjonService.godkjennForArbeidsgiver(refusjon,"999999999")}
+        assertDoesNotThrow { refusjonService.godkjennForArbeidsgiver(Now.instant(),refusjon,"999999999")}
         val lagretRefusjon = refusjonRepository.findAll().firstOrNull()
         if (lagretRefusjon != null) {
             assertThat(lagretRefusjon.status).isEqualTo(RefusjonStatus.GODKJENT_NULLBELØP)
@@ -407,7 +407,7 @@ class RefusjonServiceTest(
 
         Now.fixedDate(LocalDate.now().plusDays(1))
         //refusjon.merkForUnntakOmInntekterToMånederFrem(true, "")
-        refusjon.merkForHentInntekterFrem(true, "")
+        refusjon.merkForHentInntekterFrem(Now.instant(),true, "")
         refusjonService.gjørInntektsoppslag(refusjon)
         verify {
             inntektskomponentService.hentInntekter(tilskuddMelding.deltakerFnr, tilskuddMelding.bedriftNr, tilskuddMelding.tilskuddFom, tilskuddMelding.tilskuddTom.plusMonths(1))

@@ -74,11 +74,10 @@ data class InnloggetArbeidsgiver(
         return getQueryMethodForFinnAlleForGittArbeidsgiver(finnAlleUnderenheterTilArbeidsgiver(), status, tiltakstype, sortingOrder, page, size)
     }
 
-    fun godkjenn(sistEndret: Instant, refusjonId: String) {
+    fun godkjenn(sistEndret:Instant,refusjonId: String) {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(refusjonId) ?: throw RessursFinnesIkkeException()
-        refusjon.sjekkSistEndret(sistEndret)
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
-        refusjonService.godkjennForArbeidsgiver(refusjon, this.identifikator)
+        refusjonService.godkjennForArbeidsgiver(sistEndret,refusjon, this.identifikator)
     }
 
     fun finnRefusjon(id: String): Refusjon {
@@ -125,10 +124,10 @@ data class InnloggetArbeidsgiver(
         refusjonRepository.save(refusjon)
     }
 
-    fun setInntektslinjeTilOpptjentIPeriode(refusjonId: String, inntekslinjeId: String, erOpptjentIPeriode: Boolean) {
+    fun setInntektslinjeTilOpptjentIPeriode(sistEndret:Instant, refusjonId: String, inntekslinjeId: String, erOpptjentIPeriode: Boolean) {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(refusjonId) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
-        refusjon.setInntektslinjeTilOpptjentIPeriode(inntekslinjeId, erOpptjentIPeriode)
+        refusjon.setInntektslinjeTilOpptjentIPeriode(sistEndret,inntekslinjeId, erOpptjentIPeriode)
         refusjonRepository.save(refusjon)
     }
 
@@ -152,11 +151,10 @@ data class InnloggetArbeidsgiver(
         );
         refusjonRepository.save(refusjon)
     }
-
-    fun merkForHentInntekterFrem(id: String, merking: Boolean) {
+    fun merkForHentInntekterFrem(sistEndret:Instant,id: String, merking: Boolean) {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
-        refusjon.merkForHentInntekterFrem(merking, identifikator)
+        refusjon.merkForHentInntekterFrem(sistEndret,merking, identifikator)
         log.info("Merket refusjon ${refusjon.id} for henting av inntekter fremover")
         refusjonRepository.save(refusjon)
     }

@@ -10,6 +10,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkj
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.Instant
 
 @Service
 @Transactional
@@ -127,8 +128,8 @@ class RefusjonService(
         }
     }
 
-    fun godkjennForArbeidsgiver(refusjon: Refusjon, utførtAv: String) {
-        refusjon.godkjennForArbeidsgiver(utførtAv)
+    fun godkjennForArbeidsgiver(sistEndret:Instant,refusjon: Refusjon, utførtAv: String) {
+        refusjon.godkjennForArbeidsgiver(sistEndret,utførtAv)
         refusjonRepository.save(refusjon)
     }
 

@@ -29,17 +29,6 @@ class ArbeidsgiverRefusjonControllerTest{
         controller = ArbeidsgiverRefusjonController(innlogetServiceMock,dokgenService)
     }
 
-
-    @Test
-    fun `sistEndret skal IKKE kaste en exception om NY endring tidspunkt er NY når arbeidsgiver godkjenner`(){
-        every{innlogetServiceMock.hentInnloggetArbeidsgiver()} returns innloggetArbeidsgiver
-        every{innloggetArbeidsgiver.finnRefusjon(any())} returns `Suzanna Hansen`()
-        every{innloggetArbeidsgiver.godkjenn(any(),any())} returns Unit
-        every{dokgenService.refusjonPdf(any())} returns ByteArray(1)
-
-        assertDoesNotThrow  {controller.godkjenn("refusjon-ID",Instant.now())  }
-    }
-
     @Test
     fun `test at pdf controller endepunkt ikke spitter ut noe om den ikke finnes`(){
         assertThat(controller.hentPDF("").body).isNull()

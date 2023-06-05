@@ -359,4 +359,8 @@ class Refusjon(
             throw SamtidigeEndringerException()
         }
     }
+
+    private fun sistEndretNå() {
+        sistEndret = Now.instant()
+    }
 }

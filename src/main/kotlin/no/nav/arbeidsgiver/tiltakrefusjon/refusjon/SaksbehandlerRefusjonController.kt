@@ -15,6 +15,8 @@ data class HentSaksbehandlerRefusjonerQueryParametre(
     val status: RefusjonStatus? = null,
     val tiltakstype: Tiltakstype? = null,
     val avtaleNr: Int? = null,
+    val page: Int = 0,
+    val size: Int = 10
 )
 
 data class MerkForUnntakOmInntekterToMånederFremRequest(val merking: Int)

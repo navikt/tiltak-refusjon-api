@@ -90,7 +90,7 @@ class RefusjonApiTest(
 
     @Test
     fun `hentAlle() - Saksbehandler har ikke leserettighet til en refusjon`() {
-        val json = sendRequest(get("$REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON?enhet=1000"), navCookie)
+        val json = sendRequest(get("$REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON?enhet=1000&page=0&size=100"), navCookie)
         val liste = mapper.readValue(json, object : TypeReference<List<Refusjon>>() {})
 
         assertNull(liste.find { it.refusjonsgrunnlag.tilskuddsgrunnlag.enhet != "1000" })

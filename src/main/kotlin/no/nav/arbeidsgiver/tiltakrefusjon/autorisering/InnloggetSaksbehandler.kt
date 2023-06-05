@@ -7,6 +7,10 @@ import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import java.time.LocalDate
 
@@ -25,28 +29,37 @@ data class InnloggetSaksbehandler(
     val log: Logger = LoggerFactory.getLogger(javaClass)
 
     fun finnAlle(queryParametre: HentSaksbehandlerRefusjonerQueryParametre): List<Refusjon> {
-        var liste =
+        val pageable: Pageable = PageRequest.of(queryParametre.page, queryParametre.size)
+        var liste: Page<Refusjon> =
             if (!queryParametre.bedriftNr.isNullOrBlank()) {
-                refusjonRepository.findAllByBedriftNr(queryParametre.bedriftNr)
+                refusjonRepository.findAllByBedriftNr(queryParametre.bedriftNr, pageable)
             } else if (!queryParametre.veilederNavIdent.isNullOrBlank()) {
-                refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_VeilederNavIdent(queryParametre.veilederNavIdent)
+                refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_VeilederNavIdent(
+                    queryParametre.veilederNavIdent,
+                    pageable
+                )
             } else if (!queryParametre.deltakerFnr.isNullOrBlank()) {
-                refusjonRepository.findAllByDeltakerFnr(queryParametre.deltakerFnr)
+                refusjonRepository.findAllByDeltakerFnr(queryParametre.deltakerFnr, pageable)
             } else if (!queryParametre.enhet.isNullOrBlank()) {
-                refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_Enhet(queryParametre.enhet)
+                refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_Enhet(queryParametre.enhet, pageable)
             } else if (queryParametre.avtaleNr !== null) {
-                refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_AvtaleNr(queryParametre.avtaleNr)
+                refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_AvtaleNr(
+                    queryParametre.avtaleNr,
+                    pageable
+                )
             } else {
-                emptyList()
+                PageImpl(emptyList())
             }
 
-        if (queryParametre.status != null) {
-            liste = liste.filter { queryParametre.status == it.status }
-        }
-        if (queryParametre.tiltakstype != null) {
-            liste = liste.filter { queryParametre.tiltakstype == it.refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype }
-        }
-        return medLesetilgang(liste)
+//        if (queryParametre.status != null) {
+//            liste = liste.filter { queryParametre.status == it.status }
+//        }
+//        if (queryParametre.tiltakstype != null) {
+//            liste = liste.filter { queryParametre.tiltakstype == it.refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype }
+//        }
+
+
+        return liste.content.filter { abacTilgangsstyringService.harLeseTilgang(identifikator, it.deltakerFnr) }
     }
 
     fun finnRefusjon(id: String): Refusjon {

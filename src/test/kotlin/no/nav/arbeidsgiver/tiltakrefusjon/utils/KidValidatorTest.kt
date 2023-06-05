@@ -23,6 +23,7 @@ class KidValidatorTest{
     @Test
     fun `Test valid kid`(){
         assertDoesNotThrow{KidValidator("2345676")}
+        assertDoesNotThrow{KidValidator("  234 56 76  ")}
     }
 
 

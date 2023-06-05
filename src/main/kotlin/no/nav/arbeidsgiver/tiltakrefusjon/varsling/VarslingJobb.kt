@@ -4,13 +4,13 @@ import no.nav.arbeidsgiver.tiltakrefusjon.leader.LeaderPodCheck
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonRepository
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonStatus
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
-import org.joda.time.LocalDate
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.scheduling.annotation.EnableScheduling
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import java.time.Duration
+import java.time.LocalDate
 
 @Component
 @EnableScheduling
@@ -54,13 +54,13 @@ class VarslingJobb(
             return
         }
 
-        val forrigeMåned = LocalDate.now().minusMonths(1).monthOfYear;
+        val forrigeMåned = LocalDate.now().minusMonths(1).month;
         val refusjoner = refusjonRepository.findAllByStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
         var antallSendteVarsler = 0
         for (refusjon in refusjoner) {
             val varslerForRefusjon = varslingRepository.findAllByRefusjonId(refusjon.id)
 
-            if (varslerForRefusjon.none { it.varselType === VarselType.KLAR} && refusjon.tilskuddsgrunnlag.tilskuddTom.monthValue == forrigeMåned) {
+            if (varslerForRefusjon.none { it.varselType === VarselType.KLAR} && forrigeMåned.equals(refusjon.tilskuddsgrunnlag.tilskuddTom.month)) {
                 refusjonVarselProducer.sendVarsel(VarselType.KLAR, refusjon.id, refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId, refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleId, refusjon.fristForGodkjenning)
                 antallSendteVarsler++
                 continue;

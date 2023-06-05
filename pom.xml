@@ -86,6 +86,7 @@
             <groupId>de.monochromata.cucumber</groupId>
             <artifactId>reporting-plugin</artifactId>
             <version>4.0.70</version>
+            <scope>test</scope>
         </dependency>
         <!-- Database -->
         <dependency>

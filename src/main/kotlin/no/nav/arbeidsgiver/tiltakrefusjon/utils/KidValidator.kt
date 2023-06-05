@@ -2,7 +2,6 @@ package no.nav.arbeidsgiver.tiltakrefusjon.utils
 
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
-import org.apache.commons.lang.StringUtils
 
 
 /**
@@ -23,7 +22,7 @@ class KidValidator(kid: String?) {
      * The KID number.
      */
     init {
-        this.kid = StringUtils.deleteWhitespace(kid)
+        this.kid = kid?.replace(" ", "")
         validate()
     }
 
@@ -31,7 +30,7 @@ class KidValidator(kid: String?) {
      * If the KID number is not valid an exception is thrown.
      */
     private fun validate() {
-        if(kid!!.isBlank() || kid!!.matches(Regex("^0+$"))){
+        if (kid!!.isBlank() || kid!!.matches(Regex("^0+$"))) {
             throw FeilkodeException(Feilkode.FEIL_BEDRIFT_KIDNUMMER)
         }
         if (!isValidKid) {
@@ -63,9 +62,9 @@ class KidValidator(kid: String?) {
          * @return true if KID contains valid characters, false otherwise.
          */
         private get() = if (kidEndsWithDash()) {
-            StringUtils.isNumeric(kid!!.substring(0, kid.length - 1))
+            kid!!.substring(0, kid.length - 1).matches(numericRegex)
         } else {
-            StringUtils.isNumeric(kid)
+            kid?.matches(numericRegex) ?: false
         }
 
     /**
@@ -154,5 +153,9 @@ class KidValidator(kid: String?) {
                 }
                 return factor++
             }
+    }
+
+    companion object {
+        private val numericRegex = Regex("^\\d*$")
     }
 }

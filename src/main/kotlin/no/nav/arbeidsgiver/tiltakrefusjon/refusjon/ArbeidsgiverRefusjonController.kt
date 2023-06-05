@@ -77,20 +77,12 @@ class ArbeidsgiverRefusjonController(
         return ResponseEntity<Map<String, Any>>(response, HttpStatus.OK)
     }
 
-    @PutMapping("/{id}/med-oppdatert-inntekstsgrunnlag-og-kontonummer")
-    @Transactional
-    fun oppdatertRefusjonMedInntektsgrunnlagOgKontonummer(@PathVariable id: String)  {
-        val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-        arbeidsgiver.oppdaterRefusjonMedInntektsgrunnlagOgKontonummer(id)
-    }
-
     @GetMapping("/{id}")
     @Transactional
     fun hent(@PathVariable id: String): Refusjon? {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
         return arbeidsgiver.finnRefusjon(id)
     }
-
 
     @PostMapping("/{id}/endre-bruttolønn")
     @Transactional
@@ -125,12 +117,9 @@ class ArbeidsgiverRefusjonController(
 
     @PostMapping("/{id}/set-inntektslinje-opptjent-i-periode")
     @Transactional
-    fun endreRefundertInntekslinje(@PathVariable id: String,
-                                   @RequestBody request: EndreRefundertInntektslinjeRequest,
-                                   @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE)  sistEndret: Instant) {
+    fun endreRefundertInntekslinje(@PathVariable id: String, @RequestBody request: EndreRefundertInntektslinjeRequest) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
         arbeidsgiver.setInntektslinjeTilOpptjentIPeriode(
-            sistEndret,
             refusjonId = id,
             inntekslinjeId = request.inntektslinjeId,
             erOpptjentIPeriode = request.erOpptjentIPeriode
@@ -139,7 +128,8 @@ class ArbeidsgiverRefusjonController(
 
     @PostMapping("/{id}/godkjenn")
     @Transactional
-    fun godkjenn(@PathVariable id: String,@RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE)  sistEndret: Instant
+    fun godkjenn(@PathVariable id: String,
+                 @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE)  sistEndret: Instant
     ) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
         arbeidsgiver.godkjenn(sistEndret,id)
@@ -147,10 +137,8 @@ class ArbeidsgiverRefusjonController(
 
     @PostMapping("/{id}/merk-for-hent-inntekter-frem")
     @Transactional
-    fun merkForHentInntekterFrem(@PathVariable id: String,
-                                 @RequestBody request: MerkInntekterFremRequest,
-                                 @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant) {
+    fun merkForHentInntekterFrem(@PathVariable id: String, @RequestBody request: MerkInntekterFremRequest) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-        arbeidsgiver.merkForHentInntekterFrem(sistEndret,id, request.merking)
+        arbeidsgiver.merkForHentInntekterFrem(id, request.merking)
     }
 }

@@ -11,9 +11,11 @@ import no.nav.arbeidsgiver.tiltakrefusjon.dokgen.DokgenService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
+import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
+import java.time.Instant
 
 class ArbeidsgiverRefusjonControllerTest{
 
@@ -25,6 +27,26 @@ class ArbeidsgiverRefusjonControllerTest{
     @Before
     fun setup(){
         controller = ArbeidsgiverRefusjonController(innlogetServiceMock,dokgenService)
+    }
+
+
+    @Test
+    fun `sistEndret skal IKKEkaste en exception om NY endring tidspunkt er NY når arbeidsgiver godkjenner`(){
+        every{innlogetServiceMock.hentInnloggetArbeidsgiver()} returns innloggetArbeidsgiver
+        every{innloggetArbeidsgiver.finnRefusjon(any())} returns `Suzanna Hansen`()
+        every{innloggetArbeidsgiver.godkjenn(any(),any())} returns Unit
+        every{dokgenService.refusjonPdf(any())} returns ByteArray(1)
+
+        assertDoesNotThrow  {controller.godkjenn("refusjon-ID",Instant.now())  }
+    }
+    @Test
+    fun `sistEndret skal kaste en exception om NY endring tidspunkt er ELDRE enn nåværende når arbeidsgiver godkjenner`(){
+        every{innlogetServiceMock.hentInnloggetArbeidsgiver()} returns innloggetArbeidsgiver
+        every{innloggetArbeidsgiver.finnRefusjon(any())} returns `Suzanna Hansen`()
+        every{innloggetArbeidsgiver.godkjenn(any(),any())} returns Unit
+        every{dokgenService.refusjonPdf(any())} returns ByteArray(1)
+
+        assertThrows<Exception> {controller.godkjenn("refusjon-ID",Instant.now(),)  }
     }
 
     @Test
@@ -53,7 +75,7 @@ class ArbeidsgiverRefusjonControllerTest{
     fun `test at pdf controller endepunkt ikke finner refusjon`(){
 
         every{innlogetServiceMock.hentInnloggetArbeidsgiver()} returns innloggetArbeidsgiver
-        every{innloggetArbeidsgiver.oppdaterRefusjonMedInntektsgrunnlagOgKontonummer(any())} throws RessursFinnesIkkeException()
+        every{innloggetArbeidsgiver.finnRefusjon(any())} throws RessursFinnesIkkeException()
 
 
         assertThrows<RessursFinnesIkkeException> {controller.hentPDF(ULID.random())  }

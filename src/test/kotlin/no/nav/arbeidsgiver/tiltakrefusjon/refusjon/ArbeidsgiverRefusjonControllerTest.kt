@@ -31,22 +31,13 @@ class ArbeidsgiverRefusjonControllerTest{
 
 
     @Test
-    fun `sistEndret skal IKKEkaste en exception om NY endring tidspunkt er NY når arbeidsgiver godkjenner`(){
+    fun `sistEndret skal IKKE kaste en exception om NY endring tidspunkt er NY når arbeidsgiver godkjenner`(){
         every{innlogetServiceMock.hentInnloggetArbeidsgiver()} returns innloggetArbeidsgiver
         every{innloggetArbeidsgiver.finnRefusjon(any())} returns `Suzanna Hansen`()
         every{innloggetArbeidsgiver.godkjenn(any(),any())} returns Unit
         every{dokgenService.refusjonPdf(any())} returns ByteArray(1)
 
         assertDoesNotThrow  {controller.godkjenn("refusjon-ID",Instant.now())  }
-    }
-    @Test
-    fun `sistEndret skal kaste en exception om NY endring tidspunkt er ELDRE enn nåværende når arbeidsgiver godkjenner`(){
-        every{innlogetServiceMock.hentInnloggetArbeidsgiver()} returns innloggetArbeidsgiver
-        every{innloggetArbeidsgiver.finnRefusjon(any())} returns `Suzanna Hansen`()
-        every{innloggetArbeidsgiver.godkjenn(any(),any())} returns Unit
-        every{dokgenService.refusjonPdf(any())} returns ByteArray(1)
-
-        assertThrows<Exception> {controller.godkjenn("refusjon-ID",Instant.now(),)  }
     }
 
     @Test

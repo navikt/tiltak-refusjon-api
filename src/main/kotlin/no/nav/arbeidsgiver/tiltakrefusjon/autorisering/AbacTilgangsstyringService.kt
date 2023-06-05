@@ -2,9 +2,16 @@ package no.nav.arbeidsgiver.tiltakrefusjon.autorisering
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming
+import no.nav.arbeidsgiver.tiltakrefusjon.caching.ABAC
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
+import org.springframework.retry.annotation.Recover
+import org.springframework.retry.annotation.Retryable
+import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.postForObject
@@ -12,11 +19,25 @@ import java.util.*
 
 @Service
 class AbacTilgangsstyringService(
-    @Qualifier("anonymProxyRestTemplate") val restTemplate: RestTemplate,
-    val abacConfig: AbacConfig,
+    val abacApi: AbacApi
 ) {
-
+    @Cacheable(cacheNames = [ABAC])
     fun harLeseTilgang(navIdent: String, deltakerFnr: String): Boolean {
+        // En funksjon kan ikke både være cacheable og retryable og oppføre seg som forventet
+        // så vi skiller ut selve abac-kallet til en egen klasse
+        val abacResponse = abacApi.kall(navIdent, deltakerFnr)
+        return abacResponse.response.decision == "Permit"
+    }
+}
+
+@Component
+class AbacApi(
+    @Qualifier("anonymProxyRestTemplate") val restTemplate: RestTemplate,
+    val abacConfig: AbacConfig
+) {
+    private val log: Logger = LoggerFactory.getLogger(javaClass)
+    @Retryable
+    fun kall(navIdent: String, deltakerFnr: String): AbacResponse {
         val body = """
             {
               "Request": {
@@ -74,8 +95,14 @@ class AbacTilgangsstyringService(
         headers["Nav-Call-Id"] = UUID.randomUUID().toString()
         headers["Content-Type"] = "application/json"
         val request = HttpEntity(body, headers)
-        val abacResponse = restTemplate.postForObject<AbacResponse>(abacConfig.uri, request);
-        return abacResponse.response.decision == "Permit"
+        return restTemplate.postForObject<AbacResponse>(abacConfig.uri, request);
+    }
+
+    // Signatur må matche abacKall (også returtype!), pluss et exception-argument først
+    @Recover
+    protected fun recover(e: Exception, navIdent: String, deltakerFnr: String): AbacResponse {
+        log.error("ABAC-kall feilet", e)
+        throw e;
     }
 }
 

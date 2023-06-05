@@ -9,12 +9,26 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import java.lang.RuntimeException
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
 
 internal class RefusjonTest {
 
+    @Test
+    fun `sistEndret skal ikke kaste en exception om ny instance er etter nåværende sistEndret`(){
+        val refusjon = enRefusjon()
+        refusjon.sistEndret = Instant.now()
+        assertDoesNotThrow { refusjon.sjekkSistEndret(Instant.now().plusSeconds(2)) }
+    }
+
+    @Test
+    fun `sistEndret skal KASTE en exception om ny instance er FØR nåværende sistEndret`(){
+        val refusjon = enRefusjon()
+        refusjon.sistEndret = Instant.now()
+        assertThrows<SamtidigeEndringerException> { refusjon.sjekkSistEndret(Instant.now().minusSeconds(2)) }
+    }
 
     @Test
     fun `kan sette status til UTBETALING_FEILET når refusjon har status SENDT_KRAV eller UTBETALT`() {

@@ -84,6 +84,8 @@ class ArbeidsgiverRefusjonController(
         return arbeidsgiver.finnRefusjon(id)
     }
 
+
+    //TODO: SIST ENDRET @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE)  sistEndret: Instant
     @PostMapping("/{id}/endre-bruttolønn")
     @Transactional
     fun endreBruttolønn(@PathVariable id: String, @RequestBody request: EndreBruttolønnRequest) {
@@ -117,9 +119,12 @@ class ArbeidsgiverRefusjonController(
 
     @PostMapping("/{id}/set-inntektslinje-opptjent-i-periode")
     @Transactional
-    fun endreRefundertInntekslinje(@PathVariable id: String, @RequestBody request: EndreRefundertInntektslinjeRequest) {
+    fun endreRefundertInntekslinje(@PathVariable id: String,
+                                   @RequestBody request: EndreRefundertInntektslinjeRequest,
+                                   @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE)  sistEndret: Instant) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
         arbeidsgiver.setInntektslinjeTilOpptjentIPeriode(
+            sistEndret,
             refusjonId = id,
             inntekslinjeId = request.inntektslinjeId,
             erOpptjentIPeriode = request.erOpptjentIPeriode
@@ -128,8 +133,7 @@ class ArbeidsgiverRefusjonController(
 
     @PostMapping("/{id}/godkjenn")
     @Transactional
-    fun godkjenn(@PathVariable id: String,
-                 @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE)  sistEndret: Instant
+    fun godkjenn(@PathVariable id: String,@RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE)  sistEndret: Instant
     ) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
         arbeidsgiver.godkjenn(sistEndret,id)
@@ -137,8 +141,10 @@ class ArbeidsgiverRefusjonController(
 
     @PostMapping("/{id}/merk-for-hent-inntekter-frem")
     @Transactional
-    fun merkForHentInntekterFrem(@PathVariable id: String, @RequestBody request: MerkInntekterFremRequest) {
+    fun merkForHentInntekterFrem(@PathVariable id: String,
+                                 @RequestBody request: MerkInntekterFremRequest,
+                                 @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-        arbeidsgiver.merkForHentInntekterFrem(id, request.merking)
+        arbeidsgiver.merkForHentInntekterFrem(sistEndret,id, request.merking)
     }
 }

@@ -456,7 +456,7 @@ fun Refusjon.medInntektsgrunnlag(
 }
 
 fun Refusjon.medSendtKravFraArbeidsgiver(): Refusjon {
-    this.godkjennForArbeidsgiver("")
+    this.godkjennForArbeidsgiver(Now.instant(),"")
     return this
 }
 

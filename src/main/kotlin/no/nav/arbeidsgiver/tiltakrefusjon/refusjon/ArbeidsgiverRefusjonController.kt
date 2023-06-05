@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page
 import org.springframework.http.*
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
+import java.time.Instant
 
 
 const val REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON = "/api/arbeidsgiver/refusjon"
@@ -127,9 +128,11 @@ class ArbeidsgiverRefusjonController(
 
     @PostMapping("/{id}/godkjenn")
     @Transactional
-    fun godkjenn(@PathVariable id: String) {
+    fun godkjenn(@PathVariable id: String,
+                 @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE)  sistEndret: Instant
+    ) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-        arbeidsgiver.godkjenn(id)
+        arbeidsgiver.godkjenn(sistEndret,id)
     }
 
     @PostMapping("/{id}/merk-for-hent-inntekter-frem")

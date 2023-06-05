@@ -29,6 +29,26 @@
       "priority": 2,
       "request": {
         "method": "POST",
+        "urlPattern": "/abac-tilgangstyring",
+        "bodyPatterns": [
+          {
+            "matchesJsonPath": "$[?(@.Request.Resource[0].Attribute[2].Value == \"40404040404\")]",
+            "ignoreArrayOrder": true,
+            "ignoreExtraElements": true
+          }
+        ]
+      },
+      "response": {
+        "status": 404,
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "priority": 3,
+      "request": {
+        "method": "POST",
         "urlPattern": "/abac-tilgangstyring"
       },
       "response": {

@@ -21,6 +21,8 @@ class IntegrasjonerMockServer(@Value("\${wiremock.port}") val wiremockPort: Int)
         server.start()
     }
 
+    fun getServer() = server
+
     override fun destroy() {
         server.stop()
     }

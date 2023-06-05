@@ -33,7 +33,7 @@ class Refusjon(
     @Id
     val id: String = ULID.random()
 
-    var sistEndret: Instant = Now.instant()
+    var sistEndret: Instant? = null
 
     // Fristen er satt til 2 mnd ihht reimplementation. Hvis etterregistrert 2 mnd etter godkjent tidspunkt av beslutter
     var fristForGodkjenning: LocalDate = lagFristForGodkjenning()
@@ -125,16 +125,13 @@ class Refusjon(
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
 
         val harGjortBeregning = this.refusjonsgrunnlag.oppgiInntektsgrunnlag(inntektsgrunnlag, gjeldendeInntektsgrunnlag)
-
         if (harGjortBeregning) {
             registerEvent(BeregningUtført(this))
         }
-        sistEndretNå()
     }
 
     fun oppgiBedriftKontonummer(bedrifKontonummer: String?) {
         refusjonsgrunnlag.oppgiBedriftKontonummer(bedrifKontonummer)
-        sistEndretNå()
     }
 
     fun endreBruttolønn(inntekterKunFraTiltaket: Boolean?, bruttoLønn: Int?) {
@@ -152,10 +149,9 @@ class Refusjon(
         refusjonsgrunnlag.bedriftKid = bedriftKID
     }
 
-    fun godkjennForArbeidsgiver(sistEndret:Instant,utførtAv: String) {
+    fun godkjennForArbeidsgiver(utførtAv: String) {
         oppdaterStatus()
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
-        sjekkSistEndret(sistEndret)
 
         if(!refusjonsgrunnlag.bedriftKid?.trim().isNullOrEmpty()){
             KidValidator(refusjonsgrunnlag.bedriftKid)
@@ -185,7 +181,6 @@ class Refusjon(
         }
 
         registerEvent(RefusjonEndretStatus(this))
-        sistEndretNå()
     }
 
     fun annuller() {
@@ -327,9 +322,8 @@ class Refusjon(
         unntakOmInntekterFremitid = merking
     }
 
-    fun merkForHentInntekterFrem(sistEndret: Instant,merking: Boolean, utførtAv: String) {
+    fun merkForHentInntekterFrem(merking: Boolean, utførtAv: String) {
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
-        sjekkSistEndret(sistEndret)
         if (unntakOmInntekterFremitid > 0) {
             throw FeilkodeException(Feilkode.HAR_ALLERDE_UNNTAK_OM_INNTEKTER_2_MND_FREM)
         }
@@ -339,17 +333,13 @@ class Refusjon(
         } else {
             hentInntekterLengerFrem = null
         }
-
         registerEvent(MerketForInntekterFrem(this, merking, utførtAv))
-        sistEndretNå()
     }
 
-    fun setInntektslinjeTilOpptjentIPeriode(sistEndret:Instant,inntekslinjeId: String, erOpptjentIPeriode: Boolean) {
+    fun setInntektslinjeTilOpptjentIPeriode(inntekslinjeId: String, erOpptjentIPeriode: Boolean) {
         oppdaterStatus()
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
-        sjekkSistEndret(sistEndret)
         var harGjortBeregning  = refusjonsgrunnlag.setInntektslinjeTilOpptjentIPeriode(inntekslinjeId, erOpptjentIPeriode)
-        sistEndretNå()
         if (harGjortBeregning) {
             registerEvent(BeregningUtført(this))
         }
@@ -365,12 +355,8 @@ class Refusjon(
     }
 
     fun sjekkSistEndret(sistEndret: Instant?) {
-        if (sistEndret != null && sistEndret !== this.sistEndret && sistEndret.isBefore(this.sistEndret)) {
+        if (sistEndret == null || sistEndret.isBefore(this.sistEndret)) {
             throw SamtidigeEndringerException()
         }
-    }
-
-    private fun sistEndretNå() {
-        sistEndret = Now.instant()
     }
 }

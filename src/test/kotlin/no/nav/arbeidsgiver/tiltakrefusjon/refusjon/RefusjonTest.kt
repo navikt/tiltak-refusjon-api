@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
+import java.lang.RuntimeException
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -90,25 +91,25 @@ internal class RefusjonTest {
         refusjon.endreBruttolønn(true, null)
 
         // 1 inntektslinje er ikke tatt stilling til
-        assertFeilkode(Feilkode.IKKE_TATT_STILLING_TIL_ALLE_INNTEKTSLINJER) { refusjon.godkjennForArbeidsgiver(Now.instant(),"") }
+        assertFeilkode(Feilkode.IKKE_TATT_STILLING_TIL_ALLE_INNTEKTSLINJER) { refusjon.godkjennForArbeidsgiver("") }
 
         // Tar stilling til alle inntektslinjer
-        refusjon.setInntektslinjeTilOpptjentIPeriode(Now.instant(),enInntektslinjeIkkeTattStillingTilOpptjening.id, true)
-        refusjon.godkjennForArbeidsgiver(Now.instant(),"")
+        refusjon.setInntektslinjeTilOpptjentIPeriode(enInntektslinjeIkkeTattStillingTilOpptjening.id, true)
+        refusjon.godkjennForArbeidsgiver("")
         assertThat(refusjon.godkjentAvArbeidsgiver).isNotNull
     }
 
     @Test
     fun `kan ikke godkjenne for ag uten beregning`() {
         val refusjon = enRefusjon()
-        assertFeilkode(Feilkode.INGEN_INNTEKTER) { refusjon.godkjennForArbeidsgiver(Now.instant(),"") }
+        assertFeilkode(Feilkode.INGEN_INNTEKTER) { refusjon.godkjennForArbeidsgiver("") }
     }
 
     @Test
     fun `kan ikke godkjenne for invalid KID`() {
         val refusjon = enRefusjon().medBedriftKontonummer().medInntekterKunFraTiltaket().medInntektsgrunnlag()
         refusjon.refusjonsgrunnlag.bedriftKid = "INVALID KID"
-        assertThrows<FeilkodeException>{refusjon.godkjennForArbeidsgiver(Now.instant(),"")}
+        assertThrows<FeilkodeException>{refusjon.godkjennForArbeidsgiver("")}
 
     }
 
@@ -116,14 +117,14 @@ internal class RefusjonTest {
     fun `kan ikke godkjenne for TOM invalid KID`() {
         val refusjon = enRefusjon().medBedriftKontonummer().medInntekterKunFraTiltaket().medInntektsgrunnlag()
         refusjon.refusjonsgrunnlag.bedriftKid = ""
-        assertDoesNotThrow {refusjon.godkjennForArbeidsgiver(Now.instant(),"")}
+        assertDoesNotThrow {refusjon.godkjennForArbeidsgiver("")}
 
     }
 
     @Test
     fun `kan godkjenne for ag med beregning`() {
         val refusjon = enRefusjon().medBedriftKontonummer().medInntekterKunFraTiltaket().medInntektsgrunnlag()
-        refusjon.godkjennForArbeidsgiver(Now.instant(),"")
+        refusjon.godkjennForArbeidsgiver("")
         assertThat(refusjon.godkjentAvArbeidsgiver).isNotNull
         assertThat(refusjon.status).isEqualTo(RefusjonStatus.SENDT_KRAV)
     }
@@ -131,7 +132,7 @@ internal class RefusjonTest {
     @Test
     fun `kan ikke godkjenne for ag to ganger`() {
         val refusjon = enRefusjon().medInntekterKunFraTiltaket().medBedriftKontonummer().medInntektsgrunnlag().medSendtKravFraArbeidsgiver()
-        assertFeilkode(Feilkode.UGYLDIG_STATUS) { refusjon.godkjennForArbeidsgiver(Now.instant(),"") }
+        assertFeilkode(Feilkode.UGYLDIG_STATUS) { refusjon.godkjennForArbeidsgiver("") }
     }
 
     @Test
@@ -152,7 +153,7 @@ internal class RefusjonTest {
                 tilskuddTom = LocalDate.of(2021, 6, 30)
             )
         ).medInntekterKunFraTiltaket().medBedriftKontonummer().medInntektsgrunnlag()
-        refusjon.godkjennForArbeidsgiver(Now.instant(),"")
+        refusjon.godkjennForArbeidsgiver("")
         Now.resetClock()
         assertThat(refusjon.godkjentAvArbeidsgiver).isNotNull
         assertThat(refusjon.status).isEqualTo(RefusjonStatus.SENDT_KRAV)
@@ -169,7 +170,7 @@ internal class RefusjonTest {
             )
         ).medInntektsgrunnlag()
         Now.resetClock()
-        assertFeilkode(Feilkode.UGYLDIG_STATUS) { refusjon.godkjennForArbeidsgiver(Now.instant(),"") }
+        assertFeilkode(Feilkode.UGYLDIG_STATUS) { refusjon.godkjennForArbeidsgiver("") }
     }
 
     @Test
@@ -234,7 +235,7 @@ internal class RefusjonTest {
             )
         ).medInntekterKunFraTiltaket().medInntektsgrunnlag()
         refusjon.oppgiBedriftKontonummer("10000008145")
-        refusjon.godkjennForArbeidsgiver(Now.instant(),"12345678901")
+        refusjon.godkjennForArbeidsgiver("12345678901")
         assertThat(refusjon.status).isEqualTo(RefusjonStatus.GODKJENT_MINUSBELØP)
     }
 
@@ -248,7 +249,7 @@ internal class RefusjonTest {
             )
         ).medInntekterKunFraTiltaket().medInntektsgrunnlag()
         refusjon.oppgiBedriftKontonummer("10000008145")
-        refusjon.godkjennForArbeidsgiver(Now.instant(),"12345678901")
+        refusjon.godkjennForArbeidsgiver("12345678901")
         assertThat(refusjon.status).isEqualTo(RefusjonStatus.GODKJENT_NULLBELØP)
     }
 
@@ -290,9 +291,9 @@ internal class RefusjonTest {
                 tilskuddTom = Now.localDate().minusDays(1)
             )
         ).medInntekterKunFraTiltaket().medInntektsgrunnlag()
-        assertFeilkode(Feilkode.INGEN_BEDRIFTKONTONUMMER) { refusjon.godkjennForArbeidsgiver(Now.instant(),"") }
+        assertFeilkode(Feilkode.INGEN_BEDRIFTKONTONUMMER) { refusjon.godkjennForArbeidsgiver("") }
         refusjon.oppgiBedriftKontonummer("10000008145")
-        refusjon.godkjennForArbeidsgiver(Now.instant(),"")
+        refusjon.godkjennForArbeidsgiver("")
         assertThat(refusjon.status).isEqualTo(RefusjonStatus.SENDT_KRAV)
     }
 
@@ -386,7 +387,7 @@ internal class RefusjonTest {
     internal fun `merk refusjon for henting av inntekt frem skal ikke gå når den allerde er merket med unntak om 2 måneder av saksbehandler`() {
         val refusjon = enRefusjon().medInntektsgrunnlag().medBedriftKontonummer()
         refusjon.merkForUnntakOmInntekterToMånederFrem(2)
-        assertFeilkode(Feilkode.HAR_ALLERDE_UNNTAK_OM_INNTEKTER_2_MND_FREM) { refusjon.merkForHentInntekterFrem(Now.instant(),true, "") }
+        assertFeilkode(Feilkode.HAR_ALLERDE_UNNTAK_OM_INNTEKTER_2_MND_FREM) { refusjon.merkForHentInntekterFrem(true, "") }
     }
 
     @Disabled

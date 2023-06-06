@@ -32,7 +32,7 @@ data class InnloggetArbeidsgiver(
 
     fun finnAlleMedBedriftnummer(bedriftnummer: String): List<Refusjon> {
         sjekkHarTilgangTilRefusjonerForBedrift(bedriftnummer)
-        return refusjonRepository.findAllByBedriftNr(listOf(bedriftnummer))
+        return refusjonRepository.findAllByBedriftNr(bedriftnummer)
     }
 
     fun finnAlleUnderenheterTilArbeidsgiver() = this.organisasjoner

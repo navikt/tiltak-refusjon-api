@@ -12,13 +12,9 @@ import java.time.LocalDate
 
 interface RefusjonRepository : JpaRepository<Refusjon, String> {
     fun findAllByDeltakerFnr(deltakerFnr: String, paging: Pageable): Page<Refusjon>
-    fun findAllByBedriftNr(bedriftNr: String, paging: Pageable): Page<Refusjon>
-    fun findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_Enhet(enhet: String, paging: Pageable): Page<Refusjon>
-    fun findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_VeilederNavIdent(veilederNavIdent: String, paging: Pageable): Page<Refusjon>
-    fun findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_AvtaleIdAndGodkjentAvArbeidsgiverIsNotNull(avtaleId: String): List<Refusjon>
+    fun findAllByBedriftNr(bedriftNr: String): List<Refusjon>
     fun findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_TilskuddsperiodeId(tilskuddsperiodeId: String): List<Refusjon>
     fun findAllByStatus(status: RefusjonStatus): List<Refusjon>
-    fun findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_AvtaleNr(avtaleNr: Int, paging: Pageable): Page<Refusjon>
     fun findAllByFristForGodkjenningBeforeAndStatus(fristForGodkjenning: LocalDate, status: RefusjonStatus): List<Refusjon>
 
 
@@ -57,9 +53,6 @@ interface RefusjonRepository : JpaRepository<Refusjon, String> {
         tiltakstype: List<Tiltakstype>,
         paging: Pageable
     ): Page<Refusjon>
-
-
-
 
 
     @Query("select r from Refusjon r where r.bedriftNr in (:bedriftNr) and (:status is null or r.status = :status) " +

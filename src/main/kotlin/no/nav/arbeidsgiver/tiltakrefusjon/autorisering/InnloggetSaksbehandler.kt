@@ -28,7 +28,7 @@ data class InnloggetSaksbehandler(
     fun finnAlle(queryParametre: HentSaksbehandlerRefusjonerQueryParametre): Map<String, Any> {
         val pageable: Pageable = PageRequest.of(queryParametre.page, queryParametre.size, Sort.Direction.ASC, "fristForGodkjenning")
 
-        val statuser = if (queryParametre.status != null) listOf(queryParametre.status)  else RefusjonStatus.values().toList()
+        val statuser = if (queryParametre.status != null) listOf(queryParametre.status) else RefusjonStatus.values().toList()
         val tiltakstyper = if (queryParametre.tiltakstype != null) listOf(queryParametre.tiltakstype) else Tiltakstype.values().toList()
 
         val liste: Page<Refusjon> =

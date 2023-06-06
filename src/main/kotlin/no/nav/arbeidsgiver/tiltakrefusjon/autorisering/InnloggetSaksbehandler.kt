@@ -115,13 +115,6 @@ data class InnloggetSaksbehandler(
         return korreksjon
     }
 
-    private fun medLesetilgang(refusjoner: List<Refusjon>): List<Refusjon> {
-        return refusjoner
-            .filter {
-                abacTilgangsstyringService.harLeseTilgang(identifikator, it.deltakerFnr)
-            }
-    }
-
     private fun sjekkLesetilgang(refusjon: Refusjon) {
         if (!abacTilgangsstyringService.harLeseTilgang(identifikator, refusjon.deltakerFnr)) {
             throw TilgangskontrollException()

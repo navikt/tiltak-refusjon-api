@@ -3,6 +3,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBrukerService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.ForlengFristRequest
 import no.nav.security.token.support.core.api.ProtectedWithClaims
+import org.springframework.data.domain.Page
 import org.springframework.web.bind.annotation.*
 
 const val REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON = "/api/saksbehandler/refusjon"
@@ -28,7 +29,7 @@ class SaksbehandlerRefusjonController(
     val innloggetBrukerService: InnloggetBrukerService,
 ) {
     @GetMapping
-    fun hentAlle(queryParametre: HentSaksbehandlerRefusjonerQueryParametre): List<Refusjon> {
+    fun hentAlle(queryParametre: HentSaksbehandlerRefusjonerQueryParametre): Map<String, Any> {
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
         return saksbehandler.finnAlle(queryParametre)
     }

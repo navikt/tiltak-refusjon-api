@@ -21,6 +21,47 @@ interface RefusjonRepository : JpaRepository<Refusjon, String> {
     fun findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_AvtaleNr(avtaleNr: Int, paging: Pageable): Page<Refusjon>
     fun findAllByFristForGodkjenningBeforeAndStatus(fristForGodkjenning: LocalDate, status: RefusjonStatus): List<Refusjon>
 
+
+    // veilederIdent
+    fun findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_VeilederNavIdentAndStatusInAndRefusjonsgrunnlag_Tilskuddsgrunnlag_TiltakstypeIn(
+        veilederNavIdent: String,
+        status: List<RefusjonStatus>,
+        tiltakstype: List<Tiltakstype>,
+        paging: Pageable
+    ): Page<Refusjon>
+    // DeltakerFnr
+    fun findAllByDeltakerFnrAndStatusInAndRefusjonsgrunnlag_Tilskuddsgrunnlag_TiltakstypeIn(
+        deltakerFnr: String,
+        status: List<RefusjonStatus>,
+        tiltakstype: List<Tiltakstype>,
+        paging: Pageable
+    ): Page<Refusjon>
+    // BedriftNr
+    fun findAllByBedriftNrAndStatusInAndRefusjonsgrunnlag_Tilskuddsgrunnlag_TiltakstypeIn(
+        bedriftNr: String,
+        status: List<RefusjonStatus>,
+        tiltakstype: List<Tiltakstype>,
+        paging: Pageable
+    ): Page<Refusjon>
+    // Enhet
+    fun findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_EnhetAndStatusInAndRefusjonsgrunnlag_Tilskuddsgrunnlag_TiltakstypeIn(
+        enhet: String,
+        status: List<RefusjonStatus>,
+        tiltakstype: List<Tiltakstype>,
+        paging: Pageable
+    ): Page<Refusjon>
+    // AvtaleNr
+    fun findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_AvtaleNrAndStatusInAndRefusjonsgrunnlag_Tilskuddsgrunnlag_TiltakstypeIn(
+        avtaleNr: Int,
+        status: List<RefusjonStatus>,
+        tiltakstype: List<Tiltakstype>,
+        paging: Pageable
+    ): Page<Refusjon>
+
+
+
+
+
     @Query("select r from Refusjon r where r.bedriftNr in (:bedriftNr) and (:status is null or r.status = :status) " +
             "and (:tiltakstype is null or r.refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype = :tiltakstype) " +
             "order by (CASE WHEN r.status = 'KLAR_FOR_INNSENDING' THEN 0 else 1 END)," +

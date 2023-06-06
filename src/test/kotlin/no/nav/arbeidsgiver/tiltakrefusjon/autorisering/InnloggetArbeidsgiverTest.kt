@@ -12,6 +12,8 @@ import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkj
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.varsling.VarslingRepository
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -19,6 +21,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock
 import org.springframework.test.context.ActiveProfiles
 import java.time.LocalDateTime
+import java.time.YearMonth
 import java.time.temporal.TemporalAdjusters
 
 @SpringBootTest(properties = ["NAIS_APP_IMAGE=test"])
@@ -32,8 +35,7 @@ internal class InnloggetArbeidsgiverTest(
     @Autowired
     val varslingRepository: VarslingRepository,
 ) {
-    @SpykBean
-    lateinit var inntektskomponentService: InntektskomponentService
+    @SpykBean lateinit var inntektskomponentService: InntektskomponentService
     @MockkBean lateinit var altinnTilgangsstyringService: AltinnTilgangsstyringService
     @MockkBean lateinit var korreksjonRepository: KorreksjonRepository
     @MockkBean lateinit var eregClient: EregClient
@@ -42,6 +44,117 @@ internal class InnloggetArbeidsgiverTest(
         varslingRepository.deleteAll()
         refusjonRepository.deleteAll()
     }
+
+    @Test
+    fun finnRefusjonMedUlikeInntenkter() {
+        val deltakerFnr = "00000000000"
+        val tilskuddMelding = TilskuddsperiodeGodkjentMelding(
+            avtaleId = "1",
+            tilskuddsbeløp = 1000,
+            tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
+            deltakerEtternavn = "Mus",
+            deltakerFornavn = "Mikke",
+            arbeidsgiverFornavn = "Arne",
+            arbeidsgiverEtternavn = "Arbeidsgiver",
+            arbeidsgiverTlf = "41111111",
+            arbeidsgiveravgiftSats = 0.141,
+            avtaleInnholdId = "1",
+            bedriftNavn = "Bedriften AS",
+            bedriftNr = "999999999",
+            deltakerFnr = deltakerFnr,
+            feriepengerSats = 0.125,
+            otpSats = 0.03,
+            tilskuddFom =  Now.localDate().minusWeeks(4),
+            tilskuddTom = Now.localDate().minusDays(1),
+            tilskuddsperiodeId = "1",
+            veilederNavIdent = "X123456",
+            lønnstilskuddsprosent = 60,
+            avtaleNr = 3456,
+            løpenummer = 1,
+            resendingsnummer = null,
+            enhet = "1000",
+            godkjentTidspunkt = LocalDateTime.now()
+        )
+
+
+        val refusjon1 = refusjonService.opprettRefusjon(tilskuddMelding)!!
+
+        every { altinnTilgangsstyringService.hentTilganger(any()) } returns setOf<Organisasjon>(Organisasjon("Bedrift AS", "Bedrift type", "999999999","Org form","Status"))
+        val innloggetArbeidsgiver = InnloggetArbeidsgiver("12345678901",altinnTilgangsstyringService,refusjonRepository,korreksjonRepository,refusjonService,eregClient)
+
+        // FØRSTE FORSØK
+        val inntektslinje1 = Inntektslinje(
+            inntektType = "LOENNSINNTEKT",
+            beskrivelse = null,
+            beløp = 25000.0,
+            måned = YearMonth.now(),
+            opptjeningsperiodeFom = Now.localDate(),
+            opptjeningsperiodeTom = Now.localDate().plusDays(30)
+        )
+        val inntektslinje2 = Inntektslinje(
+            inntektType = "LOENNSINNTEKT",
+            beskrivelse = null,
+            beløp = -25000.0,
+            måned = YearMonth.now(),
+            opptjeningsperiodeFom = Now.localDate(),
+            opptjeningsperiodeTom = Now.localDate().plusDays(30)
+        )
+        val inntektslinjerFørsteGang: List<Inntektslinje> = listOf(inntektslinje1,inntektslinje2)
+        every { inntektskomponentService.hentInntekter(any(),any(),any(),any()) } returns Pair<List<Inntektslinje>, String>(
+            inntektslinjerFørsteGang,"RESPONSE JSON STRING"
+        )
+        val refusjonFunnet = innloggetArbeidsgiver.finnRefusjon(refusjon1.id)
+        assertThat(refusjonFunnet).isEqualTo(refusjon1)
+        assertEquals(2,refusjonFunnet.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.size)
+
+        val førsteInntekt = refusjonFunnet.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.first()
+        val andreInntekt = refusjonFunnet.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.toList()?.get(1)
+
+        // ANDRE FORSØK MED ULIKT INNTEKTER FRA AMELDING -> DEN SKAL IKKE SLETTE OM GAMLE INNTEKTER ER LIKE NYE
+        val inntektslinje1AndreGangKall = Inntektslinje(
+            inntektType = "LOENNSINNTEKT",
+            beskrivelse = null,
+            beløp = 25000.0,
+            måned = YearMonth.now(),
+            opptjeningsperiodeFom = Now.localDate(),
+            opptjeningsperiodeTom = Now.localDate().plusDays(30)
+        )
+        val inntektslinje2AndreGangKall = Inntektslinje(
+            inntektType = "LOENNSINNTEKT",
+            beskrivelse = null,
+            beløp = -25000.0,
+            måned = YearMonth.now(),
+            opptjeningsperiodeFom = Now.localDate(),
+            opptjeningsperiodeTom = Now.localDate().plusDays(30)
+        )
+        val inntektslinjerAndreGang: List<Inntektslinje> = listOf(inntektslinje1AndreGangKall,inntektslinje2AndreGangKall)
+        every { inntektskomponentService.hentInntekter(any(),any(),any(),any()) } returns Pair<List<Inntektslinje>, String>(
+            inntektslinjerAndreGang,"RESPONSE JSON STRING"
+        )
+
+        Now.fixedDateTime(Now.localDateTime().plusMinutes(2))
+        val refusjonFunnetAndreGangMedNyInntekterKall = innloggetArbeidsgiver.finnRefusjon(refusjon1.id)
+
+       assertTrue(refusjonFunnetAndreGangMedNyInntekterKall.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.any{ it.id == førsteInntekt!!.id }!!)
+       assertTrue(refusjonFunnetAndreGangMedNyInntekterKall.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.any{ it.id == andreInntekt!!.id }!!)
+       assertEquals(2,refusjonFunnetAndreGangMedNyInntekterKall.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.size)
+
+        // TREDJE FORSØK MED TOM INNTEKTER FRA AMELDING -> DEN SKAL DA SLETTE GAMLE INNTEKTER
+
+        every { inntektskomponentService.hentInntekter(any(),any(),any(),any()) } returns Pair<List<Inntektslinje>, String>(
+            emptyList(),"RESPONSE JSON STRING"
+        )
+
+        Now.fixedDateTime(Now.localDateTime().plusMinutes(2))
+        val refusjonFunnetTredkeGangMedNyInntekterKallSomErTOM = innloggetArbeidsgiver.finnRefusjon(refusjon1.id)
+        assertEquals(0,refusjonFunnetTredkeGangMedNyInntekterKallSomErTOM.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.size)
+
+        Now.resetClock()
+    }
+
+
+
+
     @Test
     fun finnRefusjon() {
         val deltakerFnr = "00000000000"

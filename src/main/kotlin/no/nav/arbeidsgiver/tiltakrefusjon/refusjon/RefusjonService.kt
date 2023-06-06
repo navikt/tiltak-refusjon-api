@@ -95,7 +95,7 @@ class RefusjonService(
     }
 
     fun gjørInntektsoppslag(refusjon: Refusjon) {
-        if (!refusjon.skalGjøreInntektsoppslag()) {
+        if (!refusjon.skalGjøreInntektsoppslagForKlarForInnsendingNyereEnn1Minutt()) {
             return
         }
 
@@ -110,17 +110,17 @@ class RefusjonService(
             antallEkstraMånederSomSkalSjekkes = 1
         }
         try {
-            val inntektsoppslag = inntektskomponentService.hentInntekter(
+            val nyInntektsoppslag = inntektskomponentService.hentInntekter(
                 fnr = refusjon.deltakerFnr,
                 bedriftnummerDetSøkesPå = refusjon.bedriftNr,
                 datoFra = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
                 datoTil = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom.plusMonths(antallEkstraMånederSomSkalSjekkes.toLong())
             )
-            val inntektsgrunnlag = Inntektsgrunnlag(
-                inntekter = inntektsoppslag.first,
-                respons = inntektsoppslag.second
+            val nyInntektsgrunnlag = Inntektsgrunnlag(
+                inntekter = nyInntektsoppslag.first,
+                respons = nyInntektsoppslag.second
             )
-            refusjon.oppgiInntektsgrunnlag(inntektsgrunnlag, refusjon.inntektsgrunnlag)
+            refusjon.oppgiInntektsgrunnlag(nyInntektsgrunnlag, refusjon.inntektsgrunnlag)
             refusjonRepository.save(refusjon)
         } catch (e: Exception) {
             log.error("Feil ved henting av inntekter for refusjon ${refusjon.id}", e)

@@ -6,7 +6,6 @@ import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
-import java.time.YearMonth
 import javax.persistence.*
 
 @Entity
@@ -116,7 +115,8 @@ class Refusjonsgrunnlag(
                 tidligereUtbetalt = tidligereUtbetalt,
                 korrigertBruttoLønn = endretBruttoLønn,
                 fratrekkRefunderbarSum = refunderbarBeløp,
-            forrigeRefusjonMinusBeløp = forrigeRefusjonMinusBeløp)
+                forrigeRefusjonMinusBeløp = forrigeRefusjonMinusBeløp,
+                tilskuddFom = tilskuddsgrunnlag.tilskuddFom)
             return true
         }
         return false

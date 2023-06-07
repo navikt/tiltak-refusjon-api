@@ -43,11 +43,12 @@ fun beregnRefusjonsbeløp(
     tidligereUtbetalt: Int,
     korrigertBruttoLønn: Int? = null,
     fratrekkRefunderbarSum: Int? = null,
-    forrigeRefusjonMinusBeløp: Int = 0
+    forrigeRefusjonMinusBeløp: Int = 0,
+    tilskuddFom: LocalDate
 ): Beregning {
     val kalkulertBruttoLønn = kalkulerBruttoLønn(inntekter).roundToInt()
     val lønn = if (korrigertBruttoLønn != null) minOf(korrigertBruttoLønn, kalkulertBruttoLønn) else kalkulertBruttoLønn
-    val trekkgrunnlagFerie = leggSammenTrekkGrunnlag(inntekter).roundToInt()
+    val trekkgrunnlagFerie = leggSammenTrekkGrunnlag(inntekter, tilskuddFom).roundToInt()
     val fratrekkRefunderbarBeløp = fratrekkRefunderbarSum ?: 0
     val lønnFratrukketFerie = lønn - trekkgrunnlagFerie
     val feriepenger = lønnFratrukketFerie * tilskuddsgrunnlag.feriepengerSats
@@ -86,9 +87,10 @@ fun beregnRefusjonsbeløp(
 }
 
 fun leggSammenTrekkGrunnlag(
-    inntekter: List<Inntektslinje>
+    inntekter: List<Inntektslinje>,
+    tilskuddFom: LocalDate
 ): Double =
-    inntekter.filter { it.skalTrekkesIfraInntektsgrunnlag() }
+    inntekter.filter { it.skalTrekkesIfraInntektsgrunnlag(tilskuddFom) }
         .sumOf { inntekt -> if (inntekt.beløp < 0) (inntekt.beløp * -1) else inntekt.beløp }
 
 fun kalkulerBruttoLønn(

@@ -1,10 +1,10 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.inntekt
 
 import com.github.guepardoapps.kulid.ULID
+import no.nav.arbeidsgiver.tiltakrefusjon.etInntektsgrunnlag
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -115,7 +115,8 @@ class RefusjonsberegnerTest {
             tilskuddsgrunnlagSommerJobb,
             0,
             null,
-            null
+            null,
+             tilskuddFom = LocalDate.of(2021,6,1)
         )
         val beregnetBeløpHeleInntektsgrunnlaget = 20856
         assertThat(beregning.refusjonsbeløp).isEqualTo(beregnetBeløpHeleInntektsgrunnlaget)
@@ -133,7 +134,8 @@ class RefusjonsberegnerTest {
             inntektsgrunnlagUregelmessig.inntekter.toList(),
             tilskuddsgrunnlagLønnstilskudd,
             0,
-            null
+            null,
+            tilskuddFom = LocalDate.of(2021,6,1)
         )
         val beregnetBeløpAvAntallDagerJobbetInnenforInntektsgrunnlaget = 20856
         assertThat(beregning.refusjonsbeløp).isEqualTo(beregnetBeløpAvAntallDagerJobbetInnenforInntektsgrunnlaget)

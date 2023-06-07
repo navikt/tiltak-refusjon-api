@@ -14,6 +14,7 @@ import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.YearMonth
 
 
 @DirtiesContext
@@ -143,7 +144,10 @@ class RefusjonberegnerFratrekkFerieTest(
     @Test
     fun `sjekk at leggSammenTrekkGrunnlag returnerer primiviteInt-eller-double`() {
         val etInntektsgrunnlag = etInntektsgrunnlag()
-        val leggSammenTrekkGrunnlag: Double = leggSammenTrekkGrunnlag(etInntektsgrunnlag.inntekter.toList())
+        val leggSammenTrekkGrunnlag: Double = leggSammenTrekkGrunnlag(
+            etInntektsgrunnlag.inntekter.toList(),
+            tilskuddFom = LocalDate.of(2021,6,1)
+        )
 
         assertThat(leggSammenTrekkGrunnlag).isNotNull
 

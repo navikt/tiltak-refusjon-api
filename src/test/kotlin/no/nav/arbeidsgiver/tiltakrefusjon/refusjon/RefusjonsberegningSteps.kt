@@ -102,7 +102,8 @@ class RefusjonsberegningSteps {
             inntekter = inntekstlinjer,
             tilskuddsgrunnlag = tilskuddsgrunnlag,
             tidligereUtbetalt,
-            korrigertBruttoLønn
+            korrigertBruttoLønn,
+            tilskuddFom = tilskuddsgrunnlag.tilskuddFom
         )
         assertThat(beregnet.refusjonsbeløp).isEqualByComparingTo(refusjon);
     }

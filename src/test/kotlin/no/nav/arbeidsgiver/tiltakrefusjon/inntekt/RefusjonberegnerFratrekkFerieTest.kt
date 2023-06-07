@@ -88,12 +88,30 @@ class RefusjonberegnerFratrekkFerieTest(
     }
 
     @Test
-    fun `hent inntektsoppslag som har feriefratrekk og beregn`() {
-        val TREKKFORFERIEGRUNNLAG: Int = 7500 // trekk grunnlag fra inntektoppslag
+    fun `hent inntektsoppslag som har feriefratrekk i måned som ikke er refusjonsmåned og beregn`() {
+        val TREKKFORFERIEGRUNNLAG: Int = 0 // trekk grunnlag fra inntektoppslag
 
         val tilskuddsperiodeGodkjentMelding: TilskuddsperiodeGodkjentMelding = lagEnTilskuddsperiodeGodkjentMelding(
             LocalDate.of(2021, 7, 1),
             LocalDate.of(2021, 7, 31),
+            Tiltakstype.SOMMERJOBB,
+            60000,
+            WIREMOCK_IDENT,
+            WIREMOCK_VIRKSOMHET_IDENTIFIKATOR,
+        )
+        val refusjon = opprettRefusjonOgGjørInntektoppslag(tilskuddsperiodeGodkjentMelding)
+
+        assert(refusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp == `vis utregning med feriefratrekk`(refusjon, TREKKFORFERIEGRUNNLAG))
+        assert(refusjon.refusjonsgrunnlag.beregning!!.fratrekkLønnFerie == TREKKFORFERIEGRUNNLAG)
+    }
+
+    @Test
+    fun `hent inntektsoppslag som har feriefratrekk i måned som er refusjonsmåned og beregn`() {
+        val TREKKFORFERIEGRUNNLAG: Int = 7500 // trekk grunnlag fra inntektoppslag
+
+        val tilskuddsperiodeGodkjentMelding: TilskuddsperiodeGodkjentMelding = lagEnTilskuddsperiodeGodkjentMelding(
+            LocalDate.of(2022, 6, 1),
+            LocalDate.of(2022, 6, 30),
             Tiltakstype.SOMMERJOBB,
             60000,
             WIREMOCK_IDENT,
@@ -128,8 +146,8 @@ class RefusjonberegnerFratrekkFerieTest(
         val TREKKFORFERIEGRUNNLAG: Int = -7500 * -1 // trekk grunnlag fra inntektoppslag
 
         val tilskuddsperiodeGodkjentMelding: TilskuddsperiodeGodkjentMelding = lagEnTilskuddsperiodeGodkjentMelding(
-            LocalDate.of(2021, 9, 1),
-            LocalDate.of(2021, 9, 30),
+            LocalDate.of(2022, 6, 1),
+            LocalDate.of(2022, 6, 30),
             Tiltakstype.SOMMERJOBB,
             60000,
             WIREMOCK_IDENT,

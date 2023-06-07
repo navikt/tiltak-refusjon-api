@@ -119,7 +119,3 @@ tiltak-refusjon:
     uri: "https://graph.microsoft.com/v1.0/me?$select=onPremisesSamAccountName,displayName"
   dokgen:
     uri: "http://tiltak-dokgen/template/tiltak-refusjon/create-pdf"
-  statusjobb:
-    fixed-delay: 3600000
-  varslingsjobb:
-    fixed-delay: 3600000

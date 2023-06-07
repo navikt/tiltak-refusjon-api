@@ -23,7 +23,7 @@ class VarslingJobb(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    @Scheduled(fixedDelayString = "\${tiltak-refusjon.varslingsjobb.fixed-delay}")
+    @Scheduled(cron = "0 0 2,4 * * *")
     fun sjekkForRevarsling() {
 
         if (!leaderPodCheck.isLeaderPod()) {

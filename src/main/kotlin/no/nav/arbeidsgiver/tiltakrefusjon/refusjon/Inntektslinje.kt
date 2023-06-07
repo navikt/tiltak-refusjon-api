@@ -36,8 +36,11 @@ data class Inntektslinje(
         inntektType == "LOENNSINNTEKT" && inkluderteLønnsbeskrivelser.contains(beskrivelse)
 
     @JsonProperty
-    fun skalTrekkesIfraInntektsgrunnlag() =
-        inntektType == "LOENNSINNTEKT" && inkluderteFratrekkbeskrivelser.contains(beskrivelse)
+    fun skalTrekkesIfraInntektsgrunnlag(tilskuddFom: LocalDate): Boolean {
+        val skalTrekkes = inntektType == "LOENNSINNTEKT" && inkluderteFratrekkbeskrivelser.contains(beskrivelse) && måned == YearMonth.from(tilskuddFom)
+        return skalTrekkes
+    }
+
 }
 
 val inkluderteFratrekkbeskrivelser = listOf<String>("trekkILoennForFerie")

@@ -11,15 +11,49 @@ import java.time.LocalDate
 
 
 interface RefusjonRepository : JpaRepository<Refusjon, String> {
-    fun findAllByDeltakerFnr(deltakerFnr: String): List<Refusjon>
+    fun findAllByDeltakerFnr(deltakerFnr: String, paging: Pageable): Page<Refusjon>
     fun findAllByBedriftNr(bedriftNr: String): List<Refusjon>
-    fun findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_Enhet(enhet: String): List<Refusjon>
-    fun findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_VeilederNavIdent(veilederNavIdent: String): List<Refusjon>
-    fun findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_AvtaleIdAndGodkjentAvArbeidsgiverIsNotNull(avtaleId: String): List<Refusjon>
     fun findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_TilskuddsperiodeId(tilskuddsperiodeId: String): List<Refusjon>
     fun findAllByStatus(status: RefusjonStatus): List<Refusjon>
-    fun findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_AvtaleNr(avtaleNr: Int): List<Refusjon>
     fun findAllByFristForGodkjenningBeforeAndStatus(fristForGodkjenning: LocalDate, status: RefusjonStatus): List<Refusjon>
+
+
+    // veilederIdent
+    fun findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_VeilederNavIdentAndStatusInAndRefusjonsgrunnlag_Tilskuddsgrunnlag_TiltakstypeIn(
+        veilederNavIdent: String,
+        status: List<RefusjonStatus>,
+        tiltakstype: List<Tiltakstype>,
+        paging: Pageable
+    ): Page<Refusjon>
+    // DeltakerFnr
+    fun findAllByDeltakerFnrAndStatusInAndRefusjonsgrunnlag_Tilskuddsgrunnlag_TiltakstypeIn(
+        deltakerFnr: String,
+        status: List<RefusjonStatus>,
+        tiltakstype: List<Tiltakstype>,
+        paging: Pageable
+    ): Page<Refusjon>
+    // BedriftNr
+    fun findAllByBedriftNrAndStatusInAndRefusjonsgrunnlag_Tilskuddsgrunnlag_TiltakstypeIn(
+        bedriftNr: String,
+        status: List<RefusjonStatus>,
+        tiltakstype: List<Tiltakstype>,
+        paging: Pageable
+    ): Page<Refusjon>
+    // Enhet
+    fun findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_EnhetAndStatusInAndRefusjonsgrunnlag_Tilskuddsgrunnlag_TiltakstypeIn(
+        enhet: String,
+        status: List<RefusjonStatus>,
+        tiltakstype: List<Tiltakstype>,
+        paging: Pageable
+    ): Page<Refusjon>
+    // AvtaleNr
+    fun findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_AvtaleNrAndStatusInAndRefusjonsgrunnlag_Tilskuddsgrunnlag_TiltakstypeIn(
+        avtaleNr: Int,
+        status: List<RefusjonStatus>,
+        tiltakstype: List<Tiltakstype>,
+        paging: Pageable
+    ): Page<Refusjon>
+
 
     @Query("select r from Refusjon r where r.bedriftNr in (:bedriftNr) and (:status is null or r.status = :status) " +
             "and (:tiltakstype is null or r.refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype = :tiltakstype) " +

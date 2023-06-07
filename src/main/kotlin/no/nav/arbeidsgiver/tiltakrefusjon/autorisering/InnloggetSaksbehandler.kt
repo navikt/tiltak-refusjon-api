@@ -7,6 +7,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.data.domain.*
 import org.springframework.data.repository.findByIdOrNull
 import java.time.LocalDate
 
@@ -24,29 +25,61 @@ data class InnloggetSaksbehandler(
     @JsonIgnore
     val log: Logger = LoggerFactory.getLogger(javaClass)
 
-    fun finnAlle(queryParametre: HentSaksbehandlerRefusjonerQueryParametre): List<Refusjon> {
-        var liste =
-            if (!queryParametre.bedriftNr.isNullOrBlank()) {
-                refusjonRepository.findAllByBedriftNr(queryParametre.bedriftNr)
-            } else if (!queryParametre.veilederNavIdent.isNullOrBlank()) {
-                refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_VeilederNavIdent(queryParametre.veilederNavIdent)
-            } else if (!queryParametre.deltakerFnr.isNullOrBlank()) {
-                refusjonRepository.findAllByDeltakerFnr(queryParametre.deltakerFnr)
-            } else if (!queryParametre.enhet.isNullOrBlank()) {
-                refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_Enhet(queryParametre.enhet)
-            } else if (queryParametre.avtaleNr !== null) {
-                refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_AvtaleNr(queryParametre.avtaleNr)
-            } else {
-                emptyList()
-            }
+    fun finnAlle(queryParametre: HentSaksbehandlerRefusjonerQueryParametre): Map<String, Any> {
+        val pageable: Pageable = PageRequest.of(queryParametre.page, queryParametre.size, Sort.Direction.ASC, "fristForGodkjenning")
 
-        if (queryParametre.status != null) {
-            liste = liste.filter { queryParametre.status == it.status }
-        }
-        if (queryParametre.tiltakstype != null) {
-            liste = liste.filter { queryParametre.tiltakstype == it.refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype }
-        }
-        return medLesetilgang(liste)
+        val statuser = if (queryParametre.status != null) listOf(queryParametre.status) else RefusjonStatus.values().toList()
+        val tiltakstyper = if (queryParametre.tiltakstype != null) listOf(queryParametre.tiltakstype) else Tiltakstype.values().toList()
+
+        val liste: Page<Refusjon> =
+                if (!queryParametre.veilederNavIdent.isNullOrBlank()) {
+                    refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_VeilederNavIdentAndStatusInAndRefusjonsgrunnlag_Tilskuddsgrunnlag_TiltakstypeIn(
+                            queryParametre.veilederNavIdent,
+                            statuser,
+                            tiltakstyper,
+                            pageable
+                    )
+                } else if (!queryParametre.deltakerFnr.isNullOrBlank()) {
+                    refusjonRepository.findAllByDeltakerFnrAndStatusInAndRefusjonsgrunnlag_Tilskuddsgrunnlag_TiltakstypeIn(
+                            queryParametre.deltakerFnr,
+                            statuser,
+                            tiltakstyper,
+                            pageable
+                    )
+                } else if (!queryParametre.bedriftNr.isNullOrBlank()) {
+                    refusjonRepository.findAllByBedriftNrAndStatusInAndRefusjonsgrunnlag_Tilskuddsgrunnlag_TiltakstypeIn(
+                            queryParametre.bedriftNr,
+                            statuser,
+                            tiltakstyper,
+                            pageable
+                    )
+                } else if (!queryParametre.enhet.isNullOrBlank()) {
+                    refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_EnhetAndStatusInAndRefusjonsgrunnlag_Tilskuddsgrunnlag_TiltakstypeIn(
+                            queryParametre.enhet,
+                            statuser,
+                            tiltakstyper,
+                            pageable
+                    )
+                } else if (queryParametre.avtaleNr != null) {
+                    refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_AvtaleNrAndStatusInAndRefusjonsgrunnlag_Tilskuddsgrunnlag_TiltakstypeIn(
+                            queryParametre.avtaleNr!!,
+                            statuser,
+                            tiltakstyper,
+                            pageable
+                    )
+                } else {
+                    PageImpl(emptyList())
+                }
+
+        val refusjonerMedTilgang = liste.content.filter { abacTilgangsstyringService.harLeseTilgang(identifikator, it.deltakerFnr) }
+        val response = mapOf(
+            Pair("refusjoner", refusjonerMedTilgang),
+            Pair("size", liste.size),
+            Pair("currentPage", liste.number),
+            Pair("totalItems", liste.totalElements),
+            Pair("totalPages", liste.totalPages)
+        )
+        return response
     }
 
     fun finnRefusjon(id: String): Refusjon {
@@ -80,13 +113,6 @@ data class InnloggetSaksbehandler(
             korreksjonRepository.save(korreksjon)
         }
         return korreksjon
-    }
-
-    private fun medLesetilgang(refusjoner: List<Refusjon>): List<Refusjon> {
-        return refusjoner
-            .filter {
-                abacTilgangsstyringService.harLeseTilgang(identifikator, it.deltakerFnr)
-            }
     }
 
     private fun sjekkLesetilgang(refusjon: Refusjon) {

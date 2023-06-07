@@ -15,6 +15,8 @@ import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.test.context.ActiveProfiles
 import java.time.LocalDate
@@ -266,7 +268,8 @@ class RefusjonServiceTest(
             godkjentTidspunkt = LocalDateTime.now()
         )
         refusjonService.opprettRefusjon(tilskuddMelding)
-        var lagretRefusjon = refusjonRepository.findAllByDeltakerFnr(deltakerFnr)[0]
+        val pageable: Pageable = PageRequest.of(0, 100)
+        var lagretRefusjon = refusjonRepository.findAllByDeltakerFnr(deltakerFnr, pageable).content[0]
         assertThat(lagretRefusjon.tilskuddsgrunnlag).isNotNull
         assertThat(lagretRefusjon.status).isEqualTo(RefusjonStatus.FOR_TIDLIG)
 

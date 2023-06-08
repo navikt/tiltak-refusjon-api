@@ -1,4 +1,5 @@
 spring:
+
   kafka:
     bootstrap-servers: ${KAFKA_BROKERS}
     properties:
@@ -42,14 +43,14 @@ management:
           autotime:
             enabled: true
     enable.executor: true
-  health :
+  health:
     refresh:
       enabled: false
     diskspace:
       enabled: false
   endpoint:
     health:
-      show-details : always
+      show-details: always
   endpoints:
     web:
       exposure:

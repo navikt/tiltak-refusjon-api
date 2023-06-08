@@ -1,3 +1,13 @@
+spring:
+  sleuth:
+    otel:
+      exporter:
+        otlp:
+          enabled: true
+          endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT}
+      config:
+        trace-id-ratio-based: 1.0
+
 tiltak-refusjon:
   ereg:
     uri: https://tiltak-proxy.dev-fss-pub.nais.io/ereg

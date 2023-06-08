@@ -7,7 +7,7 @@ spring:
           endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT}
       config:
         trace-id-ratio-based: 1.0
-
+        instrumentation-name: tiltak-refusjon-api
 tiltak-refusjon:
   ereg:
     uri: https://tiltak-proxy.dev-fss-pub.nais.io/ereg

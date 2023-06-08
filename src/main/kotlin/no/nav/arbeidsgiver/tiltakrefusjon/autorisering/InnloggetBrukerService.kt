@@ -1,5 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.autorisering
 
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
 import no.nav.arbeidsgiver.tiltakrefusjon.featuretoggles.FeatureToggleService
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
@@ -35,6 +36,7 @@ class InnloggetBrukerService(
         return context.tokenValidationContext.hasTokenFor("aad")
     }
 
+    @WithSpan
     fun hentInnloggetArbeidsgiver(): InnloggetArbeidsgiver {
         return when {
             erArbeidsgiver() -> {
@@ -47,6 +49,7 @@ class InnloggetBrukerService(
         }
     }
 
+    @WithSpan
     fun hentInnloggetSaksbehandler(): InnloggetSaksbehandler {
         return when {
             erSaksbehandler() -> {

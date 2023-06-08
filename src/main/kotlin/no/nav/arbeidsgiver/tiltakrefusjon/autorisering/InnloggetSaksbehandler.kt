@@ -1,6 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.autorisering
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.arbeidsgiver.tiltakrefusjon.RessursFinnesIkkeException
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
 import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterService
@@ -25,6 +26,7 @@ data class InnloggetSaksbehandler(
     @JsonIgnore
     val log: Logger = LoggerFactory.getLogger(javaClass)
 
+    @WithSpan
     fun finnAlle(queryParametre: HentSaksbehandlerRefusjonerQueryParametre): Map<String, Any> {
         val pageable: Pageable = PageRequest.of(queryParametre.page, queryParametre.size, Sort.Direction.ASC, "fristForGodkjenning")
 
@@ -82,6 +84,7 @@ data class InnloggetSaksbehandler(
         return response
     }
 
+    @WithSpan
     fun finnRefusjon(id: String): Refusjon {
         val refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(refusjon)
@@ -89,6 +92,7 @@ data class InnloggetSaksbehandler(
         return refusjon
     }
 
+    @WithSpan
     fun finnKorreksjon(id: String): Korreksjon {
         val korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(korreksjon)

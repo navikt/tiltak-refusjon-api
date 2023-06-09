@@ -1,5 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.featuretoggles
 
+import jakarta.servlet.http.HttpServletRequest
 import no.finn.unleash.DefaultUnleash
 import no.finn.unleash.Unleash
 import no.finn.unleash.util.UnleashConfig
@@ -9,7 +10,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.context.annotation.RequestScope
-import javax.servlet.http.HttpServletRequest
 
 @Configuration
 class FeatureToggleConfig {

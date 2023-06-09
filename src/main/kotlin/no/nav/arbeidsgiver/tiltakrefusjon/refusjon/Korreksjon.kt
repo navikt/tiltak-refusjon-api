@@ -9,7 +9,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.springframework.data.domain.AbstractAggregateRoot
 import java.time.Instant
 import java.util.*
-import javax.persistence.*
+import jakarta.persistence.*
 
 @Entity
 class Korreksjon(

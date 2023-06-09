@@ -31,21 +31,19 @@ class RefusjonVarselProducer(
             avtaleId = avtaleId,
             tilskuddsperiodeId = tilskuddsperiodeId,
             varselType = varselType,
-            fristForGodkjenning =  fristForGodkjenning
+            fristForGodkjenning = fristForGodkjenning
 
         )
         val meldingId = "${refusjonId}-$varselType"
         kafkaTemplate.send(Topics.TILTAK_VARSEL, meldingId, melding)
-            .addCallback(object : ListenableFutureCallback<SendResult<String?, RefusjonVarselMelding?>?> {
-                override fun onFailure(ex: Throwable) {
+            .whenComplete { it, ex ->
+                if (ex != null) {
                     log.warn(
                         "Melding med id {} kunne ikke sendes til Kafka topic {}",
                         meldingId,
                         Topics.TILTAK_VARSEL
                     )
-                }
-
-                override fun onSuccess(p0: SendResult<String?, RefusjonVarselMelding?>? ) {
+                } else {
                     log.info(
                         "Melding med id {} sendt til Kafka topic {}",
                         meldingId,
@@ -54,6 +52,7 @@ class RefusjonVarselProducer(
                     val varsling = Varsling(refusjonId, varselType, Now.localDateTime())
                     varslingRepository.save(varsling)
                 }
-            })
+
+            }
     }
 }

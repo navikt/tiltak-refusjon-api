@@ -5,7 +5,7 @@ import com.github.guepardoapps.kulid.ULID
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.YearMonthDateAttributeConverter
 import java.time.LocalDate
 import java.time.YearMonth
-import javax.persistence.*
+import jakarta.persistence.*
 
 @Entity
 @Table(name = "inntektslinje")

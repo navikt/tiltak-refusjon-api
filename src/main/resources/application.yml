@@ -22,7 +22,6 @@ spring:
   main:
     banner-mode: "off"
   datasource:
-    platform: postgres
     driver-class-name: org.postgresql.Driver
     url: "jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_DATABASE}?user=${DB_USERNAME}&password=${DB_PASSWORD}"
     hikari:
@@ -33,18 +32,12 @@ spring:
   jackson:
     serialization:
       FAIL_ON_EMPTY_BEANS: false
+  sql:
+    init:
+      platform: postgres
 
 management:
-  metrics:
-    web:
-      server:
-        request:
-          autotime:
-            enabled: true
-    enable.executor: true
-  health :
-    refresh:
-      enabled: false
+  health:
     diskspace:
       enabled: false
   endpoint:

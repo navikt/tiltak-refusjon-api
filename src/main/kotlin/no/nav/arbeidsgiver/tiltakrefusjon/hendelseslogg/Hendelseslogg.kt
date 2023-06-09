@@ -1,10 +1,10 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.hendelseslogg
 
 import com.github.guepardoapps.kulid.ULID
+import jakarta.persistence.Entity
+import jakarta.persistence.Id
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import java.time.LocalDateTime
-import javax.persistence.Entity
-import javax.persistence.Id
 
 @Entity
 class Hendelseslogg(

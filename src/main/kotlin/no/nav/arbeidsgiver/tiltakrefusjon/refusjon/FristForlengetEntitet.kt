@@ -4,8 +4,8 @@ import com.github.guepardoapps.kulid.ULID
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import java.time.LocalDateTime
 import java.time.LocalDate
-import javax.persistence.Entity
-import javax.persistence.Id
+import jakarta.persistence.Entity
+import jakarta.persistence.Id
 
 @Entity(name = "frist_forlenget")
 data class FristForlengetEntitet(val refusjonId: String, val gammelFrist: LocalDate, val nyFrist: LocalDate, val årsak: String, val utførtAv: String) {

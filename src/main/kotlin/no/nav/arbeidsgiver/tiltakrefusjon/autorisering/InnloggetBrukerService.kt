@@ -40,10 +40,12 @@ class InnloggetBrukerService(
     }
 
     fun harKorreksjonsTilgang(): Boolean {
+
         if(System.getenv("KORREKSJON_TILGANG") != null) {
-            val identerMedTilgang = System.getenv("KORREKSJON_TILGANG") as List<String>
+            val identerMedTilgang = System.getenv("KORREKSJON_TILGANG")
             if(identerMedTilgang.isNotEmpty()) {
-                return identerMedTilgang.contains(navIdent())
+                val identListe = identerMedTilgang.split(",").map { it.trim() }
+                return identListe.contains(navIdent())
             }
         }
         return false

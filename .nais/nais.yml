@@ -54,8 +54,9 @@ spec:
       tenant: {{tenant}}
       groups:
         - id: {{besluttergruppe}}
-      extra:
-        - "NAVident"
+      claims:
+        extra:
+          - "NAVident"
   tokenx:
     enabled: true
   leaderElection: true

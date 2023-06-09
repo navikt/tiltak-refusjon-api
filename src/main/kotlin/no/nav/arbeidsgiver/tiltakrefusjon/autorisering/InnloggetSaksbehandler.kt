@@ -20,7 +20,7 @@ data class InnloggetSaksbehandler(
     @JsonIgnore val refusjonService: RefusjonService,
     @JsonIgnore val inntektskomponentService: InntektskomponentService,
     @JsonIgnore val kontoregisterService: KontoregisterService,
-    @JsonIgnore val harKorreksjonTilgang: Boolean
+    val harKorreksjonTilgang: Boolean
 ) {
     @JsonIgnore
     val log: Logger = LoggerFactory.getLogger(javaClass)

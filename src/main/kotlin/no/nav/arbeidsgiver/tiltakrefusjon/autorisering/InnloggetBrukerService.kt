@@ -1,12 +1,12 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.autorisering
 
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
-import no.nav.arbeidsgiver.tiltakrefusjon.featuretoggles.FeatureToggleService
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
 import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterService
 import no.nav.arbeidsgiver.tiltakrefusjon.organisasjon.EregClient
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
+import org.apache.kafka.common.protocol.types.Field.Bool
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
@@ -22,8 +22,7 @@ class InnloggetBrukerService(
     val refusjonService: RefusjonService,
     val inntektskomponentService: InntektskomponentService,
     val kontoregisterService: KontoregisterService,
-    val eregClient: EregClient,
-    val featureToggleService: FeatureToggleService
+    val eregClient: EregClient
 ) {
     var logger: Logger = LoggerFactory.getLogger(javaClass)
 
@@ -33,6 +32,33 @@ class InnloggetBrukerService(
 
     fun erSaksbehandler(): Boolean {
         return context.tokenValidationContext.hasTokenFor("aad")
+    }
+
+    fun erBeslutter(): Boolean {
+        val groupClaim  = context.tokenValidationContext.getClaims("aad").get("groups") as List<String>
+        return erSaksbehandler() && groupClaim.contains("1a1d2745-952f-4a0f-839f-9530145b1d4a")
+    }
+
+    fun harKorreksjonsTilgang(): Boolean {
+        if(System.getenv("KORREKSJON_TILGANG") != null) {
+            val identerMedTilgang = System.getenv("KORREKSJON_TILGANG") as List<String>
+            if(identerMedTilgang.isNotEmpty()) {
+                return identerMedTilgang.contains(navIdent())
+            }
+        }
+        return false
+    }
+
+    fun navIdent(): String {
+        return context.tokenValidationContext.getClaims("aad").getStringClaim("NAVident")
+    }
+
+    fun displayName(): String {
+        val displayNameClaim = context.tokenValidationContext.getClaims("aad").get("name")
+        if (displayNameClaim != null) {
+            return displayNameClaim as String
+        }
+        return navIdent()
     }
 
     fun hentInnloggetArbeidsgiver(): InnloggetArbeidsgiver {
@@ -50,19 +76,18 @@ class InnloggetBrukerService(
     fun hentInnloggetSaksbehandler(): InnloggetSaksbehandler {
         return when {
             erSaksbehandler() -> {
-                val (onPremisesSamAccountName, displayName) = graphApiService.hent()
-                val harKorreksjonTilgang = featureToggleService.isEnabled("arbeidsgiver.tiltak-refusjon-api.korreksjon", onPremisesSamAccountName)
-
+                // Todo når vi releaser beslutterkorrigering så er korreksjonstilgang samme som erBeslutter
+                // val harKorreksjonTilgang = erBeslutter()
                 InnloggetSaksbehandler(
-                    identifikator = onPremisesSamAccountName,
-                    navn = displayName,
+                    identifikator = navIdent(),
+                    navn = displayName(),
                     abacTilgangsstyringService = abacTilgangsstyringService,
                     refusjonRepository = refusjonRepository,
                     korreksjonRepository = korreksjonRepository,
                     refusjonService = refusjonService,
                     inntektskomponentService = inntektskomponentService,
                     kontoregisterService = kontoregisterService,
-                    harKorreksjonTilgang = harKorreksjonTilgang
+                    harKorreksjonTilgang = harKorreksjonsTilgang()
                 )
             }
             else -> {

@@ -46,11 +46,16 @@ spec:
   envFrom:
     - secret: tiltak-refusjon-altinn
     - secret: tiltak-refusjon-varsling
+    - secret: tiltak-refusjon-korreksjon
   azure:
     application:
       enabled: true
       allowAllUsers: true
       tenant: {{tenant}}
+      groups:
+        - id: {{besluttergruppe}}
+      extra:
+        - "NAVident"
   tokenx:
     enabled: true
   leaderElection: true

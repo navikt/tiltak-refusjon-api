@@ -213,7 +213,8 @@ class RefusjonApiTest(
         val id = refusjonRepository.findAll().find { it.deltakerFnr == "28128521498" }?.id
 
         // Inntektsoppslag ved henting av refusjon
-        val refusjonEtterInntektsgrunnlag = hentRefusjonMedOppdatertInnteksgrunnlagOgKontonummer(id)
+        oppdaterRefusjonMedOppdatertInnteksgrunnlagOgKontonummer(id)
+        val refusjonEtterInntektsgrunnlag = hentRefusjon(id)
         assertThat(refusjonEtterInntektsgrunnlag.refusjonsgrunnlag.inntektsgrunnlag).isNotNull()
 
 
@@ -273,9 +274,8 @@ class RefusjonApiTest(
         return mapper.readValue(json, Refusjon::class.java)
     }
 
-    private fun hentRefusjonMedOppdatertInnteksgrunnlagOgKontonummer(id: String?): Refusjon {
-        val json = sendRequest(put("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id/med-oppdatert-inntekstsgrunnlag-og-kontonummer"), arbGiverCookie)
-        return mapper.readValue(json, Refusjon::class.java)
+    private fun oppdaterRefusjonMedOppdatertInnteksgrunnlagOgKontonummer(id: String?) {
+        sendRequest(put("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id/med-oppdatert-inntekstsgrunnlag-og-kontonummer"), arbGiverCookie)
     }
 
     private fun sendRequest(request: MockHttpServletRequestBuilder, cookie: Cookie): String {

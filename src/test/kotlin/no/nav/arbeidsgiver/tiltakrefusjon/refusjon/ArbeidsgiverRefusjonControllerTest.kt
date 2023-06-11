@@ -35,7 +35,7 @@ class ArbeidsgiverRefusjonControllerTest{
     fun `test at pdf controller endepunkt returnerer pdf som bytearray`(){
 
         every{innlogetServiceMock.hentInnloggetArbeidsgiver()} returns innloggetArbeidsgiver
-        every{innloggetArbeidsgiver.hentRefusjon(any())} returns `Suzanna Hansen`()
+        every{innloggetArbeidsgiver.finnRefusjon(any())} returns `Suzanna Hansen`()
         every{dokgenService.refusjonPdf(any())} returns ByteArray(1)
 
 

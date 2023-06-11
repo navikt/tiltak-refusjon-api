@@ -125,13 +125,16 @@ class Refusjon(
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
 
         val harGjortBeregning = this.refusjonsgrunnlag.oppgiInntektsgrunnlag(inntektsgrunnlag, gjeldendeInntektsgrunnlag)
+
         if (harGjortBeregning) {
             registerEvent(BeregningUtført(this))
         }
+        sistEndretNå()
     }
 
     fun oppgiBedriftKontonummer(bedrifKontonummer: String?) {
         refusjonsgrunnlag.oppgiBedriftKontonummer(bedrifKontonummer)
+        sistEndretNå()
     }
 
     fun endreBruttolønn(inntekterKunFraTiltaket: Boolean?, bruttoLønn: Int?) {
@@ -338,9 +341,9 @@ class Refusjon(
         } else {
             hentInntekterLengerFrem = null
         }
-        sistEndretNå()
-        registerEvent(MerketForInntekterFrem(this, merking, utførtAv))
 
+        registerEvent(MerketForInntekterFrem(this, merking, utførtAv))
+        sistEndretNå()
     }
 
     //TODO: TEST MEG
@@ -365,7 +368,7 @@ class Refusjon(
     }
 
     fun sjekkSistEndret(sistEndret: Instant?) {
-        if (sistEndret == null || sistEndret.isBefore(this.sistEndret)) {
+        if (sistEndret != null && sistEndret !== this.sistEndret && sistEndret.isBefore(this.sistEndret)) {
             throw SamtidigeEndringerException()
         }
     }

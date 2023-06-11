@@ -45,7 +45,8 @@ class ArbeidsgiverRefusjonController(
     fun hentPDF(@PathVariable id:String): HttpEntity<ByteArray>{
         if(id.trim().isEmpty()) return HttpEntity.EMPTY as HttpEntity<ByteArray>
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-        val refusjon = arbeidsgiver.finnRefusjon(id)
+        arbeidsgiver.OppdaterRefusjonMedInntektsgrunnlagOgKontonummer(id)
+        val refusjon = arbeidsgiver.hentRefusjon(id)
         val pdfDataAsByteArray: ByteArray = dokgenService.refusjonPdf(refusjon)
 
         val header = HttpHeaders()
@@ -77,15 +78,21 @@ class ArbeidsgiverRefusjonController(
         return ResponseEntity<Map<String, Any>>(response, HttpStatus.OK)
     }
 
+    @PutMapping("/{id}/med-oppdatert-inntekstsgrunnlag-og-kontonummer")
+    @Transactional
+    fun oppdatertRefusjonMedInntektsgrunnlagOgKontonummer(@PathVariable id: String)  {
+        val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
+        arbeidsgiver.OppdaterRefusjonMedInntektsgrunnlagOgKontonummer(id)
+    }
+
     @GetMapping("/{id}")
     @Transactional
     fun hent(@PathVariable id: String): Refusjon? {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-        return arbeidsgiver.finnRefusjon(id)
+        return arbeidsgiver.hentRefusjon(id)
     }
 
 
-    //TODO: SIST ENDRET @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE)  sistEndret: Instant
     @PostMapping("/{id}/endre-bruttolønn")
     @Transactional
     fun endreBruttolønn(@PathVariable id: String, @RequestBody request: EndreBruttolønnRequest) {

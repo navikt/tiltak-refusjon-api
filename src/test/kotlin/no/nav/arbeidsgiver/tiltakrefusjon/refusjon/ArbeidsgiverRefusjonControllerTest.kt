@@ -11,11 +11,9 @@ import no.nav.arbeidsgiver.tiltakrefusjon.dokgen.DokgenService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
-import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
-import java.time.Instant
 
 class ArbeidsgiverRefusjonControllerTest{
 
@@ -37,7 +35,7 @@ class ArbeidsgiverRefusjonControllerTest{
     fun `test at pdf controller endepunkt returnerer pdf som bytearray`(){
 
         every{innlogetServiceMock.hentInnloggetArbeidsgiver()} returns innloggetArbeidsgiver
-        every{innloggetArbeidsgiver.finnRefusjon(any())} returns `Suzanna Hansen`()
+        every{innloggetArbeidsgiver.hentRefusjon(any())} returns `Suzanna Hansen`()
         every{dokgenService.refusjonPdf(any())} returns ByteArray(1)
 
 
@@ -55,7 +53,7 @@ class ArbeidsgiverRefusjonControllerTest{
     fun `test at pdf controller endepunkt ikke finner refusjon`(){
 
         every{innlogetServiceMock.hentInnloggetArbeidsgiver()} returns innloggetArbeidsgiver
-        every{innloggetArbeidsgiver.finnRefusjon(any())} throws RessursFinnesIkkeException()
+        every{innloggetArbeidsgiver.OppdaterRefusjonMedInntektsgrunnlagOgKontonummer(any())} throws RessursFinnesIkkeException()
 
 
         assertThrows<RessursFinnesIkkeException> {controller.hentPDF(ULID.random())  }

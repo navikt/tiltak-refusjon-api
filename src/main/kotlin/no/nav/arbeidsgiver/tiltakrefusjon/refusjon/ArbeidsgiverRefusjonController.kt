@@ -46,7 +46,7 @@ class ArbeidsgiverRefusjonController(
         if(id.trim().isEmpty()) return HttpEntity.EMPTY as HttpEntity<ByteArray>
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
         arbeidsgiver.OppdaterRefusjonMedInntektsgrunnlagOgKontonummer(id)
-        val refusjon = arbeidsgiver.hentRefusjon(id)
+        val refusjon = arbeidsgiver.finnRefusjon(id)
         val pdfDataAsByteArray: ByteArray = dokgenService.refusjonPdf(refusjon)
 
         val header = HttpHeaders()
@@ -89,7 +89,7 @@ class ArbeidsgiverRefusjonController(
     @Transactional
     fun hent(@PathVariable id: String): Refusjon? {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-        return arbeidsgiver.hentRefusjon(id)
+        return arbeidsgiver.finnRefusjon(id)
     }
 
 

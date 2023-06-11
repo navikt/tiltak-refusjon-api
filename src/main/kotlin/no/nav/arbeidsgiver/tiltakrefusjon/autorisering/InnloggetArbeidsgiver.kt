@@ -81,7 +81,7 @@ data class InnloggetArbeidsgiver(
     }
     //TODO TEST MEG - det blir alltid nye endringer under henting som gjør at det alltid blir SAMTIDIG exception
     fun OppdaterRefusjonMedInntektsgrunnlagOgKontonummer(id: String) {
-        val refusjon: Refusjon = hentRefusjon(id)
+        val refusjon: Refusjon = finnRefusjon(id)
         // Ikke sett minusbeløp på allerede sendt inn refusjoner
 
         if(refusjon.status == RefusjonStatus.KLAR_FOR_INNSENDING || refusjon.status == RefusjonStatus.FOR_TIDLIG) {
@@ -93,7 +93,7 @@ data class InnloggetArbeidsgiver(
         refusjonService.gjørBedriftKontonummeroppslag(refusjon)
         refusjonService.gjørInntektsoppslag(refusjon)
     }
-    fun hentRefusjon(id: String): Refusjon {
+    fun finnRefusjon(id: String): Refusjon {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
         return refusjon

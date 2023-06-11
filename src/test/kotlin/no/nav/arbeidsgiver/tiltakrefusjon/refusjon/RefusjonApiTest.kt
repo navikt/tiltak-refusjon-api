@@ -29,8 +29,7 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.ResultMatcher
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.header
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.nio.charset.StandardCharsets
@@ -251,7 +250,7 @@ class RefusjonApiTest(
         val id = refusjonRepository.findAll().find { it.deltakerFnr == "28128521498" }?.id
 
         // Inntektsoppslag ved henting av refusjon
-        val refusjonEtterInntektsgrunnlag = hentRefusjon(id)
+        val refusjonEtterInntektsgrunnlag = hentRefusjonMedOppdatertInnteksgrunnlagOgKontonummer(id)
         assertThat(refusjonEtterInntektsgrunnlag.refusjonsgrunnlag.inntektsgrunnlag).isNotNull()
 
 
@@ -308,6 +307,11 @@ class RefusjonApiTest(
 
     private fun hentRefusjon(id: String?): Refusjon {
         val json = sendRequest(get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id"), arbGiverCookie)
+        return mapper.readValue(json, Refusjon::class.java)
+    }
+
+    private fun hentRefusjonMedOppdatertInnteksgrunnlagOgKontonummer(id: String?): Refusjon {
+        val json = sendRequest(put("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id/med-oppdatert-inntekstsgrunnlag-og-kontonummer"), arbGiverCookie)
         return mapper.readValue(json, Refusjon::class.java)
     }
 

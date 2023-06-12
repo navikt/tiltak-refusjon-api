@@ -105,11 +105,11 @@ internal class InnloggetArbeidsgiverTest(
 
         every { altinnTilgangsstyringService.hentTilganger(any()) } returns setOf<Organisasjon>(Organisasjon("Bedrift AS", "Bedrift type", "999999999","Org form","Status"))
         val innloggetArbeidsgiver = InnloggetArbeidsgiver("12345678901",altinnTilgangsstyringService,refusjonRepository,korreksjonRepository,refusjonService,eregClient)
-        innloggetArbeidsgiver.OppdaterRefusjonMedInntektsgrunnlagOgKontonummer(refusjon1.id)
+        innloggetArbeidsgiver.oppdaterRefusjonMedInntektsgrunnlagOgKontonummer(refusjon1.id)
         val refusjonFunnet = innloggetArbeidsgiver.finnRefusjon(refusjon1.id)
             assertThat(refusjonFunnet).isEqualTo(refusjon1)
 
-        innloggetArbeidsgiver.OppdaterRefusjonMedInntektsgrunnlagOgKontonummer(refusjon2.id)
+        innloggetArbeidsgiver.oppdaterRefusjonMedInntektsgrunnlagOgKontonummer(refusjon2.id)
         val refusjonFunnet2 = innloggetArbeidsgiver.finnRefusjon(refusjon2.id)
         assertThat(refusjonFunnet2).isEqualTo(refusjon2)
     }
@@ -150,7 +150,7 @@ internal class InnloggetArbeidsgiverTest(
 
         every { altinnTilgangsstyringService.hentTilganger(any()) } returns setOf<Organisasjon>(Organisasjon("Bedrift AS", "Bedrift type", "999999999","Org form","Status"))
         val innloggetArbeidsgiver = InnloggetArbeidsgiver("12345678901",altinnTilgangsstyringService,refusjonRepository,korreksjonRepository,refusjonService,eregClient)
-        innloggetArbeidsgiver.OppdaterRefusjonMedInntektsgrunnlagOgKontonummer(refusjon1.id)
+        innloggetArbeidsgiver.oppdaterRefusjonMedInntektsgrunnlagOgKontonummer(refusjon1.id)
         val refusjonFunnet = innloggetArbeidsgiver.finnRefusjon(refusjon1.id)
         assertThat(refusjonFunnet).isEqualTo(refusjon1)
     }
@@ -290,7 +290,7 @@ internal class InnloggetArbeidsgiverTest(
         val refusjon4 = opprettRefusjonOgGjørInntektoppslag(tilskuddMelding4LittEldreMedLøpenummer4)
 
         // Skal ikke ha noe minus fra gammel refusjon eller inntekt
-        innloggetArbeidsgiver.OppdaterRefusjonMedInntektsgrunnlagOgKontonummer(refusjon1.id)
+        innloggetArbeidsgiver.oppdaterRefusjonMedInntektsgrunnlagOgKontonummer(refusjon1.id)
         val refusjon1FunnetViaFinnRefusjon = innloggetArbeidsgiver.finnRefusjon(refusjon1.id)
         assertThat(refusjon1).isEqualTo(refusjon1FunnetViaFinnRefusjon)
         // Sett innhentede inntekter til opptjent i periode
@@ -299,13 +299,13 @@ internal class InnloggetArbeidsgiverTest(
         refusjonService.godkjennForArbeidsgiver(Now.instant(),refusjon1FunnetViaFinnRefusjon,"999999999")
 
         // Skal ikke ha minus fra gammel refusjon, men få minus fra ferietrekk
-        innloggetArbeidsgiver.OppdaterRefusjonMedInntektsgrunnlagOgKontonummer(refusjon2.id)
+        innloggetArbeidsgiver.oppdaterRefusjonMedInntektsgrunnlagOgKontonummer(refusjon2.id)
         val refusjon2FunnetViaFinnRefusjon = innloggetArbeidsgiver.finnRefusjon(refusjon2.id)
         refusjon2FunnetViaFinnRefusjon.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.forEach { it.erOpptjentIPeriode = true }
         refusjonService.godkjennForArbeidsgiver(Now.instant(),refusjon2FunnetViaFinnRefusjon,"999999999")
 
         // Skal finne gammel minus, men ikke minus fra inntekt
-        innloggetArbeidsgiver.OppdaterRefusjonMedInntektsgrunnlagOgKontonummer(refusjon3.id)
+        innloggetArbeidsgiver.oppdaterRefusjonMedInntektsgrunnlagOgKontonummer(refusjon3.id)
         val refusjon3FunnetViaFinnRefusjon = innloggetArbeidsgiver.finnRefusjon(refusjon3.id)
 
         refusjon3FunnetViaFinnRefusjon.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.forEach { it.erOpptjentIPeriode = true }
@@ -315,7 +315,7 @@ internal class InnloggetArbeidsgiverTest(
         refusjonService.godkjennForArbeidsgiver(Now.instant(),refusjon3FunnetViaFinnRefusjon,"999999999")
 
         // Minus skal nå være nullstillt
-        innloggetArbeidsgiver.OppdaterRefusjonMedInntektsgrunnlagOgKontonummer(refusjon4.id)
+        innloggetArbeidsgiver.oppdaterRefusjonMedInntektsgrunnlagOgKontonummer(refusjon4.id)
         val refusjon4FunnetViaFinnRefusjon = innloggetArbeidsgiver.finnRefusjon(refusjon4.id)
         refusjon4FunnetViaFinnRefusjon.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.forEach { it.erOpptjentIPeriode = true }
         assertThat(refusjon4FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(0)

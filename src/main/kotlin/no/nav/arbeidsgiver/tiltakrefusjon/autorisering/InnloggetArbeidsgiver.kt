@@ -79,11 +79,9 @@ data class InnloggetArbeidsgiver(
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
         refusjonService.godkjennForArbeidsgiver(sistEndret,refusjon, this.identifikator)
     }
-    //TODO TEST MEG - det blir alltid nye endringer under henting som gjør at det alltid blir SAMTIDIG exception
     fun OppdaterRefusjonMedInntektsgrunnlagOgKontonummer(id: String) {
         val refusjon: Refusjon = finnRefusjon(id)
         // Ikke sett minusbeløp på allerede sendt inn refusjoner
-
         if(refusjon.status == RefusjonStatus.KLAR_FOR_INNSENDING || refusjon.status == RefusjonStatus.FOR_TIDLIG) {
             refusjonService.settMinusBeløpFraTidligereRefusjonerTilknyttetAvtalen(refusjon)
         }

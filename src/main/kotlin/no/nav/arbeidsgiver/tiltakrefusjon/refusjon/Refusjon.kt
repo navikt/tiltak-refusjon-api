@@ -327,7 +327,6 @@ class Refusjon(
         unntakOmInntekterFremitid = merking
     }
 
-    //TODO: TEST MEG
     fun merkForHentInntekterFrem(sistEndret: Instant,merking: Boolean, utførtAv: String) {
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
         sjekkSistEndret(sistEndret)

@@ -344,7 +344,6 @@ class Refusjon(
         sistEndretNå()
     }
 
-    //TODO: TEST MEG
     fun setInntektslinjeTilOpptjentIPeriode(sistEndret:Instant,inntekslinjeId: String, erOpptjentIPeriode: Boolean) {
         oppdaterStatus()
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)

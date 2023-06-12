@@ -152,7 +152,6 @@ class Refusjon(
         refusjonsgrunnlag.bedriftKid = bedriftKID
     }
 
-    //TODO: TEST MEG
     fun godkjennForArbeidsgiver(sistEndret:Instant,utførtAv: String) {
         oppdaterStatus()
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)

@@ -1,5 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.autorisering
 
+import io.micrometer.observation.annotation.Observed
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
 import no.nav.arbeidsgiver.tiltakrefusjon.featuretoggles.FeatureToggleService
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
@@ -11,6 +12,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
+@Observed
 @Component
 class InnloggetBrukerService(
     val context: TokenValidationContextHolder,

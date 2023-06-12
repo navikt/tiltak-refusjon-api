@@ -1,5 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.featuretoggles
 
+import io.micrometer.observation.annotation.Observed
 import no.finn.unleash.Unleash
 import no.finn.unleash.UnleashContext
 import no.finn.unleash.Variant
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.util.stream.Collectors
 
+@Observed
 @Service
 class FeatureToggleService @Autowired constructor(
     private val unleash: Unleash,

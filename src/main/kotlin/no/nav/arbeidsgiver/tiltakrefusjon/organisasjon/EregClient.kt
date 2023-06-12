@@ -1,6 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.organisasjon
 
 import EregOrganisasjon
+import io.micrometer.observation.annotation.Observed
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import org.slf4j.LoggerFactory
@@ -17,6 +18,7 @@ import java.util.UUID
  * Swagger: https://modapp-q0.adeo.no/ereg/api/swagger-ui.html#/organisasjon.v1/hentOrganisasjonUsingGET
  */
 @Service
+@Observed
 class EregClient(val eregProperties: EregProperties, val anonymProxyRestTemplate: RestTemplate) {
     val log = LoggerFactory.getLogger(EregClient::class.java)
 

@@ -2,6 +2,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon.autorisering
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming
+import io.micrometer.observation.annotation.Observed
 import no.nav.arbeidsgiver.tiltakrefusjon.caching.ABAC
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -18,6 +19,7 @@ import org.springframework.web.client.postForObject
 import java.util.*
 
 @Service
+@Observed
 class AbacTilgangsstyringService(
     val abacApi: AbacApi
 ) {

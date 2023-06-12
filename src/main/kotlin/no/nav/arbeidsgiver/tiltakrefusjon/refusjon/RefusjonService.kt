@@ -1,6 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 
+import io.micrometer.observation.annotation.Observed
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
 import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterService
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.MidlerFrigjortÅrsak
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 @Transactional
+@Observed
 class RefusjonService(
     val inntektskomponentService: InntektskomponentService,
     val refusjonRepository: RefusjonRepository,

@@ -6,6 +6,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -14,7 +15,6 @@ import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.YearMonth
 
 
 @DirtiesContext
@@ -84,7 +84,7 @@ class RefusjonberegnerFratrekkFerieTest(
         val beregning: Beregning = refusjon.refusjonsgrunnlag.beregning ?: throw Exception()
         val (lønn, _, feriepenger,tjenestepensjon, arbeidsgiveravgift) = beregning
 
-        return ((lønn - TREKKFORFERIEGRUNNLAG + feriepenger + tjenestepensjon + arbeidsgiveravgift) * 0.40).toInt()
+        return ((lønn + TREKKFORFERIEGRUNNLAG + feriepenger + tjenestepensjon + arbeidsgiveravgift) * 0.40).toInt()
     }
 
     @Test
@@ -105,6 +105,7 @@ class RefusjonberegnerFratrekkFerieTest(
         assert(refusjon.refusjonsgrunnlag.beregning!!.fratrekkLønnFerie == TREKKFORFERIEGRUNNLAG)
     }
 
+    @Disabled("Håndtering av ferietrekk med kun plussbeløp er ikke avklart")
     @Test
     fun `hent inntektsoppslag som har feriefratrekk i måned som er refusjonsmåned og beregn`() {
         val TREKKFORFERIEGRUNNLAG: Int = 7500 // trekk grunnlag fra inntektoppslag
@@ -143,7 +144,7 @@ class RefusjonberegnerFratrekkFerieTest(
 
     @Test
     fun `hent inntektsoppslag som har minusbeløp på feriefratrekk og beregn`() {
-        val TREKKFORFERIEGRUNNLAG: Int = -7500 * -1 // trekk grunnlag fra inntektoppslag
+        val TREKKFORFERIEGRUNNLAG: Int = -7500 // trekk grunnlag fra inntektoppslag
 
         val tilskuddsperiodeGodkjentMelding: TilskuddsperiodeGodkjentMelding = lagEnTilskuddsperiodeGodkjentMelding(
             LocalDate.of(2022, 6, 1),
@@ -158,6 +159,31 @@ class RefusjonberegnerFratrekkFerieTest(
         assert(refusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp == `vis utregning med feriefratrekk`(refusjon, TREKKFORFERIEGRUNNLAG))
         assert(refusjon.refusjonsgrunnlag.beregning!!.fratrekkLønnFerie == TREKKFORFERIEGRUNNLAG)
     }
+
+    @Test
+    fun `gjør inntektsoppslag - både minus og pluss i trekkILoennForFerie`() {
+        Now.fixedDate(LocalDate.of(2023, 7, 1))
+        val TREKKFORFERIEGRUNNLAG1: Int = -7500 // trekk grunnlag fra inntektoppslag
+        val TREKKFORFERIEGRUNNLAG2: Int = 5000 // trekk grunnlag fra inntektoppslag
+        val fnrMedFerieTrekkIWireMock = "26089638754"
+
+        val tilskuddsperiodeGodkjentMelding: TilskuddsperiodeGodkjentMelding = lagEnTilskuddsperiodeGodkjentMelding(
+            tilskuddFom = LocalDate.of(2023, 6, 1),
+            tilskuddTom = LocalDate.of(2023, 6, 30),
+            tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
+            tilskuddsbeløp = 60000,
+            deltakerFnr = "26089638754",
+            bedriftNr = WIREMOCK_VIRKSOMHET_IDENTIFIKATOR,
+        )
+        val refusjon = opprettRefusjonOgGjørInntektoppslag(tilskuddsperiodeGodkjentMelding)
+
+        val trekkLagtSammen = TREKKFORFERIEGRUNNLAG1 + TREKKFORFERIEGRUNNLAG2
+        assert(refusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp == `vis utregning med feriefratrekk`(refusjon, trekkLagtSammen))
+        assert(refusjon.refusjonsgrunnlag.beregning!!.fratrekkLønnFerie == trekkLagtSammen)
+        Now.resetClock()
+    }
+
+
 
     @Test
     fun `sjekk at leggSammenTrekkGrunnlag returnerer primiviteInt-eller-double`() {

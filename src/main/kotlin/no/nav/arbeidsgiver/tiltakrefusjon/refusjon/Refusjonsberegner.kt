@@ -50,7 +50,7 @@ fun beregnRefusjonsbeløp(
     val lønn = if (korrigertBruttoLønn != null) minOf(korrigertBruttoLønn, kalkulertBruttoLønn) else kalkulertBruttoLønn
     val trekkgrunnlagFerie = leggSammenTrekkGrunnlag(inntekter, tilskuddFom).roundToInt()
     val fratrekkRefunderbarBeløp = fratrekkRefunderbarSum ?: 0
-    val lønnFratrukketFerie = lønn - trekkgrunnlagFerie
+    val lønnFratrukketFerie = lønn + trekkgrunnlagFerie
     val feriepenger = lønnFratrukketFerie * tilskuddsgrunnlag.feriepengerSats
     val tjenestepensjon = (lønnFratrukketFerie + feriepenger) * tilskuddsgrunnlag.otpSats
     val arbeidsgiveravgift = (lønnFratrukketFerie + tjenestepensjon + feriepenger) * tilskuddsgrunnlag.arbeidsgiveravgiftSats
@@ -86,12 +86,15 @@ fun beregnRefusjonsbeløp(
         sumUtgifterFratrukketRefundertBeløp = sumUtgifterFratrukketRefundertBeløp.roundToInt())
 }
 
-fun leggSammenTrekkGrunnlag(
-    inntekter: List<Inntektslinje>,
-    tilskuddFom: LocalDate
-): Double =
-    inntekter.filter { it.skalTrekkesIfraInntektsgrunnlag(tilskuddFom) }
-        .sumOf { inntekt -> if (inntekt.beløp < 0) (inntekt.beløp * -1) else inntekt.beløp }
+fun leggSammenTrekkGrunnlag(inntekter: List<Inntektslinje>, tilskuddFom: LocalDate): Double {
+    val hehe = inntekter.filter { it.skalTrekkesIfraInntektsgrunnlag(tilskuddFom) }
+        .sumOf { it.beløp }
+    return hehe
+    //return inntekter.filter { it.skalTrekkesIfraInntektsgrunnlag(tilskuddFom) }
+    //    .sumOf { it.beløp }
+}
+
+        //.sumOf { inntekt -> if (inntekt.beløp < 0) (inntekt.beløp * -1) else inntekt.beløp }
 
 fun kalkulerBruttoLønn(
     inntekter: List<Inntektslinje>,

@@ -45,7 +45,7 @@ class ArbeidsgiverRefusjonController(
     fun hentPDF(@PathVariable id:String): HttpEntity<ByteArray>{
         if(id.trim().isEmpty()) return HttpEntity.EMPTY as HttpEntity<ByteArray>
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-        arbeidsgiver.OppdaterRefusjonMedInntektsgrunnlagOgKontonummer(id)
+        arbeidsgiver.oppdaterRefusjonMedInntektsgrunnlagOgKontonummer(id)
         val refusjon = arbeidsgiver.finnRefusjon(id)
         val pdfDataAsByteArray: ByteArray = dokgenService.refusjonPdf(refusjon)
 
@@ -82,7 +82,7 @@ class ArbeidsgiverRefusjonController(
     @Transactional
     fun oppdatertRefusjonMedInntektsgrunnlagOgKontonummer(@PathVariable id: String)  {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-        arbeidsgiver.OppdaterRefusjonMedInntektsgrunnlagOgKontonummer(id)
+        arbeidsgiver.oppdaterRefusjonMedInntektsgrunnlagOgKontonummer(id)
     }
 
     @GetMapping("/{id}")

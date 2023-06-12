@@ -79,7 +79,7 @@ data class InnloggetArbeidsgiver(
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
         refusjonService.godkjennForArbeidsgiver(sistEndret,refusjon, this.identifikator)
     }
-    fun OppdaterRefusjonMedInntektsgrunnlagOgKontonummer(id: String) {
+    fun oppdaterRefusjonMedInntektsgrunnlagOgKontonummer(id: String) {
         val refusjon: Refusjon = finnRefusjon(id)
         // Ikke sett minusbeløp på allerede sendt inn refusjoner
         if(refusjon.status == RefusjonStatus.KLAR_FOR_INNSENDING || refusjon.status == RefusjonStatus.FOR_TIDLIG) {

@@ -87,14 +87,9 @@ fun beregnRefusjonsbeløp(
 }
 
 fun leggSammenTrekkGrunnlag(inntekter: List<Inntektslinje>, tilskuddFom: LocalDate): Double {
-    val hehe = inntekter.filter { it.skalTrekkesIfraInntektsgrunnlag(tilskuddFom) }
+    return inntekter.filter { it.skalTrekkesIfraInntektsgrunnlag(tilskuddFom) }
         .sumOf { it.beløp }
-    return hehe
-    //return inntekter.filter { it.skalTrekkesIfraInntektsgrunnlag(tilskuddFom) }
-    //    .sumOf { it.beløp }
 }
-
-        //.sumOf { inntekt -> if (inntekt.beløp < 0) (inntekt.beløp * -1) else inntekt.beløp }
 
 fun kalkulerBruttoLønn(
     inntekter: List<Inntektslinje>,

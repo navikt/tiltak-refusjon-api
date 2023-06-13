@@ -184,6 +184,31 @@ class RefusjonberegnerFratrekkFerieTest(
         Now.resetClock()
     }
 
+    @Test() // Kan skje hvis arbeidsgiver skal korrigere/nedjustere tidligere a-melding
+    fun `hent inntektsoppslag som har kun plussbeløp på feriefratrekk og beregn`() {
+        Now.fixedDate(LocalDate.of(2023, 7, 1))
+        val TREKKFORFERIEGRUNNLAG: Int = 5000 // trekk grunnlag fra inntektoppslag
+        val fnrMedFerieTrekkIWireMock = "23039648083"
+
+        val tilskuddsperiodeGodkjentMelding: TilskuddsperiodeGodkjentMelding = lagEnTilskuddsperiodeGodkjentMelding(
+            tilskuddFom = LocalDate.of(2023, 6, 1),
+            tilskuddTom = LocalDate.of(2023, 6, 30),
+            tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
+            tilskuddsbeløp = 60000,
+            deltakerFnr = fnrMedFerieTrekkIWireMock,
+            bedriftNr = WIREMOCK_VIRKSOMHET_IDENTIFIKATOR,
+        )
+        val refusjon = opprettRefusjonOgGjørInntektoppslag(tilskuddsperiodeGodkjentMelding)
+
+        val lønnFraWiremock = 60000
+        val trekkiLoennForFerieWiremock = 5000
+        assertThat(refusjon.refusjonsgrunnlag.beregning!!.lønn).isEqualTo(lønnFraWiremock)
+        assertThat(refusjon.refusjonsgrunnlag.beregning!!.lønnFratrukketFerie).isEqualTo(lønnFraWiremock + trekkiLoennForFerieWiremock)
+        assert(refusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp == `vis utregning med feriefratrekk`(refusjon, TREKKFORFERIEGRUNNLAG))
+        assert(refusjon.refusjonsgrunnlag.beregning!!.fratrekkLønnFerie == TREKKFORFERIEGRUNNLAG)
+        Now.resetClock()
+    }
+
 
 
     @Test

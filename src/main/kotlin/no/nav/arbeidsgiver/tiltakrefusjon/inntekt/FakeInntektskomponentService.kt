@@ -52,6 +52,22 @@ class FakeInntektskomponentService : InntektskomponentService {
                 inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "fastloenn", 20000.0,  måned, datoTil, måned.atEndOfMonth()))
                 return Pair(inntektslinjer, "fake respons med kun inntekter i måneden etter tilskuddsperioden")
             }
+        } else if (fnr == "26089638754") {
+            // Ferietrekk både pluss og minus
+            val inntektslinjer = ArrayList<Inntektslinje>()
+            val måned = YearMonth.of(datoFra.year, datoFra.month)
+            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "fastloenn", 20000.0,  måned, datoTil, måned.atEndOfMonth()))
+            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "trekkILoennForFerie",-25000.0,  måned, datoTil, måned.atEndOfMonth()))
+            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "trekkILoennForFerie",20000.0,  måned, datoTil, måned.atEndOfMonth()))
+            return Pair(inntektslinjer, "fake respons med inntekter og ferietrekk både minus og pluss")
+
+        } else if (fnr == "23039648083") {
+            val inntektslinjer = ArrayList<Inntektslinje>()
+            val måned = YearMonth.of(datoFra.year, datoFra.month)
+            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "fastloenn", 20000.0,  måned, datoTil, måned.atEndOfMonth()))
+            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "trekkILoennForFerie",20000.0,  måned, datoTil, måned.atEndOfMonth()))
+            return Pair(inntektslinjer, "fake respons med inntekter og ferietrekk bare pluss")
+
         }
 
         val inntektslinjer = ArrayList<Inntektslinje>()

@@ -6,6 +6,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -83,8 +84,8 @@ class RefusjonberegnerFratrekkFerieTest(
     fun `vis utregning med feriefratrekk`(refusjon: Refusjon, TREKKFORFERIEGRUNNLAG: Int): Int {
         val beregning: Beregning = refusjon.refusjonsgrunnlag.beregning ?: throw Exception()
         val (lønn, _, feriepenger,tjenestepensjon, arbeidsgiveravgift) = beregning
-
-        return ((lønn + TREKKFORFERIEGRUNNLAG + feriepenger + tjenestepensjon + arbeidsgiveravgift) * 0.40).toInt()
+        val resultatForAssert = ((lønn + TREKKFORFERIEGRUNNLAG + feriepenger + tjenestepensjon + arbeidsgiveravgift) * 0.40).toInt()
+        return resultatForAssert
     }
 
     @Test
@@ -172,14 +173,14 @@ class RefusjonberegnerFratrekkFerieTest(
             tilskuddTom = LocalDate.of(2023, 6, 30),
             tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
             tilskuddsbeløp = 60000,
-            deltakerFnr = "26089638754",
+            deltakerFnr = fnrMedFerieTrekkIWireMock,
             bedriftNr = WIREMOCK_VIRKSOMHET_IDENTIFIKATOR,
         )
         val refusjon = opprettRefusjonOgGjørInntektoppslag(tilskuddsperiodeGodkjentMelding)
 
         val trekkLagtSammen = TREKKFORFERIEGRUNNLAG1 + TREKKFORFERIEGRUNNLAG2
-        assert(refusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp == `vis utregning med feriefratrekk`(refusjon, trekkLagtSammen))
-        assert(refusjon.refusjonsgrunnlag.beregning!!.fratrekkLønnFerie == trekkLagtSammen)
+        Assertions.assertEquals(`vis utregning med feriefratrekk`(refusjon, trekkLagtSammen), refusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp)
+        Assertions.assertEquals(trekkLagtSammen, refusjon.refusjonsgrunnlag.beregning!!.fratrekkLønnFerie)
         Now.resetClock()
     }
 

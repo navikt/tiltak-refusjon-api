@@ -24,7 +24,7 @@
         "jsonBody": {
           "arbeidsInntektMaaned": [
             {
-              "aarMaaned": "2021-06",
+              "aarMaaned": "2023-06",
               "arbeidsInntektInformasjon": {
                 "inntektListe": [
                   {
@@ -36,9 +36,9 @@
                     "inntektsstatus": "LoependeInnrapportert",
                     "leveringstidspunkt": "2022-02",
                     "opptjeningsland": "NO",
-                    "opptjeningsperiodeFom": "2022-06-01",
-                    "opptjeningsperiodeTom": "2022-06-30",
-                    "utbetaltIMaaned": "2021-06",
+                    "opptjeningsperiodeFom": "2023-06-01",
+                    "opptjeningsperiodeTom": "2023-06-30",
+                    "utbetaltIMaaned": "2023-06",
                     "opplysningspliktig": {
                       "identifikator": "928497704",
                       "aktoerType": "ORGANISASJON"
@@ -66,10 +66,10 @@
                     "inntektsstatus": "LoependeInnrapportert",
                     "leveringstidspunkt": "2022-02",
                     "opptjeningsland": "NO",
-                    "opptjeningsperiodeFom": "2021-06-06",
-                    "opptjeningsperiodeTom": "2021-06-20",
+                    "opptjeningsperiodeFom": "2023-06-06",
+                    "opptjeningsperiodeTom": "2023-06-20",
                     "skattemessigBosattLand": "NO",
-                    "utbetaltIMaaned": "2021-06",
+                    "utbetaltIMaaned": "2023-06",
                     "opplysningspliktig": {
                       "identifikator": "928497704",
                       "aktoerType": "ORGANISASJON"
@@ -99,10 +99,10 @@
                     "inntektsstatus": "LoependeInnrapportert",
                     "leveringstidspunkt": "2022-02",
                     "opptjeningsland": "NO",
-                    "opptjeningsperiodeFom": "2021-06-06",
-                    "opptjeningsperiodeTom": "2021-06-20",
+                    "opptjeningsperiodeFom": "2023-06-06",
+                    "opptjeningsperiodeTom": "2023-06-20",
                     "skattemessigBosattLand": "NO",
-                    "utbetaltIMaaned": "2021-06",
+                    "utbetaltIMaaned": "2023-06",
                     "opplysningspliktig": {
                       "identifikator": "928497704",
                       "aktoerType": "ORGANISASJON"

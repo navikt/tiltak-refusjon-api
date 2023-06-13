@@ -25,6 +25,36 @@ fun enVarsling(varselType: VarselType = VarselType.KLAR ) : Varsling {
     return Varsling(refusjonId, varselType, varselTidspunkt)
 }
 
+fun refusjonerMedFerietrekk(): List<Refusjon> {
+    val deltakerFnrMedMinusOgPlussFerietrekk = "26089638754"
+    val bedriftNr = "999999999"
+    val refusjon1 =  Refusjon(
+        tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
+            tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
+            deltakerFnr = deltakerFnrMedMinusOgPlussFerietrekk,
+            bedriftNr = bedriftNr,
+            deltakerFornavn = "Bjartulf",
+            deltakerEtternavn = "Ferietrekksen",
+            tilskuddsbeløp = 20579,
+            veilederNavIdent = "X123456"
+        ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnrMedMinusOgPlussFerietrekk
+    )
+    val deltakerFnrMedPlussFerietrekk = "23039648083"
+    val refusjon2 =  Refusjon(
+        tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
+            tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
+            deltakerFnr = deltakerFnrMedPlussFerietrekk,
+            bedriftNr = bedriftNr,
+            deltakerFornavn = "Plussulf",
+            deltakerEtternavn = "Ferietrekksen",
+            tilskuddsbeløp = 20579,
+            veilederNavIdent = "X123456"
+        ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnrMedPlussFerietrekk
+    )
+
+    return listOf(refusjon1, refusjon2)
+}
+
 fun refusjoner(): List<Refusjon> {
     val kiellandNy = `Alexander Kielland`()
     val kiellandGammel = `Alexander Kielland`().let {

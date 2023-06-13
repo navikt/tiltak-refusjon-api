@@ -400,7 +400,7 @@
                   },
                   {
                     "inntektType": "LOENNSINNTEKT",
-                    "beloep": 7500,
+                    "beloep": -7500,
                     "fordel": "kontantytelse",
                     "inntektskilde": "A-ordningen",
                     "inntektsperiodetype": "Maaned",
@@ -791,8 +791,370 @@
       "response": {
         "status": 200,
         "jsonBody": {
-          "arbeidsInntektMaaned":[{"aarMaaned":"2022-11","arbeidsInntektInformasjon":{"inntektListe":[{"inntektType":"LOENNSINNTEKT","beloep":1584,"fordel":"kontantytelse","inntektskilde":"A-ordningen","inntektsperiodetype":"Maaned","inntektsstatus":"LoependeInnrapportert","leveringstidspunkt":"2022-08","utbetaltIMaaned":"2022-11","opplysningspliktig":{"identifikator":"936164226","aktoerType":"ORGANISASJON"},"virksomhet":{"identifikator":"873174242","aktoerType":"ORGANISASJON"},"inntektsmottaker":{"identifikator":"08098613316","aktoerType":"NATURLIG_IDENT"},"inngaarIGrunnlagForTrekk":true,"utloeserArbeidsgiveravgift":true,"informasjonsstatus":"InngaarAlltid","beskrivelse":"feriepenger"},{"inntektType":"LOENNSINNTEKT","beloep":1600,"fordel":"kontantytelse","inntektskilde":"A-ordningen","inntektsperiodetype":"Maaned","inntektsstatus":"LoependeInnrapportert","leveringstidspunkt":"2022-08","utbetaltIMaaned":"2022-11","opplysningspliktig":{"identifikator":"936164226","aktoerType":"ORGANISASJON"},"virksomhet":{"identifikator":"873174242","aktoerType":"ORGANISASJON"},"inntektsmottaker":{"identifikator":"08098613316","aktoerType":"NATURLIG_IDENT"},"inngaarIGrunnlagForTrekk":true,"utloeserArbeidsgiveravgift":true,"informasjonsstatus":"InngaarAlltid","beskrivelse":"fastloenn"},{"inntektType":"LOENNSINNTEKT","beloep":-36765.4,"fordel":"kontantytelse","inntektskilde":"A-ordningen","inntektsperiodetype":"Maaned","inntektsstatus":"LoependeInnrapportert","leveringstidspunkt":"2022-08","utbetaltIMaaned":"2022-11","opplysningspliktig":{"identifikator":"978715311","aktoerType":"ORGANISASJON"},"virksomhet":{"identifikator":"972674818","aktoerType":"ORGANISASJON"},"inntektsmottaker":{"identifikator":"08098613316","aktoerType":"NATURLIG_IDENT"},"inngaarIGrunnlagForTrekk":true,"utloeserArbeidsgiveravgift":true,"informasjonsstatus":"InngaarAlltid","beskrivelse":"trekkILoennForFerie"},{"inntektType":"LOENNSINNTEKT","beloep":329,"fordel":"naturalytelse","inntektskilde":"A-ordningen","inntektsperiodetype":"Maaned","inntektsstatus":"LoependeInnrapportert","leveringstidspunkt":"2022-08","utbetaltIMaaned":"2022-11","opplysningspliktig":{"identifikator":"978715311","aktoerType":"ORGANISASJON"},"virksomhet":{"identifikator":"972674818","aktoerType":"ORGANISASJON"},"inntektsmottaker":{"identifikator":"08098613316","aktoerType":"NATURLIG_IDENT"},"inngaarIGrunnlagForTrekk":true,"utloeserArbeidsgiveravgift":true,"informasjonsstatus":"InngaarAlltid","beskrivelse":"annet"},{"inntektType":"LOENNSINNTEKT","beloep":42273.71,"fordel":"kontantytelse","inntektskilde":"A-ordningen","inntektsperiodetype":"Maaned","inntektsstatus":"LoependeInnrapportert","leveringstidspunkt":"2022-08","utbetaltIMaaned":"2022-11","opplysningspliktig":{"identifikator":"978715311","aktoerType":"ORGANISASJON"},"virksomhet":{"identifikator":"972674818","aktoerType":"ORGANISASJON"},"inntektsmottaker":{"identifikator":"08098613316","aktoerType":"NATURLIG_IDENT"},"inngaarIGrunnlagForTrekk":true,"utloeserArbeidsgiveravgift":true,"informasjonsstatus":"InngaarAlltid","beskrivelse":"feriepenger"},{"inntektType":"LOENNSINNTEKT","beloep":31868.25,"fordel":"kontantytelse","inntektskilde":"A-ordningen","inntektsperiodetype":"Maaned","inntektsstatus":"LoependeInnrapportert","leveringstidspunkt":"2022-08","utbetaltIMaaned":"2022-11","opplysningspliktig":{"identifikator":"978715311","aktoerType":"ORGANISASJON"},"virksomhet":{"identifikator":"972674818","aktoerType":"ORGANISASJON"},"inntektsmottaker":{"identifikator":"08098613316","aktoerType":"NATURLIG_IDENT"},"inngaarIGrunnlagForTrekk":true,"utloeserArbeidsgiveravgift":true,"informasjonsstatus":"InngaarAlltid","beskrivelse":"fastloenn"}],"forskuddstrekkListe":[{"beloep":-544,"leveringstidspunkt":"2022-08-16T13:29:32.664","opplysningspliktig":{"identifikator":"936164226","aktoerType":"ORGANISASJON"},"utbetaler":{"identifikator":"873174242","aktoerType":"ORGANISASJON"},"forskuddstrekkGjelder":{"identifikator":"08098613316","aktoerType":"NATURLIG_IDENT"}}],"fradragListe":[{"beloep":-638,"beskrivelse":"premieTilPensjonsordninger","fradragsperiode":"2022-11","leveringstidspunkt":"2022-08-16T13:29:32.664","inntektspliktig":{"identifikator":"978715311","aktoerType":"ORGANISASJON"},"utbetaler":{"identifikator":"972674818","aktoerType":"ORGANISASJON"},"fradragGjelder":{"identifikator":"08098613316","aktoerType":"NATURLIG_IDENT"}}]}},{"aarMaaned":"2022-12","arbeidsInntektInformasjon":{"inntektListe":[{"inntektType":"LOENNSINNTEKT","beloep":329,"fordel":"naturalytelse","inntektskilde":"A-ordningen","inntektsperiodetype":"Maaned","inntektsstatus":"LoependeInnrapportert","leveringstidspunkt":"2022-08","utbetaltIMaaned":"2022-12","opplysningspliktig":{"identifikator":"978715311","aktoerType":"ORGANISASJON"},"virksomhet":{"identifikator":"972674818","aktoerType":"ORGANISASJON"},"inntektsmottaker":{"identifikator":"08098613316","aktoerType":"NATURLIG_IDENT"},"inngaarIGrunnlagForTrekk":true,"utloeserArbeidsgiveravgift":true,"informasjonsstatus":"InngaarAlltid","beskrivelse":"annet"},{"inntektType":"LOENNSINNTEKT","beloep":31868.25,"fordel":"kontantytelse","inntektskilde":"A-ordningen","inntektsperiodetype":"Maaned","inntektsstatus":"LoependeInnrapportert","leveringstidspunkt":"2022-08","utbetaltIMaaned":"2022-12","opplysningspliktig":{"identifikator":"978715311","aktoerType":"ORGANISASJON"},"virksomhet":{"identifikator":"972674818","aktoerType":"ORGANISASJON"},"inntektsmottaker":{"identifikator":"08098613316","aktoerType":"NATURLIG_IDENT"},"inngaarIGrunnlagForTrekk":true,"utloeserArbeidsgiveravgift":true,"informasjonsstatus":"InngaarAlltid","beskrivelse":"fastloenn"},{"inntektType":"LOENNSINNTEKT","beloep":1600,"fordel":"kontantytelse","inntektskilde":"A-ordningen","inntektsperiodetype":"Maaned","inntektsstatus":"LoependeInnrapportert","leveringstidspunkt":"2022-08","utbetaltIMaaned":"2022-12","opplysningspliktig":{"identifikator":"936164226","aktoerType":"ORGANISASJON"},"virksomhet":{"identifikator":"873174242","aktoerType":"ORGANISASJON"},"inntektsmottaker":{"identifikator":"08098613316","aktoerType":"NATURLIG_IDENT"},"inngaarIGrunnlagForTrekk":true,"utloeserArbeidsgiveravgift":true,"informasjonsstatus":"InngaarAlltid","beskrivelse":"fastloenn"}],"forskuddstrekkListe":[{"beloep":-7820,"leveringstidspunkt":"2022-08-16T13:29:32.664","opplysningspliktig":{"identifikator":"978715311","aktoerType":"ORGANISASJON"},"utbetaler":{"identifikator":"972674818","aktoerType":"ORGANISASJON"},"forskuddstrekkGjelder":{"identifikator":"08098613316","aktoerType":"NATURLIG_IDENT"}},{"beloep":-540,"leveringstidspunkt":"2022-08-16T13:29:32.664","opplysningspliktig":{"identifikator":"936164226","aktoerType":"ORGANISASJON"},"utbetaler":{"identifikator":"873174242","aktoerType":"ORGANISASJON"},"forskuddstrekkGjelder":{"identifikator":"08098613316","aktoerType":"NATURLIG_IDENT"}}],"fradragListe":[{"beloep":-638,"beskrivelse":"premieTilPensjonsordninger","fradragsperiode":"2022-12","leveringstidspunkt":"2022-08-16T13:29:32.664","inntektspliktig":{"identifikator":"978715311","aktoerType":"ORGANISASJON"},"utbetaler":{"identifikator":"972674818","aktoerType":"ORGANISASJON"},"fradragGjelder":{"identifikator":"08098613316","aktoerType":"NATURLIG_IDENT"}},{"beloep":-9.93,"beskrivelse":"premieTilPensjonsordninger","fradragsperiode":"2022-12","leveringstidspunkt":"2022-08-16T13:29:32.664","inntektspliktig":{"identifikator":"936164226","aktoerType":"ORGANISASJON"},"utbetaler":{"identifikator":"873174242","aktoerType":"ORGANISASJON"},"fradragGjelder":{"identifikator":"08098613316","aktoerType":"NATURLIG_IDENT"}}]}}],
-          "ident":{"identifikator":"08098613316","aktoerType":"NATURLIG_IDENT"}
+          "arbeidsInntektMaaned": [
+            {
+              "aarMaaned": "2022-11",
+              "arbeidsInntektInformasjon": {
+                "inntektListe": [
+                  {
+                    "inntektType": "LOENNSINNTEKT",
+                    "beloep": 1584,
+                    "fordel": "kontantytelse",
+                    "inntektskilde": "A-ordningen",
+                    "inntektsperiodetype": "Maaned",
+                    "inntektsstatus": "LoependeInnrapportert",
+                    "leveringstidspunkt": "2022-08",
+                    "utbetaltIMaaned": "2022-11",
+                    "opplysningspliktig": {
+                      "identifikator": "936164226",
+                      "aktoerType": "ORGANISASJON"
+                    },
+                    "virksomhet": {
+                      "identifikator": "873174242",
+                      "aktoerType": "ORGANISASJON"
+                    },
+                    "inntektsmottaker": {
+                      "identifikator": "08098613316",
+                      "aktoerType": "NATURLIG_IDENT"
+                    },
+                    "inngaarIGrunnlagForTrekk": true,
+                    "utloeserArbeidsgiveravgift": true,
+                    "informasjonsstatus": "InngaarAlltid",
+                    "beskrivelse": "feriepenger"
+                  },
+                  {
+                    "inntektType": "LOENNSINNTEKT",
+                    "beloep": 1600,
+                    "fordel": "kontantytelse",
+                    "inntektskilde": "A-ordningen",
+                    "inntektsperiodetype": "Maaned",
+                    "inntektsstatus": "LoependeInnrapportert",
+                    "leveringstidspunkt": "2022-08",
+                    "utbetaltIMaaned": "2022-11",
+                    "opplysningspliktig": {
+                      "identifikator": "936164226",
+                      "aktoerType": "ORGANISASJON"
+                    },
+                    "virksomhet": {
+                      "identifikator": "873174242",
+                      "aktoerType": "ORGANISASJON"
+                    },
+                    "inntektsmottaker": {
+                      "identifikator": "08098613316",
+                      "aktoerType": "NATURLIG_IDENT"
+                    },
+                    "inngaarIGrunnlagForTrekk": true,
+                    "utloeserArbeidsgiveravgift": true,
+                    "informasjonsstatus": "InngaarAlltid",
+                    "beskrivelse": "fastloenn"
+                  },
+                  {
+                    "inntektType": "LOENNSINNTEKT",
+                    "beloep": -36765.4,
+                    "fordel": "kontantytelse",
+                    "inntektskilde": "A-ordningen",
+                    "inntektsperiodetype": "Maaned",
+                    "inntektsstatus": "LoependeInnrapportert",
+                    "leveringstidspunkt": "2022-08",
+                    "utbetaltIMaaned": "2022-11",
+                    "opplysningspliktig": {
+                      "identifikator": "978715311",
+                      "aktoerType": "ORGANISASJON"
+                    },
+                    "virksomhet": {
+                      "identifikator": "972674818",
+                      "aktoerType": "ORGANISASJON"
+                    },
+                    "inntektsmottaker": {
+                      "identifikator": "08098613316",
+                      "aktoerType": "NATURLIG_IDENT"
+                    },
+                    "inngaarIGrunnlagForTrekk": true,
+                    "utloeserArbeidsgiveravgift": true,
+                    "informasjonsstatus": "InngaarAlltid",
+                    "beskrivelse": "trekkILoennForFerie"
+                  },
+                  {
+                    "inntektType": "LOENNSINNTEKT",
+                    "beloep": 329,
+                    "fordel": "naturalytelse",
+                    "inntektskilde": "A-ordningen",
+                    "inntektsperiodetype": "Maaned",
+                    "inntektsstatus": "LoependeInnrapportert",
+                    "leveringstidspunkt": "2022-08",
+                    "utbetaltIMaaned": "2022-11",
+                    "opplysningspliktig": {
+                      "identifikator": "978715311",
+                      "aktoerType": "ORGANISASJON"
+                    },
+                    "virksomhet": {
+                      "identifikator": "972674818",
+                      "aktoerType": "ORGANISASJON"
+                    },
+                    "inntektsmottaker": {
+                      "identifikator": "08098613316",
+                      "aktoerType": "NATURLIG_IDENT"
+                    },
+                    "inngaarIGrunnlagForTrekk": true,
+                    "utloeserArbeidsgiveravgift": true,
+                    "informasjonsstatus": "InngaarAlltid",
+                    "beskrivelse": "annet"
+                  },
+                  {
+                    "inntektType": "LOENNSINNTEKT",
+                    "beloep": 42273.71,
+                    "fordel": "kontantytelse",
+                    "inntektskilde": "A-ordningen",
+                    "inntektsperiodetype": "Maaned",
+                    "inntektsstatus": "LoependeInnrapportert",
+                    "leveringstidspunkt": "2022-08",
+                    "utbetaltIMaaned": "2022-11",
+                    "opplysningspliktig": {
+                      "identifikator": "978715311",
+                      "aktoerType": "ORGANISASJON"
+                    },
+                    "virksomhet": {
+                      "identifikator": "972674818",
+                      "aktoerType": "ORGANISASJON"
+                    },
+                    "inntektsmottaker": {
+                      "identifikator": "08098613316",
+                      "aktoerType": "NATURLIG_IDENT"
+                    },
+                    "inngaarIGrunnlagForTrekk": true,
+                    "utloeserArbeidsgiveravgift": true,
+                    "informasjonsstatus": "InngaarAlltid",
+                    "beskrivelse": "feriepenger"
+                  },
+                  {
+                    "inntektType": "LOENNSINNTEKT",
+                    "beloep": 31868.25,
+                    "fordel": "kontantytelse",
+                    "inntektskilde": "A-ordningen",
+                    "inntektsperiodetype": "Maaned",
+                    "inntektsstatus": "LoependeInnrapportert",
+                    "leveringstidspunkt": "2022-08",
+                    "utbetaltIMaaned": "2022-11",
+                    "opplysningspliktig": {
+                      "identifikator": "978715311",
+                      "aktoerType": "ORGANISASJON"
+                    },
+                    "virksomhet": {
+                      "identifikator": "972674818",
+                      "aktoerType": "ORGANISASJON"
+                    },
+                    "inntektsmottaker": {
+                      "identifikator": "08098613316",
+                      "aktoerType": "NATURLIG_IDENT"
+                    },
+                    "inngaarIGrunnlagForTrekk": true,
+                    "utloeserArbeidsgiveravgift": true,
+                    "informasjonsstatus": "InngaarAlltid",
+                    "beskrivelse": "fastloenn"
+                  }
+                ],
+                "forskuddstrekkListe": [
+                  {
+                    "beloep": -544,
+                    "leveringstidspunkt": "2022-08-16T13:29:32.664",
+                    "opplysningspliktig": {
+                      "identifikator": "936164226",
+                      "aktoerType": "ORGANISASJON"
+                    },
+                    "utbetaler": {
+                      "identifikator": "873174242",
+                      "aktoerType": "ORGANISASJON"
+                    },
+                    "forskuddstrekkGjelder": {
+                      "identifikator": "08098613316",
+                      "aktoerType": "NATURLIG_IDENT"
+                    }
+                  }
+                ],
+                "fradragListe": [
+                  {
+                    "beloep": -638,
+                    "beskrivelse": "premieTilPensjonsordninger",
+                    "fradragsperiode": "2022-11",
+                    "leveringstidspunkt": "2022-08-16T13:29:32.664",
+                    "inntektspliktig": {
+                      "identifikator": "978715311",
+                      "aktoerType": "ORGANISASJON"
+                    },
+                    "utbetaler": {
+                      "identifikator": "972674818",
+                      "aktoerType": "ORGANISASJON"
+                    },
+                    "fradragGjelder": {
+                      "identifikator": "08098613316",
+                      "aktoerType": "NATURLIG_IDENT"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "aarMaaned": "2022-12",
+              "arbeidsInntektInformasjon": {
+                "inntektListe": [
+                  {
+                    "inntektType": "LOENNSINNTEKT",
+                    "beloep": 329,
+                    "fordel": "naturalytelse",
+                    "inntektskilde": "A-ordningen",
+                    "inntektsperiodetype": "Maaned",
+                    "inntektsstatus": "LoependeInnrapportert",
+                    "leveringstidspunkt": "2022-08",
+                    "utbetaltIMaaned": "2022-12",
+                    "opplysningspliktig": {
+                      "identifikator": "978715311",
+                      "aktoerType": "ORGANISASJON"
+                    },
+                    "virksomhet": {
+                      "identifikator": "972674818",
+                      "aktoerType": "ORGANISASJON"
+                    },
+                    "inntektsmottaker": {
+                      "identifikator": "08098613316",
+                      "aktoerType": "NATURLIG_IDENT"
+                    },
+                    "inngaarIGrunnlagForTrekk": true,
+                    "utloeserArbeidsgiveravgift": true,
+                    "informasjonsstatus": "InngaarAlltid",
+                    "beskrivelse": "annet"
+                  },
+                  {
+                    "inntektType": "LOENNSINNTEKT",
+                    "beloep": 31868.25,
+                    "fordel": "kontantytelse",
+                    "inntektskilde": "A-ordningen",
+                    "inntektsperiodetype": "Maaned",
+                    "inntektsstatus": "LoependeInnrapportert",
+                    "leveringstidspunkt": "2022-08",
+                    "utbetaltIMaaned": "2022-12",
+                    "opplysningspliktig": {
+                      "identifikator": "978715311",
+                      "aktoerType": "ORGANISASJON"
+                    },
+                    "virksomhet": {
+                      "identifikator": "972674818",
+                      "aktoerType": "ORGANISASJON"
+                    },
+                    "inntektsmottaker": {
+                      "identifikator": "08098613316",
+                      "aktoerType": "NATURLIG_IDENT"
+                    },
+                    "inngaarIGrunnlagForTrekk": true,
+                    "utloeserArbeidsgiveravgift": true,
+                    "informasjonsstatus": "InngaarAlltid",
+                    "beskrivelse": "fastloenn"
+                  },
+                  {
+                    "inntektType": "LOENNSINNTEKT",
+                    "beloep": 1600,
+                    "fordel": "kontantytelse",
+                    "inntektskilde": "A-ordningen",
+                    "inntektsperiodetype": "Maaned",
+                    "inntektsstatus": "LoependeInnrapportert",
+                    "leveringstidspunkt": "2022-08",
+                    "utbetaltIMaaned": "2022-12",
+                    "opplysningspliktig": {
+                      "identifikator": "936164226",
+                      "aktoerType": "ORGANISASJON"
+                    },
+                    "virksomhet": {
+                      "identifikator": "873174242",
+                      "aktoerType": "ORGANISASJON"
+                    },
+                    "inntektsmottaker": {
+                      "identifikator": "08098613316",
+                      "aktoerType": "NATURLIG_IDENT"
+                    },
+                    "inngaarIGrunnlagForTrekk": true,
+                    "utloeserArbeidsgiveravgift": true,
+                    "informasjonsstatus": "InngaarAlltid",
+                    "beskrivelse": "fastloenn"
+                  }
+                ],
+                "forskuddstrekkListe": [
+                  {
+                    "beloep": -7820,
+                    "leveringstidspunkt": "2022-08-16T13:29:32.664",
+                    "opplysningspliktig": {
+                      "identifikator": "978715311",
+                      "aktoerType": "ORGANISASJON"
+                    },
+                    "utbetaler": {
+                      "identifikator": "972674818",
+                      "aktoerType": "ORGANISASJON"
+                    },
+                    "forskuddstrekkGjelder": {
+                      "identifikator": "08098613316",
+                      "aktoerType": "NATURLIG_IDENT"
+                    }
+                  },
+                  {
+                    "beloep": -540,
+                    "leveringstidspunkt": "2022-08-16T13:29:32.664",
+                    "opplysningspliktig": {
+                      "identifikator": "936164226",
+                      "aktoerType": "ORGANISASJON"
+                    },
+                    "utbetaler": {
+                      "identifikator": "873174242",
+                      "aktoerType": "ORGANISASJON"
+                    },
+                    "forskuddstrekkGjelder": {
+                      "identifikator": "08098613316",
+                      "aktoerType": "NATURLIG_IDENT"
+                    }
+                  }
+                ],
+                "fradragListe": [
+                  {
+                    "beloep": -638,
+                    "beskrivelse": "premieTilPensjonsordninger",
+                    "fradragsperiode": "2022-12",
+                    "leveringstidspunkt": "2022-08-16T13:29:32.664",
+                    "inntektspliktig": {
+                      "identifikator": "978715311",
+                      "aktoerType": "ORGANISASJON"
+                    },
+                    "utbetaler": {
+                      "identifikator": "972674818",
+                      "aktoerType": "ORGANISASJON"
+                    },
+                    "fradragGjelder": {
+                      "identifikator": "08098613316",
+                      "aktoerType": "NATURLIG_IDENT"
+                    }
+                  },
+                  {
+                    "beloep": -9.93,
+                    "beskrivelse": "premieTilPensjonsordninger",
+                    "fradragsperiode": "2022-12",
+                    "leveringstidspunkt": "2022-08-16T13:29:32.664",
+                    "inntektspliktig": {
+                      "identifikator": "936164226",
+                      "aktoerType": "ORGANISASJON"
+                    },
+                    "utbetaler": {
+                      "identifikator": "873174242",
+                      "aktoerType": "ORGANISASJON"
+                    },
+                    "fradragGjelder": {
+                      "identifikator": "08098613316",
+                      "aktoerType": "NATURLIG_IDENT"
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "ident": {
+            "identifikator": "08098613316",
+            "aktoerType": "NATURLIG_IDENT"
+          }
         },
         "headers": {
           "Content-Type": "application/json",

@@ -11,7 +11,9 @@ import org.springframework.stereotype.Component
 class TestDataLaster(private val refusjonRepository: RefusjonRepository) : ApplicationListener<ApplicationReadyEvent> {
     override fun onApplicationEvent(event: ApplicationReadyEvent) {
         val refusjoner = refusjoner()
+        val refusjonerMedFerietrekk = refusjonerMedFerietrekk()
         println("Laster inn testdata med ${refusjoner.size} refusjoner")
         refusjonRepository.saveAll(refusjoner)
+        refusjonRepository.saveAll(refusjonerMedFerietrekk)
     }
 }

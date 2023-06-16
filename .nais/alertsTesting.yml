@@ -34,7 +34,7 @@ metadata:
   name: tiltak-refusjon-api-testing-alert-config
   namespace: arbeidsgiver
   labels:
-    alertmanagerConfig: myteam-testing-slack
+    alertmanagerConfig: tiltak-refusjon-api-testing-alert-config
 spec:
   receivers:
     - name: myteam-testing-receiver

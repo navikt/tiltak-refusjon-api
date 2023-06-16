@@ -2,7 +2,7 @@ apiVersion: "monitoring.coreos.com/v1"
 kind: PrometheusRule
 metadata:
   labels:
-    team: myteam
+    team: arbeidsgiver
   name: tiltak-refusjon-api-testing-alert
   namespace: arbeidsgiver
   # test alerts, will always trigger

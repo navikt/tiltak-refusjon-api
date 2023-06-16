@@ -1,4 +1,4 @@
-piVersion: "monitoring.coreos.com/v1"
+apiVersion: "monitoring.coreos.com/v1"
 kind: PrometheusRule
 metadata:
   labels:
@@ -48,9 +48,38 @@ spec:
           sendResolved: true
           httpConfig:
             proxyURL: http://webproxy.nais:8088
-          title: 'HELOW TESTING ALERT'
-          text: 'Dette er en tekst'
-          color: danger
+          title: |-
+            [{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .CommonLabels.alertname }}
+          text: >-
+            {{ range .Alerts -}}
+            *Alert:* {{ .Annotations.title }}{{ if .Labels.severity }} - `{{ .Labels.severity }}`{{ end }}
+            *Description:* {{ .Annotations.description }}
+            *Details:*
+            {{ range .Labels.SortedPairs }} • *{{ .Name }}:* `{{ .Value }}`
+            {{ end }}
+            {{ end }}
+          color: |-
+            {{ if eq .Status "firing" -}}
+              {{ if eq .CommonLabels.severity "warning" -}}
+                warning
+              {{- else if eq .CommonLabels.severity "fatal" -}}
+                #611f69
+              {{- else if eq .CommonLabels.severity "critical" -}}
+                #611f69
+              {{- else if eq .CommonLabels.severity "danger" -}}
+                danger
+              {{- else if eq .CommonLabels.severity "error" -}}
+                danger
+              {{- else if eq .CommonLabels.severity "notice" -}}
+                good
+              {{- else if eq .CommonLabels.severity "info" -}}
+                #36c5f0
+              {{- else -}}
+                .CommonLabels.severity
+              {{- end -}}
+            {{ else -}}
+            good
+            {{- end }}
   route:
     groupBy:
       - alertname

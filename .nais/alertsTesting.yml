@@ -48,8 +48,7 @@ spec:
           sendResolved: true
           httpConfig:
             proxyURL: http://webproxy.nais:8088
-          title: |-
-            [{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .CommonLabels.alertname }}
+          title: 'HELOW TESTING ALERT'
           text: >-
             {{ range .Alerts -}}
             *Alert:* {{ .Annotations.title }}{{ if .Labels.severity }} - `{{ .Labels.severity }}`{{ end }}

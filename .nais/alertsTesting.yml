@@ -46,8 +46,8 @@ spec:
           iconEmoji: ':test:'
           username: 'Testing Alert'
           sendResolved: true
-          httpConfig:
-            proxyURL: http://webproxy.nais:8088
+#          httpConfig:
+#            proxyURL: http://webproxy.nais:8088
           title: 'tittel kommer her'
           text: 'tekst kommer her'
           color: danger

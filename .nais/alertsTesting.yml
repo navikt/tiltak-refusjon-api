@@ -11,15 +11,27 @@ spec:
   groups:
     - name: tiltak-refusjon-api-testing-alert
       rules:
-        - alert: test alert will always trigger
-          expr: container_memory_working_set_bytes{namespace="arbeidsgiver", container="tiltak-refusjon-api"} > 99
-          for: 1m
+#        - alert: test alert will always trigger
+#          expr: container_memory_working_set_bytes{namespace="arbeidsgiver", container="tiltak-refusjon-api"} > 99
+#          for: 1m
+#          annotations:
+#            consequence: "_*{{ $labels.container }}*_ has a working set of {{ $value }} bytes, there is no consequence"
+#            action: "no need to do _anything_"
+#            documentation: "https://prometheus.io/docs/prometheus/latest/querying/basics/"
+#            summary: "Container _*{{ $labels.container }}*_ has a working set of {{ $value }} bytes."
+#            sla: "no need to respond"
+#          labels:
+#            severity: "info"
+#            special_type_to_use_in_alertmanager_config: myteam-testing
+#            alert_type: custom
+        - alert: TILTAK-REFUSJON-API ERROR!
+          expr: sum(increase(logd_messages_total{log_app="tiltak-refusjon-api",log_level="Error"}[10m])) > 0
+          for: 10s
           annotations:
-            consequence: "_*{{ $labels.container }}*_ has a working set of {{ $value }} bytes, there is no consequence"
-            action: "no need to do _anything_"
-            documentation: "https://prometheus.io/docs/prometheus/latest/querying/basics/"
-            summary: "Container _*{{ $labels.container }}*_ has a working set of {{ $value }} bytes."
-            sla: "no need to respond"
+            consequence: Feil i loggen til refusjon-api
+            action: "Sjekk logs.adeo.no for logger: https://logs.adeo.no/s/nav-logs-legacy/app/r/s/F1qMf"
+            summary: |-
+              tiltak-refusjon-api har logget en feil :mild-panic-intensifies: Sjekk loggene om noe bør gjøres!
           labels:
             severity: "info"
             special_type_to_use_in_alertmanager_config: myteam-testing

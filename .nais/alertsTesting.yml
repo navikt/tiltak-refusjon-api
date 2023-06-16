@@ -4,7 +4,7 @@ metadata:
   labels:
     team: myteam
   name: tiltak-refusjon-api-testing-alert
-  namespace: myteam
+  namespace: arbeidsgiver
   # test alerts, will always trigger
   # used only to experiment with formatting etc
 spec:

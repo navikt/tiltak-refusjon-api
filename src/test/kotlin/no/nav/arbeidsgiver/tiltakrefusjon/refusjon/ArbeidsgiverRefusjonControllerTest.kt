@@ -53,7 +53,7 @@ class ArbeidsgiverRefusjonControllerTest{
     fun `test at pdf controller endepunkt ikke finner refusjon`(){
 
         every{innlogetServiceMock.hentInnloggetArbeidsgiver()} returns innloggetArbeidsgiver
-        every{innloggetArbeidsgiver.finnRefusjon(any())} throws RessursFinnesIkkeException()
+        every{innloggetArbeidsgiver.oppdaterRefusjonMedInntektsgrunnlagOgKontonummer(any())} throws RessursFinnesIkkeException()
 
 
         assertThrows<RessursFinnesIkkeException> {controller.hentPDF(ULID.random())  }

@@ -7,6 +7,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.REQUEST_MAPPING_INNLOGGET_ARBEIDSGIVER
 import no.nav.arbeidsgiver.tiltakrefusjon.hendelseslogg.HendelsesloggRepository
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjoner
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.varsling.VarslingRepository
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
@@ -18,14 +19,14 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock
+import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.ResultMatcher
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.header
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.nio.charset.StandardCharsets
@@ -213,6 +214,7 @@ class RefusjonApiTest(
         val id = refusjonRepository.findAll().find { it.deltakerFnr == "28128521498" }?.id
 
         // Inntektsoppslag ved henting av refusjon
+        oppdaterRefusjonMedOppdatertInnteksgrunnlagOgKontonummer(id)
         val refusjonEtterInntektsgrunnlag = hentRefusjon(id)
         assertThat(refusjonEtterInntektsgrunnlag.refusjonsgrunnlag.inntektsgrunnlag).isNotNull()
 
@@ -251,6 +253,7 @@ class RefusjonApiTest(
         // Godkjenn
         mockMvc.perform(
             post("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id/godkjenn")
+                .header(HttpHeaders.IF_UNMODIFIED_SINCE, Now.instant())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .cookie(arbGiverCookie)
@@ -272,6 +275,10 @@ class RefusjonApiTest(
         return mapper.readValue(json, Refusjon::class.java)
     }
 
+    private fun oppdaterRefusjonMedOppdatertInnteksgrunnlagOgKontonummer(id: String?) {
+        sendRequest(put("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id/med-oppdatert-inntekstsgrunnlag-og-kontonummer"), arbGiverCookie)
+    }
+
     private fun sendRequest(request: MockHttpServletRequestBuilder, cookie: Cookie): String {
         return sendRequest(request, cookie, null)
     }
@@ -291,6 +298,7 @@ class RefusjonApiTest(
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .cookie(cookie)
+                .header(HttpHeaders.IF_UNMODIFIED_SINCE, Now.instant())
         )
             .andExpect(status)
             .andReturn()

@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page
 import org.springframework.http.*
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
+import java.time.Instant
 
 
 const val REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON = "/api/arbeidsgiver/refusjon"
@@ -76,12 +77,20 @@ class ArbeidsgiverRefusjonController(
         return ResponseEntity<Map<String, Any>>(response, HttpStatus.OK)
     }
 
+    @PutMapping("/{id}/med-oppdatert-inntekstsgrunnlag-og-kontonummer")
+    @Transactional
+    fun oppdatertRefusjonMedInntektsgrunnlagOgKontonummer(@PathVariable id: String)  {
+        val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
+        arbeidsgiver.oppdaterRefusjonMedInntektsgrunnlagOgKontonummer(id)
+    }
+
     @GetMapping("/{id}")
     @Transactional
     fun hent(@PathVariable id: String): Refusjon? {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
         return arbeidsgiver.finnRefusjon(id)
     }
+
 
     @PostMapping("/{id}/endre-bruttolønn")
     @Transactional
@@ -116,9 +125,12 @@ class ArbeidsgiverRefusjonController(
 
     @PostMapping("/{id}/set-inntektslinje-opptjent-i-periode")
     @Transactional
-    fun endreRefundertInntekslinje(@PathVariable id: String, @RequestBody request: EndreRefundertInntektslinjeRequest) {
+    fun endreRefundertInntekslinje(@PathVariable id: String,
+                                   @RequestBody request: EndreRefundertInntektslinjeRequest,
+                                   @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE)  sistEndret: Instant) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
         arbeidsgiver.setInntektslinjeTilOpptjentIPeriode(
+            sistEndret,
             refusjonId = id,
             inntekslinjeId = request.inntektslinjeId,
             erOpptjentIPeriode = request.erOpptjentIPeriode
@@ -127,15 +139,18 @@ class ArbeidsgiverRefusjonController(
 
     @PostMapping("/{id}/godkjenn")
     @Transactional
-    fun godkjenn(@PathVariable id: String) {
+    fun godkjenn(@PathVariable id: String,@RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE)  sistEndret: Instant
+    ) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-        arbeidsgiver.godkjenn(id)
+        arbeidsgiver.godkjenn(sistEndret,id)
     }
 
     @PostMapping("/{id}/merk-for-hent-inntekter-frem")
     @Transactional
-    fun merkForHentInntekterFrem(@PathVariable id: String, @RequestBody request: MerkInntekterFremRequest) {
+    fun merkForHentInntekterFrem(@PathVariable id: String,
+                                 @RequestBody request: MerkInntekterFremRequest,
+                                 @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-        arbeidsgiver.merkForHentInntekterFrem(id, request.merking)
+        arbeidsgiver.merkForHentInntekterFrem(sistEndret,id, request.merking)
     }
 }

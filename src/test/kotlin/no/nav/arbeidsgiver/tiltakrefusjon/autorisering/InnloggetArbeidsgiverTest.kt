@@ -105,11 +105,54 @@ internal class InnloggetArbeidsgiverTest(
 
         every { altinnTilgangsstyringService.hentTilganger(any()) } returns setOf<Organisasjon>(Organisasjon("Bedrift AS", "Bedrift type", "999999999","Org form","Status"))
         val innloggetArbeidsgiver = InnloggetArbeidsgiver("12345678901",altinnTilgangsstyringService,refusjonRepository,korreksjonRepository,refusjonService,eregClient)
+        innloggetArbeidsgiver.oppdaterRefusjonMedInntektsgrunnlagOgKontonummer(refusjon1.id)
         val refusjonFunnet = innloggetArbeidsgiver.finnRefusjon(refusjon1.id)
-        assertThat(refusjonFunnet).isEqualTo(refusjon1)
+            assertThat(refusjonFunnet).isEqualTo(refusjon1)
 
+        innloggetArbeidsgiver.oppdaterRefusjonMedInntektsgrunnlagOgKontonummer(refusjon2.id)
         val refusjonFunnet2 = innloggetArbeidsgiver.finnRefusjon(refusjon2.id)
         assertThat(refusjonFunnet2).isEqualTo(refusjon2)
+    }
+
+    @Test
+    fun `finnRefusjon Med Ulik Sist Endret instance`() {
+        val deltakerFnr = "00000000000"
+        val tilskuddMelding = TilskuddsperiodeGodkjentMelding(
+            avtaleId = "1",
+            tilskuddsbeløp = 1000,
+            tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
+            deltakerEtternavn = "Mus",
+            deltakerFornavn = "Mikke",
+            arbeidsgiverFornavn = "Arne",
+            arbeidsgiverEtternavn = "Arbeidsgiver",
+            arbeidsgiverTlf = "41111111",
+            arbeidsgiveravgiftSats = 0.141,
+            avtaleInnholdId = "1",
+            bedriftNavn = "Bedriften AS",
+            bedriftNr = "999999999",
+            deltakerFnr = deltakerFnr,
+            feriepengerSats = 0.125,
+            otpSats = 0.03,
+            tilskuddFom =  Now.localDate().minusWeeks(4),
+            tilskuddTom = Now.localDate().minusDays(1),
+            tilskuddsperiodeId = "1",
+            veilederNavIdent = "X123456",
+            lønnstilskuddsprosent = 60,
+            avtaleNr = 3456,
+            løpenummer = 1,
+            resendingsnummer = null,
+            enhet = "1000",
+            godkjentTidspunkt = LocalDateTime.now()
+        )
+
+
+        val refusjon1 = refusjonService.opprettRefusjon(tilskuddMelding)!!
+
+        every { altinnTilgangsstyringService.hentTilganger(any()) } returns setOf<Organisasjon>(Organisasjon("Bedrift AS", "Bedrift type", "999999999","Org form","Status"))
+        val innloggetArbeidsgiver = InnloggetArbeidsgiver("12345678901",altinnTilgangsstyringService,refusjonRepository,korreksjonRepository,refusjonService,eregClient)
+        innloggetArbeidsgiver.oppdaterRefusjonMedInntektsgrunnlagOgKontonummer(refusjon1.id)
+        val refusjonFunnet = innloggetArbeidsgiver.finnRefusjon(refusjon1.id)
+        assertThat(refusjonFunnet).isEqualTo(refusjon1)
     }
 
     @Test
@@ -247,31 +290,37 @@ internal class InnloggetArbeidsgiverTest(
         val refusjon4 = opprettRefusjonOgGjørInntektoppslag(tilskuddMelding4LittEldreMedLøpenummer4)
 
         // Skal ikke ha noe minus fra gammel refusjon eller inntekt
+        innloggetArbeidsgiver.oppdaterRefusjonMedInntektsgrunnlagOgKontonummer(refusjon1.id)
         val refusjon1FunnetViaFinnRefusjon = innloggetArbeidsgiver.finnRefusjon(refusjon1.id)
         assertThat(refusjon1).isEqualTo(refusjon1FunnetViaFinnRefusjon)
         // Sett innhentede inntekter til opptjent i periode
         refusjon1FunnetViaFinnRefusjon.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.forEach { it.erOpptjentIPeriode = true }
         assertThat(refusjon1FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(0)
-        refusjonService.godkjennForArbeidsgiver(refusjon1FunnetViaFinnRefusjon,"999999999")
+        refusjonService.godkjennForArbeidsgiver(Now.instant(),refusjon1FunnetViaFinnRefusjon,"999999999")
 
         // Skal ikke ha minus fra gammel refusjon, men få minus fra ferietrekk
+        innloggetArbeidsgiver.oppdaterRefusjonMedInntektsgrunnlagOgKontonummer(refusjon2.id)
         val refusjon2FunnetViaFinnRefusjon = innloggetArbeidsgiver.finnRefusjon(refusjon2.id)
         refusjon2FunnetViaFinnRefusjon.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.forEach { it.erOpptjentIPeriode = true }
-        refusjonService.godkjennForArbeidsgiver(refusjon2FunnetViaFinnRefusjon,"999999999")
+        refusjonService.godkjennForArbeidsgiver(Now.instant(),refusjon2FunnetViaFinnRefusjon,"999999999")
 
         // Skal finne gammel minus, men ikke minus fra inntekt
+        innloggetArbeidsgiver.oppdaterRefusjonMedInntektsgrunnlagOgKontonummer(refusjon3.id)
         val refusjon3FunnetViaFinnRefusjon = innloggetArbeidsgiver.finnRefusjon(refusjon3.id)
+
         refusjon3FunnetViaFinnRefusjon.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.forEach { it.erOpptjentIPeriode = true }
+
         assertThat(refusjon3FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(-3966)
         assertThat(refusjon3FunnetViaFinnRefusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp).isPositive()
-        refusjonService.godkjennForArbeidsgiver(refusjon3FunnetViaFinnRefusjon,"999999999")
+        refusjonService.godkjennForArbeidsgiver(Now.instant(),refusjon3FunnetViaFinnRefusjon,"999999999")
 
         // Minus skal nå være nullstillt
+        innloggetArbeidsgiver.oppdaterRefusjonMedInntektsgrunnlagOgKontonummer(refusjon4.id)
         val refusjon4FunnetViaFinnRefusjon = innloggetArbeidsgiver.finnRefusjon(refusjon4.id)
         refusjon4FunnetViaFinnRefusjon.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.forEach { it.erOpptjentIPeriode = true }
         assertThat(refusjon4FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(0)
         assertThat(refusjon4FunnetViaFinnRefusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp).isPositive()
-        refusjonService.godkjennForArbeidsgiver(refusjon4FunnetViaFinnRefusjon,"999999999")
+        refusjonService.godkjennForArbeidsgiver(Now.instant(),refusjon4FunnetViaFinnRefusjon,"999999999")
     }
 
     @Test
@@ -411,21 +460,21 @@ internal class InnloggetArbeidsgiverTest(
 
         val refusjon1FunnetViaFinnRefusjon = innloggetArbeidsgiver.finnRefusjon(refusjon1.id)
         assertThat(refusjon1FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(0)
-        refusjonService.godkjennForArbeidsgiver(refusjon1FunnetViaFinnRefusjon,"999999999")
+        refusjonService.godkjennForArbeidsgiver(Now.instant(),refusjon1FunnetViaFinnRefusjon,"999999999")
 
 
         val refusjon2FunnetViaFinnRefusjon = innloggetArbeidsgiver.finnRefusjon(refusjon2.id)
         assertThat(refusjon2FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(0)
-        refusjonService.godkjennForArbeidsgiver(refusjon2,"999999999")
+        refusjonService.godkjennForArbeidsgiver(Now.instant(),refusjon2,"999999999")
 
 
         val refusjon3FunnetViaFinnRefusjon = innloggetArbeidsgiver.finnRefusjon(refusjon3.id)
         assertThat(refusjon3FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(0)
-        refusjonService.godkjennForArbeidsgiver(refusjon3FunnetViaFinnRefusjon,"999999999")
+        refusjonService.godkjennForArbeidsgiver(Now.instant(),refusjon3FunnetViaFinnRefusjon,"999999999")
 
         val refusjon4unnetViaFinnRefusjon = innloggetArbeidsgiver.finnRefusjon(refusjon4.id)
         assertThat(refusjon4unnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(0)
-        refusjonService.godkjennForArbeidsgiver(refusjon4unnetViaFinnRefusjon,"999999999")
+        refusjonService.godkjennForArbeidsgiver(Now.instant(),refusjon4unnetViaFinnRefusjon,"999999999")
 
 
     }
@@ -462,7 +511,7 @@ internal class InnloggetArbeidsgiverTest(
 
 
         val refusjon1 = opprettRefusjonOgGjørInntektoppslag(tilskuddMeldingUtenFerieTrekk)!!
-        refusjonService.godkjennForArbeidsgiver(refusjon1,"999999999")
+        refusjonService.godkjennForArbeidsgiver(Now.instant(),refusjon1,"999999999")
 
 
         every { altinnTilgangsstyringService.hentTilganger(any()) } returns setOf<Organisasjon>(Organisasjon("Bedrift AS", "Bedrift type", "999999999","Org form","Status"))

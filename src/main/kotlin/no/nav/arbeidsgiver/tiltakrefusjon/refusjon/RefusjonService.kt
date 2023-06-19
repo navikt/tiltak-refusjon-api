@@ -11,6 +11,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkj
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.Instant
 
 @Service
 @Transactional
@@ -123,14 +124,15 @@ class RefusjonService(
                 respons = inntektsoppslag.second
             )
             refusjon.oppgiInntektsgrunnlag(inntektsgrunnlag, refusjon.inntektsgrunnlag)
+
             refusjonRepository.save(refusjon)
         } catch (e: Exception) {
             log.error("Feil ved henting av inntekter for refusjon ${refusjon.id}", e)
         }
     }
 
-    fun godkjennForArbeidsgiver(refusjon: Refusjon, utførtAv: String) {
-        refusjon.godkjennForArbeidsgiver(utførtAv)
+    fun godkjennForArbeidsgiver(sistEndret:Instant,refusjon: Refusjon, utførtAv: String) {
+        refusjon.godkjennForArbeidsgiver(sistEndret,utførtAv)
         refusjonRepository.save(refusjon)
     }
 

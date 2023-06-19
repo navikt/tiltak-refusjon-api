@@ -15,6 +15,7 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
+import java.time.Instant
 
 data class InnloggetArbeidsgiver(
     val identifikator: String,
@@ -73,26 +74,26 @@ data class InnloggetArbeidsgiver(
         return getQueryMethodForFinnAlleForGittArbeidsgiver(finnAlleUnderenheterTilArbeidsgiver(), status, tiltakstype, sortingOrder, page, size)
     }
 
-    fun godkjenn(refusjonId: String) {
+    fun godkjenn(sistEndret:Instant,refusjonId: String) {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(refusjonId) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
-        refusjonService.godkjennForArbeidsgiver(refusjon, this.identifikator)
+        refusjonService.godkjennForArbeidsgiver(sistEndret,refusjon, this.identifikator)
     }
-
-    fun finnRefusjon(id: String): Refusjon {
-        val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
-
+    fun oppdaterRefusjonMedInntektsgrunnlagOgKontonummer(id: String) {
+        val refusjon: Refusjon = finnRefusjon(id)
         // Ikke sett minusbeløp på allerede sendt inn refusjoner
         if(refusjon.status == RefusjonStatus.KLAR_FOR_INNSENDING || refusjon.status == RefusjonStatus.FOR_TIDLIG) {
             refusjonService.settMinusBeløpFraTidligereRefusjonerTilknyttetAvtalen(refusjon)
         }
-
-        sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
         if(refusjon.åpnetFørsteGang == null) {
             refusjon.åpnetFørsteGang = Now.instant()
         }
         refusjonService.gjørBedriftKontonummeroppslag(refusjon)
         refusjonService.gjørInntektsoppslag(refusjon)
+    }
+    fun finnRefusjon(id: String): Refusjon {
+        val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
+        sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
         return refusjon
     }
 
@@ -123,10 +124,10 @@ data class InnloggetArbeidsgiver(
         refusjonRepository.save(refusjon)
     }
 
-    fun setInntektslinjeTilOpptjentIPeriode(refusjonId: String, inntekslinjeId: String, erOpptjentIPeriode: Boolean) {
+    fun setInntektslinjeTilOpptjentIPeriode(sistEndret:Instant, refusjonId: String, inntekslinjeId: String, erOpptjentIPeriode: Boolean) {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(refusjonId) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
-        refusjon.setInntektslinjeTilOpptjentIPeriode(inntekslinjeId, erOpptjentIPeriode)
+        refusjon.setInntektslinjeTilOpptjentIPeriode(sistEndret,inntekslinjeId, erOpptjentIPeriode)
         refusjonRepository.save(refusjon)
     }
 
@@ -150,11 +151,10 @@ data class InnloggetArbeidsgiver(
         );
         refusjonRepository.save(refusjon)
     }
-
-    fun merkForHentInntekterFrem(id: String, merking: Boolean) {
+    fun merkForHentInntekterFrem(sistEndret:Instant,id: String, merking: Boolean) {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
-        refusjon.merkForHentInntekterFrem(merking, identifikator)
+        refusjon.merkForHentInntekterFrem(sistEndret,merking, identifikator)
         log.info("Merket refusjon ${refusjon.id} for henting av inntekter fremover")
         refusjonRepository.save(refusjon)
     }

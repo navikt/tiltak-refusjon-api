@@ -23,10 +23,10 @@ spec:
             sla: "no need to respond"
           labels:
             severity: "info"
-            special_type_to_use_in_alertmanager_config: myteam-testing
+            alertmanager_config_type: tiltak-refusjon-type
             alert_type: custom
         - alert: TILTAK-REFUSJON-API ERROR!
-          expr: sum(increase(logd_messages_total{log_app="tiltak-refusjon-api",log_level="Error"}[10m])) > 0
+          expr: sum(increase(logd_messages_total{log_app="tiltak-refusjon-api",log_level="Error"}[3m])) > 0
           for: 10s
           annotations:
             consequence: Feil i loggen til refusjon-api
@@ -35,7 +35,7 @@ spec:
               tiltak-refusjon-api har logget en feil :mild-panic-intensifies: Sjekk loggene om noe bør gjøres!
           labels:
             severity: "info"
-            special_type_to_use_in_alertmanager_config: myteam-testing
+            alertmanager_config_type: tiltak-refusjon-type
             alert_type: custom
 
 
@@ -79,9 +79,9 @@ spec:
     groupBy:
       - alertname
     matchers:
-      - name: "special_type_to_use_in_alertmanager_config"
+      - name: "alertmanager_config_type"
         matchType: "="
-        value: "myteam-testing"
+        value: "tiltak-refusjon-type"
     groupInterval: 10s
     groupWait: 5s
     receiver: tiltak-refusjon-api-receiver

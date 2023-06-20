@@ -113,6 +113,67 @@ internal class InnloggetArbeidsgiverTest(
     }
 
     @Test
+    fun lagEnRefusjonMedMinusbeløp() {
+        val deltakerFnr = "08098613316"
+        val periode2start = Now.localDate().minusMonths(3).with(TemporalAdjusters.firstDayOfMonth());
+        val periode2slutt = Now.localDate().minusMonths(3).with(TemporalAdjusters.lastDayOfMonth());
+        every { altinnTilgangsstyringService.hentTilganger(any()) } returns setOf<Organisasjon>(
+            Organisasjon(
+                "Bedrift AS",
+                "Bedrift type",
+                "999999999",
+                "Org form",
+                "Status"
+            )
+        )
+        val innloggetArbeidsgiver = InnloggetArbeidsgiver(
+            "12345678901",
+            altinnTilgangsstyringService,
+            refusjonRepository,
+            korreksjonRepository,
+            refusjonService,
+            eregClient
+        )
+
+        val tilskuddMelding2LittEldreMedLøpenummer2 = TilskuddsperiodeGodkjentMelding(
+            avtaleId = "1",
+            tilskuddsbeløp = 1000,
+            tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
+            deltakerEtternavn = "Mus",
+            deltakerFornavn = "Mikke",
+            arbeidsgiverFornavn = "Arne",
+            arbeidsgiverEtternavn = "Arbeidsgiver",
+            arbeidsgiverTlf = "41111111",
+            arbeidsgiveravgiftSats = 0.141,
+            avtaleInnholdId = "2",
+            bedriftNavn = "Bedriften AS",
+            bedriftNr = "999999999",
+            deltakerFnr = deltakerFnr,
+            feriepengerSats = 0.125,
+            otpSats = 0.03,
+            tilskuddFom = periode2start,
+            tilskuddTom = periode2slutt,
+            tilskuddsperiodeId = "2",
+            veilederNavIdent = "X123456",
+            lønnstilskuddsprosent = 60,
+            avtaleNr = 3456,
+            løpenummer = 2,
+            resendingsnummer = null,
+            enhet = "1000",
+            godkjentTidspunkt = LocalDateTime.now()
+        )
+
+        val refusjon2 = opprettRefusjonOgGjørInntektoppslag(tilskuddMelding2LittEldreMedLøpenummer2)
+        // Skal ikke ha minus fra gammel refusjon, men få minus fra ferietrekk
+        val refusjon2ById = innloggetArbeidsgiver.finnRefusjon(refusjon2.id)
+        refusjon2ById.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }
+            ?.forEach { it.erOpptjentIPeriode = true }
+        refusjonService.godkjennForArbeidsgiver(refusjon2ById, "999999999")
+        val refusjonMedMinus = innloggetArbeidsgiver.finnRefusjon(refusjon2.id)
+        assertThat(refusjonMedMinus.minusbelop).isNotNull
+    }
+
+    @Test
     fun finnRefusjonMedMinusBeløpFraTidligereRefusjon(){
         val deltakerFnr = "08098613316"
 

@@ -131,6 +131,20 @@ class RefusjonService(
 
     fun godkjennForArbeidsgiver(refusjon: Refusjon, utførtAv: String) {
         refusjon.godkjennForArbeidsgiver(utførtAv)
+        if(refusjon.status == RefusjonStatus.GODKJENT_MINUSBELØP) {
+            val alleMinusBeløp = minusbelopRepository.findAllByAvtaleNr(refusjon.tilskuddsgrunnlag.avtaleNr)
+            alleMinusBeløp.forEach {
+                it.gjortOpp = true
+                minusbelopRepository.save(it)
+            }
+            val minusbelop = Minusbelop (
+                avtaleNr = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr,
+                beløp = refusjon.refusjonsgrunnlag.beregning?.refusjonsbeløp,
+                løpenummer = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.løpenummer)
+
+            refusjon.minusbelop = minusbelop
+            log.info("Setter minusbeløp ${minusbelop.id} på refusjon ${refusjon.id}")
+        }
         refusjonRepository.save(refusjon)
     }
 

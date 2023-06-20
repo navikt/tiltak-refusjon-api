@@ -69,28 +69,7 @@ spec:
             *Summary:* {{ .Annotations.summary }}
             *Description:* {{ .Annotations.description }}
             {{ end }}
-          color: |-
-            {{ if eq .Status "firing" -}}
-              {{ if eq .CommonLabels.severity "warning" -}}
-                warning
-              {{- else if eq .CommonLabels.severity "fatal" -}}
-                #611f69
-              {{- else if eq .CommonLabels.severity "critical" -}}
-                #611f69
-              {{- else if eq .CommonLabels.severity "danger" -}}
-                danger
-              {{- else if eq .CommonLabels.severity "error" -}}
-                danger
-              {{- else if eq .CommonLabels.severity "notice" -}}
-                good
-              {{- else if eq .CommonLabels.severity "info" -}}
-                #36c5f0
-              {{- else -}}
-                .CommonLabels.severity
-              {{- end -}}
-            {{ else -}}
-            good
-            {{- end }}
+          color: danger
   route:
     groupBy:
       - alertname

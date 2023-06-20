@@ -57,7 +57,7 @@ spec:
             name: slack-webhook
           channel: 'arbeidsgiver-tiltak-alerts-testing'
           iconEmoji: ':error:'
-          username: 'Alert TILTAK-REFUSJON-API'
+          username: 'Alert refusjon-api'
           sendResolved: true
 #          httpConfig:
 #            proxyURL: http://webproxy.nais:8088
@@ -67,7 +67,7 @@ spec:
             {{ range .Alerts -}}
             *Alert:* {{ .Annotations.title }}{{ if .Labels.severity }} - `{{ .Labels.severity }}`{{ end }}
             *Summary:* {{ .Annotations.summary }}
-            *Description:* {{ .Annotations.description }} <https://logs.adeo.no/app/discover#/?_g=(time:(from:now-24h,to:now))&_a=(columns:!(message,envclass,level),index:'96e648c0-980a-11e9-830a-e17bbd64b4db',interval:auto,query:(language:lucene,query:'%2Bapplication:%22k9-los-api%22%20%2Bcluster:{{ cluster }}%20%2Blevel:Error'))|kibana>
+            *Description:* {{ .Annotations.description }}
             {{ end }}
           color: |-
             {{ if eq .Status "firing" -}}

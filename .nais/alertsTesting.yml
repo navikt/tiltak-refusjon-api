@@ -50,20 +50,31 @@ metadata:
     alertmanagerConfig: tiltak-refusjon-api-testing-alert-config
 spec:
   receivers:
-    - name: myteam-testing-receiver
+    - name: tiltak-refusjon-api-receiver
       slackConfigs:
         - apiURL:
             key: apiUrl
             name: slack-webhook
           channel: 'arbeidsgiver-tiltak-alerts-testing'
-  #          iconEmoji: ':test:'
-  #          username: 'Testing Alert'
-  #          sendResolved: true
-  #          httpConfig:
-  #            proxyURL: http://webproxy.nais:8088
-          title: 'En fryktelig feil har skjedd'
-  #          text: 'tekst kommer her'
-  #          color: danger
+          iconEmoji: ':scream:'
+          username: 'Alertmanager'
+          sendResolved: true
+          color: "danger"
+          title: |-
+            [\{{ .Status | toUpper }}\{{ if eq .Status "firing" }}:\{{ .Alerts.Firing | len }}\{{ end }}] \{{ .CommonLabels.alertname }}
+          text: >-
+            \{{ range .Alerts }}
+            \{{ if or .Annotations.summary .Annotations.message }}
+            \{{ or .Annotations.summary .Annotations.message }}
+            \{{ println " " }}
+            \{{- end }}
+            \{{- if .Annotations.consequence }}
+            • *consequence*: \{{ .Annotations.consequence }} \{{ println " " }}
+            \{{- end }}
+            \{{- if .Annotations.action }}
+            • *action*: \{{ .Annotations.action }} \{{ println " " }}
+            \{{- end }}
+            \{{ end }}
   route:
     groupBy:
       - alertname
@@ -73,5 +84,5 @@ spec:
         value: "myteam-testing"
     groupInterval: 10s
     groupWait: 5s
-    receiver: myteam-testing-receiver
+    receiver: tiltak-refusjon-api-receiver
     repeatInterval: 2m

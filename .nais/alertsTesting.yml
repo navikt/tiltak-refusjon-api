@@ -56,20 +56,15 @@ spec:
             key: apiUrl
             name: slack-webhook
           channel: 'arbeidsgiver-tiltak-alerts-testing'
-          iconEmoji: ':error:'
-          username: 'Alert refusjon-api'
-          sendResolved: true
-#          httpConfig:
-#            proxyURL: http://webproxy.nais:8088
+  #          iconEmoji: ':test:'
+  #          username: 'Testing Alert'
+  #          sendResolved: true
+  #          httpConfig:
+  #            proxyURL: http://webproxy.nais:8088
           title: |-
             [{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .CommonLabels.alertname }}
-          text: |-
-            {{ range .Alerts -}}
-            *Alert:* {{ .Annotations.title }}{{ if .Labels.severity }} - `{{ .Labels.severity }}`{{ end }}
-            *Summary:* {{ .Annotations.summary }}
-            *Description:* {{ .Annotations.description }}
-            {{ end }}
-          color: danger
+  #          text: 'tekst kommer her'
+  #          color: danger
   route:
     groupBy:
       - alertname

@@ -50,7 +50,7 @@ spec:
         - apiURL:
             key: apiUrl
             name: slack-webhook
-          channel: '#arebeidsgiver-tiltak-alerts-testing'
+          channel: '#arbeidsgiver-tiltak-alerts-testing'
           iconEmoji: ':alert:'
           username: 'Alert dev-gcp'
           sendResolved: true

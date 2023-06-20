@@ -55,17 +55,20 @@ spec:
           username: 'Alert dev-gcp'
           sendResolved: true
           title: |-
-            [{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .CommonLabels.alertname }}
+            [\{{ .Status | toUpper }}\{{ if eq .Status "firing" }}:\{{ .Alerts.Firing | len }}\{{ end }}] \{{ .CommonLabels.alertname }}
           text: >-
-            {{ range .Alerts }}
-            {{ if or .Annotations.summary .Annotations.message }}
-            {{ or .Annotations.summary .Annotations.message }}
-            {{ println " " }}
-            {{- end }}
-            {{- if .Annotations.action }}
-            • *action*: {{ .Annotations.action }} {{ println " " }}
-            {{- end }}
-            {{ end }}
+            \{{ range .Alerts }}
+            \{{ if or .Annotations.summary .Annotations.message }}
+            \{{ or .Annotations.summary .Annotations.message }}
+            \{{ println " " }}
+            \{{- end }}
+            \{{- if .Annotations.consequence }}
+            • *consequence*: \{{ .Annotations.consequence }} \{{ println " " }}
+            \{{- end }}
+            \{{- if .Annotations.action }}
+            • *action*: \{{ .Annotations.action }} \{{ println " " }}
+            \{{- end }}
+            \{{ end }}
   route:
     groupBy:
       - alertname

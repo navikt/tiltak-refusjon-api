@@ -1,7 +1,7 @@
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
-  name: tiltak-refusjon-api-alert
+  name: tiltak-refusjon-api-alerts
   namespace: arbeidsgiver
   labels:
     team: arbeidsgiver

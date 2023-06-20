@@ -16,7 +16,8 @@ class RefusjonGodkjentMinusBeløpLytter(
 ) {
     val log = LoggerFactory.getLogger(javaClass)
 
-    @EventListener
+    @TransactionalEventListener
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     fun refusjonGodkjentMinusbeløp(event: RefusjonGodkjentMinusBeløp) {
         // Lagre et minusbeløp. Må evt dra fra gamle minusbeløp så det ikke blir dobbelt opp
         val refusjon = refusjonRepository.findByIdOrNull(event.refusjon.id) ?: throw RuntimeException("Finner ikke refusjon med id=${event.refusjon.id}")
@@ -35,5 +36,6 @@ class RefusjonGodkjentMinusBeløpLytter(
         refusjon.minusbelop = minusbelop
         log.info("Setter minusbeløp ${minusbelop.id} på refusjon ${refusjon.id}")
         refusjonRepository.save(refusjon)
+        minusbelopRepository.save(minusbelop)
     }
 }

@@ -20,14 +20,14 @@ spec:
             severity: danger
             tiltal_refusjon_api_type: tiltak-refusjon-api
             alert_type: custom
-        - alert: TILTAK-REFUSJON-API INFO LOG!
-          expr: sum(increase(logd_messages_total{log_app="tiltak-refusjon-api",log_level="Info"}[10m])) > 0
+        - alert: TILTAK-REFUSJON-API ERROR LOG!
+          expr: sum(increase(logback_events_total{app="tiltak-refusjon-api",level="error"}[10m])) > 0
           for: 10s
           annotations:
-            consequence: Info i loggen til refusjon-api
+            consequence: Error i loggen til refusjon-api
             action: "Sjekk logs.adeo.no for logger: https://logs.adeo.no/s/nav-logs-legacy/app/r/s/F1qMf"
             summary: |-
-              tiltak-refusjon-api har logget en Info :gooder: Sjekk loggene om noe bør gjøres!
+              tiltak-refusjon-api har logget en Error :gooder: Sjekk loggene om noe bør gjøres!
           labels:
             namespace: arbeidsgiver
             severity: danger

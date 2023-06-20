@@ -51,9 +51,9 @@ spec:
   receivers:
     - name: myteam-testing-receiver
       slackConfigs:
-#        - apiURL:
-#            key: apiUrl
-#            name: slack-webhook
+        - apiURL:
+            key: apiUrl
+            name: slack-webhook
           channel: 'arbeidsgiver-tiltak-alerts-testing'
 #          iconEmoji: ':test:'
 #          username: 'Testing Alert'

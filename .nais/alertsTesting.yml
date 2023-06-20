@@ -32,6 +32,7 @@ spec:
             namespace: arbeidsgiver
             severity: danger
             tiltal_refusjon_api_type: tiltak-refusjon-api
+            alert_type: custom
 
 
 ---
@@ -50,7 +51,7 @@ spec:
         - apiURL:
             key: apiUrl
             name: slack-webhook
-          channel: '#arbeidsgiver-tiltak-alerts-testing'
+          channel: 'arbeidsgiver-tiltak-alerts-testing'
           iconEmoji: ':alert:'
           username: 'Alert dev-gcp'
           sendResolved: true

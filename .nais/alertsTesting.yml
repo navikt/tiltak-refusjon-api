@@ -12,14 +12,14 @@ spec:
     - name: tiltak-refusjon-api-testing-alert
       rules:
         - alert: refusjon-api error i loggen
-          expr: sum(increase(logback_events_total{app="tiltak-refusjon-api",level="error"}[10m])) > 0
+          expr: sum(increase(logback_events_total{app="tiltak-refusjon-api",level="error"}[3m])) > 0
           for: 1m
           annotations:
             consequence: Feil i loggen til refusjon-api
             action: "Sjekk logs.adeo.no for logger: https://logs.adeo.no/s/nav-logs-legacy/app/r/s/F1qMf"
             documentation: "https://prometheus.io/docs/prometheus/latest/querying/basics/"
             summary: |-
-              tiltak-refusjon-api har logget en feil :mild-panic-intensifies: Sjekk loggene om noe bør gjøres!
+              tiltak-refusjon-api har logget en feil :meow_boopsweat: Sjekk loggene om noe bør gjøres!
             sla: "no need to respond"
           labels:
             severity: "info"
@@ -32,7 +32,7 @@ spec:
             consequence: Feil i loggen til refusjon-api
             action: "Sjekk logs.adeo.no for logger: https://logs.adeo.no/s/nav-logs-legacy/app/r/s/F1qMf"
             summary: |-
-              tiltak-refusjon-api har logget en feil :mild-panic-intensifies: Sjekk loggene om noe bør gjøres!
+              tiltak-refusjon-api har logget en feil :meow_boopsweat: Sjekk loggene om noe bør gjøres!
           labels:
             severity: "info"
             alertmanager_config_type: tiltak-refusjon-type

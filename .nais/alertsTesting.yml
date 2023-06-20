@@ -1,35 +1,41 @@
-apiVersion: monitoring.coreos.com/v1
+apiVersion: "monitoring.coreos.com/v1"
 kind: PrometheusRule
 metadata:
-  name: tiltak-refusjon-api-alerts
-  namespace: arbeidsgiver
   labels:
     team: arbeidsgiver
+  name: tiltak-refusjon-api-testing-alert
+  namespace: arbeidsgiver
+  # test alerts, will always trigger
+  # used only to experiment with formatting etc
 spec:
   groups:
-    - name: tiltak-refusjon-api-alerts
+    - name: tiltak-refusjon-api-testing-alert
       rules:
-        - alert: Applikasjon nede
-          expr: kube_deployment_status_replicas_available{deployment="tiltak-refusjon-api"} == 0
-          for: 2m
-          annotations:
-            action: "`kubectl describe pod {{ $labels.deployment }} -n {{ $labels.namespace }}` for events, og `kubectl logs -l {{ $labels.deployment }} -n {{ $labels.namespace }}` for logger"
-            summary: "App {{ $labels.deployment }} er nede i namespace {{ $labels.namespace }}"
-          labels:
-            severity: danger
-            tiltal_refusjon_api_type: tiltak-refusjon-api
-            alert_type: custom
-        - alert: TILTAK-REFUSJON-API ERROR LOG!
+        - alert: refusjon-api error i loggen
           expr: sum(increase(logback_events_total{app="tiltak-refusjon-api",level="error"}[10m])) > 0
+          for: 1m
+          annotations:
+            consequence: Feil i loggen til refusjon-api
+            action: "Sjekk logs.adeo.no for logger: https://logs.adeo.no/s/nav-logs-legacy/app/r/s/F1qMf"
+            documentation: "https://prometheus.io/docs/prometheus/latest/querying/basics/"
+            summary: |-
+              tiltak-refusjon-api har logget en feil :mild-panic-intensifies: Sjekk loggene om noe bør gjøres!
+            sla: "no need to respond"
+          labels:
+            severity: "info"
+            special_type_to_use_in_alertmanager_config: myteam-testing
+            alert_type: custom
+        - alert: TILTAK-REFUSJON-API ERROR!
+          expr: sum(increase(logd_messages_total{log_app="tiltak-refusjon-api",log_level="Error"}[10m])) > 0
           for: 10s
           annotations:
-            consequence: Error i loggen til refusjon-api
+            consequence: Feil i loggen til refusjon-api
             action: "Sjekk logs.adeo.no for logger: https://logs.adeo.no/s/nav-logs-legacy/app/r/s/F1qMf"
             summary: |-
-              tiltak-refusjon-api har logget en Error :gooder: Sjekk loggene om noe bør gjøres!
+              tiltak-refusjon-api har logget en feil :mild-panic-intensifies: Sjekk loggene om noe bør gjøres!
           labels:
-            severity: danger
-            tiltal_refusjon_api_type: tiltak-refusjon-api
+            severity: "info"
+            special_type_to_use_in_alertmanager_config: myteam-testing
             alert_type: custom
 
 
@@ -50,9 +56,10 @@ spec:
             key: apiUrl
             name: slack-webhook
           channel: 'arbeidsgiver-tiltak-alerts-testing'
-          iconEmoji: ':alert:'
-          username: 'Alert dev-gcp'
+          iconEmoji: ':scream:'
+          username: 'Alertmanager'
           sendResolved: true
+          color: "danger"
           title: |-
             [\{{ .Status | toUpper }}\{{ if eq .Status "firing" }}:\{{ .Alerts.Firing | len }}\{{ end }}] \{{ .CommonLabels.alertname }}
           text: >-
@@ -72,9 +79,9 @@ spec:
     groupBy:
       - alertname
     matchers:
-      - name: "tiltak_refusjon_api_type"
+      - name: "special_type_to_use_in_alertmanager_config"
         matchType: "="
-        value: "tiltak-refusjon-api"
+        value: "myteam-testing"
     groupInterval: 10s
     groupWait: 5s
     receiver: tiltak-refusjon-api-receiver

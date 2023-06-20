@@ -11,19 +11,19 @@ spec:
   groups:
     - name: tiltak-refusjon-api-testing-alert
       rules:
-#        - alert: test alert will always trigger
-#          expr: container_memory_working_set_bytes{namespace="arbeidsgiver", container="tiltak-refusjon-api"} > 99
-#          for: 1m
-#          annotations:
-#            consequence: "_*{{ $labels.container }}*_ has a working set of {{ $value }} bytes, there is no consequence"
-#            action: "no need to do _anything_"
-#            documentation: "https://prometheus.io/docs/prometheus/latest/querying/basics/"
-#            summary: "Container _*{{ $labels.container }}*_ has a working set of {{ $value }} bytes."
-#            sla: "no need to respond"
-#          labels:
-#            severity: "info"
-#            special_type_to_use_in_alertmanager_config: myteam-testing
-#            alert_type: custom
+        - alert: test alert will always trigger
+          expr: container_memory_working_set_bytes{namespace="arbeidsgiver", container="tiltak-refusjon-api"} > 99
+          for: 1m
+          annotations:
+            consequence: "_*{{ $labels.container }}*_ has a working set of {{ $value }} bytes, there is no consequence"
+            action: "no need to do _anything_"
+            documentation: "https://prometheus.io/docs/prometheus/latest/querying/basics/"
+            summary: "Container _*{{ $labels.container }}*_ has a working set of {{ $value }} bytes."
+            sla: "no need to respond"
+          labels:
+            severity: "info"
+            special_type_to_use_in_alertmanager_config: myteam-testing
+            alert_type: custom
         - alert: TILTAK-REFUSJON-API ERROR!
           expr: sum(increase(logd_messages_total{log_app="tiltak-refusjon-api",log_level="Error"}[10m])) > 0
           for: 10s
@@ -51,18 +51,18 @@ spec:
   receivers:
     - name: myteam-testing-receiver
       slackConfigs:
-        - apiURL:
-            key: apiUrl
-            name: slack-webhook
+#        - apiURL:
+#            key: apiUrl
+#            name: slack-webhook
           channel: 'arbeidsgiver-tiltak-alerts-testing'
-          iconEmoji: ':test:'
-          username: 'Testing Alert'
-          sendResolved: true
+#          iconEmoji: ':test:'
+#          username: 'Testing Alert'
+#          sendResolved: true
 #          httpConfig:
 #            proxyURL: http://webproxy.nais:8088
-          title: 'tittel kommer her'
-          text: 'tekst kommer her'
-          color: danger
+#          title: 'tittel kommer her'
+#          text: 'tekst kommer her'
+#          color: danger
   route:
     groupBy:
       - alertname

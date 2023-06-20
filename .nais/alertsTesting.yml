@@ -15,10 +15,11 @@ spec:
           expr: container_memory_working_set_bytes{namespace="arbeidsgiver", container="tiltak-refusjon-api"} > 99
           for: 1m
           annotations:
-            consequence: "_*{{ $labels.container }}*_ has a working set of {{ $value }} bytes, there is no consequence"
-            action: "no need to do _anything_"
+            consequence: Feil i loggen til refusjon-api
+            action: "Sjekk logs.adeo.no for logger: https://logs.adeo.no/s/nav-logs-legacy/app/r/s/F1qMf"
             documentation: "https://prometheus.io/docs/prometheus/latest/querying/basics/"
-            summary: "Container _*{{ $labels.container }}*_ has a working set of {{ $value }} bytes."
+            summary: |-
+              tiltak-refusjon-api har logget en feil :mild-panic-intensifies: Sjekk loggene om noe bør gjøres!
             sla: "no need to respond"
           labels:
             severity: "info"

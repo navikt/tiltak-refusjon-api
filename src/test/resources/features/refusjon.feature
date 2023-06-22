@@ -117,6 +117,7 @@ Egenskap: Beregn refusjon for sommerjobb
       | LOENNSINNTEKT | timeloenn                                                                         | 10000 | 2020-04 | 2020-04-01            | 2020-04-30            | true           |
       | LOENNSINNTEKT | Honorar/Akkord/Prosent/Provisjon                                                  | 10000 | 2020-04 | 2020-04-01            | 2020-04-30            | true           |
       | LOENNSINNTEKT | fastTillegg                                                                       | 10000 | 2020-04 | 2020-04-01            | 2020-04-30            | true           |
+      | LOENNSINNTEKT | loennUtbetaltAvVeldedigEllerAllmennyttigInstitusjonEllerOrganisasjon              | 10000 | 2020-04 | 2020-04-01            | 2020-04-30            | true           |
       | LOENNSINNTEKT | uregelmessigeTilleggKnyttetTilArbeidetTid                                         | 10000 | 2020-04 | 2020-04-01            | 2020-04-30            | true           |
       | LOENNSINNTEKT | Helligdagstillegg                                                                 | 10000 | 2020-04 | 2020-04-01            | 2020-04-30            | true           |
       | LOENNSINNTEKT | Uregelmessige tillegg knyttet til ikke- arbeidet tid                              | 10000 | 2020-04 | 2020-04-01            | 2020-04-30            | true           |
@@ -143,4 +144,4 @@ Egenskap: Beregn refusjon for sommerjobb
       | LOENNSINNTEKT | Tips                                                                              | 10000 | 2020-04 | 2020-04-01            | 2020-04-30            | true           |
       | LOENNSINNTEKT | Aksjer/grunnfondsbevis til underkurs                                              | 10000 | 2020-04 | 2020-04-01            | 2020-04-30            | true           |
     Når sommerjobb på 50 prosent skal refunderes for periode "2020-04-01" til "2020-04-30" med arbeidsgiveravgift "0.0", feriepengersats "0.0", OTP-sats "0.0"
-    Så beregnes refusjon til 20000 kr for periode
+    Så beregnes refusjon til 25000 kr for periode

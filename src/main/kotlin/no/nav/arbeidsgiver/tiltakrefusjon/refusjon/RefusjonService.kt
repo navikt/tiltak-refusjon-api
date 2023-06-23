@@ -98,7 +98,7 @@ class RefusjonService(
     }
 
     fun settTotalBeløpUtbetalteVarigLønnstilskudd(refusjon: Refusjon) {
-        if(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype == Tiltakstype.VARIG_LONNSTILSKUDD) {
+        if(refusjon.status == RefusjonStatus.KLAR_FOR_INNSENDING && refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype == Tiltakstype.VARIG_LONNSTILSKUDD) {
             val alleUtbetalteVarige =
                 refusjonRepository.findAllByDeltakerFnrAndBedriftNrAndStatusInAndRefusjonsgrunnlag_Tilskuddsgrunnlag_Tiltakstype(
                     refusjon.deltakerFnr,

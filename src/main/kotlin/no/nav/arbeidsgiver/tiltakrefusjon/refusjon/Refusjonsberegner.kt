@@ -71,9 +71,11 @@ fun beregnRefusjonsbeløp(
     val overTilskuddsbeløp = beregnetBeløp > tilskuddsgrunnlag.tilskuddsbeløp
     var refusjonsbeløp =
         (if (overTilskuddsbeløp) tilskuddsgrunnlag.tilskuddsbeløp.toDouble() else beregnetBeløp) - (if(tidligereUtbetalt < 0) tidligereUtbetalt  * -1 else tidligereUtbetalt) + forrigeRefusjonMinusBeløp
+    var overFemGrunnbeløp = false
     if (tilskuddsgrunnlag.tiltakstype == Tiltakstype.VARIG_LONNSTILSKUDD) {
         if (refusjonsbeløp > gjenståendeEtterMaks5G(sumUtbetaltVarig.toDouble(), tilskuddFom)) {
             refusjonsbeløp = gjenståendeEtterMaks5G(sumUtbetaltVarig.toDouble(), tilskuddFom)
+            overFemGrunnbeløp = true
         }
     }
 
@@ -90,6 +92,7 @@ fun beregnRefusjonsbeløp(
         tidligereUtbetalt = tidligereUtbetalt,
         fratrekkLønnFerie = trekkgrunnlagFerie,
         tidligereRefundertBeløp = fratrekkRefunderbarBeløp,
+        overFemGrunnbeløp = overFemGrunnbeløp,
         sumUtgifterFratrukketRefundertBeløp = sumUtgifterFratrukketRefundertBeløp.roundToInt())
 }
 

@@ -1,0 +1,1 @@
+alter table refusjonsgrunnlag add column sum_utbetalt_varig numeric default 0;

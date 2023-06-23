@@ -52,9 +52,6 @@ class Refusjon(
     var midlerFrigjortÅrsak: MidlerFrigjortÅrsak? = null
 
     // Midlertidige frontend-mappinger
-    val beregning: Beregning? get() = refusjonsgrunnlag.beregning
-    val tilskuddsgrunnlag: Tilskuddsgrunnlag get() = refusjonsgrunnlag.tilskuddsgrunnlag
-    val inntektsgrunnlag: Inntektsgrunnlag? get() = refusjonsgrunnlag.inntektsgrunnlag
     val bedriftKontonummer: String? get() = refusjonsgrunnlag.bedriftKontonummer
     val inntekterKunFraTiltaket: Boolean? get() = refusjonsgrunnlag.inntekterKunFraTiltaket
     var utbetaltTidspunkt: Instant? = null

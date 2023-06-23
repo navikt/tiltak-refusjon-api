@@ -233,7 +233,7 @@ class RefusjonApiTest(
             EndreBruttolønnRequest(true, null)
         )
         val refusjonEtterInntektsspørsmål = hentRefusjon(id)
-        assertThat(refusjonEtterInntektsspørsmål.beregning?.refusjonsbeløp).isPositive()
+        assertThat(refusjonEtterInntektsspørsmål.refusjonsgrunnlag.beregning?.refusjonsbeløp).isPositive()
         val harLagretHendelselogg = hendelsesloggRepository.findAll()
             .find { it.refusjonId == refusjonEtterInntektsspørsmål.id && it.event == "BeregningUtført" && it.appImageId != null } != null
         assertTrue(harLagretHendelselogg)

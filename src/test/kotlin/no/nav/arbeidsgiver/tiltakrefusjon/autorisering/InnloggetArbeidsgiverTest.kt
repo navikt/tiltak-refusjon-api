@@ -166,7 +166,7 @@ internal class InnloggetArbeidsgiverTest(
         val refusjon2 = opprettRefusjonOgGjørInntektoppslag(tilskuddMelding2LittEldreMedLøpenummer2)
         // Skal ikke ha minus fra gammel refusjon, men få minus fra ferietrekk
         val refusjon2ById = innloggetArbeidsgiver.finnRefusjon(refusjon2.id)
-        refusjon2ById.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }
+        refusjon2ById.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }
             ?.forEach { it.erOpptjentIPeriode = true }
         refusjonService.godkjennForArbeidsgiver(refusjon2ById, "999999999")
         val refusjonMedMinus = innloggetArbeidsgiver.finnRefusjon(refusjon2.id)
@@ -311,25 +311,25 @@ internal class InnloggetArbeidsgiverTest(
         val refusjon1FunnetViaFinnRefusjon = innloggetArbeidsgiver.finnRefusjon(refusjon1.id)
         assertThat(refusjon1).isEqualTo(refusjon1FunnetViaFinnRefusjon)
         // Sett innhentede inntekter til opptjent i periode
-        refusjon1FunnetViaFinnRefusjon.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.forEach { it.erOpptjentIPeriode = true }
+        refusjon1FunnetViaFinnRefusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.forEach { it.erOpptjentIPeriode = true }
         assertThat(refusjon1FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(0)
         refusjonService.godkjennForArbeidsgiver(refusjon1FunnetViaFinnRefusjon,"999999999")
 
         // Skal ikke ha minus fra gammel refusjon, men få minus fra ferietrekk
         val refusjon2FunnetViaFinnRefusjon = innloggetArbeidsgiver.finnRefusjon(refusjon2.id)
-        refusjon2FunnetViaFinnRefusjon.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.forEach { it.erOpptjentIPeriode = true }
+        refusjon2FunnetViaFinnRefusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.forEach { it.erOpptjentIPeriode = true }
         refusjonService.godkjennForArbeidsgiver(refusjon2FunnetViaFinnRefusjon,"999999999")
 
         // Skal finne gammel minus, men ikke minus fra inntekt
         val refusjon3FunnetViaFinnRefusjon = innloggetArbeidsgiver.finnRefusjon(refusjon3.id)
-        refusjon3FunnetViaFinnRefusjon.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.forEach { it.erOpptjentIPeriode = true }
+        refusjon3FunnetViaFinnRefusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.forEach { it.erOpptjentIPeriode = true }
         assertThat(refusjon3FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(-3966)
         assertThat(refusjon3FunnetViaFinnRefusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp).isPositive()
         refusjonService.godkjennForArbeidsgiver(refusjon3FunnetViaFinnRefusjon,"999999999")
 
         // Minus skal nå være nullstillt
         val refusjon4FunnetViaFinnRefusjon = innloggetArbeidsgiver.finnRefusjon(refusjon4.id)
-        refusjon4FunnetViaFinnRefusjon.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.forEach { it.erOpptjentIPeriode = true }
+        refusjon4FunnetViaFinnRefusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.forEach { it.erOpptjentIPeriode = true }
         assertThat(refusjon4FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(0)
         assertThat(refusjon4FunnetViaFinnRefusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp).isPositive()
         refusjonService.godkjennForArbeidsgiver(refusjon4FunnetViaFinnRefusjon,"999999999")
@@ -543,7 +543,7 @@ internal class InnloggetArbeidsgiverTest(
         refusjonService.gjørBedriftKontonummeroppslag(refusjon)
         refusjonService.gjørInntektsoppslag(refusjon)
         // Sett innhentede inntekter til opptjent i periode
-        refusjon.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.forEach { it.erOpptjentIPeriode = true }
+        refusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.forEach { it.erOpptjentIPeriode = true }
         // Bekreft at alle inntektene kun er fra tiltaket
         refusjon.endreBruttolønn(true, null)
         refusjonRepository.save(refusjon)

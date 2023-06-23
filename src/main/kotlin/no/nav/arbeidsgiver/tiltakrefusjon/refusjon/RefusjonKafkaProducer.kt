@@ -72,12 +72,12 @@ class RefusjonKafkaProducer(
     fun refusjonAnnullertManuelt(event: TilskuddsperioderIRefusjonAnnullertManuelt) {
         // Annullering av tilskuddsperiode til tiltak-okonomi. refusjon-api vil ikke gjøre noe med denne pga årsak.
         val tilskuddperiodeAnnullertMelding = TilskuddsperiodeAnnullertMelding(
-            tilskuddsperiodeId = event.refusjon.tilskuddsgrunnlag.tilskuddsperiodeId,
+            tilskuddsperiodeId = event.refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId,
             årsak = MidlerFrigjortÅrsak.REFUSJON_IKKE_SØKT
         )
         tilskuddperiodeAnnullertKafkaTemplate.send(
             Topics.TILSKUDDSPERIODE_ANNULLERT,
-            event.refusjon.tilskuddsgrunnlag.tilskuddsperiodeId,
+            event.refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId,
             tilskuddperiodeAnnullertMelding
         )
             .whenComplete { it, ex ->
@@ -97,12 +97,12 @@ class RefusjonKafkaProducer(
     fun refusjonUtgått(event: RefusjonUtgått) {
         // Annullering av tilskuddsperiode til tiltak-okonomi. refusjon-api vil ikke gjøre noe med denne pga årsak.
         val tilskuddperiodeAnnullertMelding = TilskuddsperiodeAnnullertMelding(
-            tilskuddsperiodeId = event.refusjon.tilskuddsgrunnlag.tilskuddsperiodeId,
+            tilskuddsperiodeId = event.refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId,
             årsak = MidlerFrigjortÅrsak.REFUSJON_FRIST_UTGÅTT
         )
         tilskuddperiodeAnnullertKafkaTemplate.send(
             Topics.TILSKUDDSPERIODE_ANNULLERT,
-            event.refusjon.tilskuddsgrunnlag.tilskuddsperiodeId,
+            event.refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId,
             tilskuddperiodeAnnullertMelding
         )
             .whenComplete { it, ex ->
@@ -121,13 +121,13 @@ class RefusjonKafkaProducer(
     @TransactionalEventListener
     fun refusjonGodkjentMinusBeløp(event: RefusjonGodkjentMinusBeløp) {
         log.info("Godkjent refusjon ${event.refusjon.id} med minusbeløp, sender annullering")
-        annullerTilskuddsperiodeEtterNullEllerMinusBeløp(event.refusjon.tilskuddsgrunnlag.tilskuddsperiodeId, MidlerFrigjortÅrsak.REFUSJON_MINUS_BELØP)
+        annullerTilskuddsperiodeEtterNullEllerMinusBeløp(event.refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId, MidlerFrigjortÅrsak.REFUSJON_MINUS_BELØP)
     }
 
     @TransactionalEventListener
     fun refusjonGodkjentNullBeløp(event: RefusjonGodkjentNullBeløp) {
         log.info("Godkjent refusjon ${event.refusjon.id} med nullbeløp, sender annullering")
-        annullerTilskuddsperiodeEtterNullEllerMinusBeløp(event.refusjon.tilskuddsgrunnlag.tilskuddsperiodeId, MidlerFrigjortÅrsak.REFUSJON_GODKJENT_NULL_BELØP)
+        annullerTilskuddsperiodeEtterNullEllerMinusBeløp(event.refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId, MidlerFrigjortÅrsak.REFUSJON_GODKJENT_NULL_BELØP)
     }
 
     private fun annullerTilskuddsperiodeEtterNullEllerMinusBeløp(tilskuddsperiodeId: String, årsak: MidlerFrigjortÅrsak) {

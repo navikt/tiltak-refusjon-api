@@ -29,19 +29,19 @@ object RefusjonTilPDFMapper {
 
 
         val tilskuddFom =
-            formatter.format(refusjon.tilskuddsgrunnlag.tilskuddFom)
+            formatter.format(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom)
 
         val tilskuddTom =
-            formatter.format( refusjon.tilskuddsgrunnlag.tilskuddTom)
+            formatter.format( refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom)
 
         return RefusjonTilPDF(
-            refusjon.tilskuddsgrunnlag.tiltakstype,
-            refusjon.tilskuddsgrunnlag.avtaleNr.toString() + "-" + refusjon.tilskuddsgrunnlag.løpenummer,
-            refusjon.tilskuddsgrunnlag.deltakerFornavn,
-            refusjon.tilskuddsgrunnlag.deltakerEtternavn,
-            refusjon.tilskuddsgrunnlag.arbeidsgiverFornavn,
-            refusjon.tilskuddsgrunnlag.arbeidsgiverEtternavn,
-            refusjon.tilskuddsgrunnlag.arbeidsgiverTlf,
+            refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype,
+            refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr.toString() + "-" + refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.løpenummer,
+            refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.deltakerFornavn,
+            refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.deltakerEtternavn,
+            refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.arbeidsgiverFornavn,
+            refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.arbeidsgiverEtternavn,
+            refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.arbeidsgiverTlf,
             godkjentArbeidsgiverDato,
             utbetaltDato,
             tilskuddFom,
@@ -55,7 +55,7 @@ object RefusjonTilPDFMapper {
             refusjon.refusjonsgrunnlag.beregning!!.tjenestepensjon,
             refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.arbeidsgiveravgiftSats,
             refusjon.refusjonsgrunnlag.beregning!!.arbeidsgiveravgift,
-            refusjon.tilskuddsgrunnlag.lønnstilskuddsprosent,
+            refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.lønnstilskuddsprosent,
             refusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp,
             refusjon.refusjonsgrunnlag.beregning!!.beregnetBeløp,
             refusjon.refusjonsgrunnlag.beregning!!.overTilskuddsbeløp,
@@ -64,9 +64,9 @@ object RefusjonTilPDFMapper {
             refusjon.refusjonsgrunnlag.beregning!!.fratrekkLønnFerie,
             refusjon.refusjonsgrunnlag.beregning!!.lønnFratrukketFerie,
             refusjon.refusjonsgrunnlag.beregning!!.tidligereRefundertBeløp,
-            refusjon.tilskuddsgrunnlag.tilskuddsbeløp,
+            refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsbeløp,
             refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
-            refusjon.tilskuddsgrunnlag.avtaleNr.toString() + "-" + (refusjon.tilskuddsgrunnlag.løpenummer -1),
+            refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr.toString() + "-" + (refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.løpenummer -1),
             refusjon.refusjonsgrunnlag.beregning!!.sumUtgifterFratrukketRefundertBeløp
         )
     }

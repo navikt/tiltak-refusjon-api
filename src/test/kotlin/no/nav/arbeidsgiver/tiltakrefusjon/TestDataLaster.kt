@@ -12,8 +12,10 @@ class TestDataLaster(private val refusjonRepository: RefusjonRepository) : Appli
     override fun onApplicationEvent(event: ApplicationReadyEvent) {
         val refusjoner = refusjoner()
         val refusjonerMedFerietrekk = refusjonerMedFerietrekk()
-        println("Laster inn testdata med ${refusjoner.size} refusjoner")
+        val utbetalteRefusjoner = gamleUtbetalteRefusjonerOgEnNy()
+        println("Laster inn testdata med ${refusjoner.size + refusjonerMedFerietrekk.size + utbetalteRefusjoner.size} refusjoner")
         refusjonRepository.saveAll(refusjoner)
         refusjonRepository.saveAll(refusjonerMedFerietrekk)
+        refusjonRepository.saveAll(utbetalteRefusjoner)
     }
 }

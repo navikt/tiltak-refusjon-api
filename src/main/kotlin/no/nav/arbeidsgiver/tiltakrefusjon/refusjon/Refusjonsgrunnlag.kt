@@ -28,7 +28,7 @@ class Refusjonsgrunnlag(
     var fratrekkRefunderbarBeløp: Boolean? = null
     var refunderbarBeløp: Int? = null
     var forrigeRefusjonMinusBeløp: Int = 0
-    var  sumUtbetaltVarig: Int = 0
+    var sumUtbetaltVarig: Int = 0
 
     @OneToOne(orphanRemoval = true, cascade = [CascadeType.ALL])
     var beregning: Beregning? = null

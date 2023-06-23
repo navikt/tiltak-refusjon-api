@@ -158,10 +158,19 @@ class RefusjonsberegnerTest {
             tilskuddFom = LocalDate.of(2023,6,1),
             sumUtbetaltVarig = 590000
         )
+        val beregning2 = beregnRefusjonsbeløp(
+            inntektsgrunnlagUregelmessig.inntekter.toList(),
+            tilskuddsgrunnlagLønnstilskudd.copy(tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD),
+            0,
+            null,
+            tilskuddFom = LocalDate.of(2023,6,1),
+            sumUtbetaltVarig = 590000
+        )
+
         // Beregning uten 5G-sjekk skal gi et refusjonsbeløp på 20856
         // Med 590000 allerede utbetalt så vil dette være over tilgjengelig sum
-        assertThat(beregning.refusjonsbeløp).isNotEqualTo(20856)
         assertThat(beregning.refusjonsbeløp).isEqualTo(3100)
+        assertThat(beregning2.refusjonsbeløp).isEqualTo(20856)
 
     }
 }

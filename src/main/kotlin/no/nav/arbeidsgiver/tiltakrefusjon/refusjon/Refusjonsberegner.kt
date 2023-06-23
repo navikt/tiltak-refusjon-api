@@ -1,6 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
-import no.nav.arbeidsgiver.tiltakrefusjon.utils.capEtterMaks5G
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.gjenståendeEtterMaks5G
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.erMånedIPeriode
 import java.time.LocalDate
 import kotlin.math.roundToInt
@@ -71,8 +71,10 @@ fun beregnRefusjonsbeløp(
     val overTilskuddsbeløp = beregnetBeløp > tilskuddsgrunnlag.tilskuddsbeløp
     var refusjonsbeløp =
         (if (overTilskuddsbeløp) tilskuddsgrunnlag.tilskuddsbeløp.toDouble() else beregnetBeløp) - (if(tidligereUtbetalt < 0) tidligereUtbetalt  * -1 else tidligereUtbetalt) + forrigeRefusjonMinusBeløp
-    if (refusjonsbeløp > capEtterMaks5G(sumUtbetaltVarig.toDouble(), tilskuddFom)) {
-        refusjonsbeløp = capEtterMaks5G(sumUtbetaltVarig.toDouble(), tilskuddFom)
+    if (tilskuddsgrunnlag.tiltakstype == Tiltakstype.VARIG_LONNSTILSKUDD) {
+        if (refusjonsbeløp > gjenståendeEtterMaks5G(sumUtbetaltVarig.toDouble(), tilskuddFom)) {
+            refusjonsbeløp = gjenståendeEtterMaks5G(sumUtbetaltVarig.toDouble(), tilskuddFom)
+        }
     }
 
     return Beregning(

@@ -85,7 +85,6 @@ data class InnloggetSaksbehandler(
     fun finnRefusjon(id: String): Refusjon {
         val refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(refusjon)
-        refusjonService.settMinusBeløpFraTidligereRefusjonerTilknyttetAvtalen(refusjon)
         return refusjon
     }
 

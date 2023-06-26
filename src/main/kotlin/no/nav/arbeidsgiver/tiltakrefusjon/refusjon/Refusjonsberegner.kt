@@ -1,5 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.gjenståendeEtterMaks5G
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.erMånedIPeriode
 import java.time.LocalDate
 import kotlin.math.roundToInt
@@ -44,7 +45,8 @@ fun beregnRefusjonsbeløp(
     korrigertBruttoLønn: Int? = null,
     fratrekkRefunderbarSum: Int? = null,
     forrigeRefusjonMinusBeløp: Int = 0,
-    tilskuddFom: LocalDate
+    tilskuddFom: LocalDate,
+    sumUtbetaltVarig: Int = 0
 ): Beregning {
     val kalkulertBruttoLønn = kalkulerBruttoLønn(inntekter).roundToInt()
     val lønn = if (korrigertBruttoLønn != null) minOf(korrigertBruttoLønn, kalkulertBruttoLønn) else kalkulertBruttoLønn
@@ -69,6 +71,13 @@ fun beregnRefusjonsbeløp(
     val overTilskuddsbeløp = beregnetBeløp > tilskuddsgrunnlag.tilskuddsbeløp
     var refusjonsbeløp =
         (if (overTilskuddsbeløp) tilskuddsgrunnlag.tilskuddsbeløp.toDouble() else beregnetBeløp) - (if(tidligereUtbetalt < 0) tidligereUtbetalt  * -1 else tidligereUtbetalt) + forrigeRefusjonMinusBeløp
+    var overFemGrunnbeløp = false
+    if (tilskuddsgrunnlag.tiltakstype == Tiltakstype.VARIG_LONNSTILSKUDD) {
+        if (refusjonsbeløp > gjenståendeEtterMaks5G(sumUtbetaltVarig.toDouble(), tilskuddFom)) {
+            refusjonsbeløp = gjenståendeEtterMaks5G(sumUtbetaltVarig.toDouble(), tilskuddFom)
+            overFemGrunnbeløp = true
+        }
+    }
 
     return Beregning(
         lønn = lønn,
@@ -83,6 +92,7 @@ fun beregnRefusjonsbeløp(
         tidligereUtbetalt = tidligereUtbetalt,
         fratrekkLønnFerie = trekkgrunnlagFerie,
         tidligereRefundertBeløp = fratrekkRefunderbarBeløp,
+        overFemGrunnbeløp = overFemGrunnbeløp,
         sumUtgifterFratrukketRefundertBeløp = sumUtgifterFratrukketRefundertBeløp.roundToInt())
 }
 

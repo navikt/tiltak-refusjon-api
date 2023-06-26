@@ -82,17 +82,20 @@ data class InnloggetArbeidsgiver(
     fun finnRefusjon(id: String): Refusjon {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
 
+        sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
+
         // Ikke sett minusbeløp på allerede sendt inn refusjoner
         if(refusjon.status == RefusjonStatus.KLAR_FOR_INNSENDING || refusjon.status == RefusjonStatus.FOR_TIDLIG) {
             refusjonService.settMinusBeløpFraTidligereRefusjonerTilknyttetAvtalen(refusjon)
         }
 
-        sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
         if(refusjon.åpnetFørsteGang == null) {
             refusjon.åpnetFørsteGang = Now.instant()
         }
         refusjonService.gjørBedriftKontonummeroppslag(refusjon)
         refusjonService.gjørInntektsoppslag(refusjon)
+        refusjonService.settTotalBeløpUtbetalteVarigLønnstilskudd(refusjon)
+
         return refusjon
     }
 
@@ -141,7 +144,7 @@ data class InnloggetArbeidsgiver(
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
         log.info("Utsetter frist på refusjon ${refusjon.id} grunnet sykepenger/fravær i perioden")
-        val treMåneder = antallMånederEtter(refusjon.tilskuddsgrunnlag.tilskuddTom, 6)
+        val treMåneder = antallMånederEtter(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom, 6)
         refusjon.forlengFrist(
             nyFrist = treMåneder,
             årsak = "Sykepenger",

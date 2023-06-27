@@ -2,6 +2,8 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 
 import io.micrometer.observation.annotation.Observed
+import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
+import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
 import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterService
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.MidlerFrigjortÅrsak
@@ -150,6 +152,17 @@ class RefusjonService(
     }
 
     fun godkjennForArbeidsgiver(refusjon: Refusjon, utførtAv: String) {
+        val alleMinusBeløp = minusbelopRepository.findAllByAvtaleNr(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr)
+        val sumMinusbelop = alleMinusBeløp
+            .filter { !it.gjortOpp }
+            .map { minusbelop -> minusbelop.beløp}
+            .filterNotNull()
+            .reduceOrNull{sum, beløp -> sum + beløp}
+        // Om det er et gammelt minusbeløp, men alle minusbeløp er gjrot opp må refusjonen lastes på ny for å reberegnes
+        if (sumMinusbelop != null && sumMinusbelop != 0 && refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp != sumMinusbelop) {
+            log.info("Arbeidsgiver prøver sende inn en refusjon hvor minusbeløp er gjort opp/endret av annen refusjon $refusjon.id")
+            throw FeilkodeException(Feilkode.LAST_REFUSJONEN_PÅ_NYTT_REFUSJONSGRUNNLAG_ENDRET)
+        }
         refusjon.godkjennForArbeidsgiver(utførtAv)
         if(refusjon.status == RefusjonStatus.GODKJENT_MINUSBELØP) {
             val alleMinusBeløp = minusbelopRepository.findAllByAvtaleNr(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr)

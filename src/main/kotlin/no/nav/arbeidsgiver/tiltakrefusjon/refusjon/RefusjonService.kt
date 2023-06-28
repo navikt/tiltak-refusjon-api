@@ -168,6 +168,7 @@ class RefusjonService(
             val alleMinusBeløp = minusbelopRepository.findAllByAvtaleNr(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr)
             alleMinusBeløp.forEach {
                 it.gjortOpp = true
+                it.gjortOppAvRefusjonId = refusjon.id
                 minusbelopRepository.save(it)
             }
             val minusbelop = Minusbelop (

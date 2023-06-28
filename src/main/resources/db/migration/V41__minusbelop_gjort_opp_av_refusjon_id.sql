@@ -1,0 +1,1 @@
+alter table minusbelop add column gjort_opp_av_refusjon_id varchar references refusjon (id);

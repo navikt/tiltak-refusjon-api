@@ -21,6 +21,7 @@ class RefusjonGodkjentLytter(
         // Er det minusbeløp på avtalen kan de nå nullstilles da refusjonen er godkjent uten minusbeløp
         alleMinusBeløpPåAvtalen.forEach{
             it.gjortOpp = true
+            it.gjortOppAvRefusjonId = refusjon.id
             minusbelopRepository.save(it)
         }
     }

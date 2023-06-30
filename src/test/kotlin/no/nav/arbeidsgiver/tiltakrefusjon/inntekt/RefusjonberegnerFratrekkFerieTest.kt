@@ -1,7 +1,13 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.inntekt
 
 import com.github.guepardoapps.kulid.ULID
+import com.ninjasquad.springmockk.MockkBean
+import io.mockk.every
+import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
+import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
+import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetArbeidsgiver
 import no.nav.arbeidsgiver.tiltakrefusjon.etInntektsgrunnlag
+import no.nav.arbeidsgiver.tiltakrefusjon.organisasjon.EregClient
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
@@ -25,7 +31,16 @@ import java.time.LocalDateTime
 class RefusjonberegnerFratrekkFerieTest(
     @Autowired
     val refusjonService: RefusjonService,
+    @Autowired
+    val refusjonRepository: RefusjonRepository,
 ) {
+    @MockkBean
+    lateinit var altinnTilgangsstyringService: AltinnTilgangsstyringService
+    @MockkBean
+    lateinit var korreksjonRepository: KorreksjonRepository
+    @MockkBean
+    lateinit var eregClient: EregClient
+
     val WIREMOCK_IDENT: String = "08098613316"
     val WIREMOCK_VIRKSOMHET_IDENTIFIKATOR: String = "972674818"
 
@@ -222,4 +237,62 @@ class RefusjonberegnerFratrekkFerieTest(
         assertThat(leggSammenTrekkGrunnlag).isNotNull
 
     }
+
+    @Test
+    fun `trekk i lønn for ferie skal ikke trekkes på 2 refusjoner for samme måned`() {
+        every { altinnTilgangsstyringService.hentTilganger(any()) } returns setOf<Organisasjon>(Organisasjon("Bedrift AS", "Bedrift type", "999999999","Org form","Status"))
+        val innloggetArbeidsgiver = InnloggetArbeidsgiver("12345678901",altinnTilgangsstyringService,refusjonRepository,korreksjonRepository,refusjonService,eregClient)
+
+        // Det kan oppstå 2 refusjoner innenfor samme måned ved f.eks. forlengelse. (eks. 01-15 og 16-30)
+        Now.fixedDate(LocalDate.of(2023, 7, 1))
+        val TREKKFORFERIEGRUNNLAG: Int = 5000 // trekk grunnlag fra inntektoppslag
+        val fnrMedFerieTrekkIWireMock = "23039648083"
+
+        val tilskuddsperiodeGodkjentMelding1: TilskuddsperiodeGodkjentMelding = lagEnTilskuddsperiodeGodkjentMelding(
+            tilskuddFom = LocalDate.of(2023, 6, 1),
+            tilskuddTom = LocalDate.of(2023, 6, 15),
+            tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
+            tilskuddsbeløp = 60000,
+            deltakerFnr = fnrMedFerieTrekkIWireMock,
+            bedriftNr = WIREMOCK_VIRKSOMHET_IDENTIFIKATOR,
+        )
+        val tilskuddsperiodeGodkjentMelding2: TilskuddsperiodeGodkjentMelding = lagEnTilskuddsperiodeGodkjentMelding(
+            tilskuddFom = LocalDate.of(2023, 6, 16),
+            tilskuddTom = LocalDate.of(2023, 6, 30),
+            tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
+            tilskuddsbeløp = 60000,
+            deltakerFnr = fnrMedFerieTrekkIWireMock,
+            bedriftNr = WIREMOCK_VIRKSOMHET_IDENTIFIKATOR,
+        )
+        val refusjon = opprettRefusjonOgGjørInntektoppslag(tilskuddsperiodeGodkjentMelding1)
+        innloggetArbeidsgiver.finnRefusjon(refusjon.id)
+        // Send inn
+        refusjonService.godkjennForArbeidsgiver(refusjon, "192846371812")
+        assert(refusjon.refusjonsgrunnlag.beregning!!.fratrekkLønnFerie == TREKKFORFERIEGRUNNLAG)
+
+        val refusjon2 = opprettRefusjonOgGjørInntektoppslag(tilskuddsperiodeGodkjentMelding2)
+        innloggetArbeidsgiver.finnRefusjon(refusjon2.id)
+        assertThat(refusjon2.refusjonsgrunnlag.beregning!!.fratrekkLønnFerie).isEqualTo(0)
+        // Verifiser at ferietrekk ikke er med her
+
+
+        val lønnFraWiremock = 60000
+        val trekkiLoennForFerieWiremock = 5000
+
+        Now.resetClock()
+
+
+
+    }
 }
+
+
+
+
+
+
+
+
+
+
+

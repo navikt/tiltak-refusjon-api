@@ -221,4 +221,11 @@ data class InnloggetSaksbehandler(
         korreksjon.setInntektslinjeTilOpptjentIPeriode(inntekslinjeId, erOpptjentIPeriode)
         korreksjonRepository.save(korreksjon)
     }
+
+    fun settFratrekkRefunderbarBeløp(id: String, fratrekkRefunderbarBeløp: Boolean, refunderbarBeløp: Int?) {
+        val korreksjon: Korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
+        sjekkLesetilgang(korreksjon)
+        korreksjon.settFratrekkRefunderbarBeløp(fratrekkRefunderbarBeløp, refunderbarBeløp)
+        korreksjonRepository.save(korreksjon)
+    }
 }

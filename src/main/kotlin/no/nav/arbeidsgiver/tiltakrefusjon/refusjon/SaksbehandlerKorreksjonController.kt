@@ -2,6 +2,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBrukerService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -67,5 +68,12 @@ class SaksbehandlerKorreksjonController(
             inntekslinjeId = request.inntektslinjeId,
             erOpptjentIPeriode = request.erOpptjentIPeriode
         )
+    }
+
+    @PostMapping("/{id}/fratrekk-sykepenger")
+    @Transactional
+    fun fratrekkSykepenger(@PathVariable id: String, @RequestBody request: FratrekkRefunderbarBeløp) {
+        val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
+        saksbehandler.settFratrekkRefunderbarBeløp(id, request.fratrekkRefunderbarBeløp, request.refunderbarBeløp)
     }
 }

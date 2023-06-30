@@ -200,4 +200,12 @@ class Korreksjon(
             registerEvent(KorreksjonBeregningUtført(this))
         }
     }
+
+    fun settFratrekkRefunderbarBeløp(fratrekkRefunderbarBeløp: Boolean, refunderbarBeløp: Int?) {
+        krevStatus(Korreksjonstype.UTKAST)
+        val harGjortBeregning = refusjonsgrunnlag.settFratrekkRefunderbarBeløp(fratrekkRefunderbarBeløp, refunderbarBeløp)
+        if (harGjortBeregning) {
+            registerEvent(KorreksjonBeregningUtført(this))
+        }
+    }
 }

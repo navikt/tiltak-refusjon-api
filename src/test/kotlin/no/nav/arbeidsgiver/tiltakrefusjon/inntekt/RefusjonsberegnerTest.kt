@@ -1,6 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.inntekt
 
 import com.github.guepardoapps.kulid.ULID
+import no.nav.arbeidsgiver.tiltakrefusjon.etInntektsgrunnlag
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -115,8 +116,7 @@ class RefusjonsberegnerTest {
             0,
             null,
             null,
-            tilskuddFom = LocalDate.of(2023,6,1),
-            harFerietrekkForSammeMåned = false
+             tilskuddFom = LocalDate.of(2023,6,1)
         )
         val beregnetBeløpHeleInntektsgrunnlaget = 20856
         assertThat(beregning.refusjonsbeløp).isEqualTo(beregnetBeløpHeleInntektsgrunnlaget)
@@ -135,8 +135,7 @@ class RefusjonsberegnerTest {
             tilskuddsgrunnlagLønnstilskudd,
             0,
             null,
-            tilskuddFom = LocalDate.of(2023,6,1),
-            harFerietrekkForSammeMåned = false
+            tilskuddFom = LocalDate.of(2023,6,1)
         )
         val beregnetBeløpAvAntallDagerJobbetInnenforInntektsgrunnlaget = 20856
         assertThat(beregning.refusjonsbeløp).isEqualTo(beregnetBeløpAvAntallDagerJobbetInnenforInntektsgrunnlaget)
@@ -157,8 +156,7 @@ class RefusjonsberegnerTest {
             0,
             null,
             tilskuddFom = LocalDate.of(2023,6,1),
-            sumUtbetaltVarig = 590000,
-            harFerietrekkForSammeMåned = false
+            sumUtbetaltVarig = 590000
         )
         val beregning2 = beregnRefusjonsbeløp(
             inntektsgrunnlagUregelmessig.inntekter.toList(),
@@ -166,8 +164,7 @@ class RefusjonsberegnerTest {
             0,
             null,
             tilskuddFom = LocalDate.of(2023,6,1),
-            sumUtbetaltVarig = 590000,
-            harFerietrekkForSammeMåned = false
+            sumUtbetaltVarig = 590000
         )
 
         // Beregning uten 5G-sjekk skal gi et refusjonsbeløp på 20856

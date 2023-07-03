@@ -14,7 +14,6 @@ import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.YearMonth
 
 @Service
 @Transactional
@@ -164,7 +163,6 @@ class RefusjonService(
             log.info("Arbeidsgiver prøver sende inn en refusjon hvor minusbeløp er gjort opp/endret av annen refusjon $refusjon.id")
             throw FeilkodeException(Feilkode.LAST_REFUSJONEN_PÅ_NYTT_REFUSJONSGRUNNLAG_ENDRET)
         }
-        sjekkForTrukketFerietrekkForSammeMåned(refusjon)
         refusjon.godkjennForArbeidsgiver(utførtAv)
         if(refusjon.status == RefusjonStatus.GODKJENT_MINUSBELØP) {
             val alleMinusBeløp = minusbelopRepository.findAllByAvtaleNr(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr)
@@ -180,7 +178,6 @@ class RefusjonService(
             refusjon.minusbelop = minusbelop
             log.info("Setter minusbeløp ${minusbelop.id} på refusjon ${refusjon.id}")
         }
-
         refusjonRepository.save(refusjon)
     }
 
@@ -226,35 +223,4 @@ class RefusjonService(
         refusjonRepository.save(refusjon)
         return korreksjonsutkast
     }
-
-    fun sjekkForTrukketFerietrekkForSammeMåned(refusjon: Refusjon) {
-        if (refusjon.refusjonsgrunnlag.beregning!!.fratrekkLønnFerie == 0) {
-            return
-        }
-        val statuser = listOf(RefusjonStatus.UTBETALT, RefusjonStatus.SENDT_KRAV, RefusjonStatus.GODKJENT_MINUSBELØP, RefusjonStatus.GODKJENT_NULLBELØP)
-        refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_AvtaleNrAndStatusIn(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr, statuser)
-            .filter { YearMonth.from(it.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom)  == YearMonth.from(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom) }
-            .forEach {
-                if (it.refusjonsgrunnlag.beregning?.fratrekkLønnFerie != 0) {
-                    log.info("Forsøkte å godkjenne refusjon ${it.id} med ferietrekk. Det er allerde trukket for ferie i en refusjon i samme måned: ${refusjon.id}")
-                    throw FeilkodeException(Feilkode.FERIETREKK_TRUKKET_FOR_SAMME_MÅNED)
-                }
-            }
-    }
-
-    fun settOmFerieErTrukketForSammeMåned(refusjon: Refusjon) {
-        if (refusjon.status == RefusjonStatus.KLAR_FOR_INNSENDING) {
-            val statuser = listOf(RefusjonStatus.UTBETALT, RefusjonStatus.SENDT_KRAV, RefusjonStatus.GODKJENT_MINUSBELØP, RefusjonStatus.GODKJENT_NULLBELØP)
-            refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_AvtaleNrAndStatusIn(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr, statuser)
-                .filter { YearMonth.from(it.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom)  == YearMonth.from(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom) }
-                .forEach {
-                    if (it.refusjonsgrunnlag.beregning?.fratrekkLønnFerie != 0 && !refusjon.refusjonsgrunnlag.harFerietrekkForSammeMåned) {
-                        log.info("Ferietrekk er trukket på en tidligere refusjon: ${it.id} på samme avtalenr i samme måned på denne refusjonen: ${refusjon.id} setter harFerieTrekkForSammeMåned til true")
-                        refusjon.refusjonsgrunnlag.harFerietrekkForSammeMåned = true
-                    }
-                }
-            refusjonRepository.save(refusjon)
-        }
-    }
-
 }

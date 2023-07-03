@@ -74,6 +74,4 @@ interface RefusjonRepository : JpaRepository<Refusjon, String> {
         pageable: Pageable
     ): Page<Refusjon>
 
-    fun findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_AvtaleNrAndStatusIn(avtaleNr: Int, status: List<RefusjonStatus>): List<Refusjon>
-
 }

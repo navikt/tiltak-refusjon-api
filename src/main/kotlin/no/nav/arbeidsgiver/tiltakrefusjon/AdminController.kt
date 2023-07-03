@@ -8,10 +8,8 @@ import no.nav.security.token.support.core.api.Unprotected
 import org.slf4j.LoggerFactory
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.kafka.core.KafkaTemplate
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.bind.annotation.*
 import java.time.LocalDate
 
 @RestController
@@ -165,6 +163,42 @@ class AdminController(
     @PostMapping("sjekk-for-utgått")
     fun sjekkForUtgått() {
         StatusJobb(refusjonRepository, leaderPodCheck).sjekkOmUtgått()
+    }
+
+    @Unprotected
+    @PostMapping("reberegn-dry/{id}/{medForrigeMinus}")
+    fun reberegnDryRun(@PathVariable id: String, @PathVariable medForrigeMinus: Boolean): Beregning {
+        val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
+        return beregnRefusjonsbeløp(
+            inntekter = refusjon.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
+            tilskuddsgrunnlag = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag,
+            tidligereUtbetalt = 0,
+            korrigertBruttoLønn = refusjon.refusjonsgrunnlag.endretBruttoLønn,
+            fratrekkRefunderbarSum =refusjon.refusjonsgrunnlag.refunderbarBeløp,
+            forrigeRefusjonMinusBeløp =  if (medForrigeMinus) refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp else 0,
+            tilskuddFom = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
+            sumUtbetaltVarig = refusjon.refusjonsgrunnlag.sumUtbetaltVarig
+        )
+    }
+
+    @Unprotected
+    @PostMapping("reberegn/{id}/{medForrigeMinus}")
+    @Transactional
+    fun reberegn(@PathVariable id: String, @PathVariable medForrigeMinus: Boolean): Beregning {
+        val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
+        val beregning =  beregnRefusjonsbeløp(
+            inntekter = refusjon.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
+            tilskuddsgrunnlag = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag,
+            tidligereUtbetalt = 0,
+            korrigertBruttoLønn = refusjon.refusjonsgrunnlag.endretBruttoLønn,
+            fratrekkRefunderbarSum = refusjon.refusjonsgrunnlag.refunderbarBeløp,
+            forrigeRefusjonMinusBeløp =  if (medForrigeMinus) refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp else 0,
+            tilskuddFom = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
+            sumUtbetaltVarig = refusjon.refusjonsgrunnlag.sumUtbetaltVarig
+        )
+        refusjon.refusjonsgrunnlag.beregning = beregning
+        refusjonRepository.save(refusjon)
+        return beregning
     }
 
 }

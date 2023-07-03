@@ -164,6 +164,7 @@ class RefusjonService(
             log.info("Arbeidsgiver prøver sende inn en refusjon hvor minusbeløp er gjort opp/endret av annen refusjon $refusjon.id")
             throw FeilkodeException(Feilkode.LAST_REFUSJONEN_PÅ_NYTT_REFUSJONSGRUNNLAG_ENDRET)
         }
+        sjekkForTrukketFerietrekkForSammeMåned(refusjon)
         refusjon.godkjennForArbeidsgiver(utførtAv)
         if(refusjon.status == RefusjonStatus.GODKJENT_MINUSBELØP) {
             val alleMinusBeløp = minusbelopRepository.findAllByAvtaleNr(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr)
@@ -179,7 +180,7 @@ class RefusjonService(
             refusjon.minusbelop = minusbelop
             log.info("Setter minusbeløp ${minusbelop.id} på refusjon ${refusjon.id}")
         }
-        sjekkForTrukketFerietrekkForSammeMåned(refusjon)
+
         refusjonRepository.save(refusjon)
     }
 

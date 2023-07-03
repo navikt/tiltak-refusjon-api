@@ -243,16 +243,18 @@ class RefusjonService(
     }
 
     fun settOmFerieErTrukketForSammeMåned(refusjon: Refusjon) {
-        val statuser = listOf(RefusjonStatus.UTBETALT, RefusjonStatus.SENDT_KRAV, RefusjonStatus.GODKJENT_MINUSBELØP, RefusjonStatus.GODKJENT_NULLBELØP)
-        refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_AvtaleNrAndStatusIn(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr, statuser)
-            .filter { YearMonth.from(it.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom)  == YearMonth.from(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom) }
-            .forEach {
-                if (it.refusjonsgrunnlag.beregning?.fratrekkLønnFerie != 0) {
-                    log.info("Ferietrekk er trukket på en tidligere refusjon: ${it.id} på samme avtalenr i samme måned på denne refusjonen: ${refusjon.id} setter harFerieTrekkForSammeMåned til true")
-                    refusjon.refusjonsgrunnlag.harFerietrekkForSammeMåned = true
+        if (refusjon.status == RefusjonStatus.KLAR_FOR_INNSENDING) {
+            val statuser = listOf(RefusjonStatus.UTBETALT, RefusjonStatus.SENDT_KRAV, RefusjonStatus.GODKJENT_MINUSBELØP, RefusjonStatus.GODKJENT_NULLBELØP)
+            refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_AvtaleNrAndStatusIn(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr, statuser)
+                .filter { YearMonth.from(it.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom)  == YearMonth.from(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom) }
+                .forEach {
+                    if (it.refusjonsgrunnlag.beregning?.fratrekkLønnFerie != 0 && !refusjon.refusjonsgrunnlag.harFerietrekkForSammeMåned) {
+                        log.info("Ferietrekk er trukket på en tidligere refusjon: ${it.id} på samme avtalenr i samme måned på denne refusjonen: ${refusjon.id} setter harFerieTrekkForSammeMåned til true")
+                        refusjon.refusjonsgrunnlag.harFerietrekkForSammeMåned = true
+                    }
                 }
-            }
-        refusjonRepository.save(refusjon)
+            refusjonRepository.save(refusjon)
+        }
     }
 
 }

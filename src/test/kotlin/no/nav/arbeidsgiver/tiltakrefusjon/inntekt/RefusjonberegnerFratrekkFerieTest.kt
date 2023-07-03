@@ -274,25 +274,9 @@ class RefusjonberegnerFratrekkFerieTest(
         innloggetArbeidsgiver.finnRefusjon(refusjon2.id)
         assertThat(refusjon2.refusjonsgrunnlag.beregning!!.fratrekkLønnFerie).isEqualTo(0)
         // Verifiser at ferietrekk ikke er med her
-
-
         val lønnFraWiremock = 60000
         val trekkiLoennForFerieWiremock = 5000
 
         Now.resetClock()
-
-
-
     }
 }
-
-
-
-
-
-
-
-
-
-
-

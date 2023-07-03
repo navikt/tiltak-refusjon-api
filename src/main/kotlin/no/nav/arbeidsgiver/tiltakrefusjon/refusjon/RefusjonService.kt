@@ -236,8 +236,8 @@ class RefusjonService(
         refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_AvtaleNrAndStatusIn(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr, statuser)
             .filter { YearMonth.from(it.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom)  == YearMonth.from(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom) }
             .forEach {
-                if (it.refusjonsgrunnlag.beregning?.fratrekkLønnFerie!! != 0) {
-                    log.info("Ferietrekk er trukket for refusjon ${it.id} i samme måned som refusjon ${refusjon.id}")
+                if (it.refusjonsgrunnlag.beregning?.fratrekkLønnFerie != 0) {
+                    log.info("Forsøkte å godkjenne refusjon ${it.id} med ferietrekk. Det er allerde trukket for ferie i en refusjon i samme måned: ${refusjon.id}")
                     throw FeilkodeException(Feilkode.FERIETREKK_TRUKKET_FOR_SAMME_MÅNED)
                 }
             }
@@ -248,8 +248,8 @@ class RefusjonService(
         refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_AvtaleNrAndStatusIn(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr, statuser)
             .filter { YearMonth.from(it.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom)  == YearMonth.from(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom) }
             .forEach {
-                if (it.refusjonsgrunnlag.beregning?.fratrekkLønnFerie!! != 0) {
-                    log.info("Ferietrekk er trukket for refusjon ${it.id} i samme måned som refusjon ${refusjon.id}")
+                if (it.refusjonsgrunnlag.beregning?.fratrekkLønnFerie != 0) {
+                    log.info("Ferietrekk er trukket på en tidligere refusjon: ${it.id} på samme avtalenr i samme måned på denne refusjonen: ${refusjon.id} setter harFerieTrekkForSammeMåned til true")
                     refusjon.refusjonsgrunnlag.harFerietrekkForSammeMåned = true
                 }
             }

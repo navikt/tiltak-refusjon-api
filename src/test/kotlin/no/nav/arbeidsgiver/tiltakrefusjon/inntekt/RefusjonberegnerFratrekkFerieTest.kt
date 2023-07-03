@@ -266,16 +266,15 @@ class RefusjonberegnerFratrekkFerieTest(
         )
         val refusjon = opprettRefusjonOgGjørInntektoppslag(tilskuddsperiodeGodkjentMelding1)
         innloggetArbeidsgiver.finnRefusjon(refusjon.id)
+
         // Send inn
         refusjonService.godkjennForArbeidsgiver(refusjon, "192846371812")
         assert(refusjon.refusjonsgrunnlag.beregning!!.fratrekkLønnFerie == TREKKFORFERIEGRUNNLAG)
 
+        // Verifiser at ferietrekk ikke er med her
         val refusjon2 = opprettRefusjonOgGjørInntektoppslag(tilskuddsperiodeGodkjentMelding2)
         innloggetArbeidsgiver.finnRefusjon(refusjon2.id)
         assertThat(refusjon2.refusjonsgrunnlag.beregning!!.fratrekkLønnFerie).isEqualTo(0)
-        // Verifiser at ferietrekk ikke er med her
-        val lønnFraWiremock = 60000
-        val trekkiLoennForFerieWiremock = 5000
 
         Now.resetClock()
     }

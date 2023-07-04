@@ -27,7 +27,6 @@ class KontoregisterServiceImpl(
     override fun hentBankkontonummer(bedriftNr: String): String? {
         val requestEntity = lagRequest()
         val url = "${properties.uri}/${bedriftNr}"
-        log.info("Kontoregister url: $url")
         try {
             val responseMedKontonummerTilBedrift =
                 restTemplate.exchange<KontoregisterResponse>(url, HttpMethod.GET, requestEntity).body

@@ -19,8 +19,6 @@ import java.time.LocalDate
 class AdminController(
     val service: RefusjonService,
     val refusjonRepository: RefusjonRepository,
-    val korreksjonRepository: KorreksjonRepository,
-    val refusjonEndretStatusKafkaTemplate: KafkaTemplate<String, RefusjonEndretStatusMelding>,
     val leaderPodCheck: LeaderPodCheck
 ) {
     val logger = LoggerFactory.getLogger(javaClass)

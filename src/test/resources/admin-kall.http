@@ -1,0 +1,13 @@
+### Forleng frister
+# Husk å oppdater datofeltene til ønsket dato.
+# NB: tilDato er ikke "tilOgMedDato"!!!
+POST http://localhost:8080/internal/admin/forleng-frister-til-og-med-dato
+Content-Type: application/json
+
+{
+  "tilDato": "2023-06-01",
+  "nyFrist": "2023-06-30",
+  "årsak": "Forlenget av admin",
+  "utførtAv": "admin",
+  "enforce": true
+}

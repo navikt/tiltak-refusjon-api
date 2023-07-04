@@ -29,6 +29,7 @@ class Refusjonsgrunnlag(
     var refunderbarBeløp: Int? = null
     var forrigeRefusjonMinusBeløp: Int = 0
     var sumUtbetaltVarig: Int = 0
+    var harFerietrekkForSammeMåned: Boolean = false
 
     @OneToOne(orphanRemoval = true, cascade = [CascadeType.ALL])
     var beregning: Beregning? = null
@@ -118,7 +119,8 @@ class Refusjonsgrunnlag(
                 fratrekkRefunderbarSum = refunderbarBeløp,
                 forrigeRefusjonMinusBeløp = forrigeRefusjonMinusBeløp,
                 tilskuddFom = tilskuddsgrunnlag.tilskuddFom,
-                sumUtbetaltVarig = sumUtbetaltVarig)
+                sumUtbetaltVarig = sumUtbetaltVarig,
+                harFerietrekkForSammeMåned = harFerietrekkForSammeMåned)
             return true
         }
         return false

@@ -93,6 +93,7 @@ data class InnloggetArbeidsgiver(
             refusjon.åpnetFørsteGang = Now.instant()
         }
         refusjonService.settTotalBeløpUtbetalteVarigLønnstilskudd(refusjon)
+        refusjonService.settOmFerieErTrukketForSammeMåned(refusjon)
         refusjonService.gjørBedriftKontonummeroppslag(refusjon)
         refusjonService.gjørInntektsoppslag(refusjon)
 

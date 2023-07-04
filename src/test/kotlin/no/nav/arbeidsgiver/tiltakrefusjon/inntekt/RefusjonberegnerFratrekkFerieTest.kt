@@ -20,6 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
+import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -240,11 +241,12 @@ class RefusjonberegnerFratrekkFerieTest(
 
     @Test
     fun `trekk i lønn for ferie skal ikke trekkes på 2 refusjoner for samme måned`() {
-        every { altinnTilgangsstyringService.hentTilganger(any()) } returns setOf<Organisasjon>(Organisasjon("Bedrift AS", "Bedrift type", "999999999","Org form","Status"))
+        every { altinnTilgangsstyringService.hentTilganger(any()) } returns setOf<Organisasjon>(Organisasjon("Bedrift AS", "Bedrift type", WIREMOCK_VIRKSOMHET_IDENTIFIKATOR,"Org form","Status"))
         val innloggetArbeidsgiver = InnloggetArbeidsgiver("12345678901",altinnTilgangsstyringService,refusjonRepository,korreksjonRepository,refusjonService,eregClient)
 
         // Det kan oppstå 2 refusjoner innenfor samme måned ved f.eks. forlengelse. (eks. 01-15 og 16-30)
-        Now.fixedDate(LocalDate.of(2023, 7, 1))
+        //Now.fixedDate(LocalDate.of(2023, 7, 1))
+        Now.fixedDateTime(LocalDateTime.of(2023, 7, 1, 0, 0, 0))
         val TREKKFORFERIEGRUNNLAG: Int = 5000 // trekk grunnlag fra inntektoppslag
         val fnrMedFerieTrekkIWireMock = "23039648083"
 
@@ -265,16 +267,18 @@ class RefusjonberegnerFratrekkFerieTest(
             bedriftNr = WIREMOCK_VIRKSOMHET_IDENTIFIKATOR,
         )
         val refusjon = opprettRefusjonOgGjørInntektoppslag(tilskuddsperiodeGodkjentMelding1)
-        innloggetArbeidsgiver.finnRefusjon(refusjon.id)
-
         // Send inn
         refusjonService.godkjennForArbeidsgiver(refusjon, "192846371812")
         assert(refusjon.refusjonsgrunnlag.beregning!!.fratrekkLønnFerie == TREKKFORFERIEGRUNNLAG)
 
         // Verifiser at ferietrekk ikke er med her
         val refusjon2 = opprettRefusjonOgGjørInntektoppslag(tilskuddsperiodeGodkjentMelding2)
-        innloggetArbeidsgiver.finnRefusjon(refusjon2.id)
-        assertThat(refusjon2.refusjonsgrunnlag.beregning!!.fratrekkLønnFerie).isEqualTo(0)
+        refusjonRepository.save(refusjon2)
+        Now.fixedDateTime(LocalDateTime.of(2023, 7, 1, 1, 0, 0))
+
+        val refusjon2FraDb = innloggetArbeidsgiver.finnRefusjon(refusjon2.id)
+
+        assertThat(refusjon2FraDb.refusjonsgrunnlag.beregning!!.fratrekkLønnFerie).isEqualTo(0)
 
         Now.resetClock()
     }

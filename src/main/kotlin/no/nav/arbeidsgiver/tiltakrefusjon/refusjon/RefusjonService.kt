@@ -228,7 +228,7 @@ class RefusjonService(
     }
 
     fun sjekkForTrukketFerietrekkForSammeMåned(refusjon: Refusjon) {
-        if (refusjon.refusjonsgrunnlag.beregning!!.fratrekkLønnFerie == 0) {
+        if (refusjon.refusjonsgrunnlag.beregning?.fratrekkLønnFerie == 0) {
             return
         }
         val statuser = listOf(RefusjonStatus.UTBETALT, RefusjonStatus.SENDT_KRAV, RefusjonStatus.GODKJENT_MINUSBELØP, RefusjonStatus.GODKJENT_NULLBELØP)

@@ -180,7 +180,6 @@ class RefusjonService(
             refusjon.minusbelop = minusbelop
             log.info("Setter minusbeløp ${minusbelop.id} på refusjon ${refusjon.id}")
         }
-
         refusjonRepository.save(refusjon)
     }
 

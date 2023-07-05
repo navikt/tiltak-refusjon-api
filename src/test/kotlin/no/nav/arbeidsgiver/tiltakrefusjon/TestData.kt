@@ -387,7 +387,9 @@ fun refusjoner(): List<Refusjon> {
                 bedriftNr = bedriftNr,
                 deltakerFornavn = "Jon",
                 deltakerEtternavn = "Janson Ferietrekk minus beløp 4",
-                veilederNavIdent = "Z123456"
+                veilederNavIdent = "Z123456",
+                avtaleFom = Now.localDate().minusMonths(1).withDayOfMonth(1),
+                avtaleTom = Now.localDate().minusMonths(1).with(lastDayOfMonth()),
             ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
         )
     }

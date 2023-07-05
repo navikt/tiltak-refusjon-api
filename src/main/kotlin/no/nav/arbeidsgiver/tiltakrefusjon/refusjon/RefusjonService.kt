@@ -42,6 +42,8 @@ class RefusjonService(
 
         val tilskuddsgrunnlag = Tilskuddsgrunnlag(
             avtaleId = tilskuddsperiodeGodkjentMelding.avtaleId,
+            avtaleFom = tilskuddsperiodeGodkjentMelding.avtaleFom,
+            avtaleTom = tilskuddsperiodeGodkjentMelding.avtaleTom,
             tilskuddsperiodeId = tilskuddsperiodeGodkjentMelding.tilskuddsperiodeId,
             deltakerFornavn = tilskuddsperiodeGodkjentMelding.deltakerFornavn,
             deltakerEtternavn = tilskuddsperiodeGodkjentMelding.deltakerEtternavn,

@@ -177,6 +177,7 @@ class AdminController(
             fratrekkRefunderbarSum =refusjon.refusjonsgrunnlag.refunderbarBeløp,
             forrigeRefusjonMinusBeløp =  if (medForrigeMinus) refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp else 0,
             tilskuddFom = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
+            harFerietrekkForSammeMåned = false,
             sumUtbetaltVarig = refusjon.refusjonsgrunnlag.sumUtbetaltVarig
         )
     }
@@ -194,6 +195,7 @@ class AdminController(
             fratrekkRefunderbarSum = refusjon.refusjonsgrunnlag.refunderbarBeløp,
             forrigeRefusjonMinusBeløp =  if (medForrigeMinus) refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp else 0,
             tilskuddFom = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
+            harFerietrekkForSammeMåned = false,
             sumUtbetaltVarig = refusjon.refusjonsgrunnlag.sumUtbetaltVarig
         )
         refusjon.refusjonsgrunnlag.beregning = beregning

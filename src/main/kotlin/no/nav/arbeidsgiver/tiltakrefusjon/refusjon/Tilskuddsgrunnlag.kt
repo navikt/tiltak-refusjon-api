@@ -11,6 +11,8 @@ import jakarta.persistence.Id
 @Entity
 data class Tilskuddsgrunnlag(
     val avtaleId: String,
+    val avtaleFom: LocalDate? = null,
+    val avtaleTom: LocalDate? = null,
     val tilskuddsperiodeId: String,
     val deltakerFornavn: String,
     val deltakerEtternavn: String,

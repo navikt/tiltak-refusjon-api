@@ -8,6 +8,8 @@ data class TilskuddsperiodeGodkjentMelding(
         val avtaleId: String,
         val tilskuddsperiodeId: String,
         val avtaleInnholdId: String,
+        val avtaleFom: LocalDate? = null,
+        val avtaleTom: LocalDate? = null,
         val tiltakstype: Tiltakstype,
         val deltakerFornavn: String,
         val deltakerEtternavn: String,

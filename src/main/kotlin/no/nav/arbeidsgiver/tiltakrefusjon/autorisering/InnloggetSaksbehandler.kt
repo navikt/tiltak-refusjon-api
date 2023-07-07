@@ -97,7 +97,17 @@ data class InnloggetSaksbehandler(
             korreksjonRepository.save(korreksjon)
         }
         if (korreksjon.skalGjøreInntektsoppslag()) {
-            val antallMånederSomSkalSjekkes: Long = if (korreksjon.korreksjonsgrunner.contains(Korreksjonsgrunn.HENT_INNTEKTER_TO_MÅNEDER_FREM)) 2 else 1
+            var antallMånederSomSkalSjekkes: Long = 1
+            if (korreksjon.korreksjonsgrunner.contains(Korreksjonsgrunn.HENT_INNTEKTER_TO_MÅNEDER_FREM)) {
+                if(korreksjon.unntakOmInntekterFremitid != null) {
+                    antallMånederSomSkalSjekkes = korreksjon.unntakOmInntekterFremitid.toLong()
+                } else {
+                    antallMånederSomSkalSjekkes = 2
+                }
+            } else {
+                antallMånederSomSkalSjekkes = 1
+            }
+
             val inntektsoppslag = inntektskomponentService.hentInntekter(
                 fnr = korreksjon.deltakerFnr,
                 bedriftnummerDetSøkesPå = korreksjon.bedriftNr,
@@ -131,10 +141,10 @@ data class InnloggetSaksbehandler(
         }
     }
 
-    fun opprettKorreksjonsutkast(id: String, korreksjonsgrunner: Set<Korreksjonsgrunn>): Refusjon {
+    fun opprettKorreksjonsutkast(id: String, korreksjonsgrunner: Set<Korreksjonsgrunn>, unntakOmInntekterFremitid: Int?): Refusjon {
         sjekkKorreksjonTilgang()
         val gammel = finnRefusjon(id)
-        refusjonService.opprettKorreksjonsutkast(gammel, korreksjonsgrunner)
+        refusjonService.opprettKorreksjonsutkast(gammel, korreksjonsgrunner, unntakOmInntekterFremitid)
         return gammel
     }
 

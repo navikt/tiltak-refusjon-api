@@ -33,7 +33,7 @@ class SaksbehandlerKorreksjonController(
     @PostMapping("opprett-korreksjonsutkast")
     fun opprettKorreksjonsutkast(@RequestBody request: KorrigerRequest): Refusjon {
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
-        return saksbehandler.opprettKorreksjonsutkast(request.refusjonId, request.korreksjonsgrunner)
+        return saksbehandler.opprettKorreksjonsutkast(request.refusjonId, request.korreksjonsgrunner, request.unntakOmInntekterFremitid)
     }
 
     @PostMapping("/{id}/slett-korreksjonsutkast")

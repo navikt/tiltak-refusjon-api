@@ -64,7 +64,7 @@ class AdminController(
         for (id in korreksjonRequest.refusjonIder) {
             val refusjon =
                 refusjonRepository.findByIdOrNull(id) ?: throw RuntimeException("Finner ikke refusjon med id=$id")
-            service.opprettKorreksjonsutkast(refusjon, korreksjonRequest.korreksjonsgrunner)
+            service.opprettKorreksjonsutkast(refusjon, korreksjonRequest.korreksjonsgrunner, 2)
             // korreksjoner.add(korreksjon.id)
         }
         return korreksjoner

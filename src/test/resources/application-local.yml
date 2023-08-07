@@ -29,6 +29,10 @@ spring:
       enabled: true
       path: /h2-console
 
+management:
+  tracing:
+    enabled: false
+
 no.nav.security.jwt:
   issuer:
     aad:

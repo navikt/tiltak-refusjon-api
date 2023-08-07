@@ -8,8 +8,8 @@ metadata:
 spec:
   image: {{image}}
   replicas:
-    min: 2
-    max: 2
+    min: 0
+    max: 0
   env:
     {{#each env}}
     - name: "{{@key}}"

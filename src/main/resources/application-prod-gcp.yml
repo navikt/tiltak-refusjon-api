@@ -21,3 +21,5 @@ tiltak-refusjon:
     unleash-uri: https://unleash.nais.io/api/
   varsling:
     varsling-klar-cron: "0 0 7 5 * ?"
+  beslutter-ad-gruppe:
+    id: 156f4f79-6909-4be1-8045-323f55590898

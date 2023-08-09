@@ -45,7 +45,7 @@ class SaksbehandlerKorreksjonController(
     @PostMapping("/{id}/utbetal-korreksjon")
     fun utbetalKorreksjon(@PathVariable id: String, @RequestBody request: UtbetalKorreksjonRequest) {
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
-        return saksbehandler.utbetalKorreksjon(id, request.beslutterNavIdent, request.kostnadssted ?: "")
+        return saksbehandler.utbetalKorreksjon(id, saksbehandler.identifikator,request.kostnadssted ?: "")
     }
 
     @PostMapping("/{id}/fullfør-korreksjon-ved-oppgjort")

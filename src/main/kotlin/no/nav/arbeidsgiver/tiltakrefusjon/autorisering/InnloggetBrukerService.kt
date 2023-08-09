@@ -16,7 +16,6 @@ import org.springframework.stereotype.Component
 @Component
 class InnloggetBrukerService(
     val context: TokenValidationContextHolder,
-    val graphApiService: GraphApiService,
     val altinnTilgangsstyringService: AltinnTilgangsstyringService,
     val abacTilgangsstyringService: AbacTilgangsstyringService,
     val refusjonRepository: RefusjonRepository,
@@ -24,7 +23,8 @@ class InnloggetBrukerService(
     val refusjonService: RefusjonService,
     val inntektskomponentService: InntektskomponentService,
     val kontoregisterService: KontoregisterService,
-    val eregClient: EregClient
+    val eregClient: EregClient,
+    val beslutterRolleConfig: BeslutterRolleConfig
 ) {
     var logger: Logger = LoggerFactory.getLogger(javaClass)
 
@@ -38,19 +38,11 @@ class InnloggetBrukerService(
 
     fun erBeslutter(): Boolean {
         val groupClaim  = context.tokenValidationContext.getClaims("aad").get("groups") as List<String>
-        return erSaksbehandler() && groupClaim.contains("1a1d2745-952f-4a0f-839f-9530145b1d4a")
+        return erSaksbehandler() && groupClaim.contains(beslutterRolleConfig.id)
     }
 
     fun harKorreksjonsTilgang(): Boolean {
-
-        if(System.getenv("KORREKSJON_TILGANG") != null) {
-            val identerMedTilgang = System.getenv("KORREKSJON_TILGANG")
-            if(identerMedTilgang.isNotEmpty()) {
-                val identListe = identerMedTilgang.split(",").map { it.trim() }
-                return identListe.contains(navIdent())
-            }
-        }
-        return false
+        return erBeslutter()
     }
 
     fun navIdent(): String {
@@ -80,8 +72,6 @@ class InnloggetBrukerService(
     fun hentInnloggetSaksbehandler(): InnloggetSaksbehandler {
         return when {
             erSaksbehandler() -> {
-                // Todo når vi releaser beslutterkorrigering så er korreksjonstilgang samme som erBeslutter
-                // val harKorreksjonTilgang = erBeslutter()
                 InnloggetSaksbehandler(
                     identifikator = navIdent(),
                     navn = displayName(),

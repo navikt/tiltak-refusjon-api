@@ -3,6 +3,7 @@ host:
   - graph.microsoft.com
   - login.microsoftonline.com
 tenant: nav.no
+besluttergruppe: 156f4f79-6909-4be1-8045-323f55590898
 slack_alert_channel: arbeidsgiver-tiltak-alerts
 kafka-pool: nav-prod
 env:

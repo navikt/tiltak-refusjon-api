@@ -17,7 +17,7 @@ class RefusjonRepositoryTest(
     @Test
     fun `finn refusjon fra tilskuddsperiodeId`() {
         val refusjon = enRefusjon()
-        val id = refusjon.tilskuddsgrunnlag.tilskuddsperiodeId;
+        val id = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId;
         refusjonRepository.save(refusjon)
 
         val lagretRefusjon =

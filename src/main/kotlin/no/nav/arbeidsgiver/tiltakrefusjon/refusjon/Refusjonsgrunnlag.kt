@@ -6,7 +6,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
-import javax.persistence.*
+import jakarta.persistence.*
 
 @Entity
 class Refusjonsgrunnlag(
@@ -28,6 +28,8 @@ class Refusjonsgrunnlag(
     var fratrekkRefunderbarBeløp: Boolean? = null
     var refunderbarBeløp: Int? = null
     var forrigeRefusjonMinusBeløp: Int = 0
+    var sumUtbetaltVarig: Int = 0
+    var harFerietrekkForSammeMåned: Boolean = false
 
     @OneToOne(orphanRemoval = true, cascade = [CascadeType.ALL])
     var beregning: Beregning? = null
@@ -69,8 +71,8 @@ class Refusjonsgrunnlag(
         return gjørBeregning()
     }
 
-    fun oppgiBedriftKontonummer(bedrifKontonummer: String?): Boolean {
-        this.bedriftKontonummer = bedrifKontonummer
+    fun oppgiBedriftKontonummer(bedriftKontonummer: String?): Boolean {
+        this.bedriftKontonummer = bedriftKontonummer
         this.bedriftKontonummerInnhentetTidspunkt = Now.localDateTime()
         return gjørBeregning()
     }
@@ -116,7 +118,9 @@ class Refusjonsgrunnlag(
                 korrigertBruttoLønn = endretBruttoLønn,
                 fratrekkRefunderbarSum = refunderbarBeløp,
                 forrigeRefusjonMinusBeløp = forrigeRefusjonMinusBeløp,
-                tilskuddFom = tilskuddsgrunnlag.tilskuddFom)
+                tilskuddFom = tilskuddsgrunnlag.tilskuddFom,
+                sumUtbetaltVarig = sumUtbetaltVarig,
+                harFerietrekkForSammeMåned = harFerietrekkForSammeMåned)
             return true
         }
         return false

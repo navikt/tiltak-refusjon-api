@@ -2,15 +2,12 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.nimbusds.jwt.JWTClaimsSet
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.REQUEST_MAPPING_INNLOGGET_ARBEIDSGIVER
 import no.nav.arbeidsgiver.tiltakrefusjon.hendelseslogg.HendelsesloggRepository
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjoner
 import no.nav.arbeidsgiver.tiltakrefusjon.varsling.VarslingRepository
-import no.nav.security.token.support.test.JwkGenerator
-import no.nav.security.token.support.test.JwtTokenGenerator
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
@@ -33,7 +30,11 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.header
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.nio.charset.StandardCharsets
 import java.util.*
-import javax.servlet.http.Cookie
+import jakarta.servlet.http.Cookie
+import java.net.URI
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse.BodyHandlers
 
 data class InnloggetBrukerTest(val identifikator: String, val organisasjoner: Set<Organisasjon>)
 data class RefusjonlistFraFlereOrgTest(
@@ -232,7 +233,7 @@ class RefusjonApiTest(
             EndreBruttolønnRequest(true, null)
         )
         val refusjonEtterInntektsspørsmål = hentRefusjon(id)
-        assertThat(refusjonEtterInntektsspørsmål.beregning?.refusjonsbeløp).isPositive()
+        assertThat(refusjonEtterInntektsspørsmål.refusjonsgrunnlag.beregning?.refusjonsbeløp).isPositive()
         val harLagretHendelselogg = hendelsesloggRepository.findAll()
             .find { it.refusjonId == refusjonEtterInntektsspørsmål.id && it.event == "BeregningUtført" && it.appImageId != null } != null
         assertTrue(harLagretHendelselogg)
@@ -307,39 +308,20 @@ class RefusjonApiTest(
     }
 
     private final fun lagTokenForFnr(fnr: String): String? {
-        val now = Date()
-        val claims = JWTClaimsSet.Builder()
-            .subject(UUID.randomUUID().toString())
-            .issuer("tokenx")
-            .audience("aud-tokenx")
-            .jwtID(UUID.randomUUID().toString())
-            .claim("pid", fnr)
-            .claim("acr", "Level4")
-            .claim("ver", "1.0")
-            .claim("nonce", "myNonce")
-            .claim("auth_time", now)
-            .notBeforeTime(now)
-            .issueTime(now)
-            .expirationTime(Date(now.time + 1000000)).build()
-
-        return JwtTokenGenerator.createSignedJWT(JwkGenerator.getDefaultRSAKey(), claims).serialize()
+        return HttpClient.newHttpClient().send(
+            HttpRequest.newBuilder()
+                .GET()
+                .uri(URI.create("https://tiltak-fakelogin.ekstern.dev.nav.no/token?pid=${fnr}&aud=aud-tokenx&iss=tokenx&acr=Level4"))
+                .build(), BodyHandlers.ofString()
+        ).body()
     }
 
     private final fun lagTokenForNavId(navId: String): String? {
-        val now = Date()
-        val claims = JWTClaimsSet.Builder()
-            .subject(UUID.randomUUID().toString())
-            .claim("NAVident", navId)
-            .issuer("aad")
-            .audience("aud-aad")
-            .jwtID(UUID.randomUUID().toString())
-            .claim("ver", "1.0")
-            .claim("auth_time", now)
-            .claim("nonce", "myNonce")
-            .notBeforeTime(now)
-            .issueTime(now)
-            .expirationTime(Date(now.time + 1000000)).build()
-
-        return JwtTokenGenerator.createSignedJWT(JwkGenerator.getDefaultRSAKey(), claims).serialize()
+        return HttpClient.newHttpClient().send(
+            HttpRequest.newBuilder()
+                .GET()
+                .uri(URI.create("https://tiltak-fakelogin.ekstern.dev.nav.no/token?NAVident=${navId}&iss=aad&aud=aud-aad"))
+                .build(), BodyHandlers.ofString()
+        ).body()
     }
 }

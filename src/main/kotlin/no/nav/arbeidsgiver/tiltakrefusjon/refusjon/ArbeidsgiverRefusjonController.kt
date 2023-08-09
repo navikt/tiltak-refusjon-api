@@ -49,7 +49,7 @@ class ArbeidsgiverRefusjonController(
 
         val header = HttpHeaders()
         header.contentType = MediaType.APPLICATION_PDF
-        header[HttpHeaders.CONTENT_DISPOSITION] = "inline; filename=Refusjon om " + refusjon.tilskuddsgrunnlag.tiltakstype.name + ".pdf"
+        header[HttpHeaders.CONTENT_DISPOSITION] = "inline; filename=Refusjon om " + refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype.name + ".pdf"
         header.contentLength = pdfDataAsByteArray.size.toLong()
         return HttpEntity<ByteArray>(pdfDataAsByteArray, header)
 

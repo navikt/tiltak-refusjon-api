@@ -1,8 +1,8 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import com.github.guepardoapps.kulid.ULID
-import javax.persistence.Entity
-import javax.persistence.Id
+import jakarta.persistence.Entity
+import jakarta.persistence.Id
 
 @Entity
 data class Beregning(
@@ -18,7 +18,8 @@ data class Beregning(
         val tidligereUtbetalt: Int,
         val fratrekkLønnFerie: Int,
         val tidligereRefundertBeløp: Int,
-        val sumUtgifterFratrukketRefundertBeløp: Int
+        val sumUtgifterFratrukketRefundertBeløp: Int,
+        val overFemGrunnbeløp: Boolean? = false
 ) {
     @Id
     val id: String = ULID.random()

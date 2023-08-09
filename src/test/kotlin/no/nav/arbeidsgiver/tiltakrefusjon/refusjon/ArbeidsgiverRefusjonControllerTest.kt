@@ -41,7 +41,7 @@ class ArbeidsgiverRefusjonControllerTest{
 
         val forventetHeaders = HttpHeaders()
         forventetHeaders.contentType = MediaType.APPLICATION_PDF
-        forventetHeaders[HttpHeaders.CONTENT_DISPOSITION] = "inline; filename=Refusjon om " + `Suzanna Hansen`().tilskuddsgrunnlag.tiltakstype.name + ".pdf"
+        forventetHeaders[HttpHeaders.CONTENT_DISPOSITION] = "inline; filename=Refusjon om " + `Suzanna Hansen`().refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype.name + ".pdf"
         forventetHeaders.contentLength = 1
 
         assertThat(controller.hentPDF(ULID.random()).headers).isEqualTo(forventetHeaders)

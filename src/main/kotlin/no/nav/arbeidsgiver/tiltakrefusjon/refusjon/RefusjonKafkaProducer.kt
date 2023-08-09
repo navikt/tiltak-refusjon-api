@@ -9,10 +9,8 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.kafka.core.KafkaTemplate
-import org.springframework.kafka.support.SendResult
 import org.springframework.stereotype.Component
 import org.springframework.transaction.event.TransactionalEventListener
-import org.springframework.util.concurrent.ListenableFutureCallback
 
 @ConditionalOnProperty("tiltak-refusjon.kafka.enabled")
 @Component
@@ -29,19 +27,17 @@ class RefusjonKafkaProducer(
     fun refusjonGodkjent(event: GodkjentAvArbeidsgiver) {
         val melding = create(event.refusjon)
         refusjonGodkjentkafkaTemplate.send(Topics.REFUSJON_GODKJENT, event.refusjon.id, melding)
-            .addCallback(object : ListenableFutureCallback<SendResult<String?, RefusjonGodkjentMelding?>?> {
-                override fun onSuccess(result: SendResult<String?, RefusjonGodkjentMelding?>?) {
-                    log.info("Melding med id {} sendt til Kafka topic {}", event.refusjon.id, Topics.REFUSJON_GODKJENT)
-                }
-
-                override fun onFailure(ex: Throwable) {
+            .whenComplete { it, ex ->
+                if (ex != null) {
                     log.warn(
                         "Melding med id {} kunne ikke sendes til Kafka topic {}",
                         event.refusjon.id,
                         Topics.REFUSJON_GODKJENT
                     )
+                } else {
+                    log.info("Melding med id {} sendt til Kafka topic {}", it.producerRecord.key(), Topics.REFUSJON_GODKJENT)
                 }
-            })
+            }
     }
 
     @TransactionalEventListener
@@ -59,74 +55,79 @@ class RefusjonKafkaProducer(
             kostnadssted = event.korreksjon.kostnadssted!!
         )
         korreksjonKafkaTemplate.send(Topics.REFUSJON_KORRIGERT, event.korreksjon.id, melding)
-            .addCallback({
-                log.info(
-                    "Melding med id {} sendt til Kafka topic {}",
-                    it?.producerRecord?.key(),
-                    it?.recordMetadata?.topic()
-                )
-            }, {
-                log.warn("Feil ved sending av refusjon korrigert-melding på Kafka", it)
-            })
+            .whenComplete { it, ex ->
+                if (ex != null) {
+                    log.warn("Feil ved sending av refusjon korrigert-melding på Kafka", it)
+                } else {
+                    log.info(
+                        "Melding med id {} sendt til Kafka topic {}",
+                        it?.producerRecord?.key(),
+                        it?.recordMetadata?.topic()
+                    )
+                }
+            }
     }
 
     @TransactionalEventListener
     fun refusjonAnnullertManuelt(event: TilskuddsperioderIRefusjonAnnullertManuelt) {
         // Annullering av tilskuddsperiode til tiltak-okonomi. refusjon-api vil ikke gjøre noe med denne pga årsak.
         val tilskuddperiodeAnnullertMelding = TilskuddsperiodeAnnullertMelding(
-            tilskuddsperiodeId = event.refusjon.tilskuddsgrunnlag.tilskuddsperiodeId,
+            tilskuddsperiodeId = event.refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId,
             årsak = MidlerFrigjortÅrsak.REFUSJON_IKKE_SØKT
         )
         tilskuddperiodeAnnullertKafkaTemplate.send(
             Topics.TILSKUDDSPERIODE_ANNULLERT,
-            event.refusjon.tilskuddsgrunnlag.tilskuddsperiodeId,
+            event.refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId,
             tilskuddperiodeAnnullertMelding
         )
-            .addCallback({
-                log.info(
-                    "Melding med id {} sendt til Kafka topic {}",
-                    it?.producerRecord?.key(),
-                    it?.recordMetadata?.topic()
-                )
-            }, {
-                log.warn("Feil ved sending av tilskuddsperiode annullert melding på Kafka", it)
-            })
-
+            .whenComplete { it, ex ->
+                if (ex != null) {
+                    log.warn("Feil ved sending av tilskuddsperiode annullert melding på Kafka", it)
+                } else {
+                    log.info(
+                        "Melding med id {} sendt til Kafka topic {}",
+                        it?.producerRecord?.key(),
+                        it?.recordMetadata?.topic()
+                    )
+                }
+            }
     }
 
     @TransactionalEventListener
     fun refusjonUtgått(event: RefusjonUtgått) {
         // Annullering av tilskuddsperiode til tiltak-okonomi. refusjon-api vil ikke gjøre noe med denne pga årsak.
         val tilskuddperiodeAnnullertMelding = TilskuddsperiodeAnnullertMelding(
-            tilskuddsperiodeId = event.refusjon.tilskuddsgrunnlag.tilskuddsperiodeId,
+            tilskuddsperiodeId = event.refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId,
             årsak = MidlerFrigjortÅrsak.REFUSJON_FRIST_UTGÅTT
         )
         tilskuddperiodeAnnullertKafkaTemplate.send(
             Topics.TILSKUDDSPERIODE_ANNULLERT,
-            event.refusjon.tilskuddsgrunnlag.tilskuddsperiodeId,
+            event.refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId,
             tilskuddperiodeAnnullertMelding
         )
-            .addCallback({
-                log.info(
-                    "Melding med id {} sendt til Kafka topic {}",
-                    it?.producerRecord?.key(),
-                    it?.recordMetadata?.topic()
-                )
-            }, {
-                log.warn("Feil ved sending av tilskuddsperiode annullert melding på Kafka", it)
-            })
+            .whenComplete { it, ex ->
+                if (ex != null) {
+                    log.warn("Feil ved sending av tilskuddsperiode annullert melding på Kafka", it)
+                } else {
+                    log.info(
+                        "Melding med id {} sendt til Kafka topic {}",
+                        it?.producerRecord?.key(),
+                        it?.recordMetadata?.topic()
+                    )
+                }
+            }
     }
 
     @TransactionalEventListener
     fun refusjonGodkjentMinusBeløp(event: RefusjonGodkjentMinusBeløp) {
         log.info("Godkjent refusjon ${event.refusjon.id} med minusbeløp, sender annullering")
-        annullerTilskuddsperiodeEtterNullEllerMinusBeløp(event.refusjon.tilskuddsgrunnlag.tilskuddsperiodeId, MidlerFrigjortÅrsak.REFUSJON_MINUS_BELØP)
+        annullerTilskuddsperiodeEtterNullEllerMinusBeløp(event.refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId, MidlerFrigjortÅrsak.REFUSJON_MINUS_BELØP)
     }
 
     @TransactionalEventListener
     fun refusjonGodkjentNullBeløp(event: RefusjonGodkjentNullBeløp) {
         log.info("Godkjent refusjon ${event.refusjon.id} med nullbeløp, sender annullering")
-        annullerTilskuddsperiodeEtterNullEllerMinusBeløp(event.refusjon.tilskuddsgrunnlag.tilskuddsperiodeId, MidlerFrigjortÅrsak.REFUSJON_GODKJENT_NULL_BELØP)
+        annullerTilskuddsperiodeEtterNullEllerMinusBeløp(event.refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId, MidlerFrigjortÅrsak.REFUSJON_GODKJENT_NULL_BELØP)
     }
 
     private fun annullerTilskuddsperiodeEtterNullEllerMinusBeløp(tilskuddsperiodeId: String, årsak: MidlerFrigjortÅrsak) {
@@ -138,15 +139,17 @@ class RefusjonKafkaProducer(
             Topics.TILSKUDDSPERIODE_ANNULLERT,
             tilskuddsperiodeId,
             tilskuddperiodeAnnullertMelding
-        ).addCallback({
-            log.info(
-                "Melding med id {} sendt til Kafka topic {}",
-                it?.producerRecord?.key(),
-                it?.recordMetadata?.topic()
-            )
-        }, {
-            log.warn("Feil ved sending av tilskuddsperiode annullert melding på Kafka", it)
-        })
+        ).whenComplete { it, ex ->
+            if (ex != null) {
+                log.warn("Feil ved sending av tilskuddsperiode annullert melding på Kafka", it)
+            } else {
+                log.info(
+                    "Melding med id {} sendt til Kafka topic {}",
+                    it?.producerRecord?.key(),
+                    it?.recordMetadata?.topic()
+                )
+            }
+        }
     }
 
     // En topic med alle statuser for en refusjon. Da kan den aggregeres av fager for å vise det de vil
@@ -163,11 +166,12 @@ class RefusjonKafkaProducer(
             Topics.REFUSJON_ENDRET_STATUS,
             event.refusjon.id,
             melding
-        ).addCallback({
-            log.info("Melding med id {} sendt til Kafka topic {}", it?.producerRecord?.key(), it?.recordMetadata?.topic())
-        }, {
-            log.warn("Feil ved sending av refusjon status på Kafka", it)
-        })
+        ).whenComplete { it, ex ->
+            if (ex != null) {
+                log.warn("Feil ved sending av refusjon status på Kafka", it)
+            } else {
+                log.info("Melding med id {} sendt til Kafka topic {}", it?.producerRecord?.key(), it?.recordMetadata?.topic())
+            }
+        }
     }
-
 }

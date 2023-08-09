@@ -1,0 +1,1 @@
+create index on tilskuddsgrunnlag(avtale_nr);

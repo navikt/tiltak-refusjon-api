@@ -1,0 +1,1 @@
+alter table refusjonsgrunnlag add column har_ferietrekk_for_samme_måned boolean not null default false;

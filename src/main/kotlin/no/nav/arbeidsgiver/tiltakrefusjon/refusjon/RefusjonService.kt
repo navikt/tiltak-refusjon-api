@@ -1,18 +1,24 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 
+import io.micrometer.observation.annotation.Observed
+import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
+import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
 import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterService
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.MidlerFrigjortÅrsak
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeAnnullertMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeForkortetMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.YearMonth
 
 @Service
 @Transactional
+@Observed
 class RefusjonService(
     val inntektskomponentService: InntektskomponentService,
     val refusjonRepository: RefusjonRepository,
@@ -36,6 +42,8 @@ class RefusjonService(
 
         val tilskuddsgrunnlag = Tilskuddsgrunnlag(
             avtaleId = tilskuddsperiodeGodkjentMelding.avtaleId,
+            avtaleFom = tilskuddsperiodeGodkjentMelding.avtaleFom,
+            avtaleTom = tilskuddsperiodeGodkjentMelding.avtaleTom,
             tilskuddsperiodeId = tilskuddsperiodeGodkjentMelding.tilskuddsperiodeId,
             deltakerFornavn = tilskuddsperiodeGodkjentMelding.deltakerFornavn,
             deltakerEtternavn = tilskuddsperiodeGodkjentMelding.deltakerEtternavn,
@@ -76,7 +84,7 @@ class RefusjonService(
      */
     fun settMinusBeløpFraTidligereRefusjonerTilknyttetAvtalen(refusjon: Refusjon) {
 
-        val avtaleNr = refusjon.tilskuddsgrunnlag.avtaleNr
+        val avtaleNr = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr
         val alleMinusbeløp = minusbelopRepository.findAllByAvtaleNr(avtaleNr = avtaleNr)
         if(!alleMinusbeløp.isNullOrEmpty()) {
             val sumMinusbelop = alleMinusbeløp
@@ -94,6 +102,25 @@ class RefusjonService(
         }
     }
 
+    fun settTotalBeløpUtbetalteVarigLønnstilskudd(refusjon: Refusjon) {
+        if(refusjon.status == RefusjonStatus.KLAR_FOR_INNSENDING && refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype == Tiltakstype.VARIG_LONNSTILSKUDD) {
+            val alleUtbetalteVarige =
+                refusjonRepository.findAllByDeltakerFnrAndBedriftNrAndStatusInAndRefusjonsgrunnlag_Tilskuddsgrunnlag_Tiltakstype(
+                    refusjon.deltakerFnr,
+                    refusjon.bedriftNr,
+                    listOf(RefusjonStatus.UTBETALT, RefusjonStatus.SENDT_KRAV),
+                    Tiltakstype.VARIG_LONNSTILSKUDD
+                ).filter { it.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom.year.equals(Now.localDate().year) };
+            val sumUtbetalt = alleUtbetalteVarige
+                .map {refusjon -> refusjon.refusjonsgrunnlag.beregning?.refusjonsbeløp ?: 0 }
+                .reduceOrNull{sum, beløp -> sum + beløp}
+            if (sumUtbetalt != null) {
+                refusjon.refusjonsgrunnlag.sumUtbetaltVarig = sumUtbetalt
+            }
+        }
+
+    }
+
     fun gjørInntektsoppslag(refusjon: Refusjon) {
         if (!refusjon.skalGjøreInntektsoppslag()) {
             return
@@ -106,7 +133,7 @@ class RefusjonService(
         }
         if (refusjon.unntakOmInntekterFremitid > 0) {
             antallEkstraMånederSomSkalSjekkes = refusjon.unntakOmInntekterFremitid
-        } else if (refusjon.tilskuddsgrunnlag.tiltakstype === Tiltakstype.SOMMERJOBB) {
+        } else if (refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype === Tiltakstype.SOMMERJOBB) {
             antallEkstraMånederSomSkalSjekkes = 1
         }
         try {
@@ -120,7 +147,7 @@ class RefusjonService(
                 inntekter = inntektsoppslag.first,
                 respons = inntektsoppslag.second
             )
-            refusjon.oppgiInntektsgrunnlag(inntektsgrunnlag, refusjon.inntektsgrunnlag)
+            refusjon.oppgiInntektsgrunnlag(inntektsgrunnlag, refusjon.refusjonsgrunnlag.inntektsgrunnlag)
             refusjonRepository.save(refusjon)
         } catch (e: Exception) {
             log.error("Feil ved henting av inntekter for refusjon ${refusjon.id}", e)
@@ -128,7 +155,34 @@ class RefusjonService(
     }
 
     fun godkjennForArbeidsgiver(refusjon: Refusjon, utførtAv: String) {
+        val alleMinusBeløp = minusbelopRepository.findAllByAvtaleNr(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr)
+        val sumMinusbelop = alleMinusBeløp
+            .filter { !it.gjortOpp }
+            .map { minusbelop -> minusbelop.beløp}
+            .filterNotNull()
+            .reduceOrNull{sum, beløp -> sum + beløp}
+        // Om det er et gammelt minusbeløp, men alle minusbeløp er gjrot opp må refusjonen lastes på ny for å reberegnes
+        if (sumMinusbelop != null && sumMinusbelop != 0 && refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp != sumMinusbelop) {
+            log.info("Arbeidsgiver prøver sende inn en refusjon hvor minusbeløp er gjort opp/endret av annen refusjon $refusjon.id")
+            throw FeilkodeException(Feilkode.LAST_REFUSJONEN_PÅ_NYTT_REFUSJONSGRUNNLAG_ENDRET)
+        }
+        sjekkForTrukketFerietrekkForSammeMåned(refusjon)
         refusjon.godkjennForArbeidsgiver(utførtAv)
+        if(refusjon.status == RefusjonStatus.GODKJENT_MINUSBELØP) {
+            val alleMinusBeløp = minusbelopRepository.findAllByAvtaleNr(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr)
+            alleMinusBeløp.forEach {
+                it.gjortOpp = true
+                it.gjortOppAvRefusjonId = refusjon.id
+                minusbelopRepository.save(it)
+            }
+            val minusbelop = Minusbelop (
+                avtaleNr = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr,
+                beløp = refusjon.refusjonsgrunnlag.beregning?.refusjonsbeløp,
+                løpenummer = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.løpenummer)
+
+            refusjon.minusbelop = minusbelop
+            log.info("Setter minusbeløp ${minusbelop.id} på refusjon ${refusjon.id}")
+        }
         refusjonRepository.save(refusjon)
     }
 
@@ -168,10 +222,41 @@ class RefusjonService(
         refusjonRepository.save(refusjon)
     }
 
-    fun opprettKorreksjonsutkast(refusjon: Refusjon, korreksjonsgrunner: Set<Korreksjonsgrunn>): Korreksjon {
-        val korreksjonsutkast = refusjon.opprettKorreksjonsutkast(korreksjonsgrunner)
+    fun opprettKorreksjonsutkast(refusjon: Refusjon, korreksjonsgrunner: Set<Korreksjonsgrunn>, unntakOmInntekterFremitid: Int?): Korreksjon {
+        val korreksjonsutkast = refusjon.opprettKorreksjonsutkast(korreksjonsgrunner, unntakOmInntekterFremitid)
         korreksjonRepository.save(korreksjonsutkast)
         refusjonRepository.save(refusjon)
         return korreksjonsutkast
     }
+
+    fun sjekkForTrukketFerietrekkForSammeMåned(refusjon: Refusjon) {
+        if (refusjon.refusjonsgrunnlag.beregning?.fratrekkLønnFerie == 0) {
+            return
+        }
+        val statuser = listOf(RefusjonStatus.UTBETALT, RefusjonStatus.SENDT_KRAV, RefusjonStatus.GODKJENT_MINUSBELØP, RefusjonStatus.GODKJENT_NULLBELØP)
+        refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_AvtaleNrAndStatusIn(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr, statuser)
+            .filter { YearMonth.from(it.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom)  == YearMonth.from(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom) }
+            .forEach {
+                if (it.refusjonsgrunnlag.beregning?.fratrekkLønnFerie != 0) {
+                    log.info("Forsøkte å godkjenne refusjon ${it.id} med ferietrekk. Det er allerde trukket for ferie i en refusjon i samme måned: ${refusjon.id}")
+                    throw FeilkodeException(Feilkode.FERIETREKK_TRUKKET_FOR_SAMME_MÅNED)
+                }
+            }
+    }
+
+    fun settOmFerieErTrukketForSammeMåned(refusjon: Refusjon) {
+        if (refusjon.status == RefusjonStatus.KLAR_FOR_INNSENDING) {
+            val statuser = listOf(RefusjonStatus.UTBETALT, RefusjonStatus.SENDT_KRAV, RefusjonStatus.GODKJENT_MINUSBELØP, RefusjonStatus.GODKJENT_NULLBELØP)
+            refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_AvtaleNrAndStatusIn(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr, statuser)
+                .filter { YearMonth.from(it.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom)  == YearMonth.from(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom) }
+                .forEach {
+                    if (it.refusjonsgrunnlag.beregning?.fratrekkLønnFerie != 0 && !refusjon.refusjonsgrunnlag.harFerietrekkForSammeMåned) {
+                        log.info("Ferietrekk er trukket på en tidligere refusjon: ${it.id} på samme avtalenr i samme måned på denne refusjonen: ${refusjon.id} setter harFerieTrekkForSammeMåned til true")
+                        refusjon.refusjonsgrunnlag.harFerietrekkForSammeMåned = true
+                    }
+                }
+            refusjonRepository.save(refusjon)
+        }
+    }
+
 }

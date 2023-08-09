@@ -11,12 +11,10 @@ import java.time.LocalDate
 
 
 interface RefusjonRepository : JpaRepository<Refusjon, String> {
-    fun findAllByDeltakerFnr(deltakerFnr: String, paging: Pageable): Page<Refusjon>
     fun findAllByBedriftNr(bedriftNr: String): List<Refusjon>
     fun findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_TilskuddsperiodeId(tilskuddsperiodeId: String): List<Refusjon>
     fun findAllByStatus(status: RefusjonStatus): List<Refusjon>
     fun findAllByFristForGodkjenningBeforeAndStatus(fristForGodkjenning: LocalDate, status: RefusjonStatus): List<Refusjon>
-
 
     // veilederIdent
     fun findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_VeilederNavIdentAndStatusInAndRefusjonsgrunnlag_Tilskuddsgrunnlag_TiltakstypeIn(
@@ -54,6 +52,7 @@ interface RefusjonRepository : JpaRepository<Refusjon, String> {
         paging: Pageable
     ): Page<Refusjon>
 
+    fun findAllByDeltakerFnrAndBedriftNrAndStatusInAndRefusjonsgrunnlag_Tilskuddsgrunnlag_Tiltakstype(deltakerFnr: String, bedriftNr: String, status: List<RefusjonStatus>, tiltakstype: Tiltakstype): List<Refusjon>
 
     @Query("select r from Refusjon r where r.bedriftNr in (:bedriftNr) and (:status is null or r.status = :status) " +
             "and (:tiltakstype is null or r.refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype = :tiltakstype) " +
@@ -75,6 +74,6 @@ interface RefusjonRepository : JpaRepository<Refusjon, String> {
         pageable: Pageable
     ): Page<Refusjon>
 
-    @Query("select r from Refusjon r where r.bedriftNr in (:bedriftNr)")
-    fun findAllByBedriftNr(@Param("bedriftNr") bedriftNr: List<String>): List<Refusjon>
+    fun findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_AvtaleNrAndStatusIn(avtaleNr: Int, status: List<RefusjonStatus>): List<Refusjon>
+
 }

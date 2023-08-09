@@ -1,4 +1,6 @@
 spring:
+  application:
+    name: tiltak-refusjon-api
   kafka:
     bootstrap-servers: ${KAFKA_BROKERS}
     properties:
@@ -22,7 +24,6 @@ spring:
   main:
     banner-mode: "off"
   datasource:
-    platform: postgres
     driver-class-name: org.postgresql.Driver
     url: "jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_DATABASE}?user=${DB_USERNAME}&password=${DB_PASSWORD}"
     hikari:
@@ -33,18 +34,12 @@ spring:
   jackson:
     serialization:
       FAIL_ON_EMPTY_BEANS: false
+  sql:
+    init:
+      platform: postgres
 
 management:
-  metrics:
-    web:
-      server:
-        request:
-          autotime:
-            enabled: true
-    enable.executor: true
-  health :
-    refresh:
-      enabled: false
+  health:
     diskspace:
       enabled: false
   endpoint:
@@ -55,6 +50,10 @@ management:
       exposure:
         include: info, health, metrics, prometheus
       base-path: /internal/actuator
+  tracing:
+    enabled: true
+    sampling:
+      probability: 0.33
 
 no.nav.security.jwt:
   issuer:
@@ -119,7 +118,3 @@ tiltak-refusjon:
     uri: "https://graph.microsoft.com/v1.0/me?$select=onPremisesSamAccountName,displayName"
   dokgen:
     uri: "http://tiltak-dokgen/template/tiltak-refusjon/create-pdf"
-  statusjobb:
-    fixed-delay: 3600000
-  varslingsjobb:
-    fixed-delay: 3600000

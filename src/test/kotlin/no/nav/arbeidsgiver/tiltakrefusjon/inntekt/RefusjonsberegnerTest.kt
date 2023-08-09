@@ -1,7 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.inntekt
 
 import com.github.guepardoapps.kulid.ULID
-import no.nav.arbeidsgiver.tiltakrefusjon.etInntektsgrunnlag
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -22,14 +21,14 @@ class RefusjonsberegnerTest {
     @BeforeEach
     fun init() {
         juni =
-            lagEnInntektslinje(20000.00, YearMonth.of(2021, 7), LocalDate.of(2021, 6, 1), LocalDate.of(2021, 6, 30))
+            lagEnInntektslinje(20000.00, YearMonth.of(2023, 7), LocalDate.of(2023, 6, 1), LocalDate.of(2023, 6, 30))
         juli =
-            lagEnInntektslinje(20000.00, YearMonth.of(2021, 7), LocalDate.of(2021, 7, 1), LocalDate.of(2021, 7, 31))
+            lagEnInntektslinje(20000.00, YearMonth.of(2023, 7), LocalDate.of(2023, 7, 1), LocalDate.of(2023, 7, 31))
         inntektsliste = listOf(juni, juli)
         inntektsgrunnlag = Inntektsgrunnlag(inntektsliste, "repons fra Inntekt")
 
         juniUregelmessig =
-            lagEnInntektslinjeUregelmessigeTillegg(20000.00, YearMonth.of(2021, 7), LocalDate.of(2021, 6, 1), LocalDate.of(2021, 6, 30))
+            lagEnInntektslinjeUregelmessigeTillegg(20000.00, YearMonth.of(2023, 7), LocalDate.of(2023, 6, 1), LocalDate.of(2023, 6, 30))
         inntektsgrunnlagUregelmessig = Inntektsgrunnlag(listOf(juniUregelmessig, juni), "repons fra Inntekt")
     }
 
@@ -105,8 +104,8 @@ class RefusjonsberegnerTest {
     @Test
     fun `beregning av sommerjobb, skal ikke beregne på dagsats`() {
         val tilskuddsgrunnlagSommerJobb = lagEtTilskuddsgrunnlag(
-            LocalDate.of(2021, 6, 1),
-            LocalDate.of(2021, 7, 16),
+            LocalDate.of(2023, 6, 1),
+            LocalDate.of(2023, 7, 16),
             Tiltakstype.SOMMERJOBB,
             40000
         )
@@ -116,7 +115,8 @@ class RefusjonsberegnerTest {
             0,
             null,
             null,
-             tilskuddFom = LocalDate.of(2021,6,1)
+            tilskuddFom = LocalDate.of(2023,6,1),
+            harFerietrekkForSammeMåned = false
         )
         val beregnetBeløpHeleInntektsgrunnlaget = 20856
         assertThat(beregning.refusjonsbeløp).isEqualTo(beregnetBeløpHeleInntektsgrunnlaget)
@@ -125,8 +125,8 @@ class RefusjonsberegnerTest {
     @Test
     fun `beregning av lønnstilskudd, skal beregne på dagsats`() {
         val tilskuddsgrunnlagLønnstilskudd = lagEtTilskuddsgrunnlag(
-            LocalDate.of(2021, 6, 1),
-            LocalDate.of(2021, 6, 30),
+            LocalDate.of(2023, 6, 1),
+            LocalDate.of(2023, 6, 30),
             Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
             40000
         )
@@ -135,9 +135,45 @@ class RefusjonsberegnerTest {
             tilskuddsgrunnlagLønnstilskudd,
             0,
             null,
-            tilskuddFom = LocalDate.of(2021,6,1)
+            tilskuddFom = LocalDate.of(2023,6,1),
+            harFerietrekkForSammeMåned = false
         )
         val beregnetBeløpAvAntallDagerJobbetInnenforInntektsgrunnlaget = 20856
         assertThat(beregning.refusjonsbeløp).isEqualTo(beregnetBeløpAvAntallDagerJobbetInnenforInntektsgrunnlaget)
+    }
+
+    @Test
+    fun `varig lønnstilskudd, sum over 5g skal capes`() {
+        // Seks perioder med 100 000.
+        val tilskuddsgrunnlagLønnstilskudd = lagEtTilskuddsgrunnlag(
+            LocalDate.of(2023, 6, 1),
+            LocalDate.of(2023, 6, 30),
+            Tiltakstype.VARIG_LONNSTILSKUDD,
+            100000
+        )
+        val beregning = beregnRefusjonsbeløp(
+            inntektsgrunnlagUregelmessig.inntekter.toList(),
+            tilskuddsgrunnlagLønnstilskudd,
+            0,
+            null,
+            tilskuddFom = LocalDate.of(2023,6,1),
+            sumUtbetaltVarig = 590000,
+            harFerietrekkForSammeMåned = false
+        )
+        val beregning2 = beregnRefusjonsbeløp(
+            inntektsgrunnlagUregelmessig.inntekter.toList(),
+            tilskuddsgrunnlagLønnstilskudd.copy(tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD),
+            0,
+            null,
+            tilskuddFom = LocalDate.of(2023,6,1),
+            sumUtbetaltVarig = 590000,
+            harFerietrekkForSammeMåned = false
+        )
+
+        // Beregning uten 5G-sjekk skal gi et refusjonsbeløp på 20856
+        // Med 590000 allerede utbetalt så vil dette være over tilgjengelig sum
+        assertThat(beregning.refusjonsbeløp).isEqualTo(3100)
+        assertThat(beregning2.refusjonsbeløp).isEqualTo(20856)
+
     }
 }

@@ -13,7 +13,7 @@ import org.springframework.data.domain.AbstractAggregateRoot
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
-import javax.persistence.*
+import jakarta.persistence.*
 
 @Entity
 class Refusjon(
@@ -52,9 +52,6 @@ class Refusjon(
     var midlerFrigjortÅrsak: MidlerFrigjortÅrsak? = null
 
     // Midlertidige frontend-mappinger
-    val beregning: Beregning? get() = refusjonsgrunnlag.beregning
-    val tilskuddsgrunnlag: Tilskuddsgrunnlag get() = refusjonsgrunnlag.tilskuddsgrunnlag
-    val inntektsgrunnlag: Inntektsgrunnlag? get() = refusjonsgrunnlag.inntektsgrunnlag
     val bedriftKontonummer: String? get() = refusjonsgrunnlag.bedriftKontonummer
     val inntekterKunFraTiltaket: Boolean? get() = refusjonsgrunnlag.inntekterKunFraTiltaket
     var utbetaltTidspunkt: Instant? = null
@@ -79,7 +76,6 @@ class Refusjon(
     @JsonProperty
     fun harTattStillingTilAlleInntektslinjer(): Boolean =
         refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.find { inntekt -> inntekt.erOpptjentIPeriode === null } === null
-
 
     private fun krevStatus(vararg gyldigeStatuser: RefusjonStatus) {
         if (status !in gyldigeStatuser) throw FeilkodeException(Feilkode.UGYLDIG_STATUS)
@@ -222,7 +218,7 @@ class Refusjon(
         registerEvent(RefusjonForkortet(this))
     }
 
-    fun opprettKorreksjonsutkast(korreksjonsgrunner: Set<Korreksjonsgrunn>): Korreksjon {
+    fun opprettKorreksjonsutkast(korreksjonsgrunner: Set<Korreksjonsgrunn>, unntakOmInntekterFremitid: Int?): Korreksjon {
         krevStatus(RefusjonStatus.UTBETALT, RefusjonStatus.SENDT_KRAV,RefusjonStatus.GODKJENT_MINUSBELØP, RefusjonStatus.UTGÅTT)
         if (korreksjonId != null) {
             throw FeilkodeException(Feilkode.HAR_KORREKSJON)
@@ -239,6 +235,7 @@ class Refusjon(
             bedriftNr = bedriftNr,
             inntekterKunFraTiltaket = refusjonsgrunnlag.inntekterKunFraTiltaket ?: true,
             endretBruttoLønn = refusjonsgrunnlag.endretBruttoLønn,
+            unntakOmInntekterFremitid = unntakOmInntekterFremitid
         )
         this.korreksjonId = korreksjonsutkast.id
         return korreksjonsutkast

@@ -70,3 +70,6 @@ spec:
   prometheus:
     enabled: true
     path: /internal/actuator/prometheus
+  observability:
+    tracing:
+      enabled: true

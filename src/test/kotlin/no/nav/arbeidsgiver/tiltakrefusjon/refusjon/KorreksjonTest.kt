@@ -11,15 +11,16 @@ class KorreksjonTest {
     internal fun `kan utbetale når alt er fylt ut`() {
         val tilskuddsgrunnlag = etTilskuddsgrunnlag()
         val korreksjon = Korreksjon(
-            ULID.random(),
-            1,
-            0,
-            setOf(Korreksjonsgrunn.HENT_INNTEKTER_PÅ_NYTT),
-            tilskuddsgrunnlag,
-            tilskuddsgrunnlag.deltakerFnr,
-            tilskuddsgrunnlag.bedriftNr,
-            true,
-            null
+            korrigererRefusjonId = ULID.random(),
+            korreksjonsnummer = 1,
+            tidligereUtbetalt = 0,
+            korreksjonsgrunner = setOf(Korreksjonsgrunn.HENT_INNTEKTER_PÅ_NYTT),
+            tilskuddsgrunnlag = tilskuddsgrunnlag,
+            deltakerFnr = tilskuddsgrunnlag.deltakerFnr,
+            bedriftNr = tilskuddsgrunnlag.bedriftNr,
+            inntekterKunFraTiltaket = true,
+            endretBruttoLønn = null,
+            unntakOmInntekterFremitid = 1
         )
         korreksjon.oppgiInntektsgrunnlag(
             etInntektsgrunnlag(
@@ -38,15 +39,16 @@ class KorreksjonTest {
     internal fun `kostnadssted må være med`() {
         val tilskuddsgrunnlag = etTilskuddsgrunnlag()
         val korreksjon = Korreksjon(
-            ULID.random(),
-            1,
-            0,
-            setOf(Korreksjonsgrunn.HENT_INNTEKTER_PÅ_NYTT),
-            tilskuddsgrunnlag,
-            tilskuddsgrunnlag.deltakerFnr,
-            tilskuddsgrunnlag.bedriftNr,
-            true,
-            null
+            korrigererRefusjonId = ULID.random(),
+            korreksjonsnummer = 1,
+            tidligereUtbetalt = 0,
+            korreksjonsgrunner = setOf(Korreksjonsgrunn.HENT_INNTEKTER_PÅ_NYTT),
+            tilskuddsgrunnlag = tilskuddsgrunnlag,
+            deltakerFnr = tilskuddsgrunnlag.deltakerFnr,
+            bedriftNr = tilskuddsgrunnlag.bedriftNr,
+            inntekterKunFraTiltaket = true,
+            endretBruttoLønn = null,
+            unntakOmInntekterFremitid = 1
         )
         korreksjon.oppgiInntektsgrunnlag(
             etInntektsgrunnlag(
@@ -64,15 +66,16 @@ class KorreksjonTest {
     internal fun `kun lov med tilbakekreving ved negativ sum`() {
         val tilskuddsgrunnlag = etTilskuddsgrunnlag()
         val korreksjon = Korreksjon(
-            ULID.random(),
-            1,
-            1000000,
-            setOf(Korreksjonsgrunn.HENT_INNTEKTER_PÅ_NYTT),
-            tilskuddsgrunnlag,
-            tilskuddsgrunnlag.deltakerFnr,
-            tilskuddsgrunnlag.bedriftNr,
-            true,
-            null
+            korrigererRefusjonId = ULID.random(),
+            korreksjonsnummer = 1,
+            tidligereUtbetalt = 1000000,
+            korreksjonsgrunner = setOf(Korreksjonsgrunn.HENT_INNTEKTER_PÅ_NYTT),
+            tilskuddsgrunnlag = tilskuddsgrunnlag,
+            deltakerFnr = tilskuddsgrunnlag.deltakerFnr,
+            bedriftNr = tilskuddsgrunnlag.bedriftNr,
+            inntekterKunFraTiltaket = true,
+            endretBruttoLønn = null,
+            unntakOmInntekterFremitid = 1
         )
         korreksjon.oppgiInntektsgrunnlag(
             etInntektsgrunnlag(
@@ -93,15 +96,16 @@ class KorreksjonTest {
     internal fun `kun lov med oppgjort`() {
         val tilskuddsgrunnlag = etTilskuddsgrunnlag()
         val korreksjon = Korreksjon(
-            ULID.random(),
-            1,
-            4055,
-            setOf(Korreksjonsgrunn.HENT_INNTEKTER_PÅ_NYTT),
-            tilskuddsgrunnlag,
-            tilskuddsgrunnlag.deltakerFnr,
-            tilskuddsgrunnlag.bedriftNr,
-            true,
-            null
+            korrigererRefusjonId = ULID.random(),
+            korreksjonsnummer = 1,
+            tidligereUtbetalt = 4055,
+            korreksjonsgrunner = setOf(Korreksjonsgrunn.HENT_INNTEKTER_PÅ_NYTT),
+            tilskuddsgrunnlag = tilskuddsgrunnlag,
+            deltakerFnr = tilskuddsgrunnlag.deltakerFnr,
+            bedriftNr = tilskuddsgrunnlag.bedriftNr,
+            inntekterKunFraTiltaket = true,
+            endretBruttoLønn = null,
+            unntakOmInntekterFremitid = 1
         )
         korreksjon.oppgiInntektsgrunnlag(
             etInntektsgrunnlag(
@@ -122,15 +126,16 @@ class KorreksjonTest {
     internal fun `kun inntekter som er huket av for at de er opptjent i perioden blir regnet med`() {
         val tilskuddsgrunnlag = etTilskuddsgrunnlag()
         val korreksjon = Korreksjon(
-            ULID.random(),
-            1,
-            4055,
-            setOf(Korreksjonsgrunn.HENT_INNTEKTER_PÅ_NYTT),
-            tilskuddsgrunnlag,
-            tilskuddsgrunnlag.deltakerFnr,
-            tilskuddsgrunnlag.bedriftNr,
-            true,
-            null
+            korrigererRefusjonId = ULID.random(),
+            korreksjonsnummer = 1,
+            tidligereUtbetalt = 4055,
+            korreksjonsgrunner = setOf(Korreksjonsgrunn.HENT_INNTEKTER_PÅ_NYTT),
+            tilskuddsgrunnlag = tilskuddsgrunnlag,
+            deltakerFnr = tilskuddsgrunnlag.deltakerFnr,
+            bedriftNr = tilskuddsgrunnlag.bedriftNr,
+            inntekterKunFraTiltaket = true,
+            endretBruttoLønn = null,
+            unntakOmInntekterFremitid = 1
         )
         val inntektslinjeOpptjentIPeriode = enInntektslinje(opptjentIPeriode = true)
         val inntektslinjeIkkeOptjentIPeriode = enInntektslinje(opptjentIPeriode = false)

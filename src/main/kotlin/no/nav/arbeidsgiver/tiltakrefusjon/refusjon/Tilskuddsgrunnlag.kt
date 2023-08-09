@@ -3,14 +3,16 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 import com.github.guepardoapps.kulid.ULID
 import java.time.LocalDate
 import java.time.LocalDateTime
-import javax.persistence.Entity
-import javax.persistence.EnumType
-import javax.persistence.Enumerated
-import javax.persistence.Id
+import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
+import jakarta.persistence.Id
 
 @Entity
 data class Tilskuddsgrunnlag(
     val avtaleId: String,
+    val avtaleFom: LocalDate? = null,
+    val avtaleTom: LocalDate? = null,
     val tilskuddsperiodeId: String,
     val deltakerFornavn: String,
     val deltakerEtternavn: String,

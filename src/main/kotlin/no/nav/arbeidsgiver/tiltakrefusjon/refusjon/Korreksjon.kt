@@ -9,7 +9,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.springframework.data.domain.AbstractAggregateRoot
 import java.time.Instant
 import java.util.*
-import javax.persistence.*
+import jakarta.persistence.*
 
 @Entity
 class Korreksjon(
@@ -19,6 +19,7 @@ class Korreksjon(
     val refusjonsgrunnlag: Refusjonsgrunnlag,
     val deltakerFnr: String,
     val bedriftNr: String,
+    val unntakOmInntekterFremitid: Int?
 ) : AbstractAggregateRoot<Korreksjon>() {
     constructor(
         korrigererRefusjonId: String,
@@ -29,13 +30,15 @@ class Korreksjon(
         deltakerFnr: String,
         bedriftNr: String,
         inntekterKunFraTiltaket: Boolean?,
-        endretBruttoLønn: Int?
+        endretBruttoLønn: Int?,
+        unntakOmInntekterFremitid: Int?
     ) : this(
         korrigererRefusjonId,
         korreksjonsnummer,
         Refusjonsgrunnlag(tilskuddsgrunnlag, tidligereUtbetalt),
         deltakerFnr,
-        bedriftNr
+        bedriftNr,
+        unntakOmInntekterFremitid
     ) {
         this.korreksjonsgrunner.addAll(korreksjonsgrunner)
         if (inntekterKunFraTiltaket == null) { // For gamle refusjoner før vi stilte dette spørsmålet
@@ -196,6 +199,14 @@ class Korreksjon(
     fun setInntektslinjeTilOpptjentIPeriode(inntekslinjeId: String, erOpptjentIPeriode: Boolean) {
         krevStatus(Korreksjonstype.UTKAST)
         val harGjortBeregning = refusjonsgrunnlag.setInntektslinjeTilOpptjentIPeriode(inntekslinjeId, erOpptjentIPeriode)
+        if (harGjortBeregning) {
+            registerEvent(KorreksjonBeregningUtført(this))
+        }
+    }
+
+    fun settFratrekkRefunderbarBeløp(fratrekkRefunderbarBeløp: Boolean, refunderbarBeløp: Int?) {
+        krevStatus(Korreksjonstype.UTKAST)
+        val harGjortBeregning = refusjonsgrunnlag.settFratrekkRefunderbarBeløp(fratrekkRefunderbarBeløp, refunderbarBeløp)
         if (harGjortBeregning) {
             registerEvent(KorreksjonBeregningUtført(this))
         }

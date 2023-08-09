@@ -1,0 +1,88 @@
+apiVersion: "monitoring.coreos.com/v1"
+kind: PrometheusRule
+metadata:
+  labels:
+    team: arbeidsgiver
+  name: tiltak-refusjon-api-testing-alert
+  namespace: arbeidsgiver
+  # test alerts, will always trigger
+  # used only to experiment with formatting etc
+spec:
+  groups:
+    - name: tiltak-refusjon-api-testing-alert
+      rules:
+        - alert: refusjon-api error i loggen
+          expr: sum(increase(logback_events_total{app="tiltak-refusjon-api",level="error"}[3m])) > 0
+          for: 1m
+          annotations:
+            consequence: Feil i loggen til refusjon-api
+            action: "Sjekk logs.adeo.no for logger: https://logs.adeo.no/s/nav-logs-legacy/app/r/s/F1qMf"
+            documentation: "https://prometheus.io/docs/prometheus/latest/querying/basics/"
+            summary: |-
+              tiltak-refusjon-api har logget en feil :meow_boopsweat: Sjekk loggene om noe bør gjøres!
+            sla: "no need to respond"
+          labels:
+            severity: "info"
+            alertmanager_config_type: tiltak-refusjon-type
+            alert_type: custom
+        - alert: TILTAK-REFUSJON-API ERROR!
+          expr: sum(increase(logd_messages_total{log_app="tiltak-refusjon-api",log_level="Error"}[3m])) > 0
+          for: 10s
+          annotations:
+            consequence: Feil i loggen til refusjon-api
+            action: "Sjekk logs.adeo.no for logger: https://logs.adeo.no/s/nav-logs-legacy/app/r/s/F1qMf"
+            summary: |-
+              tiltak-refusjon-api har logget en feil :meow_boopsweat: Sjekk loggene om noe bør gjøres!
+          labels:
+            severity: "info"
+            alertmanager_config_type: tiltak-refusjon-type
+            alert_type: custom
+
+
+---
+
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: AlertmanagerConfig
+metadata:
+  name: tiltak-refusjon-api-testing-alert-config
+  namespace: arbeidsgiver
+  labels:
+    alertmanagerConfig: tiltak-refusjon-api-testing-alert-config
+spec:
+  receivers:
+    - name: tiltak-refusjon-api-receiver
+      slackConfigs:
+        - apiURL:
+            key: apiUrl
+            name: slack-webhook
+          channel: 'arbeidsgiver-tiltak-alerts-testing'
+          iconEmoji: ':scream:'
+          username: 'Alertmanager'
+          sendResolved: true
+          color: "danger"
+          title: |-
+            [\{{ .Status | toUpper }}\{{ if eq .Status "firing" }}:\{{ .Alerts.Firing | len }}\{{ end }}] \{{ .CommonLabels.alertname }}
+          text: >-
+            \{{ range .Alerts }}
+            \{{ if or .Annotations.summary .Annotations.message }}
+            \{{ or .Annotations.summary .Annotations.message }}
+            \{{ println " " }}
+            \{{- end }}
+            \{{- if .Annotations.consequence }}
+            • *consequence*: \{{ .Annotations.consequence }} \{{ println " " }}
+            \{{- end }}
+            \{{- if .Annotations.action }}
+            • *action*: \{{ .Annotations.action }} \{{ println " " }}
+            \{{- end }}
+            \{{ end }}
+  route:
+    groupBy:
+      - alertname
+    matchers:
+      - name: "alertmanager_config_type"
+        matchType: "="
+        value: "tiltak-refusjon-type"
+    groupInterval: 10s
+    groupWait: 5s
+    receiver: tiltak-refusjon-api-receiver
+    repeatInterval: 2m

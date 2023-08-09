@@ -23,7 +23,7 @@ class VarslingJobb(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    @Scheduled(fixedDelayString = "\${tiltak-refusjon.varslingsjobb.fixed-delay}")
+    @Scheduled(cron = "0 0 2,4 * * *")
     fun sjekkForRevarsling() {
 
         if (!leaderPodCheck.isLeaderPod()) {
@@ -60,7 +60,7 @@ class VarslingJobb(
         for (refusjon in refusjoner) {
             val varslerForRefusjon = varslingRepository.findAllByRefusjonId(refusjon.id)
 
-            if (varslerForRefusjon.none { it.varselType === VarselType.KLAR} && forrigeMåned.equals(refusjon.tilskuddsgrunnlag.tilskuddTom.month)) {
+            if (varslerForRefusjon.none { it.varselType === VarselType.KLAR} && forrigeMåned.equals(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom.month)) {
                 refusjonVarselProducer.sendVarsel(VarselType.KLAR, refusjon.id, refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId, refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleId, refusjon.fristForGodkjenning)
                 antallSendteVarsler++
                 continue;

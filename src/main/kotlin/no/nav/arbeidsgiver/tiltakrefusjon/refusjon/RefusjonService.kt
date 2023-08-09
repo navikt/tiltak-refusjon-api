@@ -222,8 +222,8 @@ class RefusjonService(
         refusjonRepository.save(refusjon)
     }
 
-    fun opprettKorreksjonsutkast(refusjon: Refusjon, korreksjonsgrunner: Set<Korreksjonsgrunn>): Korreksjon {
-        val korreksjonsutkast = refusjon.opprettKorreksjonsutkast(korreksjonsgrunner)
+    fun opprettKorreksjonsutkast(refusjon: Refusjon, korreksjonsgrunner: Set<Korreksjonsgrunn>, unntakOmInntekterFremitid: Int?): Korreksjon {
+        val korreksjonsutkast = refusjon.opprettKorreksjonsutkast(korreksjonsgrunner, unntakOmInntekterFremitid)
         korreksjonRepository.save(korreksjonsutkast)
         refusjonRepository.save(refusjon)
         return korreksjonsutkast

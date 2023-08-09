@@ -19,6 +19,7 @@ class Korreksjon(
     val refusjonsgrunnlag: Refusjonsgrunnlag,
     val deltakerFnr: String,
     val bedriftNr: String,
+    val unntakOmInntekterFremitid: Int?
 ) : AbstractAggregateRoot<Korreksjon>() {
     constructor(
         korrigererRefusjonId: String,
@@ -29,13 +30,15 @@ class Korreksjon(
         deltakerFnr: String,
         bedriftNr: String,
         inntekterKunFraTiltaket: Boolean?,
-        endretBruttoLønn: Int?
+        endretBruttoLønn: Int?,
+        unntakOmInntekterFremitid: Int?
     ) : this(
         korrigererRefusjonId,
         korreksjonsnummer,
         Refusjonsgrunnlag(tilskuddsgrunnlag, tidligereUtbetalt),
         deltakerFnr,
-        bedriftNr
+        bedriftNr,
+        unntakOmInntekterFremitid
     ) {
         this.korreksjonsgrunner.addAll(korreksjonsgrunner)
         if (inntekterKunFraTiltaket == null) { // For gamle refusjoner før vi stilte dette spørsmålet

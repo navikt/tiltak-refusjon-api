@@ -218,7 +218,7 @@ class Refusjon(
         registerEvent(RefusjonForkortet(this))
     }
 
-    fun opprettKorreksjonsutkast(korreksjonsgrunner: Set<Korreksjonsgrunn>): Korreksjon {
+    fun opprettKorreksjonsutkast(korreksjonsgrunner: Set<Korreksjonsgrunn>, unntakOmInntekterFremitid: Int?): Korreksjon {
         krevStatus(RefusjonStatus.UTBETALT, RefusjonStatus.SENDT_KRAV,RefusjonStatus.GODKJENT_MINUSBELØP, RefusjonStatus.UTGÅTT)
         if (korreksjonId != null) {
             throw FeilkodeException(Feilkode.HAR_KORREKSJON)
@@ -235,6 +235,7 @@ class Refusjon(
             bedriftNr = bedriftNr,
             inntekterKunFraTiltaket = refusjonsgrunnlag.inntekterKunFraTiltaket ?: true,
             endretBruttoLønn = refusjonsgrunnlag.endretBruttoLønn,
+            unntakOmInntekterFremitid = unntakOmInntekterFremitid
         )
         this.korreksjonId = korreksjonsutkast.id
         return korreksjonsutkast

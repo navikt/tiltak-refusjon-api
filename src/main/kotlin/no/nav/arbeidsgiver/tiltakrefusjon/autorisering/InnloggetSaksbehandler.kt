@@ -104,8 +104,6 @@ data class InnloggetSaksbehandler(
                 } else {
                     antallMånederSomSkalSjekkes = 2
                 }
-            } else {
-                antallMånederSomSkalSjekkes = 1
             }
 
             val inntektsoppslag = inntektskomponentService.hentInntekter(

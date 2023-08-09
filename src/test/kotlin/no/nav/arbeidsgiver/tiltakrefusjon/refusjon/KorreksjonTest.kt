@@ -31,7 +31,7 @@ class KorreksjonTest {
             )
         )
         korreksjon.oppgiBedriftKontonummer("99999999999")
-        korreksjon.utbetalKorreksjon("", "X123456", "9999")
+        korreksjon.utbetalKorreksjon("", "X123456", "1000")
         assertThat(korreksjon.status).isEqualTo(Korreksjonstype.TILLEGSUTBETALING)
     }
 
@@ -60,6 +60,61 @@ class KorreksjonTest {
         )
         korreksjon.oppgiBedriftKontonummer("99999999999")
         assertFeilkode(Feilkode.KOSTNADSSTED_MANGLER) { korreksjon.utbetalKorreksjon("", "X123456", "") }
+    }
+
+    @Test
+    internal fun `kostnadssted kan ikke høre til et annet fylke enn refusjonen være med`() {
+        val tilskuddsgrunnlag = etTilskuddsgrunnlag()
+        val korreksjon = Korreksjon(
+            korrigererRefusjonId = ULID.random(),
+            korreksjonsnummer = 1,
+            tidligereUtbetalt = 0,
+            korreksjonsgrunner = setOf(Korreksjonsgrunn.HENT_INNTEKTER_PÅ_NYTT),
+            tilskuddsgrunnlag = tilskuddsgrunnlag,
+            deltakerFnr = tilskuddsgrunnlag.deltakerFnr,
+            bedriftNr = tilskuddsgrunnlag.bedriftNr,
+            inntekterKunFraTiltaket = true,
+            endretBruttoLønn = null,
+            unntakOmInntekterFremitid = 1
+        )
+        korreksjon.oppgiInntektsgrunnlag(
+            etInntektsgrunnlag(
+                måned = YearMonth.of(
+                    tilskuddsgrunnlag.tilskuddFom.year,
+                    tilskuddsgrunnlag.tilskuddFom.month
+                )
+            )
+        )
+        korreksjon.oppgiBedriftKontonummer("99999999999")
+        assertFeilkode(Feilkode.KORREKSJON_KOSTNADSSTED_ANNET_FYLKE) { korreksjon.utbetalKorreksjon("", "X123456", "2009") }
+    }
+
+    @Test
+    internal fun `kostnadssted kan være ulikt innenfor samme fylke`() {
+        val tilskuddsgrunnlag = etTilskuddsgrunnlag()
+        val korreksjon = Korreksjon(
+            korrigererRefusjonId = ULID.random(),
+            korreksjonsnummer = 1,
+            tidligereUtbetalt = 0,
+            korreksjonsgrunner = setOf(Korreksjonsgrunn.HENT_INNTEKTER_PÅ_NYTT),
+            tilskuddsgrunnlag = tilskuddsgrunnlag,
+            deltakerFnr = tilskuddsgrunnlag.deltakerFnr,
+            bedriftNr = tilskuddsgrunnlag.bedriftNr,
+            inntekterKunFraTiltaket = true,
+            endretBruttoLønn = null,
+            unntakOmInntekterFremitid = 1
+        )
+        korreksjon.oppgiInntektsgrunnlag(
+            etInntektsgrunnlag(
+                måned = YearMonth.of(
+                    tilskuddsgrunnlag.tilskuddFom.year,
+                    tilskuddsgrunnlag.tilskuddFom.month
+                )
+            )
+        )
+        korreksjon.oppgiBedriftKontonummer("99999999999")
+        korreksjon.utbetalKorreksjon("", "X123456", "1009")
+        assertThat(korreksjon.status).isEqualTo(Korreksjonstype.TILLEGSUTBETALING)
     }
 
     @Test

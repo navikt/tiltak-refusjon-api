@@ -21,3 +21,5 @@ tiltak-refusjon:
     unleash-uri: https://unleash.nais.io/api/
   varsling:
     varsling-klar-cron: "0 0 7 5 * ?"
+  norg:
+    uri: https://norg2.prod-fss-pub.nais.io/norg2/api

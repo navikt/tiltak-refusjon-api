@@ -4,6 +4,7 @@ import io.micrometer.observation.annotation.Observed
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
 import no.nav.arbeidsgiver.tiltakrefusjon.featuretoggles.FeatureToggleService
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
+import no.nav.arbeidsgiver.tiltakrefusjon.norg.NorgService
 import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterService
 import no.nav.arbeidsgiver.tiltakrefusjon.organisasjon.EregClient
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
@@ -24,6 +25,7 @@ class InnloggetBrukerService(
     val refusjonService: RefusjonService,
     val inntektskomponentService: InntektskomponentService,
     val kontoregisterService: KontoregisterService,
+    val norgService: NorgService,
     val eregClient: EregClient,
     val featureToggleService: FeatureToggleService
 ) {
@@ -64,7 +66,8 @@ class InnloggetBrukerService(
                     refusjonService = refusjonService,
                     inntektskomponentService = inntektskomponentService,
                     kontoregisterService = kontoregisterService,
-                    harKorreksjonTilgang = harKorreksjonTilgang
+                    harKorreksjonTilgang = harKorreksjonTilgang,
+                    norgeService = norgService
                 )
             }
             else -> {

@@ -22,4 +22,4 @@ tiltak-refusjon:
   varsling:
     varsling-klar-cron: "0 */5 * 18 * ?"
   norg:
-    uri: https://norg2.dev-fss-pub.nais.io/norg2/api
+    uri: https://norg2.dev-fss-pub.nais.io/norg2/api/v1

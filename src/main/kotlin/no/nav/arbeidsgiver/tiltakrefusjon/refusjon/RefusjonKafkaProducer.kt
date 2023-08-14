@@ -3,8 +3,8 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.Topics
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonGodkjentMelding.Companion.create
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.*
-import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeAnnullertMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.MidlerFrigjortÅrsak
+import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeAnnullertMelding
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -20,19 +20,18 @@ class RefusjonKafkaProducer(
     val tilskuddperiodeAnnullertKafkaTemplate: KafkaTemplate<String, TilskuddsperiodeAnnullertMelding>,
     val refusjonEndretStatusKafkaTemplate: KafkaTemplate<String, RefusjonEndretStatusMelding>
 ) {
-
     var log: Logger = LoggerFactory.getLogger(javaClass)
-
     @TransactionalEventListener
     fun refusjonGodkjent(event: GodkjentAvArbeidsgiver) {
         val melding = create(event.refusjon)
         refusjonGodkjentkafkaTemplate.send(Topics.REFUSJON_GODKJENT, event.refusjon.id, melding)
             .whenComplete { it, ex ->
                 if (ex != null) {
-                    log.warn(
+                    log.error(
                         "Melding med id {} kunne ikke sendes til Kafka topic {}",
                         event.refusjon.id,
-                        Topics.REFUSJON_GODKJENT
+                        Topics.REFUSJON_GODKJENT,
+                        ex
                     )
                 } else {
                     log.info("Melding med id {} sendt til Kafka topic {}", it.producerRecord.key(), Topics.REFUSJON_GODKJENT)
@@ -57,7 +56,7 @@ class RefusjonKafkaProducer(
         korreksjonKafkaTemplate.send(Topics.REFUSJON_KORRIGERT, event.korreksjon.id, melding)
             .whenComplete { it, ex ->
                 if (ex != null) {
-                    log.warn("Feil ved sending av refusjon korrigert-melding på Kafka", it)
+                    log.error("Feil ved sending av refusjon korrigert-melding på Kafka", ex)
                 } else {
                     log.info(
                         "Melding med id {} sendt til Kafka topic {}",
@@ -82,7 +81,7 @@ class RefusjonKafkaProducer(
         )
             .whenComplete { it, ex ->
                 if (ex != null) {
-                    log.warn("Feil ved sending av tilskuddsperiode annullert melding på Kafka", it)
+                    log.error("Feil ved sending av tilskuddsperiode annullert melding på Kafka", ex)
                 } else {
                     log.info(
                         "Melding med id {} sendt til Kafka topic {}",
@@ -107,7 +106,7 @@ class RefusjonKafkaProducer(
         )
             .whenComplete { it, ex ->
                 if (ex != null) {
-                    log.warn("Feil ved sending av tilskuddsperiode annullert melding på Kafka", it)
+                    log.error("Feil ved sending av tilskuddsperiode annullert melding på Kafka", ex)
                 } else {
                     log.info(
                         "Melding med id {} sendt til Kafka topic {}",
@@ -141,7 +140,7 @@ class RefusjonKafkaProducer(
             tilskuddperiodeAnnullertMelding
         ).whenComplete { it, ex ->
             if (ex != null) {
-                log.warn("Feil ved sending av tilskuddsperiode annullert melding på Kafka", it)
+                log.error("Feil ved sending av tilskuddsperiode annullert melding på Kafka", ex)
             } else {
                 log.info(
                     "Melding med id {} sendt til Kafka topic {}",
@@ -168,7 +167,7 @@ class RefusjonKafkaProducer(
             melding
         ).whenComplete { it, ex ->
             if (ex != null) {
-                log.warn("Feil ved sending av refusjon status på Kafka", it)
+                log.error("Feil ved sending av refusjon status på Kafka", ex)
             } else {
                 log.info("Melding med id {} sendt til Kafka topic {}", it?.producerRecord?.key(), it?.recordMetadata?.topic())
             }

@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
-import java.lang.RuntimeException
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth

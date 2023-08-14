@@ -73,11 +73,11 @@ data class InnloggetSaksbehandler(
 
         val refusjonerMedTilgang = liste.content.filter { abacTilgangsstyringService.harLeseTilgang(identifikator, it.deltakerFnr) }
         val response = mapOf(
-            Pair("refusjoner", refusjonerMedTilgang),
-            Pair("size", liste.size),
-            Pair("currentPage", liste.number),
-            Pair("totalItems", liste.totalElements),
-            Pair("totalPages", liste.totalPages)
+            "refusjoner" to refusjonerMedTilgang,
+            "size" to liste.size,
+            "currentPage" to liste.number,
+            "totalItems" to liste.totalElements,
+            "totalPages" to liste.totalPages
         )
         return response
     }

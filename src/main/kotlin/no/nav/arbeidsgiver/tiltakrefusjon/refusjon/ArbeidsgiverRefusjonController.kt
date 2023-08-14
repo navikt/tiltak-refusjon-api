@@ -1,6 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.UgyldigRequestException
+import no.nav.arbeidsgiver.tiltakrefusjon.audit.AuditLogger
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBrukerService
 import no.nav.arbeidsgiver.tiltakrefusjon.dokgen.DokgenService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
@@ -8,6 +9,7 @@ import org.springframework.data.domain.Page
 import org.springframework.http.*
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
+import java.net.URI
 
 
 const val REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON = "/api/arbeidsgiver/refusjon"
@@ -26,6 +28,7 @@ data class HentArbeidsgiverRefusjonerQueryParametre(
 @ProtectedWithClaims(issuer = "tokenx")
 class ArbeidsgiverRefusjonController(
     val innloggetBrukerService: InnloggetBrukerService,
+    val auditLogger: AuditLogger,
     val dokgenService: DokgenService
 ) {
     @GetMapping
@@ -34,18 +37,26 @@ class ArbeidsgiverRefusjonController(
             throw UgyldigRequestException()
         }
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-        return arbeidsgiver.finnAlleMedBedriftnummer(queryParametre.bedriftNr)
+        val resultat = arbeidsgiver.finnAlleMedBedriftnummer(queryParametre.bedriftNr)
             .filter { queryParametre.status == null || queryParametre.status == it.status }
             .filter { queryParametre.tiltakstype == null || queryParametre.tiltakstype == it.refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype }
+
+        auditLogger.logg(arbeidsgiver.identifikator, "Hent refusjonsliste", URI.create(REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON), HttpMethod.GET, *resultat.toTypedArray())
+
+        return resultat
     }
 
     @GetMapping("/{id}/pdf")
     @Transactional
-    fun hentPDF(@PathVariable id:String): HttpEntity<ByteArray>{
-        if(id.trim().isEmpty()) return HttpEntity.EMPTY as HttpEntity<ByteArray>
+    fun hentPDF(@PathVariable id: String): HttpEntity<ByteArray> {
+        if (id.trim().isEmpty()) return HttpEntity.EMPTY as HttpEntity<ByteArray>
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
         val refusjon = arbeidsgiver.finnRefusjon(id)
         val pdfDataAsByteArray: ByteArray = dokgenService.refusjonPdf(refusjon)
+
+        auditLogger.logg(
+            arbeidsgiver.identifikator, "Hent detaljer om refusjon som PDF", URI.create("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/ID/pdf"), HttpMethod.GET, refusjon
+        )
 
         val header = HttpHeaders()
         header.contentType = MediaType.APPLICATION_PDF
@@ -66,13 +77,18 @@ class ArbeidsgiverRefusjonController(
             queryParametre.page,
             queryParametre.size
         );
-        val response = mapOf<String, Any>(
-            Pair("refusjoner", pagableRefusjonlist.content),
-            Pair("size", pagableRefusjonlist.size),
-            Pair("currentPage", pagableRefusjonlist.number),
-            Pair("totalItems", pagableRefusjonlist.totalElements),
-            Pair("totalPages", pagableRefusjonlist.totalPages)
+        val response = mapOf(
+            "refusjoner" to pagableRefusjonlist.content,
+            "size" to pagableRefusjonlist.size,
+            "currentPage" to pagableRefusjonlist.number,
+            "totalItems" to pagableRefusjonlist.totalElements,
+            "totalPages" to pagableRefusjonlist.totalPages
         )
+
+        auditLogger.logg(
+            arbeidsgiver.identifikator, "Hent refusjonsliste", URI.create("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/hentliste"), HttpMethod.GET, *pagableRefusjonlist.content.toTypedArray()
+        )
+
         return ResponseEntity<Map<String, Any>>(response, HttpStatus.OK)
     }
 
@@ -80,14 +96,20 @@ class ArbeidsgiverRefusjonController(
     @Transactional
     fun hent(@PathVariable id: String): Refusjon? {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-        return arbeidsgiver.finnRefusjon(id)
+        val resultat = arbeidsgiver.finnRefusjon(id)
+
+        auditLogger.logg(
+            arbeidsgiver.identifikator, "Hent detaljer om refusjon", URI.create("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/ID"), HttpMethod.GET, resultat
+        )
+
+        return resultat
     }
 
     @PostMapping("/{id}/endre-bruttolønn")
     @Transactional
     fun endreBruttolønn(@PathVariable id: String, @RequestBody request: EndreBruttolønnRequest) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-         arbeidsgiver.endreBruttolønn(
+        arbeidsgiver.endreBruttolønn(
             id,
             request.inntekterKunFraTiltaket,
             request.bruttoLønn
@@ -95,7 +117,7 @@ class ArbeidsgiverRefusjonController(
     }
 
     @PostMapping("/{id}/lagre-bedriftKID")
-    fun lagreBedriftKID(@PathVariable id: String, @RequestBody request: EndreBedriftKIDRequest ) {
+    fun lagreBedriftKID(@PathVariable id: String, @RequestBody request: EndreBedriftKIDRequest) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
         arbeidsgiver.lagreBedriftKID(id, request.bedriftKID)
     }

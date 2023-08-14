@@ -19,8 +19,12 @@ class NoOpenTelemetryConfiguration {
     fun traceIdProvider(): OncePerRequestFilter =
         object : OncePerRequestFilter() {
             override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain) {
-                MDC.put("traceId", UUID.randomUUID().toString())
-                filterChain.doFilter(request, response)
+                try {
+                    MDC.put("traceId", UUID.randomUUID().toString())
+                    filterChain.doFilter(request, response)
+                } finally {
+                    MDC.remove("traceId")
+                }
             }
         }
 }

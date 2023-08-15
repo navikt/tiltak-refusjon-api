@@ -76,4 +76,10 @@ class SaksbehandlerKorreksjonController(
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
         saksbehandler.settFratrekkRefunderbarBeløp(id, request.fratrekkRefunderbarBeløp, request.refunderbarBeløp)
     }
+
+    @GetMapping("/{id}/hent-enhet/{enhet}")
+    fun hentEnhet(@PathVariable enhet: String): String? {
+        val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
+        return saksbehandler.hentEnhet(enhet)
+    }
 }

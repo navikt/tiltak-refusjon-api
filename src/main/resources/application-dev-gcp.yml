@@ -23,3 +23,6 @@ tiltak-refusjon:
     varsling-klar-cron: "0 */5 * 18 * ?"
   beslutter-ad-gruppe:
     id: fbfea82d-13da-43ad-a2f2-d7f21cb95f12
+
+  norg:
+    uri: https://norg2.dev-fss-pub.nais.io/norg2/api/v1

@@ -3,6 +3,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon.autorisering
 import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.arbeidsgiver.tiltakrefusjon.RessursFinnesIkkeException
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
+import no.nav.arbeidsgiver.tiltakrefusjon.norg.NorgService
 import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import org.slf4j.Logger
@@ -15,6 +16,7 @@ data class InnloggetSaksbehandler(
     val identifikator: String,
     val navn: String,
     @JsonIgnore val abacTilgangsstyringService: AbacTilgangsstyringService,
+    @JsonIgnore val norgeService: NorgService,
     @JsonIgnore val refusjonRepository: RefusjonRepository,
     @JsonIgnore val korreksjonRepository: KorreksjonRepository,
     @JsonIgnore val refusjonService: RefusjonService,
@@ -235,5 +237,9 @@ data class InnloggetSaksbehandler(
         sjekkLesetilgang(korreksjon)
         korreksjon.settFratrekkRefunderbarBeløp(fratrekkRefunderbarBeløp, refunderbarBeløp)
         korreksjonRepository.save(korreksjon)
+    }
+
+    fun hentEnhet(enhet: String): String? {
+        return norgeService.hentEnhetNavn(enhet)
     }
 }

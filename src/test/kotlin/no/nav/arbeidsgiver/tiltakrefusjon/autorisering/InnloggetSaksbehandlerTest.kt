@@ -1,6 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.autorisering
 
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.FakeInntektskomponentService
+import no.nav.arbeidsgiver.tiltakrefusjon.norg.NorgService
 import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.FakeKontoregisterService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjoner
@@ -24,7 +25,8 @@ class InnloggetSaksbehandlerTest(
     @Autowired val korreksjonRepository: KorreksjonRepository,
     @Autowired val refusjonService: RefusjonService,
     @Autowired val inntektskomponentService: FakeInntektskomponentService,
-    @Autowired val kontoregisterService: FakeKontoregisterService) {
+    @Autowired val kontoregisterService: FakeKontoregisterService,
+    @Autowired val norgService: NorgService) {
 
 
     @BeforeEach
@@ -33,7 +35,7 @@ class InnloggetSaksbehandlerTest(
         refusjonRepository.saveAll(refusjoner())
     }
 
-    val saksbehandler = InnloggetSaksbehandler("Z123456", "Geir", abacTilgangsstyringService, refusjonRepository, korreksjonRepository, refusjonService, inntektskomponentService, kontoregisterService, true)
+    val saksbehandler = InnloggetSaksbehandler("Z123456", "Geir", abacTilgangsstyringService, norgService, refusjonRepository, korreksjonRepository, refusjonService, inntektskomponentService, kontoregisterService, true)
 
 
     @Test

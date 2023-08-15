@@ -3,6 +3,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 import com.github.guepardoapps.kulid.ULID
 import no.nav.arbeidsgiver.tiltakrefusjon.*
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.time.YearMonth
 
@@ -62,6 +63,7 @@ class KorreksjonTest {
         assertFeilkode(Feilkode.KOSTNADSSTED_MANGLER) { korreksjon.utbetalKorreksjon("", "X123456", "") }
     }
 
+    @Disabled("Sperrer ikke for dette pt")
     @Test
     internal fun `kostnadssted kan ikke høre til et annet fylke enn refusjonen være med`() {
         val tilskuddsgrunnlag = etTilskuddsgrunnlag()

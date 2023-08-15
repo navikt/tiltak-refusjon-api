@@ -116,9 +116,6 @@ class Korreksjon(
         if (kostnadssted.isBlank()) {
             throw FeilkodeException(Feilkode.KOSTNADSSTED_MANGLER)
         }
-        if (kostnadssted.substring(0, 2) != refusjonsgrunnlag.tilskuddsgrunnlag.enhet?.substring(0, 2)) {
-            throw FeilkodeException(Feilkode.KORREKSJON_KOSTNADSSTED_ANNET_FYLKE)
-        }
         if (!this.harTattStillingTilAlleInntektslinjer()) {
             throw FeilkodeException(Feilkode.IKKE_TATT_STILLING_TIL_ALLE_INNTEKTSLINJER)
         }

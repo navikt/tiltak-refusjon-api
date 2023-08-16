@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Service
 
 @Service
-@Profile("local", "dokcker-compose")
+@ConditionalOnProperty("tiltak-refusjon.norg.fake")
 class FakeNorgService: NorgService {
     override fun hentEnhetNavn(enhet: String): String? {
         val toFørsteSiffer = enhet.substring(0,2)

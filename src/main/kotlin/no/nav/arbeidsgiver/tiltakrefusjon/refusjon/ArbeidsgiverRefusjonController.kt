@@ -132,6 +132,13 @@ class ArbeidsgiverRefusjonController(
         arbeidsgiver.godkjenn(id)
     }
 
+    @PostMapping("/{id}/godkjenn-nullbeløp")
+    @Transactional
+    fun godkjennNullbeløp(@PathVariable id: String) {
+        val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
+        arbeidsgiver.godkjennNullbeløp(id)
+    }
+
     @PostMapping("/{id}/merk-for-hent-inntekter-frem")
     @Transactional
     fun merkForHentInntekterFrem(@PathVariable id: String, @RequestBody request: MerkInntekterFremRequest) {

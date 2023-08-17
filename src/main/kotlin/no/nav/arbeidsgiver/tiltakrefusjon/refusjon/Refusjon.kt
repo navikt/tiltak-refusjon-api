@@ -162,8 +162,6 @@ class Refusjon(
         godkjentAvArbeidsgiver = Now.instant()
         status = RefusjonStatus.SENDT_KRAV
 
-        // Hvordan håndtere at "nullstille" minusbeløp her?
-        // Summere en sorts total?
         if(refusjonsgrunnlag.refusjonsgrunnlagetErNullSomIZero()) {
             status = RefusjonStatus.GODKJENT_NULLBELØP
             registerEvent(RefusjonGodkjentNullBeløp(this, utførtAv))
@@ -174,6 +172,19 @@ class Refusjon(
             registerEvent(GodkjentAvArbeidsgiver(this, utførtAv))
         }
 
+        registerEvent(RefusjonEndretStatus(this))
+    }
+
+    fun godkjennNullbeløpForArbeidsgiver(utførtAv: String) {
+        oppdaterStatus()
+        krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
+
+        if(!refusjonsgrunnlag.bedriftKid?.trim().isNullOrEmpty()){
+            KidValidator(refusjonsgrunnlag.bedriftKid)
+        }
+        godkjentAvArbeidsgiver = Now.instant()
+        status = RefusjonStatus.GODKJENT_NULLBELØP
+        registerEvent(RefusjonGodkjentNullBeløp(this, utførtAv))
         registerEvent(RefusjonEndretStatus(this))
     }
 

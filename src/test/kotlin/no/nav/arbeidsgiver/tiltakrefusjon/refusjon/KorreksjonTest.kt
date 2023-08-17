@@ -21,7 +21,8 @@ class KorreksjonTest {
             bedriftNr = tilskuddsgrunnlag.bedriftNr,
             inntekterKunFraTiltaket = true,
             endretBruttoLønn = null,
-            unntakOmInntekterFremitid = 1
+            unntakOmInntekterFremitid = 1,
+            annenGrunn = null
         )
         korreksjon.oppgiInntektsgrunnlag(
             etInntektsgrunnlag(
@@ -49,7 +50,8 @@ class KorreksjonTest {
             bedriftNr = tilskuddsgrunnlag.bedriftNr,
             inntekterKunFraTiltaket = true,
             endretBruttoLønn = null,
-            unntakOmInntekterFremitid = 1
+            unntakOmInntekterFremitid = 1,
+            annenGrunn = null
         )
         korreksjon.oppgiInntektsgrunnlag(
             etInntektsgrunnlag(
@@ -77,7 +79,8 @@ class KorreksjonTest {
             bedriftNr = tilskuddsgrunnlag.bedriftNr,
             inntekterKunFraTiltaket = true,
             endretBruttoLønn = null,
-            unntakOmInntekterFremitid = 1
+            unntakOmInntekterFremitid = 1,
+            annenGrunn = null
         )
         korreksjon.oppgiInntektsgrunnlag(
             etInntektsgrunnlag(
@@ -104,7 +107,8 @@ class KorreksjonTest {
             bedriftNr = tilskuddsgrunnlag.bedriftNr,
             inntekterKunFraTiltaket = true,
             endretBruttoLønn = null,
-            unntakOmInntekterFremitid = 1
+            unntakOmInntekterFremitid = 1,
+            annenGrunn = null
         )
         korreksjon.oppgiInntektsgrunnlag(
             etInntektsgrunnlag(
@@ -132,7 +136,8 @@ class KorreksjonTest {
             bedriftNr = tilskuddsgrunnlag.bedriftNr,
             inntekterKunFraTiltaket = true,
             endretBruttoLønn = null,
-            unntakOmInntekterFremitid = 1
+            unntakOmInntekterFremitid = 1,
+            annenGrunn = null
         )
         korreksjon.oppgiInntektsgrunnlag(
             etInntektsgrunnlag(
@@ -162,7 +167,8 @@ class KorreksjonTest {
             bedriftNr = tilskuddsgrunnlag.bedriftNr,
             inntekterKunFraTiltaket = true,
             endretBruttoLønn = null,
-            unntakOmInntekterFremitid = 1
+            unntakOmInntekterFremitid = 1,
+            annenGrunn = null
         )
         korreksjon.oppgiInntektsgrunnlag(
             etInntektsgrunnlag(
@@ -192,7 +198,8 @@ class KorreksjonTest {
             bedriftNr = tilskuddsgrunnlag.bedriftNr,
             inntekterKunFraTiltaket = true,
             endretBruttoLønn = null,
-            unntakOmInntekterFremitid = 1
+            unntakOmInntekterFremitid = 1,
+            annenGrunn = null
         )
         val inntektslinjeOpptjentIPeriode = enInntektslinje(opptjentIPeriode = true)
         val inntektslinjeIkkeOptjentIPeriode = enInntektslinje(opptjentIPeriode = false)

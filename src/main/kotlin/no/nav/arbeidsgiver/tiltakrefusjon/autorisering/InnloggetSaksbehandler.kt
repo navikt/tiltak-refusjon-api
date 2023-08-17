@@ -141,10 +141,10 @@ data class InnloggetSaksbehandler(
         }
     }
 
-    fun opprettKorreksjonsutkast(id: String, korreksjonsgrunner: Set<Korreksjonsgrunn>, unntakOmInntekterFremitid: Int?): Refusjon {
+    fun opprettKorreksjonsutkast(id: String, korreksjonsgrunner: Set<Korreksjonsgrunn>, unntakOmInntekterFremitid: Int?, annetGrunn: String?): Refusjon {
         sjekkKorreksjonTilgang()
         val gammel = finnRefusjon(id)
-        refusjonService.opprettKorreksjonsutkast(gammel, korreksjonsgrunner, unntakOmInntekterFremitid)
+        refusjonService.opprettKorreksjonsutkast(gammel, korreksjonsgrunner, unntakOmInntekterFremitid, annetGrunn)
         return gammel
     }
 

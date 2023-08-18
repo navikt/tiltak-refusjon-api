@@ -2,6 +2,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.guepardoapps.kulid.ULID
+import jakarta.persistence.*
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.*
@@ -9,7 +10,6 @@ import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.springframework.data.domain.AbstractAggregateRoot
 import java.time.Instant
 import java.util.*
-import jakarta.persistence.*
 
 @Entity
 class Korreksjon(
@@ -19,7 +19,8 @@ class Korreksjon(
     val refusjonsgrunnlag: Refusjonsgrunnlag,
     val deltakerFnr: String,
     val bedriftNr: String,
-    val unntakOmInntekterFremitid: Int?
+    val unntakOmInntekterFremitid: Int?,
+    val annenGrunn: String?
 ) : AbstractAggregateRoot<Korreksjon>() {
     constructor(
         korrigererRefusjonId: String,
@@ -31,14 +32,16 @@ class Korreksjon(
         bedriftNr: String,
         inntekterKunFraTiltaket: Boolean?,
         endretBruttoLønn: Int?,
-        unntakOmInntekterFremitid: Int?
+        unntakOmInntekterFremitid: Int?,
+        annenGrunn: String?
     ) : this(
         korrigererRefusjonId,
         korreksjonsnummer,
         Refusjonsgrunnlag(tilskuddsgrunnlag, tidligereUtbetalt),
         deltakerFnr,
         bedriftNr,
-        unntakOmInntekterFremitid
+        unntakOmInntekterFremitid,
+        annenGrunn
     ) {
         this.korreksjonsgrunner.addAll(korreksjonsgrunner)
         if (inntekterKunFraTiltaket == null) { // For gamle refusjoner før vi stilte dette spørsmålet

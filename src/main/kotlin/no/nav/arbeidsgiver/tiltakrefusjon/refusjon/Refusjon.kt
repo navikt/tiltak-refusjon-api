@@ -2,6 +2,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.guepardoapps.kulid.ULID
+import jakarta.persistence.*
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.*
@@ -13,7 +14,6 @@ import org.springframework.data.domain.AbstractAggregateRoot
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
-import jakarta.persistence.*
 
 @Entity
 class Refusjon(
@@ -218,7 +218,7 @@ class Refusjon(
         registerEvent(RefusjonForkortet(this))
     }
 
-    fun opprettKorreksjonsutkast(korreksjonsgrunner: Set<Korreksjonsgrunn>, unntakOmInntekterFremitid: Int?): Korreksjon {
+fun opprettKorreksjonsutkast(korreksjonsgrunner: Set<Korreksjonsgrunn>, unntakOmInntekterFremitid: Int?, annenGrunn: String?): Korreksjon {
         krevStatus(RefusjonStatus.UTBETALT, RefusjonStatus.SENDT_KRAV,RefusjonStatus.GODKJENT_MINUSBELØP, RefusjonStatus.UTGÅTT)
         if (korreksjonId != null) {
             throw FeilkodeException(Feilkode.HAR_KORREKSJON)
@@ -235,7 +235,8 @@ class Refusjon(
             bedriftNr = bedriftNr,
             inntekterKunFraTiltaket = refusjonsgrunnlag.inntekterKunFraTiltaket ?: true,
             endretBruttoLønn = refusjonsgrunnlag.endretBruttoLønn,
-            unntakOmInntekterFremitid = unntakOmInntekterFremitid
+            unntakOmInntekterFremitid = unntakOmInntekterFremitid,
+            annenGrunn = annenGrunn
         )
         this.korreksjonId = korreksjonsutkast.id
         return korreksjonsutkast

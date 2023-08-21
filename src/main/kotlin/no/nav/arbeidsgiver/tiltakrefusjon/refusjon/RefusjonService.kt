@@ -169,7 +169,6 @@ class RefusjonService(
         sjekkForTrukketFerietrekkForSammeMåned(refusjon)
         refusjon.godkjennForArbeidsgiver(utførtAv)
         if(refusjon.status == RefusjonStatus.GODKJENT_MINUSBELØP) {
-            val alleMinusBeløp = minusbelopRepository.findAllByAvtaleNr(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr)
             alleMinusBeløp.forEach {
                 it.gjortOpp = true
                 it.gjortOppAvRefusjonId = refusjon.id
@@ -179,10 +178,14 @@ class RefusjonService(
                 avtaleNr = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr,
                 beløp = refusjon.refusjonsgrunnlag.beregning?.refusjonsbeløp,
                 løpenummer = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.løpenummer)
-
             refusjon.minusbelop = minusbelop
             log.info("Setter minusbeløp ${minusbelop.id} på refusjon ${refusjon.id}")
         }
+        refusjonRepository.save(refusjon)
+    }
+
+    fun godkjennNullbeløpForArbeidsgiver(refusjon: Refusjon, utførtAv: String) {
+        refusjon.godkjennNullbeløpForArbeidsgiver(utførtAv)
         refusjonRepository.save(refusjon)
     }
 
@@ -222,8 +225,8 @@ class RefusjonService(
         refusjonRepository.save(refusjon)
     }
 
-    fun opprettKorreksjonsutkast(refusjon: Refusjon, korreksjonsgrunner: Set<Korreksjonsgrunn>, unntakOmInntekterFremitid: Int?): Korreksjon {
-        val korreksjonsutkast = refusjon.opprettKorreksjonsutkast(korreksjonsgrunner, unntakOmInntekterFremitid)
+    fun opprettKorreksjonsutkast(refusjon: Refusjon, korreksjonsgrunner: Set<Korreksjonsgrunn>, unntakOmInntekterFremitid: Int?, annetGrunn: String?): Korreksjon {
+        val korreksjonsutkast = refusjon.opprettKorreksjonsutkast(korreksjonsgrunner, unntakOmInntekterFremitid, annetGrunn)
         korreksjonRepository.save(korreksjonsutkast)
         refusjonRepository.save(refusjon)
         return korreksjonsutkast

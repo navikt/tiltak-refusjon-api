@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
-import java.lang.RuntimeException
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
@@ -298,7 +297,7 @@ internal class RefusjonTest {
     @Test
     internal fun `korreksjon av uriktig status`() {
         val refusjon = enRefusjon().medInntektsgrunnlag().medBedriftKontonummer()
-        assertFeilkode(Feilkode.UGYLDIG_STATUS) { refusjon.opprettKorreksjonsutkast(setOf(Korreksjonsgrunn.UTBETALT_HELE_TILSKUDDSBELØP), 1) }
+        assertFeilkode(Feilkode.UGYLDIG_STATUS) { refusjon.opprettKorreksjonsutkast(setOf(Korreksjonsgrunn.UTBETALT_HELE_TILSKUDDSBELØP), 1, annenGrunn = null) }
     }
 
     @Test

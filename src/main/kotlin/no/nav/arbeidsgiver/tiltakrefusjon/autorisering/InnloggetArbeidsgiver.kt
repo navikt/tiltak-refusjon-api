@@ -79,6 +79,12 @@ data class InnloggetArbeidsgiver(
         refusjonService.godkjennForArbeidsgiver(refusjon, this.identifikator)
     }
 
+    fun godkjennNullbeløp(refusjonId: String) {
+        val refusjon: Refusjon = refusjonRepository.findByIdOrNull(refusjonId) ?: throw RessursFinnesIkkeException()
+        sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
+        refusjonService.godkjennNullbeløpForArbeidsgiver(refusjon, this.identifikator)
+    }
+
     fun finnRefusjon(id: String): Refusjon {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
 

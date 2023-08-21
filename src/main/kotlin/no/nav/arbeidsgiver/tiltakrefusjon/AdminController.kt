@@ -7,7 +7,6 @@ import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkj
 import no.nav.security.token.support.core.api.Unprotected
 import org.slf4j.LoggerFactory
 import org.springframework.data.repository.findByIdOrNull
-import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
 import java.time.LocalDate
@@ -64,7 +63,7 @@ class AdminController(
         for (id in korreksjonRequest.refusjonIder) {
             val refusjon =
                 refusjonRepository.findByIdOrNull(id) ?: throw RuntimeException("Finner ikke refusjon med id=$id")
-            service.opprettKorreksjonsutkast(refusjon, korreksjonRequest.korreksjonsgrunner, 2)
+            service.opprettKorreksjonsutkast(refusjon, korreksjonRequest.korreksjonsgrunner, 2, annetGrunn = null)
             // korreksjoner.add(korreksjon.id)
         }
         return korreksjoner

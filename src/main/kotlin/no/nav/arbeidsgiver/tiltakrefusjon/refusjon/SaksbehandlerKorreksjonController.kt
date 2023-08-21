@@ -3,12 +3,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBrukerService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 const val REQUEST_MAPPING_SAKSBEHANDLER_KORREKSJON = "/api/saksbehandler/korreksjon"
 
@@ -33,7 +28,7 @@ class SaksbehandlerKorreksjonController(
     @PostMapping("opprett-korreksjonsutkast")
     fun opprettKorreksjonsutkast(@RequestBody request: KorrigerRequest): Refusjon {
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
-        return saksbehandler.opprettKorreksjonsutkast(request.refusjonId, request.korreksjonsgrunner, request.unntakOmInntekterFremitid)
+        return saksbehandler.opprettKorreksjonsutkast(request.refusjonId, request.korreksjonsgrunner, request.unntakOmInntekterFremitid, request.annenKorreksjonsGrunn)
     }
 
     @PostMapping("/{id}/slett-korreksjonsutkast")

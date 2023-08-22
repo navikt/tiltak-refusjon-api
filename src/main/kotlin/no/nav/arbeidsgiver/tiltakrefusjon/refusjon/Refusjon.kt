@@ -74,6 +74,11 @@ class Refusjon(
     }
 
     @JsonProperty
+    fun maksForlengelse(): LocalDate {
+        return antallMånederEtter(lagFristForGodkjenning(), 1)
+    }
+
+    @JsonProperty
     fun harTattStillingTilAlleInntektslinjer(): Boolean =
         refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.find { inntekt -> inntekt.erOpptjentIPeriode === null } === null
 

@@ -186,7 +186,7 @@ class Korreksjon(
     }
 
     fun oppgiInntektsgrunnlag(inntektsgrunnlag: Inntektsgrunnlag) {
-        val harGjortBeregning = this.refusjonsgrunnlag.oppgiInntektsgrunnlag(inntektsgrunnlag, null)
+        val harGjortBeregning = this.refusjonsgrunnlag.oppgiInntektsgrunnlag(inntektsgrunnlag, this.refusjonsgrunnlag.inntektsgrunnlag)
         if (harGjortBeregning) {
             registerEvent(KorreksjonBeregningUtført(this))
         }

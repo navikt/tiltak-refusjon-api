@@ -242,4 +242,19 @@ data class InnloggetSaksbehandler(
     fun hentEnhet(enhet: String): String? {
         return norgeService.hentEnhetNavn(enhet)
     }
+
+    fun reberegnDryRun(id: String, harFerietrekkForSammeMåned: Boolean, minusBeløp: Int): Beregning {
+        val refusjon = finnRefusjon(id)
+        return beregnRefusjonsbeløp(
+            inntekter = refusjon.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
+            tilskuddsgrunnlag = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag,
+            tidligereUtbetalt = 0,
+            korrigertBruttoLønn = refusjon.refusjonsgrunnlag.endretBruttoLønn,
+            fratrekkRefunderbarSum =refusjon.refusjonsgrunnlag.refunderbarBeløp,
+            forrigeRefusjonMinusBeløp = minusBeløp,
+            tilskuddFom = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
+            harFerietrekkForSammeMåned = harFerietrekkForSammeMåned,
+            sumUtbetaltVarig = refusjon.refusjonsgrunnlag.sumUtbetaltVarig
+        )
+    }
 }

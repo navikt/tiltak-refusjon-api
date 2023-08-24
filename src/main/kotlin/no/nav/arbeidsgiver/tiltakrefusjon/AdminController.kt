@@ -165,8 +165,8 @@ class AdminController(
     }
 
     @Unprotected
-    @PostMapping("reberegn-dry/{id}/{medForrigeMinus}")
-    fun reberegnDryRun(@PathVariable id: String, @PathVariable medForrigeMinus: Boolean): Beregning {
+    @PostMapping("reberegn-dry/{id}/{medFerieTrekk}/{medForrigeMinus}")
+    fun reberegnDryRun(@PathVariable id: String, @PathVariable medFerieTrekk: Boolean, @PathVariable medForrigeMinus: Boolean): Beregning {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         return beregnRefusjonsbeløp(
             inntekter = refusjon.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
@@ -176,15 +176,15 @@ class AdminController(
             fratrekkRefunderbarSum =refusjon.refusjonsgrunnlag.refunderbarBeløp,
             forrigeRefusjonMinusBeløp =  if (medForrigeMinus) refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp else 0,
             tilskuddFom = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
-            harFerietrekkForSammeMåned = false,
+            harFerietrekkForSammeMåned = medFerieTrekk,
             sumUtbetaltVarig = refusjon.refusjonsgrunnlag.sumUtbetaltVarig
         )
     }
 
     @Unprotected
-    @PostMapping("reberegn/{id}/{medForrigeMinus}")
+    @PostMapping("reberegn/{id}/{medFerieTrekk}/{medForrigeMinus}")
     @Transactional
-    fun reberegn(@PathVariable id: String, @PathVariable medForrigeMinus: Boolean): Beregning {
+    fun reberegn(@PathVariable id: String, @PathVariable medFerieTrekk: Boolean, @PathVariable medForrigeMinus: Boolean): Beregning {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         val beregning =  beregnRefusjonsbeløp(
             inntekter = refusjon.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
@@ -194,7 +194,7 @@ class AdminController(
             fratrekkRefunderbarSum = refusjon.refusjonsgrunnlag.refunderbarBeløp,
             forrigeRefusjonMinusBeløp =  if (medForrigeMinus) refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp else 0,
             tilskuddFom = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
-            harFerietrekkForSammeMåned = false,
+            harFerietrekkForSammeMåned = medFerieTrekk,
             sumUtbetaltVarig = refusjon.refusjonsgrunnlag.sumUtbetaltVarig
         )
         refusjon.refusjonsgrunnlag.beregning = beregning

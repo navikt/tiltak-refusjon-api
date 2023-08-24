@@ -170,9 +170,11 @@ class RefusjonService(
         refusjon.godkjennForArbeidsgiver(utførtAv)
         if(refusjon.status == RefusjonStatus.GODKJENT_MINUSBELØP) {
             alleMinusBeløp.forEach {
-                it.gjortOpp = true
-                it.gjortOppAvRefusjonId = refusjon.id
-                minusbelopRepository.save(it)
+                if (!it.gjortOpp) {
+                    it.gjortOpp = true
+                    it.gjortOppAvRefusjonId = refusjon.id
+                    minusbelopRepository.save(it)
+                }
             }
             val minusbelop = Minusbelop (
                 avtaleNr = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr,

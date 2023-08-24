@@ -19,10 +19,12 @@ class RefusjonGodkjentLytter(
         val refusjon = refusjonRepository.findByIdOrNull(event.refusjon.id) ?: throw RuntimeException("Finner ikke refusjon med id=${event.refusjon.id}")
         val alleMinusBeløpPåAvtalen = minusbelopRepository.findAllByAvtaleNr(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr);
         // Er det minusbeløp på avtalen kan de nå nullstilles da refusjonen er godkjent uten minusbeløp
-        alleMinusBeløpPåAvtalen.forEach{
-            it.gjortOpp = true
-            it.gjortOppAvRefusjonId = refusjon.id
-            minusbelopRepository.save(it)
+        alleMinusBeløpPåAvtalen.forEach {
+            if (!it.gjortOpp) {
+                it.gjortOpp = true
+                it.gjortOppAvRefusjonId = refusjon.id
+                minusbelopRepository.save(it)
+            }
         }
     }
 }

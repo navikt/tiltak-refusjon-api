@@ -2,8 +2,14 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.ninjasquad.springmockk.SpykBean
+import io.mockk.every
+import io.mockk.verify
+import io.mockk.clearMocks
+import jakarta.servlet.http.Cookie
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
+import no.nav.arbeidsgiver.tiltakrefusjon.audit.AuditConsoleLogger
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.REQUEST_MAPPING_INNLOGGET_ARBEIDSGIVER
 import no.nav.arbeidsgiver.tiltakrefusjon.hendelseslogg.HendelsesloggRepository
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjoner
@@ -28,13 +34,11 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.header
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import java.nio.charset.StandardCharsets
-import java.util.*
-import jakarta.servlet.http.Cookie
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse.BodyHandlers
+import java.nio.charset.StandardCharsets
 
 data class InnloggetBrukerTest(val identifikator: String, val organisasjoner: Set<Organisasjon>)
 data class RefusjonlistFraFlereOrgTest(
@@ -61,9 +65,11 @@ class RefusjonApiTest(
     @Autowired val korreksjonRepository: KorreksjonRepository,
     @Autowired val varslingRepository: VarslingRepository
 ) {
-
     private final val TOKEN_X_COOKIE_NAVN = "tokenx-token"
     private final val AAD_COOKIE_NAVN = "aad-token"
+
+    @SpykBean
+    lateinit var consoleLogger: AuditConsoleLogger
 
     val navCookie = Cookie(AAD_COOKIE_NAVN, lagTokenForNavId("Z123456"))
     val arbGiverCookie = Cookie(TOKEN_X_COOKIE_NAVN, lagTokenForFnr("16120102137"))
@@ -71,6 +77,14 @@ class RefusjonApiTest(
     @BeforeEach
     fun setUp() {
         refusjonRepository.saveAll(refusjoner())
+        resetAuditCount()
+    }
+
+    private fun resetAuditCount() {
+        clearMocks(consoleLogger)
+        every {
+            consoleLogger.logg(any())
+        } returns Unit
     }
 
     @AfterEach
@@ -86,8 +100,13 @@ class RefusjonApiTest(
     fun `hentAlle() er tilgjengelig for saksbehandler`() {
         val json = sendRequest(get("$REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON?enhet=1000"), navCookie)
         val liste = mapper.readValue(json, object : TypeReference<Map<String, Any>>() {})
-        val refusjoner = liste.get("refusjoner") as List<Refusjon>
+        val refusjoner = liste.get("refusjoner") as List<Map<String, Any>>
         assertFalse(refusjoner.isEmpty())
+
+        // Forventer at oppslag auditlogges, men kun én gang per unike deltaker
+        verify(exactly = refusjoner.map { it.get("deltakerFnr") }.toSet().size) {
+            consoleLogger.logg(any())
+        }
     }
 
     @Test
@@ -113,6 +132,11 @@ class RefusjonApiTest(
         // DA
         assertTrue(liste.all { it.bedriftNr == bedriftNr })
         assertEquals(4, liste.size)
+
+        // Forventer at oppslag auditlogges, men kun én gang per unike deltaker
+        verify(exactly = liste.map { it.deltakerFnr }.toSet().size) {
+            consoleLogger.logg(any())
+        }
     }
 
 
@@ -124,17 +148,27 @@ class RefusjonApiTest(
 
         // NÅR
         val brukerJson = sendRequest(get("$REQUEST_MAPPING_INNLOGGET_ARBEIDSGIVER/innlogget-bruker"), arbGiverCookie)
+        val bruker: InnloggetBrukerTest = mapper.readValue(brukerJson, object : TypeReference<InnloggetBrukerTest>() {})
         val refusjonJson =
             sendRequest(get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/hentliste?page=0&size=3"), arbGiverCookie)
+        val refusjonlist: RefusjonlistFraFlereOrgTest = mapper.readValue(refusjonJson, object : TypeReference<RefusjonlistFraFlereOrgTest>() {})
+        verify(exactly = refusjonlist.refusjoner.map { it.deltakerFnr }.toSet().size) {
+            consoleLogger.logg(any())
+        }
+        resetAuditCount()
         val refusjonJson2 =
             sendRequest(get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/hentliste?page=1&size=3"), arbGiverCookie)
+        val refusjonlist2: RefusjonlistFraFlereOrgTest = mapper.readValue(refusjonJson2, object : TypeReference<RefusjonlistFraFlereOrgTest>() {})
+        verify(exactly = refusjonlist2.refusjoner.map { it.deltakerFnr }.toSet().size) {
+            consoleLogger.logg(any())
+        }
+        resetAuditCount()
         val refusjonJson3 =
             sendRequest(get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/hentliste?page=0&size=6"), arbGiverCookie)
-
-        val bruker: InnloggetBrukerTest = mapper.readValue(brukerJson, object : TypeReference<InnloggetBrukerTest>() {})
-        val refusjonlist: RefusjonlistFraFlereOrgTest = mapper.readValue(refusjonJson, object : TypeReference<RefusjonlistFraFlereOrgTest>() {})
-        val refusjonlist2: RefusjonlistFraFlereOrgTest = mapper.readValue(refusjonJson2, object : TypeReference<RefusjonlistFraFlereOrgTest>() {})
         val refusjonlist3: RefusjonlistFraFlereOrgTest = mapper.readValue(refusjonJson3, object : TypeReference<RefusjonlistFraFlereOrgTest>() {})
+        verify(exactly = refusjonlist3.refusjoner.map { it.deltakerFnr }.toSet().size) {
+            consoleLogger.logg(any())
+        }
 
         // SÅ
         assertThat(refusjonlist.refusjoner).allMatch { bedrifter -> bruker.organisasjoner.any { it.organizationNumber == bedrifter.bedriftNr } }
@@ -168,6 +202,10 @@ class RefusjonApiTest(
         val json = sendRequest(get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id"), arbGiverCookie)
         val refusjon = mapper.readValue(json, Refusjon::class.java)
         assertEquals(id, refusjon.id)
+
+        verify(exactly = 1) {
+            consoleLogger.logg(any())
+        }
     }
 
     @Test
@@ -184,6 +222,10 @@ class RefusjonApiTest(
         val json = sendRequest(get("$REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON/$id"), navCookie)
         val refusjon = mapper.readValue(json, Refusjon::class.java)
         assertEquals(id, refusjon.id)
+
+        verify(exactly = 1) {
+            consoleLogger.logg(any())
+        }
     }
 
     @Test

@@ -51,6 +51,9 @@ spec:
       enabled: true
       allowAllUsers: true
       tenant: {{tenant}}
+      claims:
+        extra:
+          - NAVident
   tokenx:
     enabled: true
   leaderElection: true

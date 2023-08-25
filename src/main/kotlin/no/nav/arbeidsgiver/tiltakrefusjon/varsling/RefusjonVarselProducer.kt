@@ -5,9 +5,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.kafka.core.KafkaTemplate
-import org.springframework.kafka.support.SendResult
 import org.springframework.stereotype.Component
-import org.springframework.util.concurrent.ListenableFutureCallback
 import java.time.LocalDate
 
 @ConditionalOnProperty("tiltak-refusjon.kafka.enabled")

@@ -8,7 +8,6 @@ import java.time.LocalDate
 import java.time.Period
 import java.time.YearMonth
 import java.time.temporal.TemporalAdjusters
-import kotlin.streams.toList
 
 @Service
 @ConditionalOnProperty("tiltak-refusjon.inntektskomponenten.fake")

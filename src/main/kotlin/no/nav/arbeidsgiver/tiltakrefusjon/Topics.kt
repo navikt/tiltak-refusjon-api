@@ -9,4 +9,5 @@ object Topics {
     const val REFUSJON_ENDRET_BETALINGSSTATUS = "arbeidsgiver.tiltak-refusjon-endret-betalingsstatus"
     const val TILTAK_VARSEL = "arbeidsgiver.tiltak-varsel"
     const val REFUSJON_ENDRET_STATUS = "arbeidsgiver.tiltak-refusjon-endret-status"
+    const val AUDIT_HENDELSE = "arbeidsgiver.tiltak-audit-hendelse"
 }

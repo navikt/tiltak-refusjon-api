@@ -197,6 +197,7 @@ class AdminController(
             harFerietrekkForSammeMåned = request.harFerietrekkForSammeMåned,
             sumUtbetaltVarig = refusjon.refusjonsgrunnlag.sumUtbetaltVarig
         )
+        refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp = request.minusBeløp
         refusjon.refusjonsgrunnlag.beregning = beregning
         refusjonRepository.save(refusjon)
         return beregning

@@ -56,7 +56,7 @@ spec:
         - id: {{besluttergruppe}}
       claims:
         extra:
-          - "NAVident"
+          - NAVident
   tokenx:
     enabled: true
   leaderElection: true

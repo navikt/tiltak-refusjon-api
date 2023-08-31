@@ -165,8 +165,8 @@ class AdminController(
     }
 
     @Unprotected
-    @PostMapping("reberegn-dry/{id}/{medForrigeMinus}")
-    fun reberegnDryRun(@PathVariable id: String, @PathVariable medForrigeMinus: Boolean): Beregning {
+    @PostMapping("reberegn-dry/{id}")
+    fun reberegnDryRun(@PathVariable id: String, @RequestBody request: ReberegnRequest): Beregning {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         return beregnRefusjonsbeløp(
             inntekter = refusjon.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
@@ -174,17 +174,17 @@ class AdminController(
             tidligereUtbetalt = 0,
             korrigertBruttoLønn = refusjon.refusjonsgrunnlag.endretBruttoLønn,
             fratrekkRefunderbarSum =refusjon.refusjonsgrunnlag.refunderbarBeløp,
-            forrigeRefusjonMinusBeløp =  if (medForrigeMinus) refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp else 0,
+            forrigeRefusjonMinusBeløp = request.minusBeløp,
             tilskuddFom = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
-            harFerietrekkForSammeMåned = false,
+            harFerietrekkForSammeMåned = request.harFerietrekkForSammeMåned,
             sumUtbetaltVarig = refusjon.refusjonsgrunnlag.sumUtbetaltVarig
         )
     }
 
     @Unprotected
-    @PostMapping("reberegn/{id}/{medForrigeMinus}")
+    @PostMapping("reberegn-lagre/{id}")
     @Transactional
-    fun reberegn(@PathVariable id: String, @PathVariable medForrigeMinus: Boolean): Beregning {
+    fun reberegn(@PathVariable id: String, @RequestBody request: ReberegnRequest): Beregning {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         val beregning =  beregnRefusjonsbeløp(
             inntekter = refusjon.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
@@ -192,17 +192,20 @@ class AdminController(
             tidligereUtbetalt = 0,
             korrigertBruttoLønn = refusjon.refusjonsgrunnlag.endretBruttoLønn,
             fratrekkRefunderbarSum = refusjon.refusjonsgrunnlag.refunderbarBeløp,
-            forrigeRefusjonMinusBeløp =  if (medForrigeMinus) refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp else 0,
+            forrigeRefusjonMinusBeløp = request.minusBeløp,
             tilskuddFom = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
-            harFerietrekkForSammeMåned = false,
+            harFerietrekkForSammeMåned = request.harFerietrekkForSammeMåned,
             sumUtbetaltVarig = refusjon.refusjonsgrunnlag.sumUtbetaltVarig
         )
+        refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp = request.minusBeløp
         refusjon.refusjonsgrunnlag.beregning = beregning
         refusjonRepository.save(refusjon)
         return beregning
     }
 
 }
+
+data class ReberegnRequest(val harFerietrekkForSammeMåned: Boolean, val minusBeløp: Int)
 
 data class KorreksjonRequest(val refusjonIder: List<String>, val korreksjonsgrunner: Set<Korreksjonsgrunn>)
 

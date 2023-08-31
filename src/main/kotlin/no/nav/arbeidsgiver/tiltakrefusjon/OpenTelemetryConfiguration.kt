@@ -6,9 +6,11 @@ import io.micrometer.observation.ObservationRegistry
 import io.micrometer.observation.aop.ObservedAspect
 import io.opentelemetry.exporter.otlp.trace.OtlpGrpcSpanExporter
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.web.servlet.FilterRegistrationBean
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
+import org.springframework.core.Ordered
 import org.springframework.http.server.observation.ServerRequestObservationContext
 import org.springframework.web.filter.ServerHttpObservationFilter
 
@@ -40,7 +42,12 @@ class OpenTelemetryConfiguration {
 
     // Observer http-requester mot tjenesten
     @Bean
-    fun httpObservationFilter(registry: ObservationRegistry) = ServerHttpObservationFilter(registry)
+    fun httpObservationFilter(registry: ObservationRegistry): FilterRegistrationBean<ServerHttpObservationFilter> {
+        val bean = FilterRegistrationBean(ServerHttpObservationFilter(registry))
+        // Vi ønsker at observation-filter kjører først slik at vi får fanget opp trace-id i AuditLoggingFilter
+        bean.order = Ordered.HIGHEST_PRECEDENCE
+        return bean
+    }
 
     // Legg til et predikat slik at kall mot internal og actuator ikke observeres
     @Bean

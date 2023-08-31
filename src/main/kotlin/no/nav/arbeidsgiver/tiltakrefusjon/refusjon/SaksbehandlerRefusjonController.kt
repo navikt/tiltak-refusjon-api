@@ -1,9 +1,9 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
+import no.nav.arbeidsgiver.tiltakrefusjon.ReberegnRequest
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBrukerService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.ForlengFristRequest
 import no.nav.security.token.support.core.api.ProtectedWithClaims
-import org.springframework.data.domain.Page
 import org.springframework.web.bind.annotation.*
 
 const val REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON = "/api/saksbehandler/refusjon"
@@ -50,5 +50,11 @@ class SaksbehandlerRefusjonController(
     fun merkForUnntakOmInntekterToMånederFrem(@PathVariable id: String, @RequestBody request: MerkForUnntakOmInntekterToMånederFremRequest) {
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
         saksbehandler.merkForUnntakOmInntekterToMånederFrem(id, request.merking)
+    }
+
+    @PostMapping("reberegn-dry/{id}")
+    fun reberegnDryRun(@PathVariable id: String, @RequestBody request: ReberegnRequest): Beregning {
+        val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
+        return saksbehandler.reberegnDryRun(id, request.harFerietrekkForSammeMåned, request.minusBeløp)
     }
 }

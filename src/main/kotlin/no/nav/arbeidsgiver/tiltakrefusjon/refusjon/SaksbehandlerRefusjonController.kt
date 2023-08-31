@@ -52,6 +52,14 @@ class SaksbehandlerRefusjonController(
         saksbehandler.merkForUnntakOmInntekterToMånederFrem(id, request.merking)
     }
 
+    @GetMapping("/er-korreksjon-enhet/{id}")
+    fun erKorreksjonEnhet(@PathVariable id: String): Boolean {
+        val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
+        val refusjon = saksbehandler.finnRefusjon(id)
+        val enheterIKorreksjonPilot = listOf("1234", "1235", "1000")
+        return enheterIKorreksjonPilot.contains(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.enhet);
+    }
+
     @PostMapping("reberegn-dry/{id}")
     fun reberegnDryRun(@PathVariable id: String, @RequestBody request: ReberegnRequest): Beregning {
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()

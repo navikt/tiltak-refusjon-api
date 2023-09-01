@@ -56,7 +56,32 @@ class SaksbehandlerRefusjonController(
     fun erKorreksjonEnhet(@PathVariable id: String): Boolean {
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
         val refusjon = saksbehandler.finnRefusjon(id)
-        val enheterIKorreksjonPilot = listOf("1234", "1235", "1000")
+        val enheterIKorreksjonPilot = listOf(
+            "0101",
+            "0104",
+            "0105",
+            "0106",
+            "0111",
+            "0118",
+            "0124",
+            "0127",
+            "0135",
+            "0137",
+            "0211",
+            "0214",
+            "0215",
+            "0216",
+            "0221",
+            "0228",
+            "0229",
+            "0230",
+            "0231",
+            "0233",
+            "0235",
+            "0236",
+            "0237",
+            "0238 "
+        )
         return enheterIKorreksjonPilot.contains(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.enhet);
     }
 

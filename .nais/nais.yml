@@ -51,9 +51,9 @@ spec:
       enabled: true
       allowAllUsers: true
       tenant: {{tenant}}
-      groups:
-        - id: {{besluttergruppe}}
       claims:
+        groups:
+          - id: {{besluttergruppe}}
         extra:
           - NAVident
   tokenx:

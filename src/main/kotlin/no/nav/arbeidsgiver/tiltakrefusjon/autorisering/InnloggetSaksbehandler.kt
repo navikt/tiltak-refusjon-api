@@ -22,7 +22,7 @@ data class InnloggetSaksbehandler(
     @JsonIgnore val refusjonService: RefusjonService,
     @JsonIgnore val inntektskomponentService: InntektskomponentService,
     @JsonIgnore val kontoregisterService: KontoregisterService,
-    @JsonIgnore val harKorreksjonTilgang: Boolean
+    val harKorreksjonTilgang: Boolean
 ) {
     @JsonIgnore
     val log: Logger = LoggerFactory.getLogger(javaClass)
@@ -161,14 +161,14 @@ data class InnloggetSaksbehandler(
         }
     }
 
-    fun utbetalKorreksjon(id: String, beslutterNavIdent: String, kostnadssted: String) {
+    fun utbetalKorreksjon(id: String, beslutterNavIdent: String) {
         sjekkKorreksjonTilgang()
         val korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(korreksjon)
         val refusjon = finnRefusjon(korreksjon.korrigererRefusjonId)
         sjekkLesetilgang(refusjon)
 
-        korreksjon.utbetalKorreksjon(this.identifikator, beslutterNavIdent, kostnadssted)
+        korreksjon.utbetalKorreksjon(this.identifikator, beslutterNavIdent, korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.enhet?: "")
         refusjon.status = RefusjonStatus.KORRIGERT
 
         refusjonRepository.save(refusjon)

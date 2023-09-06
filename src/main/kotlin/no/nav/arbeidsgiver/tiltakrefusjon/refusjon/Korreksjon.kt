@@ -113,9 +113,6 @@ class Korreksjon(
         if (beslutterNavIdent.isBlank()) {
             throw FeilkodeException(Feilkode.INGEN_BESLUTTER)
         }
-        if (beslutterNavIdent == utførtAv) {
-            throw FeilkodeException(Feilkode.SAMME_SAKSBEHANDLER_OG_BESLUTTER)
-        }
         if (kostnadssted.isBlank()) {
             throw FeilkodeException(Feilkode.KOSTNADSSTED_MANGLER)
         }

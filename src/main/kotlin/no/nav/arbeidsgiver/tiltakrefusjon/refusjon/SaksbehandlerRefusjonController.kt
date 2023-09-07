@@ -54,8 +54,10 @@ class SaksbehandlerRefusjonController(
 
     @GetMapping("/er-korreksjon-enhet/{id}")
     fun erKorreksjonEnhet(@PathVariable id: String): Boolean {
+
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
         val refusjon = saksbehandler.finnRefusjon(id)
+
         val enheterIKorreksjonPilot = listOf(
             "0101",
             "0104",
@@ -82,6 +84,9 @@ class SaksbehandlerRefusjonController(
             "0237",
             "0238 "
         )
+        if(System.getenv("MILJO").equals("dev-gcp")) {
+            return true;
+        }
         return enheterIKorreksjonPilot.contains(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.enhet);
     }
 

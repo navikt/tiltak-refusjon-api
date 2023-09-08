@@ -22,6 +22,7 @@ class EndretGrunnlagLytter(
             event = event.javaClass.simpleName,
         )
         hendelsesloggRepository.save(hendelse)
+        hendelsesloggRepository.findAll()
     }
 
     @EventListener

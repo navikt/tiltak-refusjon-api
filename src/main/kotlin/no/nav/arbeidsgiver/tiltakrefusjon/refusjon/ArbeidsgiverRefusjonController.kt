@@ -16,9 +16,9 @@ data class HentArbeidsgiverRefusjonerQueryParametre(
     val bedriftNr: String?,
     val status: RefusjonStatus?,
     val tiltakstype: Tiltakstype?,
-    val sortingOrder: SortingOrder?,
+    val sorting: SortingOrder?,
     val page: Int = 0,
-    val size: Int = 4
+    val size: Int = 10
 )
 
 @RestController
@@ -62,7 +62,7 @@ class ArbeidsgiverRefusjonController(
             queryParametre.bedriftNr,
             queryParametre.status,
             queryParametre.tiltakstype,
-            queryParametre.sortingOrder,
+            queryParametre.sorting,
             queryParametre.page,
             queryParametre.size
         );

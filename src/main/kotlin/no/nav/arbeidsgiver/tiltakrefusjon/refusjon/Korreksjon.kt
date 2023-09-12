@@ -211,4 +211,17 @@ class Korreksjon(
             registerEvent(KorreksjonBeregningUtført(this))
         }
     }
+
+    fun utbetalingMislykket() {
+        if (status == Korreksjonstype.TILLEGSUTBETALING) {
+            status = Korreksjonstype.TILLEGGSUTBETALING_FEILET
+        }
+    }
+
+    fun utbetalingVellykket() {
+        if (status == Korreksjonstype.TILLEGSUTBETALING || status == Korreksjonstype.TILLEGGSUTBETALING_FEILET) {
+            status = Korreksjonstype.TILLEGGSUTBETALING_UTBETALT
+        }
+    }
+
 }

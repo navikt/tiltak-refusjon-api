@@ -4,6 +4,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.ReberegnRequest
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBrukerService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.ForlengFristRequest
 import no.nav.security.token.support.core.api.ProtectedWithClaims
+import org.codehaus.plexus.util.StringUtils
 import org.springframework.web.bind.annotation.*
 
 const val REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON = "/api/saksbehandler/refusjon"
@@ -84,7 +85,7 @@ class SaksbehandlerRefusjonController(
             "0237",
             "0238 "
         )
-        if(System.getenv("MILJO").equals("dev-gcp")) {
+        if(StringUtils.isBlank(System.getenv("MILJO")) || System.getenv("MILJO").equals("dev-gcp")) {
             return true;
         }
         return enheterIKorreksjonPilot.contains(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.enhet);

@@ -45,7 +45,11 @@ class SaksbehandlerRefusjonController(
 
     @GetMapping("/{id}/hendelselogg")
     fun hentHendelselogg(@PathVariable id: String): List<Hendelseslogg> {
-        return hendelsesloggRepository.findAll().filter { it.refusjonId == id }
+        println("hej")
+        val test = hendelsesloggRepository.findAll().filter { it.refusjonId == id }
+        print(test)
+        return test
+
     }
 
     @PostMapping("/{id}/forleng-frist")
@@ -92,7 +96,8 @@ class SaksbehandlerRefusjonController(
             "0237",
             "0238 "
         )
-        if(System.getenv("MILJO").equals("dev-gcp")) {
+        val miljo = System.getenv("MILJO")?: "local"
+        if(miljo == "dev-gcp") {
             return true;
         }
         return enheterIKorreksjonPilot.contains(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.enhet);

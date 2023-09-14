@@ -188,9 +188,23 @@ class Refusjon(
         registerEvent(RefusjonEndretStatus(this))
     }
 
-    fun annuller() {
+    /**
+     * Annullerer en refusjon
+     *
+     * Normalt vil ikke en refusjon kunne annulleres med refusjonen er "tidlig i løpet"
+     * (feks vil det være for sent å annullere dersom statusen er "UTBETALT").
+     *
+     * Skal det allikevel være nødvendig å annullere en refusjon uansett status, kan man
+     * sette "tving"-flagg til true
+     */
+    fun annuller(tving: Boolean = false) {
         oppdaterStatus()
-        krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING, RefusjonStatus.FOR_TIDLIG)
+        if (!tving) {
+            krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING, RefusjonStatus.FOR_TIDLIG)
+        }
+        if (status == RefusjonStatus.ANNULLERT) {
+            return
+        }
         status = RefusjonStatus.ANNULLERT
         registerEvent(RefusjonAnnullert(this))
         registerEvent(RefusjonEndretStatus(this))

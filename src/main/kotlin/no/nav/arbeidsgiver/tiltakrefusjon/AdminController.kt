@@ -2,6 +2,8 @@ package no.nav.arbeidsgiver.tiltakrefusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.leader.LeaderPodCheck
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
+import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.MidlerFrigjortÅrsak
+import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeAnnullertMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeForkortetMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
 import no.nav.security.token.support.core.api.Unprotected
@@ -153,6 +155,19 @@ class AdminController(
     }
 
     @Unprotected
+    @PostMapping("annuller-refusjon-ved-tilskuddsperiode")
+    fun annullerRefusjon(@RequestBody annullerRefusjon: AnnullerRefusjon) {
+        logger.info("Annullerer refusjon med tilskuddsperiodeId ${annullerRefusjon.tilskuddsperiodeId}")
+        refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_TilskuddsperiodeId(annullerRefusjon.tilskuddsperiodeId)
+            .firstOrNull()
+            ?.let {
+                it.annuller(true)
+                it.midlerFrigjortÅrsak = MidlerFrigjortÅrsak.AVTALE_ANNULLERT
+                refusjonRepository.save(it)
+            }
+    }
+
+    @Unprotected
     @PostMapping("sjekk-for-klar-for-innsending")
     fun sjekkForKlarforInnsending() {
         StatusJobb(refusjonRepository, leaderPodCheck).sjekkOmKlarForInnsending()
@@ -214,3 +229,5 @@ data class ForlengFristerTilOgMedRequest(val tilDato: LocalDate, val nyFrist: Lo
 
 data class AnnullerTilskuddsperioderRequest(val refusjonIder: List<String>, val utførtAv: String, val årsak: String)
 data class AnnullerTilskuddsperioderIUtgåtteRefusjonerRequest(val utførtAv: String, val årsak: String)
+
+data class AnnullerRefusjon(val tilskuddsperiodeId: String)

@@ -7,7 +7,7 @@ data class BetalingStatusEndringMelding(
     val refusjonId: String?,
     val korreksjonId: String?,
     val avtaleNr: String,
-    val beløp: Int,
+    val beløp: Double,
     val løpenummer: Int,
     val kontonummer: String,
     val status: BetalingStatus,

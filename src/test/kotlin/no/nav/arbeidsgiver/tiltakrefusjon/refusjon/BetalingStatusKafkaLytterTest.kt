@@ -47,7 +47,7 @@ class BetalingStatusKafkaLytterTest {
             "T-34649-1",
             enRefusjon.id,
             null,
-            "34649", 11638,
+            "34649", 11638.0,
             1, "11350501802", BetalingStatus.UTBETALT,
             LocalDate.now()
         )
@@ -94,7 +94,7 @@ class BetalingStatusKafkaLytterTest {
             "T-34649-1",
             null,
             korreksjon.id,
-            "34649", 11638,
+            "34649", 11638.0,
             1, "11350501802", BetalingStatus.UTBETALT,
             LocalDate.now()
         )

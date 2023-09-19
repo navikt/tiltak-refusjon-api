@@ -11,3 +11,11 @@ Content-Type: application/json
   "utførtAv": "admin",
   "enforce": true
 }
+
+### Tving annullering av refusjon
+POST http://localhost:8080/internal/admin/annuller-refusjon-ved-tilskuddsperiode
+Content-Type: application/json
+
+{
+  "tilskuddsperiodeId": "XXXXXXXX"
+}

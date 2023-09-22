@@ -192,7 +192,8 @@ class AdminController(
             forrigeRefusjonMinusBeløp = request.minusBeløp,
             tilskuddFom = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
             harFerietrekkForSammeMåned = request.harFerietrekkForSammeMåned,
-            sumUtbetaltVarig = refusjon.refusjonsgrunnlag.sumUtbetaltVarig
+            sumUtbetaltVarig = refusjon.refusjonsgrunnlag.sumUtbetaltVarig,
+            ekstraFerietrekk = request.ferieTrekk
         )
     }
 
@@ -210,17 +211,19 @@ class AdminController(
             forrigeRefusjonMinusBeløp = request.minusBeløp,
             tilskuddFom = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
             harFerietrekkForSammeMåned = request.harFerietrekkForSammeMåned,
-            sumUtbetaltVarig = refusjon.refusjonsgrunnlag.sumUtbetaltVarig
+            sumUtbetaltVarig = refusjon.refusjonsgrunnlag.sumUtbetaltVarig,
+            ekstraFerietrekk = request.ferieTrekk
         )
         refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp = request.minusBeløp
         refusjon.refusjonsgrunnlag.beregning = beregning
+        logger.info("Har oppdatert beregning på refusjon ${refusjon.id} fra admin-endepunkt")
         refusjonRepository.save(refusjon)
         return beregning
     }
 
 }
 
-data class ReberegnRequest(val harFerietrekkForSammeMåned: Boolean, val minusBeløp: Int)
+data class ReberegnRequest(val harFerietrekkForSammeMåned: Boolean, val minusBeløp: Int, val ferieTrekk: Int)
 
 data class KorreksjonRequest(val refusjonIder: List<String>, val korreksjonsgrunner: Set<Korreksjonsgrunn>)
 

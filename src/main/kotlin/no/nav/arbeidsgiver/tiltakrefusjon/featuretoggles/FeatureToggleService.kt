@@ -1,9 +1,9 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.featuretoggles
 
+import io.getunleash.Unleash
+import io.getunleash.UnleashContext
+import io.getunleash.Variant
 import io.micrometer.observation.annotation.Observed
-import no.finn.unleash.Unleash
-import no.finn.unleash.UnleashContext
-import no.finn.unleash.Variant
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetSaksbehandler
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service

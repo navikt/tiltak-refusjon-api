@@ -1,6 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.featuretoggles
 
-import no.finn.unleash.Variant
+
+import io.getunleash.Variant
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBrukerService
 import no.nav.security.token.support.core.api.Unprotected
 import org.springframework.beans.factory.annotation.Autowired

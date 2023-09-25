@@ -17,14 +17,14 @@ class FeatureToggleConfig {
     @Bean
     @ConditionalOnProperty("tiltak-refusjon.unleash.enabled")
     fun initializeUnleash(
-        @Value("\${tiltak-refusjon.unleash.api-uri}") unleashUrl: String?,
+        @Value("\${tiltak-refusjon.unleash.api-uri}") unleashUrl: String,
         @Value("\${tiltak-refusjon.unleash.api-token}") apiKey: String,
         byEnvironmentStrategy: ByEnvironmentStrategy
     ): Unleash {
         val config = UnleashConfig.builder()
             .appName(APP_NAME)
             .instanceId(APP_NAME + "-" + byEnvironmentStrategy.environment)
-            .unleashAPI(unleashUrl!!)
+            .unleashAPI(unleashUrl)
             .apiKey(apiKey)
             .build()
         return DefaultUnleash(

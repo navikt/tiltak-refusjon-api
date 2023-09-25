@@ -1,9 +1,10 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.featuretoggles
 
+import io.getunleash.DefaultUnleash
+import io.getunleash.Unleash
+import io.getunleash.util.UnleashConfig
 import jakarta.servlet.http.HttpServletRequest
-import no.finn.unleash.DefaultUnleash
-import no.finn.unleash.Unleash
-import no.finn.unleash.util.UnleashConfig
+
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -16,13 +17,15 @@ class FeatureToggleConfig {
     @Bean
     @ConditionalOnProperty("tiltak-refusjon.unleash.enabled")
     fun initializeUnleash(
-        @Value("\${tiltak-refusjon.unleash.unleash-uri}") unleashUrl: String?,
+        @Value("\${tiltak-refusjon.unleash.api-uri}") unleashUrl: String,
+        @Value("\${tiltak-refusjon.unleash.api-token}") apiKey: String,
         byEnvironmentStrategy: ByEnvironmentStrategy
     ): Unleash {
         val config = UnleashConfig.builder()
             .appName(APP_NAME)
             .instanceId(APP_NAME + "-" + byEnvironmentStrategy.environment)
-            .unleashAPI(unleashUrl!!)
+            .unleashAPI(unleashUrl)
+            .apiKey(apiKey)
             .build()
         return DefaultUnleash(
             config,

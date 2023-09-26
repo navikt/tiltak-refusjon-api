@@ -11,7 +11,7 @@ data class BetalingStatusEndringMelding(
     val løpenummer: Int,
     val kontonummer: String,
     val status: BetalingStatus,
-    val avregningsdato: LocalDate
+    val avregningsdato: LocalDate?
     ){
     fun erUtbetalt():Boolean{
         return BetalingStatus.UTBETALT.equals(status)

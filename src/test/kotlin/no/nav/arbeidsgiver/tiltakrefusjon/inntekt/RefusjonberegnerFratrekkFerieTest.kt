@@ -1,6 +1,5 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.inntekt
 
-import com.github.guepardoapps.kulid.ULID
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
@@ -11,6 +10,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.organisasjon.EregClient
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.ulid
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Disabled
@@ -53,9 +53,9 @@ class RefusjonberegnerFratrekkFerieTest(
         bedriftNr: String
     ): TilskuddsperiodeGodkjentMelding {
         val tilskuddsperiodeGodkjentMelding = TilskuddsperiodeGodkjentMelding(
-            avtaleId = ULID.random(),
-            tilskuddsperiodeId = ULID.random(),
-            avtaleInnholdId = ULID.random(),
+            avtaleId = ulid(),
+            tilskuddsperiodeId = ulid(),
+            avtaleInnholdId = ulid(),
             deltakerFornavn = "Henrik",
             deltakerEtternavn = "Wergeland",
             arbeidsgiverFornavn = "Arne",

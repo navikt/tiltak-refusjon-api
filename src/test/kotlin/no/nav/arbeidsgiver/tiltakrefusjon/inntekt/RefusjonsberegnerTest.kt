@@ -1,7 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.inntekt
 
-import com.github.guepardoapps.kulid.ULID
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.ulid
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -39,8 +39,8 @@ class RefusjonsberegnerTest {
         tilskuddsbeløp: Int,
     ): Tilskuddsgrunnlag {
         val tilskuddsgrunnlag = Tilskuddsgrunnlag(
-            avtaleId = ULID.random(),
-            tilskuddsperiodeId = ULID.random(),
+            avtaleId = ulid(),
+            tilskuddsperiodeId = ulid(),
             deltakerFornavn = "",
             deltakerEtternavn = "",
             arbeidsgiverFornavn = "Arne",

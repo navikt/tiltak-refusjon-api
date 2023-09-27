@@ -1,9 +1,9 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.hendelseslogg
 
-import com.github.guepardoapps.kulid.ULID
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.ulid
 import java.time.LocalDateTime
 
 @Entity
@@ -15,6 +15,6 @@ class Hendelseslogg(
     val event: String,
 ) {
     @Id
-    val id: String = ULID.random()
+    val id: String = ulid()
     val tidspunkt: LocalDateTime = Now.localDateTime()
 }

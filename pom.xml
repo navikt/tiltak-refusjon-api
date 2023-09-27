@@ -150,13 +150,6 @@
             <version>2.2.0</version>
         </dependency>
 
-
-        <dependency>
-            <groupId>com.github.guepardoapps</groupId>
-            <artifactId>kulid</artifactId>
-            <version>1.1.2.0</version>
-        </dependency>
-
         <dependency>
             <groupId>io.mockk</groupId>
             <artifactId>mockk</artifactId>
@@ -260,11 +253,4 @@
             </plugin>
         </plugins>
     </build>
-
-    <repositories>
-        <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
-        </repository>
-    </repositories>
 </project>

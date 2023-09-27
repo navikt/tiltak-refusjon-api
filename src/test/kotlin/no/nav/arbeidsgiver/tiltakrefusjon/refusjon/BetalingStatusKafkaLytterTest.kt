@@ -1,13 +1,13 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.github.guepardoapps.kulid.ULID
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.verify
 import no.nav.arbeidsgiver.tiltakrefusjon.Topics
 import no.nav.arbeidsgiver.tiltakrefusjon.enRefusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.etTilskuddsgrunnlag
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.ulid
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -72,7 +72,7 @@ class BetalingStatusKafkaLytterTest {
     fun `setter riktig status på korreksjon basert på melding fra Tiltak Økonomi`() {
         val tilskuddsgrunnlag = etTilskuddsgrunnlag()
         val korreksjon = Korreksjon(
-            korrigererRefusjonId = ULID.random(),
+            korrigererRefusjonId = ulid(),
             korreksjonsnummer = 1,
             tidligereUtbetalt = 0,
             korreksjonsgrunner = setOf(Korreksjonsgrunn.HENT_INNTEKTER_PÅ_NYTT),

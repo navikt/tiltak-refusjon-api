@@ -1,10 +1,10 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import com.github.guepardoapps.kulid.ULID
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import java.time.LocalDateTime
 import jakarta.persistence.*
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.ulid
 
 @Entity
 data class Inntektsgrunnlag(
@@ -17,7 +17,7 @@ data class Inntektsgrunnlag(
     constructor(inntekter: List<Inntektslinje>, respons: String?) : this(inntekter.toSet(), respons)
 
     @Id
-    val id: String = ULID.random()
+    val id: String = ulid()
     var innhentetTidspunkt: LocalDateTime = Now.localDateTime()
 
     init {

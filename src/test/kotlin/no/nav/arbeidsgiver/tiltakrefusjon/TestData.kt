@@ -1,8 +1,8 @@
 package no.nav.arbeidsgiver.tiltakrefusjon
 
-import com.github.guepardoapps.kulid.ULID
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.ulid
 import no.nav.arbeidsgiver.tiltakrefusjon.varsling.VarselType
 import no.nav.arbeidsgiver.tiltakrefusjon.varsling.Varsling
 import java.time.YearMonth
@@ -20,7 +20,7 @@ fun enRefusjon(tilskuddsgrunnlag: Tilskuddsgrunnlag = etTilskuddsgrunnlag()): Re
 }
 
 fun enVarsling(varselType: VarselType = VarselType.KLAR ) : Varsling {
-    val refusjonId = ULID.random()
+    val refusjonId = ulid()
     val varselTidspunkt = Now.localDateTime()
     return Varsling(refusjonId, varselType, varselTidspunkt)
 }
@@ -438,8 +438,8 @@ private fun Refusjon.medSvarPåInntekter(): Refusjon {
 }
 
 fun etTilskuddsgrunnlag(tiltakstype: Tiltakstype = Tiltakstype.SOMMERJOBB) = Tilskuddsgrunnlag(
-    avtaleId = ULID.random(),
-    tilskuddsperiodeId = ULID.random(),
+    avtaleId = ulid(),
+    tilskuddsperiodeId = ulid(),
     deltakerFornavn = "",
     deltakerEtternavn = "",
     arbeidsgiverFornavn = "Arne",

@@ -1,8 +1,8 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
-import com.github.guepardoapps.kulid.ULID
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.ulid
 
 @Entity
 class Minusbelop(
@@ -13,5 +13,5 @@ class Minusbelop(
     var gjortOppAvRefusjonId: String? = null
 ) {
     @Id
-    val id: String = ULID.random()
+    val id: String = ulid()
 }

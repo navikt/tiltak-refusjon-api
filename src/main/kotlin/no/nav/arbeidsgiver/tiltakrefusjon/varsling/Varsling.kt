@@ -1,11 +1,11 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.varsling
 
-import com.github.guepardoapps.kulid.ULID
-import java.time.LocalDateTime
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 import jakarta.persistence.Id
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.ulid
+import java.time.LocalDateTime
 
 @Entity
 data class Varsling(
@@ -15,5 +15,5 @@ data class Varsling(
     val varselTidspunkt: LocalDateTime,
 ) {
     @Id
-    val id: String = ULID.random()
+    val id: String = ulid()
 }

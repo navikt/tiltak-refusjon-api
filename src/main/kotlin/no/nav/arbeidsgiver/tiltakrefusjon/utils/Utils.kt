@@ -1,5 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.utils
 
+import de.huxhorn.sulky.ulid.ULID
 
 fun erIkkeTomme(vararg objekter: Any?): Boolean {
     for (objekt in objekter) {
@@ -16,3 +17,6 @@ fun erIkkeTomme(vararg objekter: Any?): Boolean {
 fun erNoenTomme(vararg objekter: Any?): Boolean {
     return !erIkkeTomme(*objekter)
 }
+
+private val ulidGenerator = ULID()
+fun ulid(): String = ulidGenerator.nextULID()

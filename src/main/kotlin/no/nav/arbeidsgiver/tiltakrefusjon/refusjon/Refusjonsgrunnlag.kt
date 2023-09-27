@@ -1,12 +1,12 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
-import com.github.guepardoapps.kulid.ULID
+import jakarta.persistence.*
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.ulid
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
-import jakarta.persistence.*
 
 @Entity
 class Refusjonsgrunnlag(
@@ -16,7 +16,7 @@ class Refusjonsgrunnlag(
     val tidligereUtbetalt: Int = 0
 ) {
     @Id
-    val id = ULID.random()
+    val id = ulid()
 
     @OneToOne(orphanRemoval = true, cascade = [CascadeType.ALL])
     var inntektsgrunnlag: Inntektsgrunnlag? = null

@@ -66,7 +66,7 @@ class ArbeidsgiverRefusjonController(
             queryParametre.page,
             queryParametre.size
         );
-        val response = mapOf<String, Any>(
+        val response = mapOf(
             Pair("refusjoner", pagableRefusjonlist.content),
             Pair("size", pagableRefusjonlist.size),
             Pair("currentPage", pagableRefusjonlist.number),

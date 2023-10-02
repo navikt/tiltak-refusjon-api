@@ -1,6 +1,5 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
-import com.github.guepardoapps.kulid.ULID
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.arbeidsgiver.tiltakrefusjon.RessursFinnesIkkeException
@@ -8,6 +7,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.`Suzanna Hansen`
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetArbeidsgiver
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBrukerService
 import no.nav.arbeidsgiver.tiltakrefusjon.dokgen.DokgenService
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.ulid
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -44,8 +44,8 @@ class ArbeidsgiverRefusjonControllerTest{
         forventetHeaders[HttpHeaders.CONTENT_DISPOSITION] = "inline; filename=Refusjon om " + `Suzanna Hansen`().refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype.name + ".pdf"
         forventetHeaders.contentLength = 1
 
-        assertThat(controller.hentPDF(ULID.random()).headers).isEqualTo(forventetHeaders)
-        assertThat(controller.hentPDF(ULID.random()).body).isNotEmpty()
+        assertThat(controller.hentPDF(ulid()).headers).isEqualTo(forventetHeaders)
+        assertThat(controller.hentPDF(ulid()).body).isNotEmpty()
 
     }
 
@@ -56,7 +56,7 @@ class ArbeidsgiverRefusjonControllerTest{
         every{innloggetArbeidsgiver.finnRefusjon(any())} throws RessursFinnesIkkeException()
 
 
-        assertThrows<RessursFinnesIkkeException> {controller.hentPDF(ULID.random())  }
+        assertThrows<RessursFinnesIkkeException> {controller.hentPDF(ulid())  }
 
     }
 

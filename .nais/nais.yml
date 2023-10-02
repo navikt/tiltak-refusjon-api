@@ -46,6 +46,7 @@ spec:
   envFrom:
     - secret: tiltak-refusjon-altinn
     - secret: tiltak-refusjon-varsling
+    - secret: tiltak-refusjon-api-unleash-api-token
   azure:
     application:
       enabled: true

@@ -1,8 +1,8 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
-import com.github.guepardoapps.kulid.ULID
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.ulid
 
 @Entity
 data class Beregning(
@@ -22,5 +22,5 @@ data class Beregning(
         val overFemGrunnbeløp: Boolean? = false
 ) {
     @Id
-    val id: String = ULID.random()
+    val id: String = ulid()
 }

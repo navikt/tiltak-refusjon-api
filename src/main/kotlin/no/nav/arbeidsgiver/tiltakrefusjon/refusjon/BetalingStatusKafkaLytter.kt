@@ -11,24 +11,51 @@ import org.springframework.stereotype.Component
 
 @Component
 @ConditionalOnProperty("tiltak-refusjon.kafka.enabled")
-class BetalingStatusKafkaLytter(private val refusjonRepository: RefusjonRepository, private val objectMapper: ObjectMapper) {
+class BetalingStatusKafkaLytter(private val refusjonRepository: RefusjonRepository, private val korreksjonRepository: KorreksjonRepository, private val objectMapper: ObjectMapper) {
 
     val log: Logger = LoggerFactory.getLogger(javaClass)
 
-    @KafkaListener(topics = [REFUSJON_ENDRET_BETALINGSSTATUS])
-    fun oppdaterRefusjonStatusBasertPåBetalingStatusFraØkonomi(event: String) {
-        val betalingsstatus = objectMapper.readValue(event,BetalingStatusEndringMelding::class.java)
+    fun behandleRefusjon(betalingsstatus: BetalingStatusEndringMelding) {
         val refusjon = refusjonRepository.findByIdOrNull(betalingsstatus.refusjonId)
-        if(refusjon == null){
+        if (refusjon == null) {
             log.error("Mottatt en betaling status for en ukjent refusjon  ${betalingsstatus.refusjonId}")
             return
         }
-        if(betalingsstatus.erUtbetalt()) {
+        if (betalingsstatus.erUtbetalt()) {
             refusjon.utbetalingVellykket()
         } else {
             refusjon.utbetalingMislykket()
         }
 
         refusjonRepository.save(refusjon)
+    }
+
+    fun behandleKorreksjon(betalingsstatus: BetalingStatusEndringMelding) {
+        val korreksjon: Korreksjon? = korreksjonRepository.findByIdOrNull(betalingsstatus.korreksjonId)
+        if (korreksjon == null) {
+            log.error("Mottatt en betaling status for en ukjent korreksjon  ${betalingsstatus.korreksjonId}")
+            return
+        }
+        if (betalingsstatus.erUtbetalt()) {
+            korreksjon.utbetalingVellykket()
+        } else {
+            korreksjon.utbetalingMislykket()
+        }
+
+        korreksjonRepository.save(korreksjon)
+    }
+
+    @KafkaListener(topics = [REFUSJON_ENDRET_BETALINGSSTATUS])
+    fun oppdaterKorreksjonEllerRefusjonStatusBasertPåBetalingStatusFraØkonomi(event: String) {
+        val betalingsstatus = objectMapper.readValue(event, BetalingStatusEndringMelding::class.java)
+        if (betalingsstatus.erForRefusjon() && betalingsstatus.erForKorreksjon()) {
+            log.error("Betalingsstatus for både korreksjon og refusjon mottatt! Id: {}, refusjonId: {}, korreksjonId: {}", betalingsstatus.id, betalingsstatus.refusjonId, betalingsstatus.korreksjonId)
+        } else if (betalingsstatus.erForRefusjon()) {
+            behandleRefusjon(betalingsstatus)
+        } else if (betalingsstatus.erForKorreksjon()) {
+            behandleKorreksjon(betalingsstatus)
+        } else {
+            log.error("Mottok betalingsstatus for hverken korreksjon eller refusjon! Id: {}", betalingsstatus.id)
+        }
     }
 }

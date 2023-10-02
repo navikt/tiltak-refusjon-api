@@ -1,12 +1,12 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
-import com.github.guepardoapps.kulid.ULID
-import java.time.LocalDate
-import java.time.LocalDateTime
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 import jakarta.persistence.Id
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.ulid
+import java.time.LocalDate
+import java.time.LocalDateTime
 
 @Entity
 data class Tilskuddsgrunnlag(
@@ -39,5 +39,5 @@ data class Tilskuddsgrunnlag(
     val godkjentAvBeslutterTidspunkt: LocalDateTime
 ) {
     @Id
-    val id: String = ULID.random()
+    val id: String = ulid()
 }

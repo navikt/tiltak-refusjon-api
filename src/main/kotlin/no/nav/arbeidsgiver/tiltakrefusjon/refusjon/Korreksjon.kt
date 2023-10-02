@@ -1,12 +1,15 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.github.guepardoapps.kulid.ULID
 import jakarta.persistence.*
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.*
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.KorreksjonBeregningUtført
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.KorreksjonMerketForOppgjort
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.KorreksjonMerketForTilbakekreving
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.KorreksjonSendtTilUtbetaling
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.ulid
 import org.springframework.data.domain.AbstractAggregateRoot
 import java.time.Instant
 import java.util.*
@@ -52,7 +55,7 @@ class Korreksjon(
     }
 
     @Id
-    val id: String = ULID.random()
+    val id: String = ulid()
 
     @Enumerated(EnumType.STRING)
     @ElementCollection(fetch = FetchType.EAGER)
@@ -211,4 +214,17 @@ class Korreksjon(
             registerEvent(KorreksjonBeregningUtført(this))
         }
     }
+
+    fun utbetalingMislykket() {
+        if (status == Korreksjonstype.TILLEGSUTBETALING) {
+            status = Korreksjonstype.TILLEGGSUTBETALING_FEILET
+        }
+    }
+
+    fun utbetalingVellykket() {
+        if (status == Korreksjonstype.TILLEGSUTBETALING || status == Korreksjonstype.TILLEGGSUTBETALING_FEILET) {
+            status = Korreksjonstype.TILLEGGSUTBETALING_UTBETALT
+        }
+    }
+
 }

@@ -2,6 +2,7 @@ host:
   - tiltak-proxy.prod-fss-pub.nais.io
   - graph.microsoft.com
   - login.microsoftonline.com
+  - team-tiltak-unleash-api.nav.cloud.nais.io
 tenant: nav.no
 besluttergruppe: 156f4f79-6909-4be1-8045-323f55590898
 slack_alert_channel: arbeidsgiver-tiltak-alerts
@@ -12,3 +13,4 @@ env:
 db-tier: db-custom-2-7680
 memory-limit: 6000Mi
 memory-requests: 4000Mi
+unleash-enviroment: production

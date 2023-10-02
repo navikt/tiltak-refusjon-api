@@ -1,9 +1,11 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.featuretoggles
 
-import no.finn.unleash.MoreOperations
-import no.finn.unleash.Unleash
-import no.finn.unleash.UnleashContext
-import no.finn.unleash.Variant
+import io.getunleash.MoreOperations
+import io.getunleash.Unleash
+import io.getunleash.UnleashContext
+import io.getunleash.Variant
+import java.util.function.BiPredicate
+
 
 class FakeFakeUnleash : Unleash {
     private var enableAll = false
@@ -23,6 +25,18 @@ class FakeFakeUnleash : Unleash {
             false
         } else {
             defaultSetting
+        }
+    }
+
+    override fun isEnabled(toggleName: String, unleashContext: UnleashContext, p2: BiPredicate<String, UnleashContext>): Boolean {
+        return if (features.containsKey(toggleName)) {
+            features[toggleName]!!
+        } else if (enableAll) {
+            true
+        } else if (disableAll) {
+            false
+        } else {
+            p2.test(toggleName, unleashContext)
         }
     }
 

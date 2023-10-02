@@ -1,11 +1,11 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.github.guepardoapps.kulid.ULID
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.YearMonthDateAttributeConverter
 import java.time.LocalDate
 import java.time.YearMonth
 import jakarta.persistence.*
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.ulid
 
 @Entity
 @Table(name = "inntektslinje")
@@ -21,7 +21,7 @@ data class Inntektslinje(
     var erOpptjentIPeriode: Boolean? = null,
 ) {
     @Id
-    val id: String = ULID.random()
+    val id: String = ulid()
 
     @ManyToOne
     @JoinColumn(name = "inntektsgrunnlag_id")

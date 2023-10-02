@@ -1,6 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.featuretoggles
 
-import no.finn.unleash.strategy.Strategy
+
+import io.getunleash.strategy.Strategy
 import org.springframework.stereotype.Component
 import java.util.*
 

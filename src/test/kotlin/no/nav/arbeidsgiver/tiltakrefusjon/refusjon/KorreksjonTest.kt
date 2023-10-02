@@ -1,7 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
-import com.github.guepardoapps.kulid.ULID
 import no.nav.arbeidsgiver.tiltakrefusjon.*
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.ulid
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
@@ -12,7 +12,7 @@ class KorreksjonTest {
     internal fun `kan utbetale når alt er fylt ut`() {
         val tilskuddsgrunnlag = etTilskuddsgrunnlag()
         val korreksjon = Korreksjon(
-            korrigererRefusjonId = ULID.random(),
+            korrigererRefusjonId = ulid(),
             korreksjonsnummer = 1,
             tidligereUtbetalt = 0,
             korreksjonsgrunner = setOf(Korreksjonsgrunn.HENT_INNTEKTER_PÅ_NYTT),
@@ -41,7 +41,7 @@ class KorreksjonTest {
     internal fun `kostnadssted må være med`() {
         val tilskuddsgrunnlag = etTilskuddsgrunnlag()
         val korreksjon = Korreksjon(
-            korrigererRefusjonId = ULID.random(),
+            korrigererRefusjonId = ulid(),
             korreksjonsnummer = 1,
             tidligereUtbetalt = 0,
             korreksjonsgrunner = setOf(Korreksjonsgrunn.HENT_INNTEKTER_PÅ_NYTT),
@@ -70,7 +70,7 @@ class KorreksjonTest {
     internal fun `kostnadssted kan ikke høre til et annet fylke enn refusjonen være med`() {
         val tilskuddsgrunnlag = etTilskuddsgrunnlag()
         val korreksjon = Korreksjon(
-            korrigererRefusjonId = ULID.random(),
+            korrigererRefusjonId = ulid(),
             korreksjonsnummer = 1,
             tidligereUtbetalt = 0,
             korreksjonsgrunner = setOf(Korreksjonsgrunn.HENT_INNTEKTER_PÅ_NYTT),
@@ -98,7 +98,7 @@ class KorreksjonTest {
     internal fun `kostnadssted kan være ulikt innenfor samme fylke`() {
         val tilskuddsgrunnlag = etTilskuddsgrunnlag()
         val korreksjon = Korreksjon(
-            korrigererRefusjonId = ULID.random(),
+            korrigererRefusjonId = ulid(),
             korreksjonsnummer = 1,
             tidligereUtbetalt = 0,
             korreksjonsgrunner = setOf(Korreksjonsgrunn.HENT_INNTEKTER_PÅ_NYTT),
@@ -127,7 +127,7 @@ class KorreksjonTest {
     internal fun `kun lov med tilbakekreving ved negativ sum`() {
         val tilskuddsgrunnlag = etTilskuddsgrunnlag()
         val korreksjon = Korreksjon(
-            korrigererRefusjonId = ULID.random(),
+            korrigererRefusjonId = ulid(),
             korreksjonsnummer = 1,
             tidligereUtbetalt = 1000000,
             korreksjonsgrunner = setOf(Korreksjonsgrunn.HENT_INNTEKTER_PÅ_NYTT),
@@ -158,7 +158,7 @@ class KorreksjonTest {
     internal fun `kun lov med oppgjort`() {
         val tilskuddsgrunnlag = etTilskuddsgrunnlag()
         val korreksjon = Korreksjon(
-            korrigererRefusjonId = ULID.random(),
+            korrigererRefusjonId = ulid(),
             korreksjonsnummer = 1,
             tidligereUtbetalt = 4055,
             korreksjonsgrunner = setOf(Korreksjonsgrunn.HENT_INNTEKTER_PÅ_NYTT),
@@ -189,7 +189,7 @@ class KorreksjonTest {
     internal fun `kun inntekter som er huket av for at de er opptjent i perioden blir regnet med`() {
         val tilskuddsgrunnlag = etTilskuddsgrunnlag()
         val korreksjon = Korreksjon(
-            korrigererRefusjonId = ULID.random(),
+            korrigererRefusjonId = ulid(),
             korreksjonsnummer = 1,
             tidligereUtbetalt = 4055,
             korreksjonsgrunner = setOf(Korreksjonsgrunn.HENT_INNTEKTER_PÅ_NYTT),

@@ -291,7 +291,6 @@ fun opprettKorreksjonsutkast(korreksjonsgrunner: Set<Korreksjonsgrunn>, unntakOm
         // Maks forlengelse er 1 mnd.
         val opprinneligFrist = lagFristForGodkjenning()
         val kanForlengeSykepenger = refusjonsgrunnlag.fratrekkRefunderbarBeløp == true && nyFrist < antallMånederEtter(opprinneligFrist, 12)
-        println("Har ikke peiling $kanForlengeSykepenger")
         if (!(enforce || kanForlengeSykepenger) && (nyFrist > antallMånederEtter(opprinneligFrist, 1))) {
             throw FeilkodeException(Feilkode.FOR_LANG_FORLENGELSE_AV_FRIST)
         }

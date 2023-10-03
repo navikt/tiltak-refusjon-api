@@ -293,8 +293,7 @@ fun opprettKorreksjonsutkast(korreksjonsgrunner: Set<Korreksjonsgrunn>, unntakOm
 
         // Opprinnelig frist er er 2 mnd. Det er enten 2 mnd etter tilskuddTom eller 2 mnd etter godkjentAvBeslutterTidspunkt.
         // Maks forlengelse er 1 mnd.
-        val maksForlengeFrist = maksForlengeFrist()
-        if (!enforce && (nyFrist > maksForlengeFrist)) {
+        if (!enforce && (nyFrist > maksForlengeFrist())) {
             throw FeilkodeException(Feilkode.FOR_LANG_FORLENGELSE_AV_FRIST)
         }
 

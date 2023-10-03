@@ -111,7 +111,7 @@ class ArbeidsgiverRefusjonController(
     @Transactional
     fun utsettFrist(@PathVariable id: String) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-        arbeidsgiver.utsettFriskSykepenger(id);
+        arbeidsgiver.utsettFristSykepenger(id);
     }
 
     @PostMapping("/{id}/set-inntektslinje-opptjent-i-periode")

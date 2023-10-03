@@ -146,7 +146,7 @@ data class InnloggetArbeidsgiver(
         refusjonRepository.save(refusjon)
     }
 
-    fun utsettFriskSykepenger(id: String) {
+    fun utsettFristSykepenger(id: String) {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
         log.info("Utsetter frist på refusjon ${refusjon.id} grunnet sykepenger/fravær i perioden")

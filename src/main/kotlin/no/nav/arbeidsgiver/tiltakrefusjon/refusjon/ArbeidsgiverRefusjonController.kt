@@ -66,7 +66,7 @@ class ArbeidsgiverRefusjonController(
             queryParametre.page,
             queryParametre.size
         );
-        val response = mapOf<String, Any>(
+        val response = mapOf(
             Pair("refusjoner", pagableRefusjonlist.content),
             Pair("size", pagableRefusjonlist.size),
             Pair("currentPage", pagableRefusjonlist.number),
@@ -111,7 +111,7 @@ class ArbeidsgiverRefusjonController(
     @Transactional
     fun utsettFrist(@PathVariable id: String) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-        arbeidsgiver.utsettFriskSykepenger(id);
+        arbeidsgiver.utsettFristSykepenger(id);
     }
 
     @PostMapping("/{id}/set-inntektslinje-opptjent-i-periode")

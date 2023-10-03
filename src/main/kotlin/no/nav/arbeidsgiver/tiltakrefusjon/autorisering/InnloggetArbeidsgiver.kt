@@ -52,13 +52,12 @@ data class InnloggetArbeidsgiver(
         }
     }
 
-    fun getQueryMethodForFinnAlleForGittArbeidsgiver(bedriftNr: List<String>, status: RefusjonStatus?, tiltakstype: Tiltakstype?,  sortingOrder: SortingOrder?, page: Int, size: Int): Page<Refusjon> {
+    private fun getQueryMethodForFinnAlleForGittArbeidsgiver(bedriftNr: List<String>, status: RefusjonStatus?, tiltakstype: Tiltakstype?, sortingOrder: SortingOrder?, page: Int, size: Int): Page<Refusjon> {
         val paging: Pageable = PageRequest.of(page, size)
         if(sortingOrder != null && sortingOrder != SortingOrder.STATUS_ASC) {
             return refusjonRepository.findAllByBedriftNrAndStatusDefinedSort(bedriftNr, status, tiltakstype, PageRequest.of(page, size, Sort.by(getSortingOrderForPageable(sortingOrder))))
         }
         return refusjonRepository.findAllByBedriftNrAndStatusDefaultSort(bedriftNr, status, tiltakstype, paging)
-
     }
 
     fun finnAlleForGittArbeidsgiver(bedrifter: String?, status: RefusjonStatus?, tiltakstype: Tiltakstype?,  sortingOrder: SortingOrder?, page: Int, size: Int): Page<Refusjon> {
@@ -147,13 +146,13 @@ data class InnloggetArbeidsgiver(
         refusjonRepository.save(refusjon)
     }
 
-    fun utsettFriskSykepenger(id: String) {
+    fun utsettFristSykepenger(id: String) {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
         log.info("Utsetter frist på refusjon ${refusjon.id} grunnet sykepenger/fravær i perioden")
-        val treMåneder = antallMånederEtter(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom, 6)
+        val tolvMåneder = antallMånederEtter(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom, 12)
         refusjon.forlengFrist(
-            nyFrist = treMåneder,
+            nyFrist = tolvMåneder,
             årsak = "Sykepenger",
             utførtAv = identifikator,
             enforce = true

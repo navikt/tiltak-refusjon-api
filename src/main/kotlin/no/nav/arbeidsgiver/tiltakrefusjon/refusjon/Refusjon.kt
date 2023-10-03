@@ -274,11 +274,15 @@ fun opprettKorreksjonsutkast(korreksjonsgrunner: Set<Korreksjonsgrunn>, unntakOm
         }
     }
 
-    fun forlengFrist(nyFrist: LocalDate, årsak: String, utførtAv: String) {
-        forlengFrist(nyFrist, årsak, utførtAv, false)
+    fun maksForlengeFrist(): LocalDate {
+        val opprinneligFrist = lagFristForGodkjenning()
+        return if (refusjonsgrunnlag.fratrekkRefunderbarBeløp == true) antallMånederEtter(
+            refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom,
+            13
+        ) else antallMånederEtter(opprinneligFrist, 1)
     }
 
-    fun forlengFrist(nyFrist: LocalDate, årsak: String, utførtAv: String, enforce: Boolean) {
+    fun forlengFrist(nyFrist: LocalDate, årsak: String, utførtAv: String, enforce: Boolean = false) {
         oppdaterStatus()
         krevStatus(RefusjonStatus.FOR_TIDLIG, RefusjonStatus.KLAR_FOR_INNSENDING)
 
@@ -289,9 +293,8 @@ fun opprettKorreksjonsutkast(korreksjonsgrunner: Set<Korreksjonsgrunn>, unntakOm
 
         // Opprinnelig frist er er 2 mnd. Det er enten 2 mnd etter tilskuddTom eller 2 mnd etter godkjentAvBeslutterTidspunkt.
         // Maks forlengelse er 1 mnd.
-        val opprinneligFrist = lagFristForGodkjenning()
-        val kanForlengeSykepenger = refusjonsgrunnlag.fratrekkRefunderbarBeløp == true && nyFrist < antallMånederEtter(opprinneligFrist, 12)
-        if (!(enforce || kanForlengeSykepenger) && (nyFrist > antallMånederEtter(opprinneligFrist, 1))) {
+        val maksForlengeFrist = maksForlengeFrist()
+        if (!enforce && (nyFrist > maksForlengeFrist)) {
             throw FeilkodeException(Feilkode.FOR_LANG_FORLENGELSE_AV_FRIST)
         }
 

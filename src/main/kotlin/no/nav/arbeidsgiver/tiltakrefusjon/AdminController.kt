@@ -221,6 +221,9 @@ class AdminController(
         return beregning
     }
 
+    @Unprotected
+    @GetMapping("hent-refusjoner-med-status-sendt")
+    fun hentRefusjonerMedStatusSendtKrav()  = refusjonRepository.findAllByStatus(RefusjonStatus.SENDT_KRAV)
 }
 
 data class ReberegnRequest(val harFerietrekkForSammeMåned: Boolean, val minusBeløp: Int, val ferieTrekk: Int)

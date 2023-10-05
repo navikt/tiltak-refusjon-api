@@ -60,6 +60,7 @@ class Refusjon(
     var minusbelop: Minusbelop? = null
     init {
         oppdaterStatus()
+        registerEvent(RefusjonOpprettet(this))
     }
 
     fun lagFristForGodkjenning() : LocalDate {

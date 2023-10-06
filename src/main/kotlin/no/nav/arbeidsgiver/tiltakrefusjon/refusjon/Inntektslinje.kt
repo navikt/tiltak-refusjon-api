@@ -51,5 +51,6 @@ val inkluderteLønnsbeskrivelser = listOf(
     "timeloenn",
     "fastTillegg",
     "uregelmessigeTilleggKnyttetTilArbeidetTid",
-    "loennUtbetaltAvVeldedigEllerAllmennyttigInstitusjonEllerOrganisasjon"
+    "loennUtbetaltAvVeldedigEllerAllmennyttigInstitusjonEllerOrganisasjon",
+    "loennEtterDoedsfall"
 )

@@ -71,7 +71,16 @@ class FakeInntektskomponentService : InntektskomponentService {
             val måned = YearMonth.of(datoFra.year, datoFra.month)
             inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "fastloenn", 200000.0,  måned, datoTil, måned.atEndOfMonth()))
             return Pair(inntektslinjer, "fake respons med veldig høy lønn")
+
+        } else if (fnr == "30038738743") {
+            val inntektslinjer = ArrayList<Inntektslinje>()
+            val måned = YearMonth.of(datoFra.year, datoFra.month)
+            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "fastloenn", 20000.0,  måned, datoTil, måned.atEndOfMonth()))
+            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "loennEtterDoedsfall", 5000.0,  måned, datoTil, måned.atEndOfMonth()))
+            return Pair(inntektslinjer, "fake respons med lønn etter dødsfall")
         }
+
+
 
         val inntektslinjer = ArrayList<Inntektslinje>()
         datoFra.datesUntil(datoTil, Period.ofMonths(1)).forEach {
@@ -87,6 +96,7 @@ class FakeInntektskomponentService : InntektskomponentService {
 //            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "fastTillegg", 10000.0, måned, null, null))
 //            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "overtidsgodtgjoerelse", 7683.0, måned, it, måned.atEndOfMonth()))
             inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "loennUtbetaltAvVeldedigEllerAllmennyttigInstitusjonEllerOrganisasjon", 423.0, måned, it, måned.atEndOfMonth()))
+
         }
         return Pair(inntektslinjer, "fake respons")
     }

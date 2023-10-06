@@ -268,6 +268,8 @@ fun gamleUtbetalteRefusjonerOgEnNy(): List<Refusjon> {
     return listOf(refusjon1, refusjon2, refusjon3, refusjon4, refusjon5, refusjon6, refusjon7, refusjon8, refusjon9, refusjon10)
 }
 
+
+
 fun refusjoner(): List<Refusjon> {
     val kiellandNy = `Alexander Kielland`()
     val kiellandGammel = `Alexander Kielland`().let {
@@ -427,7 +429,8 @@ fun refusjoner(): List<Refusjon> {
         `Sigrid Undset`(),
         `Henrik Wergeland`(),
         `Jonas Lie`(),
-        `Geir Geirsen`()
+        `Geir Geirsen`(),
+        `dodsfallUnderTiltakRefusjon`()
 
     )
 }
@@ -689,6 +692,23 @@ fun `Siri Hansen`(): Refusjon {
         it.utbetalingMislykket()
     }
 
+    return refusjon
+}
+
+fun dodsfallUnderTiltakRefusjon():Refusjon{
+    val deltakerFnrMedMasseUtbetalt = "30038738743"
+    val bedriftNr = "999999999"
+    val refusjon =  Refusjon(
+        tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
+            tiltakstype = Tiltakstype.VARIG_LONNSTILSKUDD,
+            deltakerFnr = deltakerFnrMedMasseUtbetalt,
+            bedriftNr = bedriftNr,
+            deltakerFornavn = "Grim",
+            deltakerEtternavn = "Grimesen",
+            tilskuddsbeløp = 70000,
+            veilederNavIdent = "X123456"
+        ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnrMedMasseUtbetalt
+    )
     return refusjon
 }
 

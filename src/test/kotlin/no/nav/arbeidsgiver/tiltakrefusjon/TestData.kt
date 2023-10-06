@@ -103,6 +103,7 @@ fun gamleUtbetalteRefusjonerOgEnNy(): List<Refusjon> {
         )
         it.medBedriftKontonummer()
         it.medSvarPåInntekter()
+        it.medBeregning()
         it.medSendtKravFraArbeidsgiver()
         it.utbetalingVellykket()
     }
@@ -126,6 +127,7 @@ fun gamleUtbetalteRefusjonerOgEnNy(): List<Refusjon> {
         )
         it.medBedriftKontonummer()
         it.medSvarPåInntekter()
+        it.medBeregning()
         it.medSendtKravFraArbeidsgiver()
         it.utbetalingVellykket()
     }
@@ -149,6 +151,7 @@ fun gamleUtbetalteRefusjonerOgEnNy(): List<Refusjon> {
         )
         it.medBedriftKontonummer()
         it.medSvarPåInntekter()
+        it.medBeregning()
         it.medSendtKravFraArbeidsgiver()
         it.utbetalingVellykket()
     }
@@ -172,6 +175,7 @@ fun gamleUtbetalteRefusjonerOgEnNy(): List<Refusjon> {
         )
         it.medBedriftKontonummer()
         it.medSvarPåInntekter()
+        it.medBeregning()
         it.medSendtKravFraArbeidsgiver()
         it.utbetalingVellykket()
     }
@@ -195,6 +199,7 @@ fun gamleUtbetalteRefusjonerOgEnNy(): List<Refusjon> {
         )
         it.medBedriftKontonummer()
         it.medSvarPåInntekter()
+        it.medBeregning()
         it.medSendtKravFraArbeidsgiver()
         it.utbetalingVellykket()
     }
@@ -218,6 +223,7 @@ fun gamleUtbetalteRefusjonerOgEnNy(): List<Refusjon> {
         )
         it.medBedriftKontonummer()
         it.medSvarPåInntekter()
+        it.medBeregning()
         it.medSendtKravFraArbeidsgiver()
         it.utbetalingVellykket()
     }
@@ -241,6 +247,7 @@ fun gamleUtbetalteRefusjonerOgEnNy(): List<Refusjon> {
         )
         it.medBedriftKontonummer()
         it.medSvarPåInntekter()
+        it.medBeregning()
         it.medSendtKravFraArbeidsgiver()
         it.utbetalingVellykket()
     }

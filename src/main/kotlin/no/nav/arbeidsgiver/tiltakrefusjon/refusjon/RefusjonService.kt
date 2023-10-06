@@ -17,11 +17,11 @@ import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import java.time.YearMonth
 
 @Service
-@Transactional
 @Observed
 class RefusjonService(
     val inntektskomponentService: InntektskomponentService,
@@ -90,19 +90,24 @@ class RefusjonService(
      * så går refusjonen bare i 0,-.
      */
     fun settMinusBeløpFraTidligereRefusjonerTilknyttetAvtalen(refusjon: Refusjon) {
-
         val avtaleNr = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr
         val alleMinusbeløp = minusbelopRepository.findAllByAvtaleNr(avtaleNr = avtaleNr)
         if(!alleMinusbeløp.isNullOrEmpty()) {
+            alleMinusbeløp.forEach {
+                println("Minusbeløp ${it.beløp} ${it.gjortOpp}")
+            }
+            println("alle minusbeløp $alleMinusbeløp")
             val sumMinusbelop = alleMinusbeløp
                 .filter { !it.gjortOpp }
                 .map { minusbelop -> minusbelop.beløp}
                 .filterNotNull()
                 .reduceOrNull{sum, beløp -> sum + beløp}
             if (sumMinusbelop != null) {
+                println("Setter minusbeløp på ${refusjon.id}")
                 refusjon.refusjonsgrunnlag.oppgiForrigeRefusjonsbeløp(sumMinusbelop)
                 refusjonRepository.save(refusjon)
             } else {
+                println("Nullstiller minusbeløp på ${refusjon.id}")
                 refusjon.refusjonsgrunnlag.oppgiForrigeRefusjonsbeløp(0)
                 refusjonRepository.save(refusjon)
             }
@@ -190,16 +195,28 @@ class RefusjonService(
                 løpenummer = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.løpenummer)
             refusjon.minusbelop = minusbelop
             log.info("Setter minusbeløp ${minusbelop.id} på refusjon ${refusjon.id}")
+        } else {
+            alleMinusBeløp.forEach {
+                if (!it.gjortOpp) {
+                    it.gjortOpp = true
+                    it.gjortOppAvRefusjonId = refusjon.id
+                    minusbelopRepository.save(it)
+                }
+            }
         }
-
         // Oppdater ikke innsendte refusjoner med data (f eks maksbløp, ferietrekk etc..)
+        // Hvordan unngå at man finner denne refusjonen i spørringen? hmm.. Dette er litt rart rent transaksjonsmessig
         val alleRefusjonserSomSkalSendesInn =
             refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_AvtaleNrAndStatusIn(
                 refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr,
                 listOf(RefusjonStatus.FOR_TIDLIG, RefusjonStatus.KLAR_FOR_INNSENDING)
             )
         alleRefusjonserSomSkalSendesInn.forEach {
-            oppdaterRefusjon(it)
+            if(it.id != refusjon.id) {
+                println("Oppdaterer nå refusjon ${it.id} da den skal sendes in ${it.status}")
+                oppdaterRefusjon(it)
+                refusjonRepository.save(it)
+            }
         }
 
         refusjonRepository.save(refusjon)
@@ -287,12 +304,13 @@ class RefusjonService(
 
         // Ikke sett minusbeløp på allerede sendt inn refusjoner
         if(refusjon.status == RefusjonStatus.KLAR_FOR_INNSENDING || refusjon.status == RefusjonStatus.FOR_TIDLIG) {
+            println("Prøver sette/resette minusbeløp fra gammel refusjon på ${refusjon.id}")
             settMinusBeløpFraTidligereRefusjonerTilknyttetAvtalen(refusjon)
         }
 
-        if(refusjon.åpnetFørsteGang == null) {
-            refusjon.åpnetFørsteGang = Now.instant()
-        }
+        //if(refusjon.åpnetFørsteGang == null) {
+        //    refusjon.åpnetFørsteGang = Now.instant()
+        //}
         settTotalBeløpUtbetalteVarigLønnstilskudd(refusjon)
         settOmFerieErTrukketForSammeMåned(refusjon)
         gjørBeregning(refusjon)

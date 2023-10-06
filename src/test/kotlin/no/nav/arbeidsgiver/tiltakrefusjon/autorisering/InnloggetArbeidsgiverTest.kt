@@ -475,6 +475,7 @@ internal class InnloggetArbeidsgiverTest(
 
         val refusjon1FunnetViaFinnRefusjon = innloggetArbeidsgiver.finnRefusjon(refusjon1.id)
         assertThat(refusjon1FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(0)
+
         refusjonService.godkjennForArbeidsgiver(refusjon1FunnetViaFinnRefusjon,"999999999")
 
 
@@ -626,7 +627,7 @@ internal class InnloggetArbeidsgiverTest(
         // Sett innhentede inntekter til opptjent i periode
         refusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.forEach { it.erOpptjentIPeriode = true }
         // Bekreft at alle inntektene kun er fra tiltaket
-        refusjon.endreBruttolønn(true, null)
+        refusjonService.endreBruttolønn(refusjon, true, null)
         refusjonRepository.save(refusjon)
         return refusjon;
     }

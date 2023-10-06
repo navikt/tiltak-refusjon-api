@@ -181,11 +181,13 @@ class RefusjonServiceTest(
         val refusjon2 = refusjonService.opprettRefusjon(tilskuddMelding2LittEldreMedLøpenummer2)!!
         refusjonService.gjørBedriftKontonummeroppslag(refusjon2)
         refusjonService.gjørInntektsoppslag(refusjon2)
+        refusjonService.gjørBeregning(refusjon2)
         gjørInntektoppslagForRefusjon(refusjon2)
 
         val refusjon3 = refusjonService.opprettRefusjon(tilskuddMelding3LittEldreMedLøpenummer3)!!
         refusjonService.gjørBedriftKontonummeroppslag(refusjon3)
         refusjonService.gjørInntektsoppslag(refusjon3)
+        refusjonService.gjørBeregning(refusjon3)
         gjørInntektoppslagForRefusjon(refusjon3)
 
         assertThat(refusjonRepository.findAll().count()).isEqualTo(3)
@@ -505,7 +507,7 @@ class RefusjonServiceTest(
         // Sett innhentede inntekter til opptjent i periode
         refusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.forEach { it.erOpptjentIPeriode = true }
         // Bekreft at alle inntektene kun er fra tiltaket
-        refusjon.endreBruttolønn(true, null)
+        refusjonService.endreBruttolønn(refusjon,true, null)
     }
 
 }

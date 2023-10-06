@@ -4,14 +4,18 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 import io.micrometer.observation.annotation.Observed
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
+import no.nav.arbeidsgiver.tiltakrefusjon.RessursFinnesIkkeException
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
 import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterService
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.BeregningUtført
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.MidlerFrigjortÅrsak
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeAnnullertMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeForkortetMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.slf4j.LoggerFactory
+import org.springframework.context.ApplicationEventPublisher
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.YearMonth
@@ -24,7 +28,8 @@ class RefusjonService(
     val refusjonRepository: RefusjonRepository,
     val korreksjonRepository: KorreksjonRepository,
     val kontoregisterService: KontoregisterService,
-    val minusbelopRepository: MinusbelopRepository
+    val minusbelopRepository: MinusbelopRepository,
+    val applicationEventPublisher: ApplicationEventPublisher
 ) {
     val log = LoggerFactory.getLogger(javaClass)
 
@@ -73,6 +78,8 @@ class RefusjonService(
             deltakerFnr = tilskuddsperiodeGodkjentMelding.deltakerFnr,
             bedriftNr = tilskuddsperiodeGodkjentMelding.bedriftNr
         )
+
+        oppdaterRefusjon(refusjon)
 
         return refusjonRepository.save(refusjon)
     }
@@ -148,6 +155,7 @@ class RefusjonService(
                 respons = inntektsoppslag.second
             )
             refusjon.oppgiInntektsgrunnlag(inntektsgrunnlag, refusjon.refusjonsgrunnlag.inntektsgrunnlag)
+            gjørBeregning(refusjon)
             refusjonRepository.save(refusjon)
         } catch (e: Exception) {
             log.error("Feil ved henting av inntekter for refusjon ${refusjon.id}", e)
@@ -183,6 +191,17 @@ class RefusjonService(
             refusjon.minusbelop = minusbelop
             log.info("Setter minusbeløp ${minusbelop.id} på refusjon ${refusjon.id}")
         }
+
+        // Oppdater ikke innsendte refusjoner med data (f eks maksbløp, ferietrekk etc..)
+        val alleRefusjonserSomSkalSendesInn =
+            refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_AvtaleNrAndStatusIn(
+                refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr,
+                listOf(RefusjonStatus.FOR_TIDLIG, RefusjonStatus.KLAR_FOR_INNSENDING)
+            )
+        alleRefusjonserSomSkalSendesInn.forEach {
+            oppdaterRefusjon(it)
+        }
+
         refusjonRepository.save(refusjon)
     }
 
@@ -243,7 +262,7 @@ class RefusjonService(
             .filter { YearMonth.from(it.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom)  == YearMonth.from(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom) }
             .forEach {
                 if (it.refusjonsgrunnlag.beregning?.fratrekkLønnFerie != 0) {
-                    log.info("Forsøkte å godkjenne refusjon ${it.id} med ferietrekk. Det er allerde trukket for ferie i en refusjon i samme måned: ${refusjon.id}")
+                    log.info("Forsøkte å godkjenne refusjon ${refusjon.id} med ferietrekk. Det er allerde trukket for ferie i en refusjon i samme måned: ${it.id}")
                     throw FeilkodeException(Feilkode.FERIETREKK_TRUKKET_FOR_SAMME_MÅNED)
                 }
             }
@@ -262,6 +281,51 @@ class RefusjonService(
                 }
             refusjonRepository.save(refusjon)
         }
+    }
+
+    fun oppdaterRefusjon(refusjon: Refusjon) {
+
+        // Ikke sett minusbeløp på allerede sendt inn refusjoner
+        if(refusjon.status == RefusjonStatus.KLAR_FOR_INNSENDING || refusjon.status == RefusjonStatus.FOR_TIDLIG) {
+            settMinusBeløpFraTidligereRefusjonerTilknyttetAvtalen(refusjon)
+        }
+
+        if(refusjon.åpnetFørsteGang == null) {
+            refusjon.åpnetFørsteGang = Now.instant()
+        }
+        settTotalBeløpUtbetalteVarigLønnstilskudd(refusjon)
+        settOmFerieErTrukketForSammeMåned(refusjon)
+        gjørBeregning(refusjon)
+    }
+
+    fun gjørBeregning(refusjon: Refusjon) {
+        if (erAltOppgitt(refusjon)) {
+            val beregning = beregnRefusjonsbeløp(
+                inntekter = refusjon.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
+                tilskuddsgrunnlag = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag,
+                tidligereUtbetalt = refusjon.refusjonsgrunnlag.tidligereUtbetalt,
+                korrigertBruttoLønn = refusjon.refusjonsgrunnlag.endretBruttoLønn,
+                fratrekkRefunderbarSum = refusjon.refusjonsgrunnlag.refunderbarBeløp,
+                forrigeRefusjonMinusBeløp = refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
+                tilskuddFom = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
+                sumUtbetaltVarig = refusjon.refusjonsgrunnlag.sumUtbetaltVarig,
+                harFerietrekkForSammeMåned = refusjon.refusjonsgrunnlag.harFerietrekkForSammeMåned)
+            refusjon.refusjonsgrunnlag.beregning = beregning
+            applicationEventPublisher.publishEvent(BeregningUtført(refusjon))
+        }
+    }
+
+    private fun erAltOppgitt(refusjon: Refusjon): Boolean {
+        val inntektsgrunnlag = refusjon.refusjonsgrunnlag.inntektsgrunnlag
+        if (inntektsgrunnlag == null || inntektsgrunnlag.inntekter.none { it.erMedIInntektsgrunnlag() }) return false
+        return refusjon.refusjonsgrunnlag.bedriftKontonummer != null && (refusjon.refusjonsgrunnlag.inntekterKunFraTiltaket == true && refusjon.refusjonsgrunnlag.endretBruttoLønn == null ||
+                ((refusjon.refusjonsgrunnlag.inntekterKunFraTiltaket == false || refusjon.refusjonsgrunnlag.inntekterKunFraTiltaket == null) && refusjon.refusjonsgrunnlag.endretBruttoLønn != null))
+    }
+
+    fun endreBruttolønn(refusjon: Refusjon, inntekterKunFraTiltaket: Boolean?, bruttoLønn: Int?) {
+        refusjon.endreBruttolønn(inntekterKunFraTiltaket, bruttoLønn)
+        gjørBeregning(refusjon)
+        refusjonRepository.save(refusjon)
     }
 
 }

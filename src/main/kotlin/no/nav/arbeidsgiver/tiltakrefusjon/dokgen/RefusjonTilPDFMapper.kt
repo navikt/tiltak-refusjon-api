@@ -10,7 +10,7 @@ object RefusjonTilPDFMapper {
     fun tilPDFdata(refusjon : Refusjon) : RefusjonTilPDF {
 
         if(refusjon.refusjonsgrunnlag.beregning == null){
-            throw RuntimeException("refusjonsgrunnlag er null")
+            throw RuntimeException("Beregning er null")
         }
 
         val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.YYYY")

@@ -48,9 +48,10 @@ fun beregnRefusjonsbeløp(
     tilskuddFom: LocalDate,
     sumUtbetaltVarig: Int = 0,
     harFerietrekkForSammeMåned: Boolean,
-    ekstraFerietrekk: Int? = null
+    ekstraFerietrekk: Int? = null,
 
 ): Beregning {
+    println("HAR FERIETREKK SAMME MÅNED??? $harFerietrekkForSammeMåned")
     val kalkulertBruttoLønn = kalkulerBruttoLønn(inntekter).roundToInt()
     val lønn = if (korrigertBruttoLønn != null) minOf(korrigertBruttoLønn, kalkulertBruttoLønn) else kalkulertBruttoLønn
     val trekkgrunnlagFerie = if (harFerietrekkForSammeMåned) 0 else leggSammenTrekkGrunnlag(inntekter, tilskuddFom, ekstraFerietrekk).roundToInt()

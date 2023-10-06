@@ -58,6 +58,7 @@ data class RefusjonlistFraFlereOrgTest(
 @DirtiesContext
 class RefusjonApiTest(
     @Autowired val refusjonRepository: RefusjonRepository,
+    @Autowired val refusjonService: RefusjonService,
     @Autowired val mapper: ObjectMapper,
     @Autowired val mockMvc: MockMvc,
     @Autowired val hendelsesloggRepository: HendelsesloggRepository,
@@ -77,6 +78,9 @@ class RefusjonApiTest(
     @BeforeEach
     fun setUp() {
         refusjonRepository.saveAll(refusjoner())
+        refusjonRepository.findAll().forEach {
+            refusjonService.oppdaterRefusjon(it)
+        }
         resetAuditCount()
     }
 

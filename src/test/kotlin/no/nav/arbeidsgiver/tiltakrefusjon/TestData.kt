@@ -79,6 +79,7 @@ fun gamleUtbetalteRefusjonerOgEnNy(): List<Refusjon> {
         )
         it.medBedriftKontonummer()
         it.medSvarPåInntekter()
+        it.medBeregning()
         it.medSendtKravFraArbeidsgiver()
         it.utbetalingVellykket()
     }
@@ -283,6 +284,7 @@ fun refusjoner(): List<Refusjon> {
             .medInntektsgrunnlag(måned = YearMonth.of(tilskuddFom.year, tilskuddFom.month))
             .medBedriftKontonummer()
             .medSvarPåInntekter()
+            .medBeregning()
             .medSendtKravFraArbeidsgiver()
     }
     val BjørnsonUtgått = `Bjørnstjerne Bjørnson`().let {
@@ -305,6 +307,7 @@ fun refusjoner(): List<Refusjon> {
         )
         it.medBedriftKontonummer()
         it.medSvarPåInntekter()
+        it.medBeregning()
         it.medSendtKravFraArbeidsgiver()
     }
 
@@ -656,6 +659,7 @@ fun `Suzanna Hansen`(): Refusjon {
         )
         it.medBedriftKontonummer()
         it.medSvarPåInntekter()
+        it.medBeregning()
         it.medSendtKravFraArbeidsgiver()
         it.utbetalingVellykket()
     }
@@ -685,6 +689,7 @@ fun `Siri Hansen`(): Refusjon {
         )
         it.medBedriftKontonummer()
         it.medSvarPåInntekter()
+        it.medBeregning()
         it.medSendtKravFraArbeidsgiver()
         it.utbetalingMislykket()
     }
@@ -697,6 +702,21 @@ fun Refusjon.medInntektsgrunnlag(
     inntektsgrunnlag: Inntektsgrunnlag = etInntektsgrunnlag(måned = måned),
 ): Refusjon {
     this.oppgiInntektsgrunnlag(inntektsgrunnlag)
+    return this
+}
+
+fun Refusjon.medBeregning(
+): Refusjon {
+    this.refusjonsgrunnlag.beregning = beregnRefusjonsbeløp(
+        inntekter = this.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
+        tilskuddsgrunnlag = this.refusjonsgrunnlag.tilskuddsgrunnlag,
+        tidligereUtbetalt = this.refusjonsgrunnlag.tidligereUtbetalt,
+        korrigertBruttoLønn = this.refusjonsgrunnlag.endretBruttoLønn,
+        fratrekkRefunderbarSum = this.refusjonsgrunnlag.refunderbarBeløp,
+        forrigeRefusjonMinusBeløp = this.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
+        tilskuddFom = this.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
+        sumUtbetaltVarig = this.refusjonsgrunnlag.sumUtbetaltVarig,
+        harFerietrekkForSammeMåned = this.refusjonsgrunnlag.harFerietrekkForSammeMåned)
     return this
 }
 

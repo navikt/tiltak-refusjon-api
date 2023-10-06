@@ -6,7 +6,6 @@ import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
 import no.nav.arbeidsgiver.tiltakrefusjon.organisasjon.EregClient
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
-import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.antallMånederEtter
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -89,16 +88,6 @@ data class InnloggetArbeidsgiver(
 
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
 
-        // Ikke sett minusbeløp på allerede sendt inn refusjoner
-        if(refusjon.status == RefusjonStatus.KLAR_FOR_INNSENDING || refusjon.status == RefusjonStatus.FOR_TIDLIG) {
-            refusjonService.settMinusBeløpFraTidligereRefusjonerTilknyttetAvtalen(refusjon)
-        }
-
-        if(refusjon.åpnetFørsteGang == null) {
-            refusjon.åpnetFørsteGang = Now.instant()
-        }
-        refusjonService.settTotalBeløpUtbetalteVarigLønnstilskudd(refusjon)
-        refusjonService.settOmFerieErTrukketForSammeMåned(refusjon)
         refusjonService.gjørBedriftKontonummeroppslag(refusjon)
         refusjonService.gjørInntektsoppslag(refusjon)
 
@@ -121,8 +110,7 @@ data class InnloggetArbeidsgiver(
     fun endreBruttolønn(id: String, inntekterKunFraTiltaket: Boolean?, bruttoLønn: Int?) {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
-        refusjon.endreBruttolønn(inntekterKunFraTiltaket, bruttoLønn)
-        refusjonRepository.save(refusjon)
+        refusjonService.endreBruttolønn(refusjon, inntekterKunFraTiltaket, bruttoLønn)
     }
 
     fun lagreBedriftKID(id: String, bedriftKID: String?){
@@ -136,6 +124,7 @@ data class InnloggetArbeidsgiver(
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(refusjonId) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
         refusjon.setInntektslinjeTilOpptjentIPeriode(inntekslinjeId, erOpptjentIPeriode)
+        refusjonService.gjørBeregning(refusjon)
         refusjonRepository.save(refusjon)
     }
 
@@ -143,6 +132,7 @@ data class InnloggetArbeidsgiver(
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
         refusjon.settFratrekkRefunderbarBeløp(fratrekkRefunderbarBeløp, refunderbarBeløp)
+        refusjonService.gjørBeregning(refusjon)
         refusjonRepository.save(refusjon)
     }
 

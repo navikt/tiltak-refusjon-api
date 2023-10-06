@@ -10,7 +10,8 @@ import org.springframework.transaction.event.TransactionalEventListener
 @Component
 class RefusjonGodkjentLytter(
     val refusjonRepository: RefusjonRepository,
-    val minusbelopRepository: MinusbelopRepository
+    val minusbelopRepository: MinusbelopRepository,
+    val refusjonService: RefusjonService
 ) {
     @TransactionalEventListener
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -26,5 +27,6 @@ class RefusjonGodkjentLytter(
                 minusbelopRepository.save(it)
             }
         }
+
     }
 }

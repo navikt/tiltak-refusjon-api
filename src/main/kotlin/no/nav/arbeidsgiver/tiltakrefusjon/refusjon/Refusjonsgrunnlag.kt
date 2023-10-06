@@ -37,8 +37,7 @@ class Refusjonsgrunnlag(
     fun oppgiInntektsgrunnlag(
         inntektsgrunnlag: Inntektsgrunnlag,
         gjeldendeInntektsgrunnlag: Inntektsgrunnlag?
-    ): Boolean {
-        val log = LoggerFactory.getLogger(javaClass)
+    ) {
         if (gjeldendeInntektsgrunnlag != null) {
             inntektsgrunnlag.inntekter.forEach { inntekt ->
                 val gjeldendeInntektslinje = finnInntektslinjeIListeMedInntekter(inntekt, gjeldendeInntektsgrunnlag.inntekter)
@@ -52,7 +51,6 @@ class Refusjonsgrunnlag(
             this.resetEndreBruttolønn()
         }
         this.inntektsgrunnlag = inntektsgrunnlag
-        return gjørBeregning()
     }
 
     fun finnInntektslinjeIListeMedInntekter(linje1: Inntektslinje, inntektslinjer: Set<Inntektslinje>): Inntektslinje? {
@@ -66,15 +64,13 @@ class Refusjonsgrunnlag(
         }
     }
 
-    fun oppgiForrigeRefusjonsbeløp(forrigeRefusjonMinusBeløp: Int): Boolean{
+    fun oppgiForrigeRefusjonsbeløp(forrigeRefusjonMinusBeløp: Int) {
         this.forrigeRefusjonMinusBeløp = forrigeRefusjonMinusBeløp
-        return gjørBeregning()
     }
 
-    fun oppgiBedriftKontonummer(bedriftKontonummer: String?): Boolean {
+    fun oppgiBedriftKontonummer(bedriftKontonummer: String?) {
         this.bedriftKontonummer = bedriftKontonummer
         this.bedriftKontonummerInnhentetTidspunkt = Now.localDateTime()
-        return gjørBeregning()
     }
 
     fun resetEndreBruttolønn() {
@@ -85,20 +81,12 @@ class Refusjonsgrunnlag(
         this.beregning = null
     }
 
-    fun endreBruttolønn(inntekterKunFraTiltaket: Boolean?, bruttoLønn: Int?): Boolean {
+    fun endreBruttolønn(inntekterKunFraTiltaket: Boolean?, bruttoLønn: Int?) {
         if (inntekterKunFraTiltaket != null && inntekterKunFraTiltaket == true && bruttoLønn != null) {
             throw FeilkodeException(Feilkode.INNTEKTER_KUN_FRA_TILTAK_OG_OPPGIR_BELØP)
         }
         this.inntekterKunFraTiltaket = inntekterKunFraTiltaket
         this.endretBruttoLønn = bruttoLønn
-        return gjørBeregning()
-    }
-
-    fun erAltOppgitt(): Boolean {
-        val inntektsgrunnlag = inntektsgrunnlag
-        if (inntektsgrunnlag == null || inntektsgrunnlag.inntekter.none { it.erMedIInntektsgrunnlag() }) return false
-        return bedriftKontonummer != null && (inntekterKunFraTiltaket == true && endretBruttoLønn == null ||
-                ((inntekterKunFraTiltaket == false || inntekterKunFraTiltaket == null) && endretBruttoLønn != null))
     }
 
     fun refusjonsgrunnlagetErPositivt(): Boolean {
@@ -109,24 +97,7 @@ class Refusjonsgrunnlag(
         return this.beregning?.refusjonsbeløp != null && this.beregning!!.refusjonsbeløp == 0
     }
 
-    private fun gjørBeregning(): Boolean {
-        if (erAltOppgitt()) {
-            this.beregning = beregnRefusjonsbeløp(
-                inntekter = inntektsgrunnlag!!.inntekter.toList(),
-                tilskuddsgrunnlag = tilskuddsgrunnlag,
-                tidligereUtbetalt = tidligereUtbetalt,
-                korrigertBruttoLønn = endretBruttoLønn,
-                fratrekkRefunderbarSum = refunderbarBeløp,
-                forrigeRefusjonMinusBeløp = forrigeRefusjonMinusBeløp,
-                tilskuddFom = tilskuddsgrunnlag.tilskuddFom,
-                sumUtbetaltVarig = sumUtbetaltVarig,
-                harFerietrekkForSammeMåned = harFerietrekkForSammeMåned)
-            return true
-        }
-        return false
-    }
-
-    fun setInntektslinjeTilOpptjentIPeriode(inntekslinjeId: String, erOpptjentIPeriode: Boolean): Boolean {
+    fun setInntektslinjeTilOpptjentIPeriode(inntekslinjeId: String, erOpptjentIPeriode: Boolean) {
         val inntektslinje = inntektsgrunnlag?.inntekter?.find { it.id == inntekslinjeId }
             ?: throw RuntimeException("Finner ikke inntektslinje med id=$inntekslinjeId for refusjongrunnlag=$id")
         if (!inntektslinje.erMedIInntektsgrunnlag()) {
@@ -146,18 +117,14 @@ class Refusjonsgrunnlag(
             endretBruttoLønn = null
             fratrekkRefunderbarBeløp = null
             inntekterKunFraTiltaket = null
-            return false
         }
-
-        return gjørBeregning()
     }
 
-    fun settFratrekkRefunderbarBeløp(fratrekkRefunderbarBeløp: Boolean, refunderbarBeløp: Int?): Boolean {
+    fun settFratrekkRefunderbarBeløp(fratrekkRefunderbarBeløp: Boolean, refunderbarBeløp: Int?) {
         if (!fratrekkRefunderbarBeløp && refunderbarBeløp != null) {
             throw FeilkodeException(Feilkode.INNTEKTER_KUN_FRA_TILTAK_OG_OPPGIR_BELØP)
         }
         this.fratrekkRefunderbarBeløp = fratrekkRefunderbarBeløp
         this.refunderbarBeløp = refunderbarBeløp
-        return gjørBeregning()
     }
 }

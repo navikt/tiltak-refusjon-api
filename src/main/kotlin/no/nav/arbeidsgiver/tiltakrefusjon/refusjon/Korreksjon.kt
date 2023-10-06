@@ -166,10 +166,7 @@ class Korreksjon(
 
     fun endreBruttolønn(inntekterKunFraTiltaket: Boolean?, endretBruttoLønn: Int?) {
         krevStatus(Korreksjonstype.UTKAST)
-        val harGjortBeregning = refusjonsgrunnlag.endreBruttolønn(inntekterKunFraTiltaket, endretBruttoLønn)
-        if (harGjortBeregning) {
-            registerEvent(KorreksjonBeregningUtført(this))
-        }
+        refusjonsgrunnlag.endreBruttolønn(inntekterKunFraTiltaket, endretBruttoLønn)
     }
 
     fun skalGjøreKontonummerOppslag(): Boolean {
@@ -186,33 +183,21 @@ class Korreksjon(
     }
 
     fun oppgiInntektsgrunnlag(inntektsgrunnlag: Inntektsgrunnlag) {
-        val harGjortBeregning = this.refusjonsgrunnlag.oppgiInntektsgrunnlag(inntektsgrunnlag, this.refusjonsgrunnlag.inntektsgrunnlag)
-        if (harGjortBeregning) {
-            registerEvent(KorreksjonBeregningUtført(this))
-        }
+        this.refusjonsgrunnlag.oppgiInntektsgrunnlag(inntektsgrunnlag, this.refusjonsgrunnlag.inntektsgrunnlag)
     }
 
     fun oppgiBedriftKontonummer(bedrifKontonummer: String) {
-        val harGjortBeregning = this.refusjonsgrunnlag.oppgiBedriftKontonummer(bedrifKontonummer)
-        if (harGjortBeregning) {
-            registerEvent(KorreksjonBeregningUtført(this))
-        }
+        this.refusjonsgrunnlag.oppgiBedriftKontonummer(bedrifKontonummer)
     }
 
     fun setInntektslinjeTilOpptjentIPeriode(inntekslinjeId: String, erOpptjentIPeriode: Boolean) {
         krevStatus(Korreksjonstype.UTKAST)
-        val harGjortBeregning = refusjonsgrunnlag.setInntektslinjeTilOpptjentIPeriode(inntekslinjeId, erOpptjentIPeriode)
-        if (harGjortBeregning) {
-            registerEvent(KorreksjonBeregningUtført(this))
-        }
+        refusjonsgrunnlag.setInntektslinjeTilOpptjentIPeriode(inntekslinjeId, erOpptjentIPeriode)
     }
 
     fun settFratrekkRefunderbarBeløp(fratrekkRefunderbarBeløp: Boolean, refunderbarBeløp: Int?) {
         krevStatus(Korreksjonstype.UTKAST)
-        val harGjortBeregning = refusjonsgrunnlag.settFratrekkRefunderbarBeløp(fratrekkRefunderbarBeløp, refunderbarBeløp)
-        if (harGjortBeregning) {
-            registerEvent(KorreksjonBeregningUtført(this))
-        }
+        refusjonsgrunnlag.settFratrekkRefunderbarBeløp(fratrekkRefunderbarBeløp, refunderbarBeløp)
     }
 
     fun utbetalingMislykket() {

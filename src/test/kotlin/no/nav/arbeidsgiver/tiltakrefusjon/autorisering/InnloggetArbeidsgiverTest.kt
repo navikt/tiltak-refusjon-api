@@ -317,13 +317,11 @@ internal class InnloggetArbeidsgiverTest(
         // Sett innhentede inntekter til opptjent i periode
         refusjon1FunnetViaFinnRefusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.forEach { it.erOpptjentIPeriode = true }
         assertThat(refusjon1FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(0)
-        println("Godkjenner nå refusjon ${refusjon1.id}")
         refusjonService.godkjennForArbeidsgiver(refusjon1FunnetViaFinnRefusjon,"999999999")
 
         // Skal ikke ha minus fra gammel refusjon, men få minus fra ferietrekk
         val refusjon2FunnetViaFinnRefusjon = innloggetArbeidsgiver.finnRefusjon(refusjon2.id)
         refusjon2FunnetViaFinnRefusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.forEach { it.erOpptjentIPeriode = true }
-        println("Godkjenner nå refusjon ${refusjon2.id}")
         refusjonService.godkjennForArbeidsgiver(refusjon2FunnetViaFinnRefusjon,"999999999")
 
         // Skal finne gammel minus, men ikke minus fra inntekt
@@ -331,7 +329,6 @@ internal class InnloggetArbeidsgiverTest(
         refusjon3FunnetViaFinnRefusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.forEach { it.erOpptjentIPeriode = true }
         assertThat(refusjon3FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(-3966)
         assertThat(refusjon3FunnetViaFinnRefusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp).isPositive()
-        println("Godkjenner nå refusjon ${refusjon3.id}")
         refusjonService.godkjennForArbeidsgiver(refusjon3FunnetViaFinnRefusjon,"999999999")
 
         // Minus skal nå være nullstillt
@@ -339,7 +336,6 @@ internal class InnloggetArbeidsgiverTest(
         refusjon4FunnetViaFinnRefusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.forEach { it.erOpptjentIPeriode = true }
         assertThat(refusjon4FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(0)
         assertThat(refusjon4FunnetViaFinnRefusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp).isPositive()
-        println("Godkjenner nå refusjon ${refusjon4.id}")
         refusjonService.godkjennForArbeidsgiver(refusjon4FunnetViaFinnRefusjon,"999999999")
     }
 

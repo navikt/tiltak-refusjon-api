@@ -93,26 +93,18 @@ class RefusjonService(
         val avtaleNr = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr
         val alleMinusbeløp = minusbelopRepository.findAllByAvtaleNr(avtaleNr = avtaleNr)
         if(!alleMinusbeløp.isNullOrEmpty()) {
-            alleMinusbeløp.forEach {
-                println("Minusbeløp ${it.beløp} ${it.gjortOpp}")
-            }
-            println("alle minusbeløp $alleMinusbeløp")
             val sumMinusbelop = alleMinusbeløp
                 .filter { !it.gjortOpp }
                 .map { minusbelop -> minusbelop.beløp}
                 .filterNotNull()
                 .reduceOrNull{sum, beløp -> sum + beløp}
             if (sumMinusbelop != null) {
-                println("Setter minusbeløp på ${refusjon.id}")
                 refusjon.refusjonsgrunnlag.oppgiForrigeRefusjonsbeløp(sumMinusbelop)
                 refusjonRepository.save(refusjon)
             } else {
-                println("Nullstiller minusbeløp på ${refusjon.id}")
                 refusjon.refusjonsgrunnlag.oppgiForrigeRefusjonsbeløp(0)
                 refusjonRepository.save(refusjon)
             }
-        } else {
-            println("Fant ingen minusbeløp på denne avtalen :/")
         }
     }
 
@@ -213,7 +205,6 @@ class RefusjonService(
             )
         alleRefusjonserSomSkalSendesInn.forEach {
             if(it.id != refusjon.id) {
-                println("Oppdaterer nå refusjon ${it.id} da den skal sendes in ${it.status}")
                 oppdaterRefusjon(it)
                 refusjonRepository.save(it)
             }
@@ -303,7 +294,6 @@ class RefusjonService(
 
         // Ikke sett minusbeløp på allerede sendt inn refusjoner
         if(refusjon.status == RefusjonStatus.KLAR_FOR_INNSENDING || refusjon.status == RefusjonStatus.FOR_TIDLIG) {
-            println("Prøver sette/resette minusbeløp fra gammel refusjon på ${refusjon.id}")
             settMinusBeløpFraTidligereRefusjonerTilknyttetAvtalen(refusjon)
         }
 

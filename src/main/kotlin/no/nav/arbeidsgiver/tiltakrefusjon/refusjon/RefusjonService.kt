@@ -199,8 +199,11 @@ class RefusjonService(
                 beløp = refusjon.refusjonsgrunnlag.beregning?.refusjonsbeløp,
                 løpenummer = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.løpenummer)
             refusjon.minusbelop = minusbelop
+            //refusjonRepository.saveAndFlush(refusjon)
+            //refusjonRepository.save(refusjon)
             log.info("Setter minusbeløp ${minusbelop.id} på refusjon ${refusjon.id}")
         }
+        refusjonRepository.save(refusjon)
         // Oppdater ikke innsendte refusjoner med data (f eks maksbløp, ferietrekk etc..)
         // Hvordan unngå at man finner denne refusjonen i spørringen? hmm.. Dette er litt rart rent transaksjonsmessig
         val alleRefusjonserSomSkalSendesInn =
@@ -216,7 +219,6 @@ class RefusjonService(
             }
         }
 
-        refusjonRepository.save(refusjon)
     }
 
     fun godkjennNullbeløpForArbeidsgiver(refusjon: Refusjon, utførtAv: String) {

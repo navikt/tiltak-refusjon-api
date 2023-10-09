@@ -287,13 +287,10 @@ class RefusjonService(
     }
 
     fun oppdaterRefusjon(refusjon: Refusjon) {
-
         // Ikke sett minusbeløp på allerede sendt inn refusjoner
         if(refusjon.status == RefusjonStatus.KLAR_FOR_INNSENDING || refusjon.status == RefusjonStatus.FOR_TIDLIG) {
             settMinusBeløpFraTidligereRefusjonerTilknyttetAvtalen(refusjon)
         }
-
-
         settTotalBeløpUtbetalteVarigLønnstilskudd(refusjon)
         settOmFerieErTrukketForSammeMåned(refusjon)
         gjørBeregning(refusjon)
@@ -325,7 +322,6 @@ class RefusjonService(
 
     fun endreBruttolønn(refusjon: Refusjon, inntekterKunFraTiltaket: Boolean?, bruttoLønn: Int?) {
         refusjon.endreBruttolønn(inntekterKunFraTiltaket, bruttoLønn)
-        gjørBeregning(refusjon)
         refusjonRepository.save(refusjon)
     }
 

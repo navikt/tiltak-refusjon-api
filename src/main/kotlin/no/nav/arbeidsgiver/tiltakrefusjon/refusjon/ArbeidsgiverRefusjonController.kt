@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page
 import org.springframework.http.*
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
+import java.time.Instant
 
 
 const val REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON = "/api/arbeidsgiver/refusjon"
@@ -40,11 +41,10 @@ class ArbeidsgiverRefusjonController(
     }
 
     @GetMapping("/{id}/pdf")
-    @Transactional
     fun hentPDF(@PathVariable id:String): HttpEntity<ByteArray>{
         if(id.trim().isEmpty()) return HttpEntity.EMPTY as HttpEntity<ByteArray>
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-        val refusjon = arbeidsgiver.finnRefusjon(id)
+        val refusjon = arbeidsgiver.finnRefusjonImmutable(id)
         val pdfDataAsByteArray: ByteArray = dokgenService.refusjonPdf(refusjon)
 
         val header = HttpHeaders()
@@ -78,9 +78,9 @@ class ArbeidsgiverRefusjonController(
 
     @GetMapping("/{id}")
     @Transactional
-    fun hent(@PathVariable id: String): Refusjon? {
+    fun hent(@PathVariable id: String, @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant): Refusjon? {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-        return arbeidsgiver.finnRefusjon(id)
+        return arbeidsgiver.finnRefusjon(id, sistEndret)
     }
 
     @PostMapping("/{id}/endre-bruttolønn")

@@ -13,6 +13,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.audit.AuditConsoleLogger
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.REQUEST_MAPPING_INNLOGGET_ARBEIDSGIVER
 import no.nav.arbeidsgiver.tiltakrefusjon.hendelseslogg.HendelsesloggRepository
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjoner
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.varsling.VarslingRepository
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
@@ -336,6 +337,7 @@ class RefusjonApiTest(
             request
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
+                .header("If-Unmodified-Since", Now.instant())
                 .cookie(cookie)
         )
             .andExpect(status)
@@ -348,6 +350,7 @@ class RefusjonApiTest(
             request
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
+                .header("If-Unmodified-Since", Now.instant())
                 .cookie(cookie)
         )
             .andExpect(forventetStatus)

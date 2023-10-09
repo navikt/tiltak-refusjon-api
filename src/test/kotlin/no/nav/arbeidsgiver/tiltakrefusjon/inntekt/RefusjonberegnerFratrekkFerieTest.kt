@@ -94,6 +94,7 @@ class RefusjonberegnerFratrekkFerieTest(
         // Bekreft at alle inntektene kun er fra tiltaket
         //refusjonService.oppdaterRefusjon(refusjon)
         refusjonService.endreBruttolønn(refusjon, true, null)
+        refusjonService.gjørBeregning(refusjon);
         return refusjon;
     }
 

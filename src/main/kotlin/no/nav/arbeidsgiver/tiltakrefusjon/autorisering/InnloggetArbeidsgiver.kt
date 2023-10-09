@@ -15,6 +15,7 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
+import java.time.Instant
 
 data class InnloggetArbeidsgiver(
     val identifikator: String,
@@ -84,7 +85,13 @@ data class InnloggetArbeidsgiver(
         refusjonService.godkjennNullbeløpForArbeidsgiver(refusjon, this.identifikator)
     }
 
-    fun finnRefusjon(id: String): Refusjon {
+    fun finnRefusjonImmutable(id: String): Refusjon {
+        val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
+        sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
+        return refusjon
+    }
+
+    fun finnRefusjon(id: String, sistEndret: Instant? = null): Refusjon {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
 
@@ -114,6 +121,8 @@ data class InnloggetArbeidsgiver(
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
         refusjonService.endreBruttolønn(refusjon, inntekterKunFraTiltaket, bruttoLønn)
+        refusjonService.gjørBeregning(refusjon)
+        refusjonRepository.save(refusjon)
     }
 
     fun lagreBedriftKID(id: String, bedriftKID: String?){

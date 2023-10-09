@@ -6,6 +6,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
 import no.nav.arbeidsgiver.tiltakrefusjon.organisasjon.EregClient
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.antallMånederEtter
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -85,9 +86,11 @@ data class InnloggetArbeidsgiver(
 
     fun finnRefusjon(id: String): Refusjon {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
-
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
 
+        if(refusjon.åpnetFørsteGang == null) {
+            refusjon.åpnetFørsteGang = Now.instant()
+        }
         refusjonService.gjørBedriftKontonummeroppslag(refusjon)
         refusjonService.gjørInntektsoppslag(refusjon)
 

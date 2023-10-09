@@ -111,6 +111,8 @@ class RefusjonService(
                 refusjon.refusjonsgrunnlag.oppgiForrigeRefusjonsbeløp(0)
                 refusjonRepository.save(refusjon)
             }
+        } else {
+            println("Fant ingen minusbeløp på denne avtalen :/")
         }
     }
 
@@ -181,28 +183,23 @@ class RefusjonService(
         }
         sjekkForTrukketFerietrekkForSammeMåned(refusjon)
         refusjon.godkjennForArbeidsgiver(utførtAv)
-        if(refusjon.status == RefusjonStatus.GODKJENT_MINUSBELØP) {
-            alleMinusBeløp.forEach {
-                if (!it.gjortOpp) {
-                    it.gjortOpp = true
-                    it.gjortOppAvRefusjonId = refusjon.id
-                    minusbelopRepository.save(it)
-                }
+
+        // Gjør opp alle eventuelle minusbeløp
+        alleMinusBeløp.forEach {
+            if (!it.gjortOpp) {
+                it.gjortOpp = true
+                it.gjortOppAvRefusjonId = refusjon.id
+                minusbelopRepository.save(it)
             }
+        }
+        // Lag en nytt minusbeløp om refusjonen er i minus
+        if(refusjon.status == RefusjonStatus.GODKJENT_MINUSBELØP) {
             val minusbelop = Minusbelop (
                 avtaleNr = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr,
                 beløp = refusjon.refusjonsgrunnlag.beregning?.refusjonsbeløp,
                 løpenummer = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.løpenummer)
             refusjon.minusbelop = minusbelop
             log.info("Setter minusbeløp ${minusbelop.id} på refusjon ${refusjon.id}")
-        } else {
-            alleMinusBeløp.forEach {
-                if (!it.gjortOpp) {
-                    it.gjortOpp = true
-                    it.gjortOppAvRefusjonId = refusjon.id
-                    minusbelopRepository.save(it)
-                }
-            }
         }
         // Oppdater ikke innsendte refusjoner med data (f eks maksbløp, ferietrekk etc..)
         // Hvordan unngå at man finner denne refusjonen i spørringen? hmm.. Dette er litt rart rent transaksjonsmessig
@@ -308,9 +305,7 @@ class RefusjonService(
             settMinusBeløpFraTidligereRefusjonerTilknyttetAvtalen(refusjon)
         }
 
-        //if(refusjon.åpnetFørsteGang == null) {
-        //    refusjon.åpnetFørsteGang = Now.instant()
-        //}
+
         settTotalBeløpUtbetalteVarigLønnstilskudd(refusjon)
         settOmFerieErTrukketForSammeMåned(refusjon)
         gjørBeregning(refusjon)

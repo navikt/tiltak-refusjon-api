@@ -3,7 +3,6 @@ package no.nav.arbeidsgiver.tiltakrefusjon.autorisering
 import com.ninjasquad.springmockk.MockkBean
 import com.ninjasquad.springmockk.SpykBean
 import io.mockk.every
-import jakarta.transaction.Transactional
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService

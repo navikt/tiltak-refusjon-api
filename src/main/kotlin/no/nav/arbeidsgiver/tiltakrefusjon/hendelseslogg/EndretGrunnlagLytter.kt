@@ -44,7 +44,7 @@ class EndretGrunnlagLytter(
             refusjonId = event.refusjonId,
             korreksjonId = null,
             utførtAv = event.utførtAv,
-            event = event.javaClass.simpleName,
+            event = event.varselType.name,
         )
         hendelsesloggRepository.save(hendelse)
     }

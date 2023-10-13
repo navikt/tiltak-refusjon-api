@@ -19,6 +19,6 @@ data class Varsling(
     @Id
     val id: String = ulid()
     init {
-        registerEvent(SendtVarsel(this.refusjonId))
+        registerEvent(SendtVarsel(this.refusjonId, this.varselType))
     }
 }

@@ -15,6 +15,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
+import java.time.Instant
 import java.time.YearMonth
 
 @Service
@@ -245,7 +246,6 @@ class RefusjonService(
             return
         }
         refusjon.oppgiBedriftKontonummer(kontoregisterService.hentBankkontonummer(refusjon.bedriftNr))
-
         refusjonRepository.save(refusjon)
     }
 
@@ -294,6 +294,11 @@ class RefusjonService(
         settTotalBeløpUtbetalteVarigLønnstilskudd(refusjon)
         settOmFerieErTrukketForSammeMåned(refusjon)
         gjørBeregning(refusjon)
+    }
+
+    fun oppdaterSistEndret(refusjon: Refusjon) {
+        refusjon.sistEndret = Instant.now()
+        refusjonRepository.save(refusjon)
     }
 
     fun gjørBeregning(refusjon: Refusjon) {

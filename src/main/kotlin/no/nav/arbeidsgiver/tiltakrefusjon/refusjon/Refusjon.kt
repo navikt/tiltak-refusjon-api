@@ -60,6 +60,7 @@ class Refusjon(
     var åpnetFørsteGang: Instant? = null
     @OneToOne(orphanRemoval = true, cascade = [CascadeType.ALL])
     var minusbelop: Minusbelop? = null
+    var sistEndret: Instant? = null
     init {
         oppdaterStatus()
     }

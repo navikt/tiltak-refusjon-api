@@ -77,20 +77,40 @@ class ArbeidsgiverRefusjonController(
     }
 
     @GetMapping("/{id}")
-    @Transactional
-    fun hent(@PathVariable id: String, @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant): Refusjon? {
+    fun hent(@PathVariable id: String): Refusjon? {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-        return arbeidsgiver.finnRefusjon(id, sistEndret)
+        return arbeidsgiver.finnRefusjon(id)
+    }
+
+    @PostMapping("{id}/oppdater-refusjon")
+    fun oppdaterRefusjon(@PathVariable id: String, @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant?): Refusjon? {
+        val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
+        return arbeidsgiver.oppdaterRefusjon(id, sistEndret);
+    }
+
+    @PostMapping("/{id}/finn-inntekter")
+    @Transactional
+    fun finnInntekter(@PathVariable id: String, @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant): Refusjon? {
+        val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
+        return arbeidsgiver.finnInntekter(id, sistEndret)
+    }
+
+    @PostMapping("/{id}/finn-bedriftkontonummer")
+    @Transactional
+    fun finnBedriftkontonummer(@PathVariable id: String, @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant): Refusjon? {
+        val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
+        return arbeidsgiver.finnBedriftkontonummer(id, sistEndret)
     }
 
     @PostMapping("/{id}/endre-bruttolønn")
     @Transactional
-    fun endreBruttolønn(@PathVariable id: String, @RequestBody request: EndreBruttolønnRequest) {
+    fun endreBruttolønn(@PathVariable id: String, @RequestBody request: EndreBruttolønnRequest, @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
          arbeidsgiver.endreBruttolønn(
             id,
             request.inntekterKunFraTiltaket,
-            request.bruttoLønn
+            request.bruttoLønn,
+            sistEndret
         )
     }
 
@@ -102,9 +122,9 @@ class ArbeidsgiverRefusjonController(
 
     @PostMapping("/{id}/fratrekk-sykepenger")
     @Transactional
-    fun fratrekkSykepenger(@PathVariable id: String, @RequestBody request: FratrekkRefunderbarBeløp) {
+    fun fratrekkSykepenger(@PathVariable id: String, @RequestBody request: FratrekkRefunderbarBeløp, @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-        arbeidsgiver.settFratrekkRefunderbarBeløp(id, request.fratrekkRefunderbarBeløp, request.refunderbarBeløp)
+        arbeidsgiver.settFratrekkRefunderbarBeløp(id, request.fratrekkRefunderbarBeløp, request.refunderbarBeløp, sistEndret)
     }
 
     @PostMapping("/{id}/utsett-frist")
@@ -116,12 +136,13 @@ class ArbeidsgiverRefusjonController(
 
     @PostMapping("/{id}/set-inntektslinje-opptjent-i-periode")
     @Transactional
-    fun endreRefundertInntekslinje(@PathVariable id: String, @RequestBody request: EndreRefundertInntektslinjeRequest) {
+    fun endreRefundertInntekslinje(@PathVariable id: String, @RequestBody request: EndreRefundertInntektslinjeRequest, @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
         arbeidsgiver.setInntektslinjeTilOpptjentIPeriode(
             refusjonId = id,
             inntekslinjeId = request.inntektslinjeId,
-            erOpptjentIPeriode = request.erOpptjentIPeriode
+            erOpptjentIPeriode = request.erOpptjentIPeriode,
+            sistEndret
         )
     }
 

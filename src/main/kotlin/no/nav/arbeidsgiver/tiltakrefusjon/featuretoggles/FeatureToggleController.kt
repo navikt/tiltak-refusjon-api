@@ -18,8 +18,7 @@ class FeatureToggleController @Autowired constructor(
     private val innloggetBrukerService: InnloggetBrukerService) {
     @GetMapping
     fun feature(@RequestParam("feature") features: List<String?>): Map<String?, Boolean?>? {
-//        return featureToggleService.hentFeatureToggles(features, innloggetBrukerService.hentInnloggetSaksbehandler())
-        return emptyMap()
+        return featureToggleService.hentFeatureToggles(features, innloggetBrukerService.hentInnloggetSaksbehandler())
     }
 
     @GetMapping("/variant")

@@ -170,7 +170,7 @@ class Refusjon(
             status = RefusjonStatus.GODKJENT_MINUSBELØP
             registerEvent(RefusjonGodkjentMinusBeløp(this, utførtAv))
         } else {
-            registerEvent(GodkjentAvArbeidsgiver(this, utførtAv))
+            registerEvent(GodkjentAvArbeidsgiver(this, "Arbeidsgiver"))
         }
 
         registerEvent(RefusjonEndretStatus(this))

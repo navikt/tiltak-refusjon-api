@@ -76,15 +76,17 @@ data class InnloggetArbeidsgiver(
         return getQueryMethodForFinnAlleForGittArbeidsgiver(finnAlleUnderenheterTilArbeidsgiver(), status, tiltakstype, sortingOrder, page, size)
     }
 
-    fun godkjenn(refusjonId: String) {
+    fun godkjenn(refusjonId: String, sistEndret: Instant?) {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(refusjonId) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
+        sjekkSistEndret(refusjon, sistEndret)
         refusjonService.godkjennForArbeidsgiver(refusjon, this.identifikator)
     }
 
-    fun godkjennNullbeløp(refusjonId: String) {
+    fun godkjennNullbeløp(refusjonId: String, sistEndret: Instant?) {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(refusjonId) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
+        sjekkSistEndret(refusjon, sistEndret)
         refusjonService.godkjennNullbeløpForArbeidsgiver(refusjon, this.identifikator)
     }
 

@@ -115,6 +115,7 @@ class ArbeidsgiverRefusjonController(
     }
 
     @PostMapping("/{id}/lagre-bedriftKID")
+    @Transactional
     fun lagreBedriftKID(@PathVariable id: String, @RequestBody request: EndreBedriftKIDRequest ) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
         arbeidsgiver.lagreBedriftKID(id, request.bedriftKID)
@@ -148,16 +149,16 @@ class ArbeidsgiverRefusjonController(
 
     @PostMapping("/{id}/godkjenn")
     @Transactional
-    fun godkjenn(@PathVariable id: String) {
+    fun godkjenn(@PathVariable id: String, @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-        arbeidsgiver.godkjenn(id)
+        arbeidsgiver.godkjenn(id, sistEndret)
     }
 
     @PostMapping("/{id}/godkjenn-nullbeløp")
     @Transactional
-    fun godkjennNullbeløp(@PathVariable id: String) {
+    fun godkjennNullbeløp(@PathVariable id: String, @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-        arbeidsgiver.godkjennNullbeløp(id)
+        arbeidsgiver.godkjennNullbeløp(id, sistEndret)
     }
 
     @PostMapping("/{id}/merk-for-hent-inntekter-frem")

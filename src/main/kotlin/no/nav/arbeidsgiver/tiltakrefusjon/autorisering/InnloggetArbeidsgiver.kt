@@ -210,8 +210,6 @@ data class InnloggetArbeidsgiver(
     private fun sjekkSistEndret(refusjon: Refusjon, sistEndret: Instant?) {
         if ( refusjon.sistEndret != null && sistEndret != null) {
             if (sistEndret.truncatedTo(ChronoUnit.MILLIS).isBefore(refusjon.sistEndret!!.truncatedTo(ChronoUnit.MILLIS))) {
-                println("OH NOES")
-                println("Sistendret ${sistEndret.truncatedTo(ChronoUnit.MILLIS)} er før ${refusjon.sistEndret}")
                 throw FeilkodeException(Feilkode.SAMTIDIGE_ENDRINGER);
             }
         }

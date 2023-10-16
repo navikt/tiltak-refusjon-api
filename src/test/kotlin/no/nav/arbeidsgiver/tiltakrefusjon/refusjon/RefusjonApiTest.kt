@@ -40,6 +40,7 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse.BodyHandlers
 import java.nio.charset.StandardCharsets
+import java.time.LocalDate
 
 data class InnloggetBrukerTest(val identifikator: String, val organisasjoner: Set<Organisasjon>)
 data class RefusjonlistFraFlereOrgTest(
@@ -260,7 +261,8 @@ class RefusjonApiTest(
         val id = refusjonRepository.findAll().find { it.deltakerFnr == "28128521498" }?.id
 
         // Inntektsoppslag ved henting av refusjon
-        val refusjonEtterInntektsgrunnlag = hentRefusjon(id)
+        hentRefusjon(id)
+        val refusjonEtterInntektsgrunnlag = oppdaterRefusjonMedKontonrOgInntekter(id!!)
         assertThat(refusjonEtterInntektsgrunnlag.refusjonsgrunnlag.inntektsgrunnlag).isNotNull()
 
 
@@ -300,6 +302,7 @@ class RefusjonApiTest(
             post("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id/godkjenn")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
+                .header("If-Unmodified-Since", Now.instant())
                 .cookie(arbGiverCookie)
         )
             .andExpect(status().isBadRequest)
@@ -316,6 +319,11 @@ class RefusjonApiTest(
 
     private fun hentRefusjon(id: String?): Refusjon {
         val json = sendRequest(get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id"), arbGiverCookie)
+        return mapper.readValue(json, Refusjon::class.java)
+    }
+
+    private fun oppdaterRefusjonMedKontonrOgInntekter(id: String): Refusjon {
+        val json = sendRequest(post("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id/oppdater-refusjon"), arbGiverCookie)
         return mapper.readValue(json, Refusjon::class.java)
     }
 

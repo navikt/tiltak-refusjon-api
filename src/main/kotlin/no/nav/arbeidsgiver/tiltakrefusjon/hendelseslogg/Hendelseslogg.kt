@@ -1,5 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.hendelseslogg
 
+import jakarta.persistence.Convert
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
@@ -13,6 +14,8 @@ class Hendelseslogg(
     val korreksjonId: String?,
     val utførtAv: String,
     val event: String,
+    @Convert(converter = JpaConverterMetadata::class)
+    val metadata: HendelseMetadata? = null,
 ) {
     @Id
     val id: String = ulid()

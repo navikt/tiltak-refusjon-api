@@ -339,12 +339,13 @@ fun opprettKorreksjonsutkast(korreksjonsgrunner: Set<Korreksjonsgrunn>, unntakOm
         return id.hashCode()
     }
 
-    fun merkForUnntakOmInntekterToMånederFrem(merking: Int) {
+    fun merkForUnntakOmInntekterToMånederFrem(merking: Int, utførtAv: String) {
         krevStatus(RefusjonStatus.FOR_TIDLIG, RefusjonStatus.KLAR_FOR_INNSENDING)
         if(merking == 1 && hentInntekterLengerFrem != null) {
             throw FeilkodeException(Feilkode.HAR_ALLERDE_UNNTAK_OM_INNTEKTER_1_MND_FREM)
         }
         unntakOmInntekterFremitid = merking
+        registerEvent(SaksbehandlerMerketForInntekterLengerFrem(this, merking, utførtAv))
     }
 
     fun merkForHentInntekterFrem(merking: Boolean, utførtAv: String) {

@@ -14,11 +14,11 @@ import java.time.LocalDate
 
 @Component
 @EnableScheduling
-@ConditionalOnProperty("tiltak-refusjon.kafka.enabled")
+//@ConditionalOnProperty("tiltak-refusjon.kafka.enabled")
 class VarslingJobb(
     val refusjonRepository: RefusjonRepository,
     val varslingRepository: VarslingRepository,
-    val refusjonVarselProducer: RefusjonVarselProducer,
+//    val refusjonVarselProducer: RefusjonVarselProducer,
     val leaderPodCheck: LeaderPodCheck,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -39,9 +39,11 @@ class VarslingJobb(
             val finnesIngenRevarslerForRefusjon = varslerForRefusjon.none { it.varselType === VarselType.REVARSEL }
             val finnesIngenFerskVarsling = dagerSidenForrigeVarsel(varslerForRefusjon) > 3
 
-            if (kortTidTilRefusjonenGårUt && finnesIngenRevarslerForRefusjon && finnesIngenFerskVarsling) {
-                refusjonVarselProducer.sendVarsel(VarselType.REVARSEL, refusjon.id, refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId, refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleId, refusjon.fristForGodkjenning)
-            }
+//            if (kortTidTilRefusjonenGårUt && finnesIngenRevarslerForRefusjon && finnesIngenFerskVarsling) {
+                //refusjonVarselProducer.sendVarsel(VarselType.REVARSEL, refusjon.id, refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId, refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleId, refusjon.fristForGodkjenning)
+                val varsling = Varsling(refusjon.id, VarselType.REVARSEL, Now.localDateTime())
+                varslingRepository.save(varsling)
+//            }
         }
     }
 
@@ -61,12 +63,15 @@ class VarslingJobb(
             val varslerForRefusjon = varslingRepository.findAllByRefusjonId(refusjon.id)
 
             if (varslerForRefusjon.none { it.varselType === VarselType.KLAR} && forrigeMåned.equals(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom.month)) {
-                refusjonVarselProducer.sendVarsel(VarselType.KLAR, refusjon.id, refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId, refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleId, refusjon.fristForGodkjenning)
+//                refusjonVarselProducer.sendVarsel(VarselType.KLAR, refusjon.id, refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId, refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleId, refusjon.fristForGodkjenning)
+                val varsling = Varsling(refusjon.id, VarselType.KLAR, Now.localDateTime())
+                varslingRepository.save(varsling)
                 antallSendteVarsler++
                 continue;
             }
         }
         logger.info("Cron jobb ferdig kjørt. Sendt ${antallSendteVarsler} varsler")
+
     }
 
     fun dagerSidenForrigeVarsel(varslinger: List<Varsling>): Long {

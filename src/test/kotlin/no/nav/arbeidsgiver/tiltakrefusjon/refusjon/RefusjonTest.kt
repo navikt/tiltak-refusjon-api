@@ -371,7 +371,7 @@ internal class RefusjonTest {
     @Test
     internal fun `merk refusjon for henting av inntekt frem skal ikke gå når den allerde er merket med unntak om 2 måneder av saksbehandler`() {
         val refusjon = enRefusjon().medInntektsgrunnlag().medBedriftKontonummer()
-        refusjon.merkForUnntakOmInntekterToMånederFrem(2)
+        refusjon.merkForUnntakOmInntekterToMånederFrem(2, "X123456")
         assertFeilkode(Feilkode.HAR_ALLERDE_UNNTAK_OM_INNTEKTER_2_MND_FREM) { refusjon.merkForHentInntekterFrem(true, "") }
     }
 

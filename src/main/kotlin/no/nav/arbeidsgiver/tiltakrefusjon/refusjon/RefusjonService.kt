@@ -7,6 +7,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
 import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.BeregningUtført
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.KorreksjonBeregningUtført
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.MidlerFrigjortÅrsak
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeAnnullertMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeForkortetMelding
@@ -302,7 +303,7 @@ class RefusjonService(
     }
 
     fun gjørBeregning(refusjon: Refusjon) {
-        if (erAltOppgitt(refusjon)) {
+        if (erAltOppgitt(refusjon.refusjonsgrunnlag)) {
             val beregning = beregnRefusjonsbeløp(
                 inntekter = refusjon.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
                 tilskuddsgrunnlag = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag,
@@ -318,11 +319,28 @@ class RefusjonService(
         }
     }
 
-    private fun erAltOppgitt(refusjon: Refusjon): Boolean {
-        val inntektsgrunnlag = refusjon.refusjonsgrunnlag.inntektsgrunnlag
+    fun gjørKorreksjonBeregning(korreksjon: Korreksjon) {
+        if(erAltOppgitt(korreksjon.refusjonsgrunnlag)) {
+            val beregning = beregnRefusjonsbeløp(
+                inntekter = korreksjon.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
+                tilskuddsgrunnlag = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag,
+                tidligereUtbetalt = korreksjon.refusjonsgrunnlag.tidligereUtbetalt,
+                korrigertBruttoLønn = korreksjon.refusjonsgrunnlag.endretBruttoLønn,
+                fratrekkRefunderbarSum = korreksjon.refusjonsgrunnlag.refunderbarBeløp,
+                forrigeRefusjonMinusBeløp = korreksjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
+                tilskuddFom = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
+                sumUtbetaltVarig = korreksjon.refusjonsgrunnlag.sumUtbetaltVarig,
+                harFerietrekkForSammeMåned = korreksjon.refusjonsgrunnlag.harFerietrekkForSammeMåned)
+            korreksjon.refusjonsgrunnlag.beregning = beregning
+            applicationEventPublisher.publishEvent(KorreksjonBeregningUtført(korreksjon))
+        }
+    }
+
+    private fun erAltOppgitt(refusjonsgrunnlag: Refusjonsgrunnlag): Boolean {
+        val inntektsgrunnlag = refusjonsgrunnlag.inntektsgrunnlag
         if (inntektsgrunnlag == null || inntektsgrunnlag.inntekter.none { it.erMedIInntektsgrunnlag() }) return false
-        return refusjon.refusjonsgrunnlag.bedriftKontonummer != null && (refusjon.refusjonsgrunnlag.inntekterKunFraTiltaket == true && refusjon.refusjonsgrunnlag.endretBruttoLønn == null ||
-                ((refusjon.refusjonsgrunnlag.inntekterKunFraTiltaket == false || refusjon.refusjonsgrunnlag.inntekterKunFraTiltaket == null) && refusjon.refusjonsgrunnlag.endretBruttoLønn != null))
+        return refusjonsgrunnlag.bedriftKontonummer != null && (refusjonsgrunnlag.inntekterKunFraTiltaket == true && refusjonsgrunnlag.endretBruttoLønn == null ||
+                ((refusjonsgrunnlag.inntekterKunFraTiltaket == false || refusjonsgrunnlag.inntekterKunFraTiltaket == null) && refusjonsgrunnlag.endretBruttoLønn != null))
     }
 
     fun endreBruttolønn(refusjon: Refusjon, inntekterKunFraTiltaket: Boolean?, bruttoLønn: Int?) {

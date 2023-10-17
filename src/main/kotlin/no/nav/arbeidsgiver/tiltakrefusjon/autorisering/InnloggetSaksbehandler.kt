@@ -208,6 +208,7 @@ data class InnloggetSaksbehandler(
         val korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(korreksjon)
         korreksjon.endreBruttolønn(inntekterKunFraTiltaket, endretBruttoLønn)
+        refusjonService.gjørKorreksjonBeregning(korreksjon)
         korreksjonRepository.save(korreksjon)
     }
 
@@ -229,6 +230,7 @@ data class InnloggetSaksbehandler(
         val korreksjon = korreksjonRepository.findByIdOrNull(korreksjonId) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(korreksjon)
         korreksjon.setInntektslinjeTilOpptjentIPeriode(inntekslinjeId, erOpptjentIPeriode)
+        refusjonService.gjørKorreksjonBeregning(korreksjon)
         korreksjonRepository.save(korreksjon)
     }
 
@@ -236,6 +238,7 @@ data class InnloggetSaksbehandler(
         val korreksjon: Korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(korreksjon)
         korreksjon.settFratrekkRefunderbarBeløp(fratrekkRefunderbarBeløp, refunderbarBeløp)
+        refusjonService.gjørKorreksjonBeregning(korreksjon)
         korreksjonRepository.save(korreksjon)
     }
 

@@ -4,9 +4,12 @@ import no.nav.arbeidsgiver.tiltakrefusjon.ReberegnRequest
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBrukerService
 import no.nav.arbeidsgiver.tiltakrefusjon.hendelseslogg.Hendelseslogg
 import no.nav.arbeidsgiver.tiltakrefusjon.hendelseslogg.HendelsesloggRepository
+import no.nav.arbeidsgiver.tiltakrefusjon.leader.LeaderPodCheck
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.ForlengFristRequest
+import no.nav.arbeidsgiver.tiltakrefusjon.varsling.VarslingJobb
+import no.nav.arbeidsgiver.tiltakrefusjon.varsling.VarslingRepository
 import no.nav.security.token.support.core.api.ProtectedWithClaims
-import org.codehaus.plexus.util.StringUtils
+import no.nav.security.token.support.core.api.Unprotected
 import org.springframework.web.bind.annotation.*
 
 const val REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON = "/api/saksbehandler/refusjon"
@@ -30,7 +33,10 @@ data class MerkForUnntakOmInntekterToMånederFremRequest(val merking: Int)
 @ProtectedWithClaims(issuer = "aad")
 class SaksbehandlerRefusjonController(
     val innloggetBrukerService: InnloggetBrukerService,
-    val hendelsesloggRepository: HendelsesloggRepository
+    val hendelsesloggRepository: HendelsesloggRepository,
+    private val refusjonRepository: RefusjonRepository,
+    private val varslingRepository: VarslingRepository,
+    private val leaderPodCheck: LeaderPodCheck
 ) {
     @GetMapping
     fun hentAlle(queryParametre: HentSaksbehandlerRefusjonerQueryParametre): Map<String, Any> {
@@ -46,10 +52,8 @@ class SaksbehandlerRefusjonController(
 
     @GetMapping("/{id}/hendelselogg")
     fun hentHendelselogg(@PathVariable id: String): List<Hendelseslogg> {
-        println("hej")
-        val test = hendelsesloggRepository.findAll().filter { it.refusjonId == id }
-        print(test)
-        return test
+        val hendelser = hendelsesloggRepository.findAll().filter { it.refusjonId == id }
+        return hendelser
 
     }
 

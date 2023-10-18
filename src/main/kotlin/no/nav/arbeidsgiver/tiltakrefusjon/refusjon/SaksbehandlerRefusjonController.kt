@@ -66,7 +66,7 @@ class SaksbehandlerRefusjonController(
     @PostMapping("/{id}/merk-for-unntak-om-inntekter-to-mnd-frem")
     fun merkForUnntakOmInntekterToMånederFrem(@PathVariable id: String, @RequestBody request: MerkForUnntakOmInntekterToMånederFremRequest) {
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
-        saksbehandler.merkForUnntakOmInntekterToMånederFrem(id, request.merking, saksbehandler.identifikator)
+        saksbehandler.merkForUnntakOmInntekterToMånederFrem(id, request.merking)
     }
 
     @PostMapping("reberegn-dry/{id}")

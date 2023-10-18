@@ -1,6 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.*
+import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBruker
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.ulid
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Disabled
@@ -8,6 +9,13 @@ import org.junit.jupiter.api.Test
 import java.time.YearMonth
 
 class KorreksjonTest {
+    val testbruker = object : InnloggetBruker {
+        override val identifikator: String
+            get() = "12345678910"
+        override val rolle: BrukerRolle
+            get() = BrukerRolle.BESLUTTER
+    }
+
     @Test
     internal fun `kan utbetale når alt er fylt ut`() {
         val tilskuddsgrunnlag = etTilskuddsgrunnlag()
@@ -25,6 +33,7 @@ class KorreksjonTest {
             annenGrunn = null
         )
         korreksjon.oppgiInntektsgrunnlag(
+            testbruker,
             etInntektsgrunnlag(
                 måned = YearMonth.of(
                     tilskuddsgrunnlag.tilskuddFom.year,
@@ -32,8 +41,8 @@ class KorreksjonTest {
                 )
             )
         )
-        korreksjon.oppgiBedriftKontonummer("99999999999")
-        korreksjon.utbetalKorreksjon("", "X123456", "1000")
+        korreksjon.oppgiBedriftKontonummer(testbruker, "99999999999")
+        korreksjon.utbetalKorreksjon(testbruker, "1000")
         assertThat(korreksjon.status).isEqualTo(Korreksjonstype.TILLEGSUTBETALING)
     }
 
@@ -54,6 +63,7 @@ class KorreksjonTest {
             annenGrunn = null
         )
         korreksjon.oppgiInntektsgrunnlag(
+            testbruker,
             etInntektsgrunnlag(
                 måned = YearMonth.of(
                     tilskuddsgrunnlag.tilskuddFom.year,
@@ -61,8 +71,8 @@ class KorreksjonTest {
                 )
             )
         )
-        korreksjon.oppgiBedriftKontonummer("99999999999")
-        assertFeilkode(Feilkode.KOSTNADSSTED_MANGLER) { korreksjon.utbetalKorreksjon("", "X123456", "") }
+        korreksjon.oppgiBedriftKontonummer(testbruker, "99999999999")
+        assertFeilkode(Feilkode.KOSTNADSSTED_MANGLER) { korreksjon.utbetalKorreksjon(testbruker, "") }
     }
 
     @Disabled("Sperrer ikke for dette pt")
@@ -83,6 +93,7 @@ class KorreksjonTest {
             annenGrunn = null
         )
         korreksjon.oppgiInntektsgrunnlag(
+            testbruker,
             etInntektsgrunnlag(
                 måned = YearMonth.of(
                     tilskuddsgrunnlag.tilskuddFom.year,
@@ -90,8 +101,10 @@ class KorreksjonTest {
                 )
             )
         )
-        korreksjon.oppgiBedriftKontonummer("99999999999")
-        assertFeilkode(Feilkode.KORREKSJON_KOSTNADSSTED_ANNET_FYLKE) { korreksjon.utbetalKorreksjon("", "X123456", "2009") }
+        korreksjon.oppgiBedriftKontonummer(testbruker, "99999999999")
+        assertFeilkode(Feilkode.KORREKSJON_KOSTNADSSTED_ANNET_FYLKE) {
+            korreksjon.utbetalKorreksjon(testbruker, "2009")
+        }
     }
 
     @Test
@@ -111,6 +124,7 @@ class KorreksjonTest {
             annenGrunn = null
         )
         korreksjon.oppgiInntektsgrunnlag(
+            testbruker,
             etInntektsgrunnlag(
                 måned = YearMonth.of(
                     tilskuddsgrunnlag.tilskuddFom.year,
@@ -118,8 +132,8 @@ class KorreksjonTest {
                 )
             )
         )
-        korreksjon.oppgiBedriftKontonummer("99999999999")
-        korreksjon.utbetalKorreksjon("", "X123456", "1009")
+        korreksjon.oppgiBedriftKontonummer(testbruker, "99999999999")
+        korreksjon.utbetalKorreksjon(testbruker, "1009")
         assertThat(korreksjon.status).isEqualTo(Korreksjonstype.TILLEGSUTBETALING)
     }
 
@@ -140,6 +154,7 @@ class KorreksjonTest {
             annenGrunn = null
         )
         korreksjon.oppgiInntektsgrunnlag(
+            testbruker,
             etInntektsgrunnlag(
                 måned = YearMonth.of(
                     tilskuddsgrunnlag.tilskuddFom.year,
@@ -147,10 +162,10 @@ class KorreksjonTest {
                 )
             )
         )
-        korreksjon.oppgiBedriftKontonummer("99999999999")
-        assertFeilkode(Feilkode.KORREKSJONSBELOP_NEGATIVT) { korreksjon.utbetalKorreksjon("", "X123456", "9999") }
-        assertFeilkode(Feilkode.KORREKSJONSBELOP_IKKE_NULL) { korreksjon.fullførKorreksjonVedOppgjort("") }
-        korreksjon.fullførKorreksjonVedTilbakekreving("")
+        korreksjon.oppgiBedriftKontonummer(testbruker, "99999999999")
+        assertFeilkode(Feilkode.KORREKSJONSBELOP_NEGATIVT) { korreksjon.utbetalKorreksjon(testbruker, "9999") }
+        assertFeilkode(Feilkode.KORREKSJONSBELOP_IKKE_NULL) { korreksjon.fullførKorreksjonVedOppgjort(testbruker) }
+        korreksjon.fullførKorreksjonVedTilbakekreving(testbruker)
         assertThat(korreksjon.status).isEqualTo(Korreksjonstype.TILBAKEKREVING)
     }
 
@@ -171,6 +186,7 @@ class KorreksjonTest {
             annenGrunn = null
         )
         korreksjon.oppgiInntektsgrunnlag(
+            testbruker,
             etInntektsgrunnlag(
                 måned = YearMonth.of(
                     tilskuddsgrunnlag.tilskuddFom.year,
@@ -178,10 +194,10 @@ class KorreksjonTest {
                 )
             )
         )
-        korreksjon.oppgiBedriftKontonummer("99999999999")
-        assertFeilkode(Feilkode.KORREKSJONSBELOP_NEGATIVT) { korreksjon.utbetalKorreksjon("", "X123456", "9999") }
-        assertFeilkode(Feilkode.KORREKSJONSBELOP_POSITIVT) { korreksjon.fullførKorreksjonVedTilbakekreving("") }
-        korreksjon.fullførKorreksjonVedOppgjort("")
+        korreksjon.oppgiBedriftKontonummer(testbruker, "99999999999")
+        assertFeilkode(Feilkode.KORREKSJONSBELOP_NEGATIVT) { korreksjon.utbetalKorreksjon(testbruker, "9999") }
+        assertFeilkode(Feilkode.KORREKSJONSBELOP_POSITIVT) { korreksjon.fullførKorreksjonVedTilbakekreving(testbruker) }
+        korreksjon.fullførKorreksjonVedOppgjort(testbruker)
         assertThat(korreksjon.status).isEqualTo(Korreksjonstype.OPPGJORT)
     }
 
@@ -208,8 +224,8 @@ class KorreksjonTest {
             inntektslinjeIkkeOptjentIPeriode
         )
         val inntektsgrunnlag = Inntektsgrunnlag(inntekter, "")
-        korreksjon.oppgiBedriftKontonummer("123456789")
-        korreksjon.oppgiInntektsgrunnlag(inntektsgrunnlag)
+        korreksjon.oppgiBedriftKontonummer(testbruker, "123456789")
+        korreksjon.oppgiInntektsgrunnlag(testbruker, inntektsgrunnlag)
 
         assertThat(korreksjon.refusjonsgrunnlag.beregning?.lønn).isEqualTo(inntektslinjeOpptjentIPeriode.beløp.toInt())
     }

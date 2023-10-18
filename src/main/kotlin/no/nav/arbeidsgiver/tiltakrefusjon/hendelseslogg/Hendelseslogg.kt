@@ -1,8 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.hendelseslogg
 
-import jakarta.persistence.Convert
-import jakarta.persistence.Entity
-import jakarta.persistence.Id
+import jakarta.persistence.*
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.BrukerRolle
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.ulid
 import org.hibernate.annotations.JdbcTypeCode
@@ -15,6 +14,8 @@ data class Hendelseslogg(
     val refusjonId: String,
     val korreksjonId: String?,
     val utførtAv: String,
+    @Enumerated(EnumType.STRING)
+    val utførtRolle: BrukerRolle?,
     val event: String,
     @Convert(converter = HendelseMetadataConverter::class)
     @JdbcTypeCode(SqlTypes.JSON)

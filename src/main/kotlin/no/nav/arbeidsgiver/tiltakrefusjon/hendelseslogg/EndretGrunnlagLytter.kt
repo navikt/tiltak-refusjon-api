@@ -23,7 +23,8 @@ class EndretGrunnlagLytter(
                 appImageId = appImageId,
                 refusjonId = event.refusjon.id,
                 korreksjonId = null,
-                utførtAv = event.utførtAv,
+                utførtAv = event.utførtAv.identifikator,
+                utførtRolle = event.utførtAv.rolle,
                 event = event.javaClass.simpleName,
                 metadata = HendelseMetadata(
                     antallMndFremITid = event.merking,
@@ -35,7 +36,8 @@ class EndretGrunnlagLytter(
                 appImageId = appImageId,
                 refusjonId = event.refusjon.id,
                 korreksjonId = null,
-                utførtAv = event.utførtAv,
+                utførtAv = event.utførtAv.identifikator,
+                utførtRolle = event.utførtAv.rolle,
                 event = event.javaClass.simpleName,
             )
         }
@@ -48,7 +50,8 @@ class EndretGrunnlagLytter(
             appImageId = appImageId,
             refusjonId = event.korreksjon.korrigererRefusjonId,
             korreksjonId = event.korreksjon.id,
-            utførtAv = event.utførtAv,
+            utførtAv = event.utførtAv.identifikator,
+            utførtRolle = event.utførtAv.rolle,
             event = event.javaClass.simpleName,
         )
         hendelsesloggRepository.save(hendelse)
@@ -61,6 +64,7 @@ class EndretGrunnlagLytter(
             refusjonId = event.refusjonId,
             korreksjonId = null,
             utførtAv = event.utførtAv,
+            utførtRolle = event.utførtRolle,
             event = when (event.varselType) {
                 VarselType.KLAR -> "RefusjonVarselKlar"
                 VarselType.REVARSEL -> "RefusjonVarselRevarsel"

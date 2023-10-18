@@ -1,5 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon
 
+import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBruker
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.ulid
@@ -8,6 +9,19 @@ import no.nav.arbeidsgiver.tiltakrefusjon.varsling.Varsling
 import java.time.YearMonth
 import java.time.temporal.TemporalAdjusters.lastDayOfMonth
 
+val testbruker = object : InnloggetBruker {
+    override val identifikator: String
+        get() = "testsystem"
+    override val rolle: BrukerRolle
+        get() = BrukerRolle.SYSTEM
+}
+
+fun innloggetBruker(identifikator: String, rolle: BrukerRolle) = object : InnloggetBruker {
+    override val identifikator: String
+        get() = identifikator
+    override val rolle: BrukerRolle
+        get() = rolle
+}
 
 fun enRefusjon(tilskuddsgrunnlag: Tilskuddsgrunnlag = etTilskuddsgrunnlag()): Refusjon {
     val deltakerFnr = "07098142678"
@@ -19,7 +33,7 @@ fun enRefusjon(tilskuddsgrunnlag: Tilskuddsgrunnlag = etTilskuddsgrunnlag()): Re
     )
 }
 
-fun enVarsling(varselType: VarselType = VarselType.KLAR ) : Varsling {
+fun enVarsling(varselType: VarselType = VarselType.KLAR): Varsling {
     val refusjonId = ulid()
     val varselTidspunkt = Now.localDateTime()
     return Varsling(refusjonId, varselType, varselTidspunkt)
@@ -28,7 +42,7 @@ fun enVarsling(varselType: VarselType = VarselType.KLAR ) : Varsling {
 fun refusjonerMedFerietrekk(): List<Refusjon> {
     val deltakerFnrMedMinusOgPlussFerietrekk = "26089638754"
     val bedriftNr = "999999999"
-    val refusjon1 =  Refusjon(
+    val refusjon1 = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
             tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
             deltakerFnr = deltakerFnrMedMinusOgPlussFerietrekk,
@@ -40,7 +54,7 @@ fun refusjonerMedFerietrekk(): List<Refusjon> {
         ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnrMedMinusOgPlussFerietrekk
     )
     val deltakerFnrMedPlussFerietrekk = "23039648083"
-    val refusjon2 =  Refusjon(
+    val refusjon2 = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
             tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
             deltakerFnr = deltakerFnrMedPlussFerietrekk,
@@ -58,7 +72,7 @@ fun refusjonerMedFerietrekk(): List<Refusjon> {
 fun gamleUtbetalteRefusjonerOgEnNy(): List<Refusjon> {
     val deltakerFnrMedMasseUtbetalt = "08098138758"
     val bedriftNr = "999999999"
-    val refusjon1 =  Refusjon(
+    val refusjon1 = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
             tiltakstype = Tiltakstype.VARIG_LONNSTILSKUDD,
             deltakerFnr = deltakerFnrMedMasseUtbetalt,
@@ -76,13 +90,13 @@ fun gamleUtbetalteRefusjonerOgEnNy(): List<Refusjon> {
                 it.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom.month
             ),
 
-        )
+            )
         it.medBedriftKontonummer()
         it.medSvarPåInntekter()
         it.medSendtKravFraArbeidsgiver()
         it.utbetalingVellykket()
     }
-    val refusjon2 =  Refusjon(
+    val refusjon2 = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
             tiltakstype = Tiltakstype.VARIG_LONNSTILSKUDD,
             deltakerFnr = deltakerFnrMedMasseUtbetalt,
@@ -105,7 +119,7 @@ fun gamleUtbetalteRefusjonerOgEnNy(): List<Refusjon> {
         it.medSendtKravFraArbeidsgiver()
         it.utbetalingVellykket()
     }
-    val refusjon3 =  Refusjon(
+    val refusjon3 = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
             tiltakstype = Tiltakstype.VARIG_LONNSTILSKUDD,
             deltakerFnr = deltakerFnrMedMasseUtbetalt,
@@ -128,7 +142,7 @@ fun gamleUtbetalteRefusjonerOgEnNy(): List<Refusjon> {
         it.medSendtKravFraArbeidsgiver()
         it.utbetalingVellykket()
     }
-    val refusjon4 =  Refusjon(
+    val refusjon4 = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
             tiltakstype = Tiltakstype.VARIG_LONNSTILSKUDD,
             deltakerFnr = deltakerFnrMedMasseUtbetalt,
@@ -151,7 +165,7 @@ fun gamleUtbetalteRefusjonerOgEnNy(): List<Refusjon> {
         it.medSendtKravFraArbeidsgiver()
         it.utbetalingVellykket()
     }
-    val refusjon5 =  Refusjon(
+    val refusjon5 = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
             tiltakstype = Tiltakstype.VARIG_LONNSTILSKUDD,
             deltakerFnr = deltakerFnrMedMasseUtbetalt,
@@ -174,7 +188,7 @@ fun gamleUtbetalteRefusjonerOgEnNy(): List<Refusjon> {
         it.medSendtKravFraArbeidsgiver()
         it.utbetalingVellykket()
     }
-    val refusjon6 =  Refusjon(
+    val refusjon6 = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
             tiltakstype = Tiltakstype.VARIG_LONNSTILSKUDD,
             deltakerFnr = deltakerFnrMedMasseUtbetalt,
@@ -197,7 +211,7 @@ fun gamleUtbetalteRefusjonerOgEnNy(): List<Refusjon> {
         it.medSendtKravFraArbeidsgiver()
         it.utbetalingVellykket()
     }
-    val refusjon7 =  Refusjon(
+    val refusjon7 = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
             tiltakstype = Tiltakstype.VARIG_LONNSTILSKUDD,
             deltakerFnr = deltakerFnrMedMasseUtbetalt,
@@ -220,7 +234,7 @@ fun gamleUtbetalteRefusjonerOgEnNy(): List<Refusjon> {
         it.medSendtKravFraArbeidsgiver()
         it.utbetalingVellykket()
     }
-    val refusjon8 =  Refusjon(
+    val refusjon8 = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
             tiltakstype = Tiltakstype.VARIG_LONNSTILSKUDD,
             deltakerFnr = deltakerFnrMedMasseUtbetalt,
@@ -243,7 +257,7 @@ fun gamleUtbetalteRefusjonerOgEnNy(): List<Refusjon> {
         it.medSendtKravFraArbeidsgiver()
         it.utbetalingVellykket()
     }
-    val refusjon9 =  Refusjon(
+    val refusjon9 = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
             tiltakstype = Tiltakstype.VARIG_LONNSTILSKUDD,
             deltakerFnr = deltakerFnrMedMasseUtbetalt,
@@ -254,7 +268,7 @@ fun gamleUtbetalteRefusjonerOgEnNy(): List<Refusjon> {
             veilederNavIdent = "X123456"
         ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnrMedMasseUtbetalt
     )
-    val refusjon10 =  Refusjon(
+    val refusjon10 = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
             tiltakstype = Tiltakstype.VARIG_LONNSTILSKUDD,
             deltakerFnr = deltakerFnrMedMasseUtbetalt,
@@ -265,7 +279,18 @@ fun gamleUtbetalteRefusjonerOgEnNy(): List<Refusjon> {
             veilederNavIdent = "X123456"
         ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnrMedMasseUtbetalt
     )
-    return listOf(refusjon1, refusjon2, refusjon3, refusjon4, refusjon5, refusjon6, refusjon7, refusjon8, refusjon9, refusjon10)
+    return listOf(
+        refusjon1,
+        refusjon2,
+        refusjon3,
+        refusjon4,
+        refusjon5,
+        refusjon6,
+        refusjon7,
+        refusjon8,
+        refusjon9,
+        refusjon10
+    )
 }
 
 fun refusjoner(): List<Refusjon> {
@@ -402,7 +427,11 @@ fun refusjoner(): List<Refusjon> {
         kiellandNy,
         kiellandGammel,
         BjørnsonUtgått,
-        `Bjørnstjerne Bjørnson`().copy(tilskuddsgrunnlag = `Bjørnstjerne Bjørnson`().refusjonsgrunnlag.tilskuddsgrunnlag.copy(tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD)),
+        `Bjørnstjerne Bjørnson`().copy(
+            tilskuddsgrunnlag = `Bjørnstjerne Bjørnson`().refusjonsgrunnlag.tilskuddsgrunnlag.copy(
+                tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD
+            )
+        ),
         `Bjørnstjerne Bjørnson unntak`(),
         `Nils Nilsen`(),
         `Inger Hagerup`(),
@@ -433,7 +462,7 @@ fun refusjoner(): List<Refusjon> {
 }
 
 private fun Refusjon.medSvarPåInntekter(): Refusjon {
-    this.endreBruttolønn(true, null)
+    this.endreBruttolønn(testbruker, true, null)
     return this
 }
 
@@ -696,7 +725,7 @@ fun Refusjon.medInntektsgrunnlag(
     måned: YearMonth = Now.yearMonth(),
     inntektsgrunnlag: Inntektsgrunnlag = etInntektsgrunnlag(måned = måned),
 ): Refusjon {
-    this.oppgiInntektsgrunnlag(inntektsgrunnlag)
+    this.oppgiInntektsgrunnlag(testbruker, inntektsgrunnlag)
     return this
 }
 
@@ -704,12 +733,12 @@ fun Refusjon.medStortInntektsgrunnlag(
     måned: YearMonth = Now.yearMonth(),
     inntektsgrunnlag: Inntektsgrunnlag = etStortInntektsgrunnlag(måned = måned),
 ): Refusjon {
-    this.oppgiInntektsgrunnlag(inntektsgrunnlag)
+    this.oppgiInntektsgrunnlag(testbruker, inntektsgrunnlag)
     return this
 }
 
 fun Refusjon.medSendtKravFraArbeidsgiver(): Refusjon {
-    this.godkjennForArbeidsgiver("")
+    this.godkjennForArbeidsgiver(testbruker)
     return this
 }
 
@@ -731,6 +760,7 @@ fun Refusjon.copy(
 ): Refusjon {
     return Refusjon(tilskuddsgrunnlag, bedriftNr, deltakerFnr)
 }
+
 fun etInntektsgrunnlag(måned: YearMonth = YearMonth.of(2020, 10), opptjentIPeriode: Boolean = true) = Inntektsgrunnlag(
     inntekter = listOf(
         Inntektslinje(
@@ -746,20 +776,21 @@ fun etInntektsgrunnlag(måned: YearMonth = YearMonth.of(2020, 10), opptjentIPeri
     respons = ""
 )
 
-fun etStortInntektsgrunnlag(måned: YearMonth = YearMonth.of(2020, 10), opptjentIPeriode: Boolean = true) = Inntektsgrunnlag(
-    inntekter = listOf(
-        Inntektslinje(
-            inntektType = "LOENNSINNTEKT",
-            beskrivelse = "timeloenn",
-            måned = måned,
-            beløp = 200000.0,
-            opptjeningsperiodeTom = null,
-            opptjeningsperiodeFom = null,
-            erOpptjentIPeriode = opptjentIPeriode
-        )
-    ),
-    respons = ""
-)
+fun etStortInntektsgrunnlag(måned: YearMonth = YearMonth.of(2020, 10), opptjentIPeriode: Boolean = true) =
+    Inntektsgrunnlag(
+        inntekter = listOf(
+            Inntektslinje(
+                inntektType = "LOENNSINNTEKT",
+                beskrivelse = "timeloenn",
+                måned = måned,
+                beløp = 200000.0,
+                opptjeningsperiodeTom = null,
+                opptjeningsperiodeFom = null,
+                erOpptjentIPeriode = opptjentIPeriode
+            )
+        ),
+        respons = ""
+    )
 
 fun enInntektslinje(måned: YearMonth = YearMonth.of(2020, 10), opptjentIPeriode: Boolean = true): Inntektslinje =
     Inntektslinje(

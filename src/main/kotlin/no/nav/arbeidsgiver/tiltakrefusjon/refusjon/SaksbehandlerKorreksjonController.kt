@@ -40,7 +40,7 @@ class SaksbehandlerKorreksjonController(
     @PostMapping("/{id}/utbetal-korreksjon")
     fun utbetalKorreksjon(@PathVariable id: String) {
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
-        return saksbehandler.utbetalKorreksjon(id, saksbehandler.identifikator)
+        return saksbehandler.utbetalKorreksjon(id)
     }
 
     @PostMapping("/{id}/fullfør-korreksjon-ved-oppgjort")

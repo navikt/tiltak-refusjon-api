@@ -1,7 +1,9 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.hendelseslogg
 
 import jakarta.persistence.Convert
+import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBruker
 import no.nav.arbeidsgiver.tiltakrefusjon.enRefusjon
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.BrukerRolle
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.ulid
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.fail
@@ -23,9 +25,10 @@ class HendelsesloggRepositoryTest(
             refusjonId = id,
             event = "Hello world",
             utførtAv = "testrunner",
+            utførtRolle = BrukerRolle.VEILEDER,
             korreksjonId = null,
             appImageId = ulid(),
-            metadata = HendelseMetadata(antallMndFremITid=2),
+            metadata = HendelseMetadata(antallMndFremITid = 2),
         )
         hendelsesloggRepository.save(hendelse)
 

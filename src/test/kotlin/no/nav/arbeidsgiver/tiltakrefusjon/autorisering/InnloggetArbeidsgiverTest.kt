@@ -5,10 +5,10 @@ import com.ninjasquad.springmockk.SpykBean
 import io.mockk.every
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
+import no.nav.arbeidsgiver.tiltakrefusjon.innloggetBruker
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
 import no.nav.arbeidsgiver.tiltakrefusjon.organisasjon.EregClient
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
-import no.nav.arbeidsgiver.tiltakrefusjon.testbruker
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.varsling.VarslingRepository
@@ -35,12 +35,10 @@ internal class InnloggetArbeidsgiverTest(
     @Autowired
     val minusbelopRepository: MinusbelopRepository,
 ) {
-    val testbruker = object : InnloggetBruker {
-        override val identifikator: String
-            get() = "12345678901"
-        override val rolle: BrukerRolle
-            get() = BrukerRolle.ARBEIDSGIVER
-    }
+    val innloggetArbeidsgiver = innloggetBruker(
+        "12345678901",
+        BrukerRolle.ARBEIDSGIVER
+    )
 
     @SpykBean
     lateinit var inntektskomponentService: InntektskomponentService
@@ -202,7 +200,7 @@ internal class InnloggetArbeidsgiverTest(
         val refusjon2ById = innloggetArbeidsgiver.finnRefusjon(refusjon2.id)
         refusjon2ById.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }
             ?.forEach { it.erOpptjentIPeriode = true }
-        refusjonService.godkjennForArbeidsgiver(refusjon2ById, testbruker)
+        refusjonService.godkjennForArbeidsgiver(refusjon2ById, innloggetArbeidsgiver)
         val refusjonMedMinus = innloggetArbeidsgiver.finnRefusjon(refusjon2.id)
         assertThat(refusjonMedMinus.minusbelop).isNotNull
     }
@@ -363,13 +361,13 @@ internal class InnloggetArbeidsgiverTest(
         refusjon1FunnetViaFinnRefusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }
             ?.forEach { it.erOpptjentIPeriode = true }
         assertThat(refusjon1FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(0)
-        refusjonService.godkjennForArbeidsgiver(refusjon1FunnetViaFinnRefusjon, testbruker)
+        refusjonService.godkjennForArbeidsgiver(refusjon1FunnetViaFinnRefusjon, innloggetArbeidsgiver)
 
         // Skal ikke ha minus fra gammel refusjon, men få minus fra ferietrekk
         val refusjon2FunnetViaFinnRefusjon = innloggetArbeidsgiver.finnRefusjon(refusjon2.id)
         refusjon2FunnetViaFinnRefusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }
             ?.forEach { it.erOpptjentIPeriode = true }
-        refusjonService.godkjennForArbeidsgiver(refusjon2FunnetViaFinnRefusjon, testbruker)
+        refusjonService.godkjennForArbeidsgiver(refusjon2FunnetViaFinnRefusjon, innloggetArbeidsgiver)
 
         // Skal finne gammel minus, men ikke minus fra inntekt
         val refusjon3FunnetViaFinnRefusjon = innloggetArbeidsgiver.finnRefusjon(refusjon3.id)
@@ -377,7 +375,7 @@ internal class InnloggetArbeidsgiverTest(
             ?.forEach { it.erOpptjentIPeriode = true }
         assertThat(refusjon3FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(-3966)
         assertThat(refusjon3FunnetViaFinnRefusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp).isPositive()
-        refusjonService.godkjennForArbeidsgiver(refusjon3FunnetViaFinnRefusjon, testbruker)
+        refusjonService.godkjennForArbeidsgiver(refusjon3FunnetViaFinnRefusjon, innloggetArbeidsgiver)
 
         // Minus skal nå være nullstillt
         val refusjon4FunnetViaFinnRefusjon = innloggetArbeidsgiver.finnRefusjon(refusjon4.id)
@@ -385,7 +383,7 @@ internal class InnloggetArbeidsgiverTest(
             ?.forEach { it.erOpptjentIPeriode = true }
         assertThat(refusjon4FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(0)
         assertThat(refusjon4FunnetViaFinnRefusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp).isPositive()
-        refusjonService.godkjennForArbeidsgiver(refusjon4FunnetViaFinnRefusjon, testbruker)
+        refusjonService.godkjennForArbeidsgiver(refusjon4FunnetViaFinnRefusjon, innloggetArbeidsgiver)
     }
 
     @Test
@@ -540,21 +538,21 @@ internal class InnloggetArbeidsgiverTest(
 
         val refusjon1FunnetViaFinnRefusjon = innloggetArbeidsgiver.finnRefusjon(refusjon1.id)
         assertThat(refusjon1FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(0)
-        refusjonService.godkjennForArbeidsgiver(refusjon1FunnetViaFinnRefusjon, testbruker)
+        refusjonService.godkjennForArbeidsgiver(refusjon1FunnetViaFinnRefusjon, innloggetArbeidsgiver)
 
 
         val refusjon2FunnetViaFinnRefusjon = innloggetArbeidsgiver.finnRefusjon(refusjon2.id)
         assertThat(refusjon2FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(0)
-        refusjonService.godkjennForArbeidsgiver(refusjon2, testbruker)
+        refusjonService.godkjennForArbeidsgiver(refusjon2, innloggetArbeidsgiver)
 
 
         val refusjon3FunnetViaFinnRefusjon = innloggetArbeidsgiver.finnRefusjon(refusjon3.id)
         assertThat(refusjon3FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(0)
-        refusjonService.godkjennForArbeidsgiver(refusjon3FunnetViaFinnRefusjon, testbruker)
+        refusjonService.godkjennForArbeidsgiver(refusjon3FunnetViaFinnRefusjon, innloggetArbeidsgiver)
 
         val refusjon4unnetViaFinnRefusjon = innloggetArbeidsgiver.finnRefusjon(refusjon4.id)
         assertThat(refusjon4unnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(0)
-        refusjonService.godkjennForArbeidsgiver(refusjon4unnetViaFinnRefusjon, testbruker)
+        refusjonService.godkjennForArbeidsgiver(refusjon4unnetViaFinnRefusjon, innloggetArbeidsgiver)
 
 
     }
@@ -591,7 +589,7 @@ internal class InnloggetArbeidsgiverTest(
 
 
         val refusjon1 = opprettRefusjonOgGjørInntektoppslag(tilskuddMeldingUtenFerieTrekk)!!
-        refusjonService.godkjennForArbeidsgiver(refusjon1, testbruker)
+        refusjonService.godkjennForArbeidsgiver(refusjon1, innloggetArbeidsgiver)
 
 
         every { altinnTilgangsstyringService.hentTilganger(any()) } returns setOf<Organisasjon>(
@@ -688,7 +686,7 @@ internal class InnloggetArbeidsgiverTest(
         val refusjon2FunnetViaFinnRefusjon = innloggetArbeidsgiver.finnRefusjon(refusjon2.id)
         refusjon2FunnetViaFinnRefusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }
             ?.forEach { it.erOpptjentIPeriode = true }
-        refusjonService.godkjennForArbeidsgiver(refusjon2FunnetViaFinnRefusjon, testbruker)
+        refusjonService.godkjennForArbeidsgiver(refusjon2FunnetViaFinnRefusjon, innloggetArbeidsgiver)
 
         val minusbeløpRefusjon2 =
             minusbelopRepository.findAllByAvtaleNr(refusjon2.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr)
@@ -703,7 +701,7 @@ internal class InnloggetArbeidsgiverTest(
             ?.forEach { it.erOpptjentIPeriode = true }
         assertThat(refusjon3FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(-3966)
         assertThat(refusjon3FunnetViaFinnRefusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp).isPositive()
-        refusjonService.godkjennForArbeidsgiver(refusjon3FunnetViaFinnRefusjon, testbruker)
+        refusjonService.godkjennForArbeidsgiver(refusjon3FunnetViaFinnRefusjon, innloggetArbeidsgiver)
 
         val minusbeløpRefusjon3 =
             minusbelopRepository.findAllByAvtaleNr(refusjon3.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr)
@@ -719,12 +717,12 @@ internal class InnloggetArbeidsgiverTest(
         refusjon.unntakOmInntekterFremitid = 0
         refusjon.fristForGodkjenning = Now.localDate().plusDays(1)
         refusjonService.gjørBedriftKontonummeroppslag(refusjon)
-        refusjonService.gjørInntektsoppslag(testbruker, refusjon)
+        refusjonService.gjørInntektsoppslag(innloggetArbeidsgiver, refusjon)
         // Sett innhentede inntekter til opptjent i periode
         refusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }
             ?.forEach { it.erOpptjentIPeriode = true }
         // Bekreft at alle inntektene kun er fra tiltaket
-        refusjon.endreBruttolønn(testbruker, true, null)
+        refusjon.endreBruttolønn(innloggetArbeidsgiver, true, null)
         refusjonRepository.save(refusjon)
         return refusjon;
     }

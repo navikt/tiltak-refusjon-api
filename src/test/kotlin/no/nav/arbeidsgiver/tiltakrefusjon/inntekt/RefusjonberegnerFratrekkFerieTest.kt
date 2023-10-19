@@ -7,6 +7,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetArbeidsgiver
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBruker
 import no.nav.arbeidsgiver.tiltakrefusjon.etInntektsgrunnlag
+import no.nav.arbeidsgiver.tiltakrefusjon.innloggetBruker
 import no.nav.arbeidsgiver.tiltakrefusjon.organisasjon.EregClient
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
@@ -35,12 +36,7 @@ class RefusjonberegnerFratrekkFerieTest(
     @Autowired
     val refusjonRepository: RefusjonRepository,
 ) {
-    val testbruker = object : InnloggetBruker {
-        override val identifikator: String
-            get() = "12345678910"
-        override val rolle: BrukerRolle
-            get() = BrukerRolle.ARBEIDSGIVER
-    }
+    val innloggetArbeidsgiver = innloggetBruker("12345678910", BrukerRolle.ARBEIDSGIVER);
 
     @MockkBean
     lateinit var altinnTilgangsstyringService: AltinnTilgangsstyringService
@@ -98,12 +94,12 @@ class RefusjonberegnerFratrekkFerieTest(
         refusjon.unntakOmInntekterFremitid = 0
         refusjon.fristForGodkjenning = Now.localDate().plusDays(1)
         refusjonService.gjørBedriftKontonummeroppslag(refusjon)
-        refusjonService.gjørInntektsoppslag(testbruker, refusjon)
+        refusjonService.gjørInntektsoppslag(innloggetArbeidsgiver, refusjon)
         // Sett innhentede inntekter til opptjent i periode
         refusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }
             ?.forEach { it.erOpptjentIPeriode = true }
         // Bekreft at alle inntektene kun er fra tiltaket
-        refusjon.endreBruttolønn(testbruker, true, null)
+        refusjon.endreBruttolønn(innloggetArbeidsgiver, true, null)
         return refusjon;
     }
 
@@ -321,7 +317,7 @@ class RefusjonberegnerFratrekkFerieTest(
         )
         val refusjon = opprettRefusjonOgGjørInntektoppslag(tilskuddsperiodeGodkjentMelding1)
         // Send inn
-        refusjonService.godkjennForArbeidsgiver(refusjon, testbruker)
+        refusjonService.godkjennForArbeidsgiver(refusjon, innloggetArbeidsgiver)
         assert(refusjon.refusjonsgrunnlag.beregning!!.fratrekkLønnFerie == TREKKFORFERIEGRUNNLAG)
 
         // Verifiser at ferietrekk ikke er med her

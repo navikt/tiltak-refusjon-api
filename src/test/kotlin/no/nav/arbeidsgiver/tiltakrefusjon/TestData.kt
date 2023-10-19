@@ -9,12 +9,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.varsling.Varsling
 import java.time.YearMonth
 import java.time.temporal.TemporalAdjusters.lastDayOfMonth
 
-val testbruker = object : InnloggetBruker {
-    override val identifikator: String
-        get() = "testsystem"
-    override val rolle: BrukerRolle
-        get() = BrukerRolle.SYSTEM
-}
+val innloggetTestbruker = innloggetBruker("testsystem", BrukerRolle.SYSTEM)
 
 fun innloggetBruker(identifikator: String, rolle: BrukerRolle) = object : InnloggetBruker {
     override val identifikator: String
@@ -462,7 +457,7 @@ fun refusjoner(): List<Refusjon> {
 }
 
 private fun Refusjon.medSvarPåInntekter(): Refusjon {
-    this.endreBruttolønn(testbruker, true, null)
+    this.endreBruttolønn(innloggetTestbruker, true, null)
     return this
 }
 
@@ -725,7 +720,7 @@ fun Refusjon.medInntektsgrunnlag(
     måned: YearMonth = Now.yearMonth(),
     inntektsgrunnlag: Inntektsgrunnlag = etInntektsgrunnlag(måned = måned),
 ): Refusjon {
-    this.oppgiInntektsgrunnlag(testbruker, inntektsgrunnlag)
+    this.oppgiInntektsgrunnlag(innloggetTestbruker, inntektsgrunnlag)
     return this
 }
 
@@ -733,12 +728,12 @@ fun Refusjon.medStortInntektsgrunnlag(
     måned: YearMonth = Now.yearMonth(),
     inntektsgrunnlag: Inntektsgrunnlag = etStortInntektsgrunnlag(måned = måned),
 ): Refusjon {
-    this.oppgiInntektsgrunnlag(testbruker, inntektsgrunnlag)
+    this.oppgiInntektsgrunnlag(innloggetTestbruker, inntektsgrunnlag)
     return this
 }
 
 fun Refusjon.medSendtKravFraArbeidsgiver(): Refusjon {
-    this.godkjennForArbeidsgiver(testbruker)
+    this.godkjennForArbeidsgiver(innloggetTestbruker)
     return this
 }
 

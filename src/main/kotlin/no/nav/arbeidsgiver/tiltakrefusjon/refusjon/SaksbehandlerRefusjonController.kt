@@ -54,7 +54,7 @@ class SaksbehandlerRefusjonController(
     fun hentHendelselogg(@PathVariable id: String): List<Hendelseslogg> {
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler().finnRefusjon(id)
         val hendelser = hendelsesloggRepository.findAll().filter { it.refusjonId == saksbehandler.id }
-        return hendelser
+        return hendelser.map { it.fjernFnrArbeidsgiver() }
     }
 
     @PostMapping("/{id}/forleng-frist")
@@ -64,7 +64,10 @@ class SaksbehandlerRefusjonController(
     }
 
     @PostMapping("/{id}/merk-for-unntak-om-inntekter-to-mnd-frem")
-    fun merkForUnntakOmInntekterToMånederFrem(@PathVariable id: String, @RequestBody request: MerkForUnntakOmInntekterToMånederFremRequest) {
+    fun merkForUnntakOmInntekterToMånederFrem(
+        @PathVariable id: String,
+        @RequestBody request: MerkForUnntakOmInntekterToMånederFremRequest
+    ) {
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
         saksbehandler.merkForUnntakOmInntekterToMånederFrem(id, request.merking)
     }

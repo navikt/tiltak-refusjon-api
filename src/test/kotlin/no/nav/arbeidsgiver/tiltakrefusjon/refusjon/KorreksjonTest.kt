@@ -1,7 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.*
-import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBruker
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.ulid
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Disabled
@@ -9,7 +8,7 @@ import org.junit.jupiter.api.Test
 import java.time.YearMonth
 
 class KorreksjonTest {
-    val innloggetBeslutter = innloggetBruker("12345678910", BrukerRolle.BESLUTTER)
+    val innloggetBeslutter = innloggetBruker("X123456", BrukerRolle.BESLUTTER)
 
     @Test
     internal fun `kan utbetale når alt er fylt ut`() {

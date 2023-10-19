@@ -30,9 +30,8 @@ class EndretGrunnlagLytter(
                     antallMndFremITid = event.merking,
                 )
             )
-        }
-        else {
-             hendelse = Hendelseslogg(
+        } else {
+            hendelse = Hendelseslogg(
                 appImageId = appImageId,
                 refusjonId = event.refusjon.id,
                 korreksjonId = null,
@@ -63,8 +62,8 @@ class EndretGrunnlagLytter(
             appImageId = appImageId,
             refusjonId = event.refusjonId,
             korreksjonId = null,
-            utførtAv = event.utførtAv,
-            utførtRolle = event.utførtRolle,
+            utførtAv = event.utførtAv.identifikator,
+            utførtRolle = event.utførtAv.rolle,
             event = when (event.varselType) {
                 VarselType.KLAR -> "RefusjonVarselKlar"
                 VarselType.REVARSEL -> "RefusjonVarselRevarsel"

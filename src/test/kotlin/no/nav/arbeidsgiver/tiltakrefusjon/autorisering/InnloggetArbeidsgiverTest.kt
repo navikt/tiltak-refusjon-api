@@ -35,7 +35,7 @@ internal class InnloggetArbeidsgiverTest(
     @Autowired
     val minusbelopRepository: MinusbelopRepository,
 ) {
-    val innloggetArbeidsgiver = innloggetBruker(
+    val innloggetArbeidsgiverBruker = innloggetBruker(
         "12345678901",
         BrukerRolle.ARBEIDSGIVER
     )
@@ -589,7 +589,7 @@ internal class InnloggetArbeidsgiverTest(
 
 
         val refusjon1 = opprettRefusjonOgGjørInntektoppslag(tilskuddMeldingUtenFerieTrekk)!!
-        refusjonService.godkjennForArbeidsgiver(refusjon1, innloggetArbeidsgiver)
+        refusjonService.godkjennForArbeidsgiver(refusjon1, innloggetArbeidsgiverBruker)
 
 
         every { altinnTilgangsstyringService.hentTilganger(any()) } returns setOf<Organisasjon>(
@@ -717,12 +717,12 @@ internal class InnloggetArbeidsgiverTest(
         refusjon.unntakOmInntekterFremitid = 0
         refusjon.fristForGodkjenning = Now.localDate().plusDays(1)
         refusjonService.gjørBedriftKontonummeroppslag(refusjon)
-        refusjonService.gjørInntektsoppslag(innloggetArbeidsgiver, refusjon)
+        refusjonService.gjørInntektsoppslag(innloggetArbeidsgiverBruker, refusjon)
         // Sett innhentede inntekter til opptjent i periode
         refusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }
             ?.forEach { it.erOpptjentIPeriode = true }
         // Bekreft at alle inntektene kun er fra tiltaket
-        refusjon.endreBruttolønn(innloggetArbeidsgiver, true, null)
+        refusjon.endreBruttolønn(innloggetArbeidsgiverBruker, true, null)
         refusjonRepository.save(refusjon)
         return refusjon;
     }

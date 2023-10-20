@@ -4,6 +4,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 import io.micrometer.observation.annotation.Observed
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
+import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBruker
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
 import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterService
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.MidlerFrigjortÅrsak
@@ -121,7 +122,7 @@ class RefusjonService(
 
     }
 
-    fun gjørInntektsoppslag(refusjon: Refusjon) {
+    fun gjørInntektsoppslag(utførtAv: InnloggetBruker, refusjon: Refusjon) {
         if (!refusjon.skalGjøreInntektsoppslag()) {
             return
         }
@@ -147,14 +148,14 @@ class RefusjonService(
                 inntekter = inntektsoppslag.first,
                 respons = inntektsoppslag.second
             )
-            refusjon.oppgiInntektsgrunnlag(inntektsgrunnlag, refusjon.refusjonsgrunnlag.inntektsgrunnlag)
+            refusjon.oppgiInntektsgrunnlag(utførtAv, inntektsgrunnlag, refusjon.refusjonsgrunnlag.inntektsgrunnlag)
             refusjonRepository.save(refusjon)
         } catch (e: Exception) {
             log.error("Feil ved henting av inntekter for refusjon ${refusjon.id}", e)
         }
     }
 
-    fun godkjennForArbeidsgiver(refusjon: Refusjon, utførtAv: String) {
+    fun godkjennForArbeidsgiver(refusjon: Refusjon, utførtAv: InnloggetBruker) {
         val alleMinusBeløp = minusbelopRepository.findAllByAvtaleNr(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr)
         val sumMinusbelop = alleMinusBeløp
             .filter { !it.gjortOpp }
@@ -186,7 +187,7 @@ class RefusjonService(
         refusjonRepository.save(refusjon)
     }
 
-    fun godkjennNullbeløpForArbeidsgiver(refusjon: Refusjon, utførtAv: String) {
+    fun godkjennNullbeløpForArbeidsgiver(refusjon: Refusjon, utførtAv: InnloggetBruker) {
         refusjon.godkjennNullbeløpForArbeidsgiver(utførtAv)
         refusjonRepository.save(refusjon)
     }

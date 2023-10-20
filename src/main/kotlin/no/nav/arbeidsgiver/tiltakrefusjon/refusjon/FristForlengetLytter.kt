@@ -21,7 +21,7 @@ class FristForlengetLytter(
                 gammelFrist = event.gammelFrist,
                 nyFrist = event.nyFrist,
                 årsak = event.årsak,
-                utførtAv = event.utførtAv
+                utførtAv = event.utførtAv.identifikator
             )
         )
         producer.sendVarsel(

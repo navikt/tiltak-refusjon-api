@@ -13,7 +13,7 @@ import org.springframework.data.repository.findByIdOrNull
 import java.time.LocalDate
 
 data class InnloggetSaksbehandler(
-    val identifikator: String,
+    override val identifikator: String,
     val navn: String,
     @JsonIgnore val abacTilgangsstyringService: AbacTilgangsstyringService,
     @JsonIgnore val norgeService: NorgService,
@@ -22,10 +22,11 @@ data class InnloggetSaksbehandler(
     @JsonIgnore val refusjonService: RefusjonService,
     @JsonIgnore val inntektskomponentService: InntektskomponentService,
     @JsonIgnore val kontoregisterService: KontoregisterService,
-    val harKorreksjonTilgang: Boolean
-) {
+    val harKorreksjonTilgang: Boolean,
+) : InnloggetBruker {
     @JsonIgnore
     val log: Logger = LoggerFactory.getLogger(javaClass)
+    override val rolle: BrukerRolle = BrukerRolle.BESLUTTER
 
     fun finnAlle(queryParametre: HentSaksbehandlerRefusjonerQueryParametre): Map<String, Any> {
         val pageable: Pageable = PageRequest.of(queryParametre.page, queryParametre.size, Sort.Direction.ASC, "fristForGodkjenning")
@@ -118,7 +119,7 @@ data class InnloggetSaksbehandler(
                 inntekter = inntektsoppslag.first,
                 respons = inntektsoppslag.second
             )
-            korreksjon.oppgiInntektsgrunnlag(inntektsgrunnlag)
+            korreksjon.oppgiInntektsgrunnlag(this, inntektsgrunnlag)
             korreksjonRepository.save(korreksjon)
         }
         return korreksjon
@@ -161,14 +162,14 @@ data class InnloggetSaksbehandler(
         }
     }
 
-    fun utbetalKorreksjon(id: String, beslutterNavIdent: String) {
+    fun utbetalKorreksjon(id: String) {
         sjekkKorreksjonTilgang()
         val korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(korreksjon)
         val refusjon = finnRefusjon(korreksjon.korrigererRefusjonId)
         sjekkLesetilgang(refusjon)
 
-        korreksjon.utbetalKorreksjon(this.identifikator, beslutterNavIdent, korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.enhet?: "")
+        korreksjon.utbetalKorreksjon(this, korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.enhet?: "")
         refusjon.status = RefusjonStatus.KORRIGERT
 
         refusjonRepository.save(refusjon)
@@ -182,7 +183,7 @@ data class InnloggetSaksbehandler(
         val refusjon = finnRefusjon(korreksjon.korrigererRefusjonId)
         sjekkLesetilgang(refusjon)
 
-        korreksjon.fullførKorreksjonVedOppgjort(this.identifikator)
+        korreksjon.fullførKorreksjonVedOppgjort(this)
         refusjon.status = RefusjonStatus.KORRIGERT
 
         refusjonRepository.save(refusjon)
@@ -196,7 +197,7 @@ data class InnloggetSaksbehandler(
         val refusjon = finnRefusjon(korreksjon.korrigererRefusjonId)
         sjekkLesetilgang(refusjon)
 
-        korreksjon.fullførKorreksjonVedTilbakekreving(this.identifikator)
+        korreksjon.fullførKorreksjonVedTilbakekreving(this)
         refusjon.status = RefusjonStatus.KORRIGERT
 
         refusjonRepository.save(refusjon)
@@ -207,20 +208,20 @@ data class InnloggetSaksbehandler(
         sjekkKorreksjonTilgang()
         val korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(korreksjon)
-        korreksjon.endreBruttolønn(inntekterKunFraTiltaket, endretBruttoLønn)
+        korreksjon.endreBruttolønn(this, inntekterKunFraTiltaket, endretBruttoLønn)
         korreksjonRepository.save(korreksjon)
     }
 
     fun forlengFrist(id: String, nyFrist: LocalDate, årsak: String): Refusjon {
         val refusjon = finnRefusjon(id)
-        refusjon.forlengFrist(nyFrist, årsak, identifikator)
+        refusjon.forlengFrist(nyFrist, årsak, this)
         refusjonRepository.save(refusjon)
         return refusjon
     }
 
     fun merkForUnntakOmInntekterToMånederFrem(id: String, merking: Int) {
         val refusjon = finnRefusjon(id)
-        refusjon.merkForUnntakOmInntekterToMånederFrem(merking)
+        refusjon.merkForUnntakOmInntekterToMånederFrem(merking, this)
         refusjonRepository.save(refusjon)
     }
 
@@ -228,14 +229,14 @@ data class InnloggetSaksbehandler(
         sjekkKorreksjonTilgang()
         val korreksjon = korreksjonRepository.findByIdOrNull(korreksjonId) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(korreksjon)
-        korreksjon.setInntektslinjeTilOpptjentIPeriode(inntekslinjeId, erOpptjentIPeriode)
+        korreksjon.setInntektslinjeTilOpptjentIPeriode(this, inntekslinjeId, erOpptjentIPeriode)
         korreksjonRepository.save(korreksjon)
     }
 
     fun settFratrekkRefunderbarBeløp(id: String, fratrekkRefunderbarBeløp: Boolean, refunderbarBeløp: Int?) {
         val korreksjon: Korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(korreksjon)
-        korreksjon.settFratrekkRefunderbarBeløp(fratrekkRefunderbarBeløp, refunderbarBeløp)
+        korreksjon.settFratrekkRefunderbarBeløp(this, fratrekkRefunderbarBeløp, refunderbarBeløp)
         korreksjonRepository.save(korreksjon)
     }
 

@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import jakarta.persistence.*
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
+import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBruker
+import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.KAFKA_BRUKER
+import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.SYSTEM_BRUKER
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.*
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.MidlerFrigjortÅrsak
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.KidValidator
@@ -60,6 +63,7 @@ class Refusjon(
     var minusbelop: Minusbelop? = null
     init {
         oppdaterStatus()
+        registerEvent(RefusjonOpprettet(this, SYSTEM_BRUKER))
     }
 
     fun lagFristForGodkjenning() : LocalDate {
@@ -114,13 +118,17 @@ class Refusjon(
         }
     }
 
-    fun oppgiInntektsgrunnlag(inntektsgrunnlag: Inntektsgrunnlag, gjeldendeInntektsgrunnlag: Inntektsgrunnlag? = null) {
+    fun oppgiInntektsgrunnlag(
+        utførtAv: InnloggetBruker,
+        inntektsgrunnlag: Inntektsgrunnlag,
+        gjeldendeInntektsgrunnlag: Inntektsgrunnlag? = null
+    ) {
         oppdaterStatus()
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
 
         val harGjortBeregning = this.refusjonsgrunnlag.oppgiInntektsgrunnlag(inntektsgrunnlag, gjeldendeInntektsgrunnlag)
         if (harGjortBeregning) {
-            registerEvent(BeregningUtført(this))
+            registerEvent(BeregningUtført(this, utførtAv))
         }
     }
 
@@ -128,12 +136,12 @@ class Refusjon(
         refusjonsgrunnlag.oppgiBedriftKontonummer(bedrifKontonummer)
     }
 
-    fun endreBruttolønn(inntekterKunFraTiltaket: Boolean?, bruttoLønn: Int?) {
+    fun endreBruttolønn(utførtAv: InnloggetBruker, inntekterKunFraTiltaket: Boolean?, bruttoLønn: Int?) {
         oppdaterStatus()
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
         val harGjortBeregning = refusjonsgrunnlag.endreBruttolønn(inntekterKunFraTiltaket, bruttoLønn)
         if (harGjortBeregning) {
-            registerEvent(BeregningUtført(this))
+            registerEvent(BeregningUtført(this, utførtAv))
         }
     }
 
@@ -143,7 +151,7 @@ class Refusjon(
         refusjonsgrunnlag.bedriftKid = bedriftKID
     }
 
-    fun godkjennForArbeidsgiver(utførtAv: String) {
+    fun godkjennForArbeidsgiver(utførtAv: InnloggetBruker) {
         oppdaterStatus()
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
 
@@ -175,7 +183,7 @@ class Refusjon(
         registerEvent(RefusjonEndretStatus(this))
     }
 
-    fun godkjennNullbeløpForArbeidsgiver(utførtAv: String) {
+    fun godkjennNullbeløpForArbeidsgiver(utførtAv: InnloggetBruker) {
         oppdaterStatus()
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
 
@@ -206,11 +214,11 @@ class Refusjon(
             return
         }
         status = RefusjonStatus.ANNULLERT
-        registerEvent(RefusjonAnnullert(this))
+        registerEvent(RefusjonAnnullert(this, SYSTEM_BRUKER))
         registerEvent(RefusjonEndretStatus(this))
     }
 
-    fun annullerTilskuddsperioderIRefusjon(utførtAv: String, grunn: String) {
+    fun annullerTilskuddsperioderIRefusjon(utførtAv: InnloggetBruker, grunn: String) {
         // Midler som er holdt av skal frigjøres når refusjonsfristen er utgått. enten manuelt eller automatisk.
         // Foreløpig kun manuelt.
         oppdaterStatus()
@@ -240,7 +248,7 @@ class Refusjon(
         refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom = tilskuddTom
         refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsbeløp = tilskuddsbeløp
         oppdaterStatus()
-        registerEvent(RefusjonForkortet(this))
+        registerEvent(RefusjonForkortet(this, KAFKA_BRUKER))
     }
 
 fun opprettKorreksjonsutkast(korreksjonsgrunner: Set<Korreksjonsgrunn>, unntakOmInntekterFremitid: Int?, annenGrunn: String?): Korreksjon {
@@ -282,7 +290,7 @@ fun opprettKorreksjonsutkast(korreksjonsgrunner: Set<Korreksjonsgrunn>, unntakOm
         ) else antallMånederEtter(opprinneligFrist, 1)
     }
 
-    fun forlengFrist(nyFrist: LocalDate, årsak: String, utførtAv: String, enforce: Boolean = false) {
+    fun forlengFrist(nyFrist: LocalDate, årsak: String, utførtAv: InnloggetBruker, enforce: Boolean = false) {
         oppdaterStatus()
         krevStatus(RefusjonStatus.FOR_TIDLIG, RefusjonStatus.KLAR_FOR_INNSENDING)
 
@@ -338,15 +346,16 @@ fun opprettKorreksjonsutkast(korreksjonsgrunner: Set<Korreksjonsgrunn>, unntakOm
         return id.hashCode()
     }
 
-    fun merkForUnntakOmInntekterToMånederFrem(merking: Int) {
+    fun merkForUnntakOmInntekterToMånederFrem(merking: Int, utførtAv: InnloggetBruker) {
         krevStatus(RefusjonStatus.FOR_TIDLIG, RefusjonStatus.KLAR_FOR_INNSENDING)
         if(merking == 1 && hentInntekterLengerFrem != null) {
             throw FeilkodeException(Feilkode.HAR_ALLERDE_UNNTAK_OM_INNTEKTER_1_MND_FREM)
         }
         unntakOmInntekterFremitid = merking
+        registerEvent(SaksbehandlerMerketForInntekterLengerFrem(this, merking, utførtAv))
     }
 
-    fun merkForHentInntekterFrem(merking: Boolean, utførtAv: String) {
+    fun merkForHentInntekterFrem(merking: Boolean, utførtAv: InnloggetBruker) {
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
         if (unntakOmInntekterFremitid > 0) {
             throw FeilkodeException(Feilkode.HAR_ALLERDE_UNNTAK_OM_INNTEKTER_2_MND_FREM)
@@ -360,21 +369,29 @@ fun opprettKorreksjonsutkast(korreksjonsgrunner: Set<Korreksjonsgrunn>, unntakOm
         registerEvent(MerketForInntekterFrem(this, merking, utførtAv))
     }
 
-    fun setInntektslinjeTilOpptjentIPeriode(inntekslinjeId: String, erOpptjentIPeriode: Boolean) {
+    fun setInntektslinjeTilOpptjentIPeriode(
+        utførtAv: InnloggetBruker,
+        inntekslinjeId: String,
+        erOpptjentIPeriode: Boolean
+    ) {
         oppdaterStatus()
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
         var harGjortBeregning  = refusjonsgrunnlag.setInntektslinjeTilOpptjentIPeriode(inntekslinjeId, erOpptjentIPeriode)
         if (harGjortBeregning) {
-            registerEvent(BeregningUtført(this))
+            registerEvent(BeregningUtført(this, utførtAv))
         }
     }
 
-    fun settFratrekkRefunderbarBeløp(fratrekkRefunderbarBeløp: Boolean, refunderbarBeløp: Int?) {
+    fun settFratrekkRefunderbarBeløp(
+        utførtAv: InnloggetBruker,
+        fratrekkRefunderbarBeløp: Boolean,
+        refunderbarBeløp: Int?
+    ) {
         oppdaterStatus()
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
         val harGjortBeregning = refusjonsgrunnlag.settFratrekkRefunderbarBeløp(fratrekkRefunderbarBeløp, refunderbarBeløp)
         if (harGjortBeregning) {
-            registerEvent(BeregningUtført(this))
+            registerEvent(BeregningUtført(this, utførtAv))
         }
     }
 

@@ -2,7 +2,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.ReberegnRequest
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBrukerService
-import no.nav.arbeidsgiver.tiltakrefusjon.hendelseslogg.Hendelseslogg
+import no.nav.arbeidsgiver.tiltakrefusjon.hendelseslogg.HendelsesloggDTO
 import no.nav.arbeidsgiver.tiltakrefusjon.hendelseslogg.HendelsesloggRepository
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.ForlengFristRequest
 import no.nav.security.token.support.core.api.ProtectedWithClaims
@@ -44,10 +44,10 @@ class SaksbehandlerRefusjonController(
     }
 
     @GetMapping("/{id}/hendelselogg")
-    fun hentHendelselogg(@PathVariable id: String): List<Hendelseslogg> {
+    fun hentHendelselogg(@PathVariable id: String): List<HendelsesloggDTO> {
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler().finnRefusjon(id)
         val hendelser = hendelsesloggRepository.findAll().filter { it.refusjonId == saksbehandler.id }
-        return hendelser.map { it.fjernFnrArbeidsgiver() }
+        return hendelser.map { HendelsesloggDTO(it) }
     }
 
     @PostMapping("/{id}/forleng-frist")

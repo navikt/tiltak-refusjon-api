@@ -24,12 +24,4 @@ data class Hendelseslogg(
     @Id
     val id: String = ulid()
     val tidspunkt: LocalDateTime = Now.localDateTime()
-
-    fun fjernFnrArbeidsgiver(): Hendelseslogg { //TODO: SPør om Odd andreas har noe lurt
-        return if (utførtRolle == BrukerRolle.ARBEIDSGIVER) {
-            this.copy(utførtAv = utførtRolle.name)
-        } else {
-            this
-        }
-    }
 }

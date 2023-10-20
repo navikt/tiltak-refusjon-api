@@ -1,7 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.ADMIN_BRUKER
-import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBruker
 import no.nav.arbeidsgiver.tiltakrefusjon.leader.LeaderPodCheck
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.MidlerFrigjortÅrsak
@@ -137,35 +136,6 @@ class AdminController(
     }
 
     @Unprotected
-    @PostMapping("annuller-tilskuddsperioder-manuelt")
-    fun annullerTilskuddsperioderIRefusjonManuelt(@RequestBody request: AnnullerTilskuddsperioderRequest) {
-        logger.info(
-            "Bruker AdminController for å annullere tilskuddsperioder i {} refusjoner",
-            request.refusjonIder.size
-        )
-        for (id in request.refusjonIder) {
-            val refusjon =
-                refusjonRepository.findByIdOrNull(id) ?: throw RuntimeException("Finner ikke refusjon med id=$id")
-            refusjon.annullerTilskuddsperioderIRefusjon(opprettAdminbruker(request.utførtAv), request.årsak)
-            refusjonRepository.save(refusjon)
-        }
-    }
-
-    @Unprotected
-    @PostMapping("annuller-tilskuddsperioder-manuelt-i-utgåtte-refusjoner")
-    fun annullerTilskuddsperioderIUtgåtteRefusjonManuelt(@RequestBody request: AnnullerTilskuddsperioderIUtgåtteRefusjonerRequest) {
-        val utgåtteRefusjoner = refusjonRepository.findAllByStatus(RefusjonStatus.UTGÅTT)
-        logger.info(
-            "Bruker AdminController for å annullere tilskuddsperioder i {} utgåtte refusjoner",
-            utgåtteRefusjoner.size
-        )
-        utgåtteRefusjoner.forEach {
-            it.annullerTilskuddsperioderIRefusjon(opprettAdminbruker(request.utførtAv), request.årsak)
-            refusjonRepository.save(it)
-        }
-    }
-
-    @Unprotected
     @PostMapping("annuller-refusjon-ved-tilskuddsperiode")
     fun annullerRefusjon(@RequestBody annullerRefusjon: AnnullerRefusjon) {
         logger.info("Annullerer refusjon med tilskuddsperiodeId ${annullerRefusjon.tilskuddsperiodeId}")
@@ -237,28 +207,8 @@ class AdminController(
     fun hentRefusjonerMedStatusSendtKrav()  = refusjonRepository.findAllByStatus(RefusjonStatus.SENDT_KRAV)
 }
 
-fun opprettAdminbruker(utførtAv: String): InnloggetBruker {
-    return object : InnloggetBruker {
-        override val identifikator: String
-            get() = utførtAv
-        override val rolle: BrukerRolle
-            get() = BrukerRolle.SYSTEM
-    }
-}
-
 data class ReberegnRequest(val harFerietrekkForSammeMåned: Boolean, val minusBeløp: Int, val ferieTrekk: Int)
-
 data class KorreksjonRequest(val refusjonIder: List<String>, val korreksjonsgrunner: Set<Korreksjonsgrunn>)
-
 data class ForlengFristerRequest(val refusjonIder: List<String>, val nyFrist: LocalDate, val årsak: String, val enforce: Boolean)
 data class ForlengFristerTilOgMedRequest(val tilDato: LocalDate, val nyFrist: LocalDate, val årsak: String, val enforce: Boolean)
-
-data class AnnullerTilskuddsperioderRequest( //TODO: spør mattias
-    val refusjonIder: List<String>,
-    val utførtAv: String,
-    val årsak: String
-)
-
-data class AnnullerTilskuddsperioderIUtgåtteRefusjonerRequest(val utførtAv: String, val årsak: String)
-
 data class AnnullerRefusjon(val tilskuddsperiodeId: String)

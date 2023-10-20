@@ -218,14 +218,6 @@ class Refusjon(
         registerEvent(RefusjonEndretStatus(this))
     }
 
-    fun annullerTilskuddsperioderIRefusjon(utførtAv: InnloggetBruker, grunn: String) {
-        // Midler som er holdt av skal frigjøres når refusjonsfristen er utgått. enten manuelt eller automatisk.
-        // Foreløpig kun manuelt.
-        oppdaterStatus()
-        krevStatus(RefusjonStatus.UTGÅTT)
-        registerEvent(TilskuddsperioderIRefusjonAnnullertManuelt(this, utførtAv, grunn))
-    }
-
     fun gjørKlarTilInnsending() {
         krevStatus(RefusjonStatus.FOR_TIDLIG)
         if (Now.localDate().isAfter(refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom)) {

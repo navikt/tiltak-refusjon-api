@@ -1,5 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon
 
+import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBruker
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.ulid
@@ -8,6 +9,14 @@ import no.nav.arbeidsgiver.tiltakrefusjon.varsling.Varsling
 import java.time.YearMonth
 import java.time.temporal.TemporalAdjusters.lastDayOfMonth
 
+val innloggetTestbruker = innloggetBruker("testsystem", BrukerRolle.SYSTEM)
+
+fun innloggetBruker(identifikator: String, rolle: BrukerRolle) = object : InnloggetBruker {
+    override val identifikator: String
+        get() = identifikator
+    override val rolle: BrukerRolle
+        get() = rolle
+}
 
 fun enRefusjon(tilskuddsgrunnlag: Tilskuddsgrunnlag = etTilskuddsgrunnlag()): Refusjon {
     val deltakerFnr = "07098142678"
@@ -457,7 +466,7 @@ fun refusjoner(): List<Refusjon> {
 }
 
 private fun Refusjon.medSvarPåInntekter(): Refusjon {
-    this.endreBruttolønn(true, null)
+    this.endreBruttolønn(innloggetTestbruker, true, null)
     return this
 }
 
@@ -752,7 +761,7 @@ fun Refusjon.medInntektsgrunnlag(
     måned: YearMonth = Now.yearMonth(),
     inntektsgrunnlag: Inntektsgrunnlag = etInntektsgrunnlag(måned = måned),
 ): Refusjon {
-    this.oppgiInntektsgrunnlag(inntektsgrunnlag)
+    this.oppgiInntektsgrunnlag(innloggetTestbruker, inntektsgrunnlag)
     return this
 }
 
@@ -760,12 +769,12 @@ fun Refusjon.medStortInntektsgrunnlag(
     måned: YearMonth = Now.yearMonth(),
     inntektsgrunnlag: Inntektsgrunnlag = etStortInntektsgrunnlag(måned = måned),
 ): Refusjon {
-    this.oppgiInntektsgrunnlag(inntektsgrunnlag)
+    this.oppgiInntektsgrunnlag(innloggetTestbruker, inntektsgrunnlag)
     return this
 }
 
 fun Refusjon.medSendtKravFraArbeidsgiver(): Refusjon {
-    this.godkjennForArbeidsgiver("")
+    this.godkjennForArbeidsgiver(innloggetTestbruker)
     return this
 }
 
@@ -787,6 +796,7 @@ fun Refusjon.copy(
 ): Refusjon {
     return Refusjon(tilskuddsgrunnlag, bedriftNr, deltakerFnr)
 }
+
 fun etInntektsgrunnlag(måned: YearMonth = YearMonth.of(2020, 10), opptjentIPeriode: Boolean = true) = Inntektsgrunnlag(
     inntekter = listOf(
         Inntektslinje(

@@ -78,9 +78,18 @@ class FakeInntektskomponentService : InntektskomponentService {
             inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "fastloenn", 20000.0,  måned, datoTil, måned.atEndOfMonth()))
             inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "loennEtterDoedsfall", 5000.0,  måned, datoTil, måned.atEndOfMonth()))
             return Pair(inntektslinjer, "fake respons med lønn etter dødsfall")
+
+        } else if (fnr == "09078349333") {
+            val inntektslinjer = ArrayList<Inntektslinje>()
+            val måned = YearMonth.of(datoFra.year, datoFra.month)
+            if(datoTil.isAfter(Now.localDate().plusMonths(1))) {
+                inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "fastloenn", 10000.0,  måned, datoTil, måned.atEndOfMonth()))
+            }
+            if(datoTil.isAfter(Now.localDate().plusMonths(2))) {
+                inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "loennEtterDoedsfall", 5000.0,  måned, datoTil, måned.atEndOfMonth()))
+            }
+            return Pair(inntektslinjer, "fake respons med lønn etter dødsfall")
         }
-
-
 
         val inntektslinjer = ArrayList<Inntektslinje>()
         datoFra.datesUntil(datoTil, Period.ofMonths(1)).forEach {
@@ -91,7 +100,7 @@ class FakeInntektskomponentService : InntektskomponentService {
             if (Math.random() > 0.5) {
                 inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "fastloenn", 2000.0, måned, it, måned.atEndOfMonth()))
             }
-            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "trekkILoennForFerie", -1200.0, måned, it, måned.atEndOfMonth()))
+            //inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "trekkILoennForFerie", -1200.0, måned, it, måned.atEndOfMonth()))
             inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "uregelmessigeTilleggKnyttetTilArbeidetTid", 10000.0, måned, it, måned.atEndOfMonth()))
 //            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "fastTillegg", 10000.0, måned, null, null))
 //            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "overtidsgodtgjoerelse", 7683.0, måned, it, måned.atEndOfMonth()))

@@ -310,6 +310,22 @@ fun refusjoner(): List<Refusjon> {
         it.medSendtKravFraArbeidsgiver()
     }
 
+    val SnorreKorreksjonLønnEtterDødsfallMedIngenInntekt  = `Snorre Sturlason`().let {
+        val tilskuddFom = Now.localDate().withDayOfMonth(1);
+        it.copy(
+            deltakerFnr = "09078349333",
+            tilskuddsgrunnlag = it.refusjonsgrunnlag.tilskuddsgrunnlag.copy(
+                avtaleId = `Snorre Sturlason`().refusjonsgrunnlag.tilskuddsgrunnlag.avtaleId,
+                tilskuddFom = tilskuddFom,
+                tilskuddTom = Now.localDate().minusDays(1)
+            )
+        )
+            .medInntektsgrunnlag(måned = YearMonth.of(
+                it.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom.year,
+                it.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom.month
+            ))
+    }
+
     fun `Jon Janson Ferietrekk minus beløp 1`(): Refusjon {
         val deltakerFnr = "08124521514"
         val bedriftNr = "910712306"
@@ -404,7 +420,11 @@ fun refusjoner(): List<Refusjon> {
         kiellandNy,
         kiellandGammel,
         BjørnsonUtgått,
-        `Bjørnstjerne Bjørnson`().copy(tilskuddsgrunnlag = `Bjørnstjerne Bjørnson`().refusjonsgrunnlag.tilskuddsgrunnlag.copy(tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD)),
+        `Bjørnstjerne Bjørnson`().copy(
+            tilskuddsgrunnlag = `Bjørnstjerne Bjørnson`().refusjonsgrunnlag.tilskuddsgrunnlag.copy(
+                tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD
+            )
+        ),
         `Bjørnstjerne Bjørnson unntak`(),
         `Nils Nilsen`(),
         `Inger Hagerup`(),
@@ -412,6 +432,7 @@ fun refusjoner(): List<Refusjon> {
         `Suzanna Hansen`(),
         `Siri Hansen`(),
         `Camilla Collett`(),
+        `Snorre Sturlason`(),
         `Sigrid Undset`(),
         `Henrik Wergeland`(),
         `Jonas Lie`(),
@@ -430,8 +451,8 @@ fun refusjoner(): List<Refusjon> {
         `Henrik Wergeland`(),
         `Jonas Lie`(),
         `Geir Geirsen`(),
-        `dodsfallUnderTiltakRefusjon`()
-
+        `dodsfallUnderTiltakRefusjon`(),
+        SnorreKorreksjonLønnEtterDødsfallMedIngenInntekt
     )
 }
 
@@ -507,6 +528,21 @@ fun `Sigrid Undset`(): Refusjon {
             deltakerFornavn = "Sigrid",
             deltakerEtternavn = "Undset",
             tilskuddsbeløp = 1357,
+            veilederNavIdent = "Z123456"
+        ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
+    )
+}
+
+fun `Snorre Sturlason`(): Refusjon {
+    val deltakerFnr = "09078349333"
+    val bedriftNr = "999999999"
+    return Refusjon(
+        tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
+            deltakerFnr = deltakerFnr,
+            bedriftNr = bedriftNr,
+            deltakerFornavn = "Snorre",
+            deltakerEtternavn = "Sturlason",
+            tilskuddsbeløp = 13337,
             veilederNavIdent = "Z123456"
         ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
     )

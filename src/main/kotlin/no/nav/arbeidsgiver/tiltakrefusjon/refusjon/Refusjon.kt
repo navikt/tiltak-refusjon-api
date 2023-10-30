@@ -265,7 +265,7 @@ fun opprettKorreksjonsutkast(korreksjonsgrunner: Set<Korreksjonsgrunn>, unntakOm
             throw FeilkodeException(Feilkode.HAR_KORREKSJON)
         }
         val korreksjonsnummer = 1
-       val tidligereUtbetalt = korreksjongrunnerInnholdSjekk(korreksjonsgrunner)
+        val tidligereUtbetalt = korreksjongrunnerInnholdSjekk(korreksjonsgrunner)
         val korreksjonsutkast = Korreksjon(
             korrigererRefusjonId = this.id,
             korreksjonsnummer = korreksjonsnummer,

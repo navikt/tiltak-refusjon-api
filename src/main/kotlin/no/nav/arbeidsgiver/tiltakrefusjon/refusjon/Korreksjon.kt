@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import jakarta.persistence.*
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
+import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBruker
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.KorreksjonBeregningUtført
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.KorreksjonMerketForOppgjort
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.KorreksjonMerketForTilbakekreving
@@ -103,7 +104,7 @@ class Korreksjon(
     }
 
     // Ved positivt beløp, skal etterbetale
-    fun utbetalKorreksjon(utførtAv: String, beslutterNavIdent: String, kostnadssted: String) {
+    fun utbetalKorreksjon(utførtAv: InnloggetBruker, kostnadssted: String) {
         krevStatus(Korreksjonstype.UTKAST)
 
         val refusjonsbeløp = refusjonsgrunnlag.beregning?.refusjonsbeløp
@@ -113,7 +114,7 @@ class Korreksjon(
         if (refusjonsgrunnlag.bedriftKontonummer == null) {
             throw FeilkodeException(Feilkode.INGEN_BEDRIFTKONTONUMMER)
         }
-        if (beslutterNavIdent.isBlank()) {
+        if (utførtAv.identifikator.isBlank()) {
             throw FeilkodeException(Feilkode.INGEN_BESLUTTER)
         }
         if (kostnadssted.isBlank()) {
@@ -124,8 +125,8 @@ class Korreksjon(
         }
 
         this.godkjentTidspunkt = Now.instant()
-        this.godkjentAvNavIdent = utførtAv
-        this.besluttetAvNavIdent = beslutterNavIdent
+        this.godkjentAvNavIdent = utførtAv.identifikator
+        this.besluttetAvNavIdent = utførtAv.identifikator
         this.besluttetTidspunkt = Now.instant()
         this.kostnadssted = kostnadssted
         this.status = Korreksjonstype.TILLEGSUTBETALING
@@ -133,7 +134,7 @@ class Korreksjon(
     }
 
     // Ved 0 beløp, skal ikke tilbakekreve eller etterbetale
-    fun fullførKorreksjonVedOppgjort(utførtAv: String) {
+    fun fullførKorreksjonVedOppgjort(utførtAv: InnloggetBruker) {
         krevStatus(Korreksjonstype.UTKAST)
         val refusjonsbeløp = refusjonsgrunnlag.beregning?.refusjonsbeløp
         if (refusjonsbeløp == null || refusjonsbeløp != 0) {
@@ -143,13 +144,13 @@ class Korreksjon(
             throw FeilkodeException(Feilkode.IKKE_TATT_STILLING_TIL_ALLE_INNTEKTSLINJER)
         }
         this.godkjentTidspunkt = Now.instant()
-        this.godkjentAvNavIdent = utførtAv
+        this.godkjentAvNavIdent = utførtAv.identifikator
         this.status = Korreksjonstype.OPPGJORT
         registerEvent(KorreksjonMerketForOppgjort(this, utførtAv))
     }
 
     // Ved negativt beløp, skal tilbakekreves
-    fun fullførKorreksjonVedTilbakekreving(utførtAv: String) {
+    fun fullførKorreksjonVedTilbakekreving(utførtAv: InnloggetBruker) {
         krevStatus(Korreksjonstype.UTKAST)
         val refusjonsbeløp = refusjonsgrunnlag.beregning?.refusjonsbeløp
         if (refusjonsbeløp == null || refusjonsbeløp >= 0) {
@@ -159,7 +160,7 @@ class Korreksjon(
             throw FeilkodeException(Feilkode.IKKE_TATT_STILLING_TIL_ALLE_INNTEKTSLINJER)
         }
         this.godkjentTidspunkt = Now.instant()
-        this.godkjentAvNavIdent = utførtAv
+        this.godkjentAvNavIdent = utførtAv.identifikator
         this.status = Korreksjonstype.TILBAKEKREVING
         registerEvent(KorreksjonMerketForTilbakekreving(this, utførtAv))
     }

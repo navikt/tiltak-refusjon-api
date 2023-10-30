@@ -21,16 +21,17 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 data class InnloggetArbeidsgiver(
-    val identifikator: String,
+    override val identifikator: String,
     @JsonIgnore val altinnTilgangsstyringService: AltinnTilgangsstyringService,
     @JsonIgnore val refusjonRepository: RefusjonRepository,
     @JsonIgnore val korreksjonRepository: KorreksjonRepository,
     @JsonIgnore val refusjonService: RefusjonService,
     @JsonIgnore val eregClient: EregClient,
-) {
+) : InnloggetBruker {
 
     @JsonIgnore
     val log: Logger = LoggerFactory.getLogger(javaClass)
+    override val rolle: BrukerRolle = BrukerRolle.ARBEIDSGIVER
 
     val organisasjoner: Set<Organisasjon> = altinnTilgangsstyringService.hentTilganger(identifikator)
 
@@ -80,14 +81,16 @@ data class InnloggetArbeidsgiver(
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(refusjonId) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
         sjekkSistEndret(refusjon, sistEndret)
-        refusjonService.godkjennForArbeidsgiver(refusjon, this.identifikator)
+        refusjonService.godkjennForArbeidsgiver(refusjon, this)
+
     }
 
     fun godkjennNullbeløp(refusjonId: String, sistEndret: Instant?) {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(refusjonId) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
         sjekkSistEndret(refusjon, sistEndret)
-        refusjonService.godkjennNullbeløpForArbeidsgiver(refusjon, this.identifikator)
+        refusjonService.godkjennNullbeløpForArbeidsgiver(refusjon, this)
+
     }
 
     fun finnRefusjonImmutable(id: String): Refusjon {
@@ -112,8 +115,9 @@ data class InnloggetArbeidsgiver(
             refusjon.åpnetFørsteGang = Now.instant()
         }
         refusjonService.gjørBedriftKontonummeroppslag(refusjon)
-        refusjonService.gjørInntektsoppslag(refusjon)
+        refusjonService.gjørInntektsoppslag(refusjon, this)
         refusjonService.oppdaterSistEndret(refusjon)
+
         refusjonRepository.save(refusjon)
         return refusjon
     }
@@ -122,7 +126,7 @@ data class InnloggetArbeidsgiver(
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
         sjekkSistEndret(refusjon, sistEndret)
-        refusjonService.gjørInntektsoppslag(refusjon)
+        refusjonService.gjørInntektsoppslag(refusjon, this)
         refusjonService.oppdaterSistEndret(refusjon)
         return refusjon
     }
@@ -154,7 +158,8 @@ data class InnloggetArbeidsgiver(
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
         sjekkSistEndret(refusjon, sistEndret)
         refusjonService.endreBruttolønn(refusjon, inntekterKunFraTiltaket, bruttoLønn)
-        refusjonService.gjørBeregning(refusjon)
+        refusjonService.gjørBeregning(refusjon, this)
+
         refusjonRepository.save(refusjon)
     }
 
@@ -170,8 +175,9 @@ data class InnloggetArbeidsgiver(
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
         sjekkSistEndret(refusjon, sistEndret)
         refusjon.setInntektslinjeTilOpptjentIPeriode(inntekslinjeId, erOpptjentIPeriode)
-        refusjonService.gjørBeregning(refusjon)
+        refusjonService.gjørBeregning(refusjon, this)
         refusjonService.oppdaterSistEndret(refusjon)
+
         refusjonRepository.save(refusjon)
     }
 
@@ -180,8 +186,9 @@ data class InnloggetArbeidsgiver(
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
         sjekkSistEndret(refusjon, sistEndret)
         refusjon.settFratrekkRefunderbarBeløp(fratrekkRefunderbarBeløp, refunderbarBeløp)
-        refusjonService.gjørBeregning(refusjon)
+        refusjonService.gjørBeregning(refusjon, this)
         refusjonService.oppdaterSistEndret(refusjon)
+
         refusjonRepository.save(refusjon)
     }
 
@@ -193,7 +200,7 @@ data class InnloggetArbeidsgiver(
         refusjon.forlengFrist(
             nyFrist = tolvMåneder,
             årsak = "Sykepenger",
-            utførtAv = identifikator,
+            utførtAv = this,
             enforce = true
         );
         refusjonRepository.save(refusjon)
@@ -202,7 +209,7 @@ data class InnloggetArbeidsgiver(
     fun merkForHentInntekterFrem(id: String, merking: Boolean) {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
-        refusjon.merkForHentInntekterFrem(merking, identifikator)
+        refusjon.merkForHentInntekterFrem(merking, this)
         log.info("Merket refusjon ${refusjon.id} for henting av inntekter fremover")
         refusjonRepository.save(refusjon)
     }

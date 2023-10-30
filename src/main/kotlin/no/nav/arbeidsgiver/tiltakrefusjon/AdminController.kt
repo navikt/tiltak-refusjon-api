@@ -1,9 +1,9 @@
 package no.nav.arbeidsgiver.tiltakrefusjon
 
+import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.ADMIN_BRUKER
 import no.nav.arbeidsgiver.tiltakrefusjon.leader.LeaderPodCheck
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.MidlerFrigjortÅrsak
-import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeAnnullertMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeForkortetMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
 import no.nav.security.token.support.core.api.Unprotected
@@ -95,7 +95,7 @@ class AdminController(
                 refusjonRepository.findByIdOrNull(id) ?: throw RuntimeException("Finner ikke refusjon med id=$id")
 
             try {
-                refusjon.forlengFrist(request.nyFrist, request.årsak, "admin", request.enforce)
+                refusjon.forlengFrist(request.nyFrist, request.årsak, ADMIN_BRUKER, request.enforce)
                 refusjonRepository.save(refusjon)
             } catch (e: FeilkodeException) {
                 if (e.feilkode == Feilkode.FOR_LANG_FORLENGELSE_AV_FRIST) {
@@ -111,12 +111,16 @@ class AdminController(
     @PostMapping("forleng-frister-til-og-med-dato")
     fun forlengFristerTilOgMedDato(@RequestBody request: ForlengFristerTilOgMedRequest) {
         logger.info("Bruker AdminController for å forlenge refusjoner med frist før ${request.tilDato} til ny frist: ${request.nyFrist}")
-        val refusjoner = refusjonRepository.findAllByFristForGodkjenningBeforeAndStatus(request.tilDato, RefusjonStatus.KLAR_FOR_INNSENDING)
+        val refusjoner = refusjonRepository.findAllByFristForGodkjenningBeforeAndStatus(
+            request.tilDato,
+            RefusjonStatus.KLAR_FOR_INNSENDING
+        )
         logger.info("Fant ${refusjoner.size} refusjoner som skal forlenges")
         var fristerForlenget = 0
+
         for (refusjon in refusjoner) {
             try {
-                refusjon.forlengFrist(request.nyFrist, request.årsak, "admin", request.enforce)
+                refusjon.forlengFrist(request.nyFrist, request.årsak, ADMIN_BRUKER, request.enforce)
                 refusjonRepository.save(refusjon)
                 fristerForlenget++
             } catch (e: FeilkodeException) {
@@ -129,29 +133,6 @@ class AdminController(
             }
         }
         logger.info("Forlenget frister på $fristerForlenget refusjoner")
-    }
-
-    @Unprotected
-    @PostMapping("annuller-tilskuddsperioder-manuelt")
-    fun annullerTilskuddsperioderIRefusjonManuelt(@RequestBody request: AnnullerTilskuddsperioderRequest) {
-        logger.info("Bruker AdminController for å annullere tilskuddsperioder i {} refusjoner", request.refusjonIder.size)
-        for (id in request.refusjonIder) {
-            val refusjon =
-                refusjonRepository.findByIdOrNull(id) ?: throw RuntimeException("Finner ikke refusjon med id=$id")
-            refusjon.annullerTilskuddsperioderIRefusjon(request.utførtAv, request.årsak)
-            refusjonRepository.save(refusjon)
-        }
-    }
-
-    @Unprotected
-    @PostMapping("annuller-tilskuddsperioder-manuelt-i-utgåtte-refusjoner")
-    fun annullerTilskuddsperioderIUtgåtteRefusjonManuelt(@RequestBody request: AnnullerTilskuddsperioderIUtgåtteRefusjonerRequest) {
-        val utgåtteRefusjoner = refusjonRepository.findAllByStatus(RefusjonStatus.UTGÅTT)
-        logger.info("Bruker AdminController for å annullere tilskuddsperioder i {} utgåtte refusjoner", utgåtteRefusjoner.size)
-        utgåtteRefusjoner.forEach {
-            it.annullerTilskuddsperioderIRefusjon(request.utførtAv, request.årsak)
-            refusjonRepository.save(it)
-        }
     }
 
     @Unprotected
@@ -221,16 +202,13 @@ class AdminController(
         return beregning
     }
 
+    @Unprotected
+    @GetMapping("hent-refusjoner-med-status-sendt")
+    fun hentRefusjonerMedStatusSendtKrav()  = refusjonRepository.findAllByStatus(RefusjonStatus.SENDT_KRAV)
 }
 
 data class ReberegnRequest(val harFerietrekkForSammeMåned: Boolean, val minusBeløp: Int, val ferieTrekk: Int)
-
 data class KorreksjonRequest(val refusjonIder: List<String>, val korreksjonsgrunner: Set<Korreksjonsgrunn>)
-
 data class ForlengFristerRequest(val refusjonIder: List<String>, val nyFrist: LocalDate, val årsak: String, val enforce: Boolean)
 data class ForlengFristerTilOgMedRequest(val tilDato: LocalDate, val nyFrist: LocalDate, val årsak: String, val enforce: Boolean)
-
-data class AnnullerTilskuddsperioderRequest(val refusjonIder: List<String>, val utførtAv: String, val årsak: String)
-data class AnnullerTilskuddsperioderIUtgåtteRefusjonerRequest(val utførtAv: String, val årsak: String)
-
 data class AnnullerRefusjon(val tilskuddsperiodeId: String)

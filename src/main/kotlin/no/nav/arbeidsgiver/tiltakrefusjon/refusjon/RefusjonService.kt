@@ -4,6 +4,8 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 import io.micrometer.observation.annotation.Observed
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
+import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.ADMIN_BRUKER
+import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBruker
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
 import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.BeregningUtført
@@ -77,7 +79,7 @@ class RefusjonService(
             bedriftNr = tilskuddsperiodeGodkjentMelding.bedriftNr
         )
 
-        oppdaterRefusjon(refusjon)
+        oppdaterRefusjon(refusjon, ADMIN_BRUKER)
 
         return refusjonRepository.save(refusjon)
     }
@@ -125,7 +127,7 @@ class RefusjonService(
 
     }
 
-    fun gjørInntektsoppslag(refusjon: Refusjon) {
+    fun gjørInntektsoppslag(refusjon: Refusjon, utførtAv: InnloggetBruker) {
         if (!refusjon.skalGjøreInntektsoppslag()) {
             return
         }
@@ -152,14 +154,14 @@ class RefusjonService(
                 respons = inntektsoppslag.second
             )
             refusjon.oppgiInntektsgrunnlag(inntektsgrunnlag, refusjon.refusjonsgrunnlag.inntektsgrunnlag)
-            gjørBeregning(refusjon)
+            gjørBeregning(refusjon, utførtAv)
             refusjonRepository.save(refusjon)
         } catch (e: Exception) {
             log.error("Feil ved henting av inntekter for refusjon ${refusjon.id}", e)
         }
     }
 
-    fun godkjennForArbeidsgiver(refusjon: Refusjon, utførtAv: String) {
+    fun godkjennForArbeidsgiver(refusjon: Refusjon, utførtAv: InnloggetBruker) {
         val alleMinusBeløp = minusbelopRepository.findAllByAvtaleNr(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr)
         val sumMinusbelop = alleMinusBeløp
             .filter { !it.gjortOpp }
@@ -203,14 +205,14 @@ class RefusjonService(
             )
         alleRefusjonserSomSkalSendesInn.forEach {
             if(it.id != refusjon.id) {
-                oppdaterRefusjon(it)
+                oppdaterRefusjon(it, utførtAv)
                 refusjonRepository.save(it)
             }
         }
 
     }
 
-    fun godkjennNullbeløpForArbeidsgiver(refusjon: Refusjon, utførtAv: String) {
+    fun godkjennNullbeløpForArbeidsgiver(refusjon: Refusjon, utførtAv: InnloggetBruker) {
         refusjon.godkjennNullbeløpForArbeidsgiver(utførtAv)
         refusjonRepository.save(refusjon)
     }
@@ -287,14 +289,14 @@ class RefusjonService(
         }
     }
 
-    fun oppdaterRefusjon(refusjon: Refusjon) {
+    fun oppdaterRefusjon(refusjon: Refusjon, utførtAv: InnloggetBruker) {
         // Ikke sett minusbeløp på allerede sendt inn refusjoner
         if(refusjon.status == RefusjonStatus.KLAR_FOR_INNSENDING || refusjon.status == RefusjonStatus.FOR_TIDLIG) {
             settMinusBeløpFraTidligereRefusjonerTilknyttetAvtalen(refusjon)
         }
         settTotalBeløpUtbetalteVarigLønnstilskudd(refusjon)
         settOmFerieErTrukketForSammeMåned(refusjon)
-        gjørBeregning(refusjon)
+        gjørBeregning(refusjon, utførtAv)
     }
 
     fun oppdaterSistEndret(refusjon: Refusjon) {
@@ -302,7 +304,7 @@ class RefusjonService(
         refusjonRepository.save(refusjon)
     }
 
-    fun gjørBeregning(refusjon: Refusjon) {
+    fun gjørBeregning(refusjon: Refusjon, utførtAv: InnloggetBruker) {
         if (erAltOppgitt(refusjon.refusjonsgrunnlag)) {
             val beregning = beregnRefusjonsbeløp(
                 inntekter = refusjon.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
@@ -315,11 +317,11 @@ class RefusjonService(
                 sumUtbetaltVarig = refusjon.refusjonsgrunnlag.sumUtbetaltVarig,
                 harFerietrekkForSammeMåned = refusjon.refusjonsgrunnlag.harFerietrekkForSammeMåned)
             refusjon.refusjonsgrunnlag.beregning = beregning
-            applicationEventPublisher.publishEvent(BeregningUtført(refusjon))
+            applicationEventPublisher.publishEvent(BeregningUtført(refusjon, utførtAv))
         }
     }
 
-    fun gjørKorreksjonBeregning(korreksjon: Korreksjon) {
+    fun gjørKorreksjonBeregning(korreksjon: Korreksjon, utførtAv: InnloggetBruker) {
         if(erAltOppgitt(korreksjon.refusjonsgrunnlag)) {
             val beregning = beregnRefusjonsbeløp(
                 inntekter = korreksjon.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
@@ -332,7 +334,7 @@ class RefusjonService(
                 sumUtbetaltVarig = korreksjon.refusjonsgrunnlag.sumUtbetaltVarig,
                 harFerietrekkForSammeMåned = korreksjon.refusjonsgrunnlag.harFerietrekkForSammeMåned)
             korreksjon.refusjonsgrunnlag.beregning = beregning
-            applicationEventPublisher.publishEvent(KorreksjonBeregningUtført(korreksjon))
+            applicationEventPublisher.publishEvent(KorreksjonBeregningUtført(korreksjon, utførtAv))
         }
     }
 

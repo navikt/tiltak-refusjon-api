@@ -46,8 +46,6 @@ class VarslingJobbTest {
 
     @Test
     fun `testing av at varsling ikke blir sendt`() {
-
-
         val varslingJobb =
             VarslingJobb(refusjonRepositoryMock, varslingRepositoryMock, refusjonVarselProducer, leaderPodCheck)
 
@@ -71,8 +69,6 @@ class VarslingJobbTest {
 
     @Test
     fun `testing av at varsling klar blir sendt`() {
-
-
         val varslingJobb =
             VarslingJobb(refusjonRepositoryMock, varslingRepositoryMock, refusjonVarselProducer, leaderPodCheck)
 
@@ -90,6 +86,5 @@ class VarslingJobbTest {
         verify(timeout = 2000, exactly = 1) { varslingRepositoryMock.save(any()) }
 
     }
-
 
 }

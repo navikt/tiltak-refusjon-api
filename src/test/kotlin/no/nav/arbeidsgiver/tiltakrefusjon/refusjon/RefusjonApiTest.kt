@@ -10,6 +10,7 @@ import jakarta.servlet.http.Cookie
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
 import no.nav.arbeidsgiver.tiltakrefusjon.audit.AuditConsoleLogger
+import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.ADMIN_BRUKER
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.REQUEST_MAPPING_INNLOGGET_ARBEIDSGIVER
 import no.nav.arbeidsgiver.tiltakrefusjon.hendelseslogg.HendelsesloggRepository
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjoner
@@ -81,7 +82,7 @@ class RefusjonApiTest(
     fun setUp() {
         refusjonRepository.saveAll(refusjoner())
         refusjonRepository.findAll().forEach {
-            refusjonService.oppdaterRefusjon(it)
+            refusjonService.oppdaterRefusjon(it, ADMIN_BRUKER)
         }
         resetAuditCount()
     }

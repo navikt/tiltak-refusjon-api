@@ -277,8 +277,6 @@ fun gamleUtbetalteRefusjonerOgEnNy(): List<Refusjon> {
     return listOf(refusjon1, refusjon2, refusjon3, refusjon4, refusjon5, refusjon6, refusjon7, refusjon8, refusjon9, refusjon10)
 }
 
-
-
 fun refusjoner(): List<Refusjon> {
     val kiellandNy = `Alexander Kielland`()
     val kiellandGammel = `Alexander Kielland`().let {

@@ -146,6 +146,7 @@ data class InnloggetSaksbehandler(
     fun opprettKorreksjonsutkast(id: String, korreksjonsgrunner: Set<Korreksjonsgrunn>, unntakOmInntekterFremitid: Int?, annetGrunn: String?): Refusjon {
         sjekkKorreksjonTilgang()
         val gammel = finnRefusjon(id)
+        log.info("Oppretter korreksjonsutkast fra refusjon med id ${gammel.id} og status ${gammel.status}")
         refusjonService.opprettKorreksjonsutkast(gammel, korreksjonsgrunner, unntakOmInntekterFremitid, annetGrunn)
         return gammel
     }

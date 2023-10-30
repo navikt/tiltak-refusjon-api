@@ -243,13 +243,29 @@ class Refusjon(
         registerEvent(RefusjonForkortet(this, KAFKA_BRUKER))
     }
 
+    fun korreksjongrunnerInnholdSjekk(korreksjonsgrunner: Set<Korreksjonsgrunn>) : Int{
+        if(korreksjonsgrunner.contains(Korreksjonsgrunn.UTBETALT_HELE_TILSKUDDSBELØP)){
+            return refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsbeløp
+        }
+        else {
+            if(refusjonsgrunnlag.beregning == null){
+                return 0;
+            }
+            else {
+                return refusjonsgrunnlag.beregning!!.refusjonsbeløp
+            }
+        }
+    }
+
+
+
 fun opprettKorreksjonsutkast(korreksjonsgrunner: Set<Korreksjonsgrunn>, unntakOmInntekterFremitid: Int?, annenGrunn: String?): Korreksjon {
-        krevStatus(RefusjonStatus.UTBETALT, RefusjonStatus.SENDT_KRAV,RefusjonStatus.GODKJENT_MINUSBELØP, RefusjonStatus.UTGÅTT)
+        krevStatus(RefusjonStatus.UTBETALT, RefusjonStatus.SENDT_KRAV,RefusjonStatus.GODKJENT_MINUSBELØP, RefusjonStatus.UTGÅTT, RefusjonStatus.GODKJENT_NULLBELØP)
         if (korreksjonId != null) {
             throw FeilkodeException(Feilkode.HAR_KORREKSJON)
         }
         val korreksjonsnummer = 1
-        val tidligereUtbetalt = if (korreksjonsgrunner.contains(Korreksjonsgrunn.UTBETALT_HELE_TILSKUDDSBELØP)) refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsbeløp else refusjonsgrunnlag.beregning!!.refusjonsbeløp
+        val tidligereUtbetalt = korreksjongrunnerInnholdSjekk(korreksjonsgrunner)
         val korreksjonsutkast = Korreksjon(
             korrigererRefusjonId = this.id,
             korreksjonsnummer = korreksjonsnummer,

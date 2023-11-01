@@ -88,20 +88,6 @@ class ArbeidsgiverRefusjonController(
         return arbeidsgiver.oppdaterRefusjon(id, sistEndret);
     }
 
-    @PostMapping("/{id}/finn-inntekter")
-    @Transactional
-    fun finnInntekter(@PathVariable id: String, @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant): Refusjon? {
-        val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-        return arbeidsgiver.finnInntekter(id, sistEndret)
-    }
-
-    @PostMapping("/{id}/finn-bedriftkontonummer")
-    @Transactional
-    fun finnBedriftkontonummer(@PathVariable id: String, @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant): Refusjon? {
-        val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-        return arbeidsgiver.finnBedriftkontonummer(id, sistEndret)
-    }
-
     @PostMapping("/{id}/endre-bruttolønn")
     @Transactional
     fun endreBruttolønn(@PathVariable id: String, @RequestBody request: EndreBruttolønnRequest, @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant) {

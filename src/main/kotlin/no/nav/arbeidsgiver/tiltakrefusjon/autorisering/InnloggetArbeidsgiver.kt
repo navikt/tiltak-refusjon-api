@@ -118,8 +118,7 @@ data class InnloggetArbeidsgiver(
         refusjonService.gjørInntektsoppslag(refusjon, this)
         refusjonService.oppdaterSistEndret(refusjon)
 
-        refusjonRepository.save(refusjon)
-        return refusjon
+        return refusjonRepository.save(refusjon)
     }
 
     fun finnInntekter(id: String, sistEndret: Instant?): Refusjon {

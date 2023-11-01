@@ -6,6 +6,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.ADMIN_BRUKER
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBruker
+import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.SYSTEM_BRUKER
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
 import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.BeregningUtført
@@ -79,7 +80,7 @@ class RefusjonService(
             bedriftNr = tilskuddsperiodeGodkjentMelding.bedriftNr
         )
 
-        oppdaterRefusjon(refusjon, ADMIN_BRUKER)
+        oppdaterRefusjon(refusjon, SYSTEM_BRUKER)
 
         return refusjonRepository.save(refusjon)
     }
@@ -290,12 +291,14 @@ class RefusjonService(
     }
 
     fun oppdaterRefusjon(refusjon: Refusjon, utførtAv: InnloggetBruker) {
+        log.info("Oppdaterer refusjon ${refusjon.id} med data")
         // Ikke sett minusbeløp på allerede sendt inn refusjoner
         if(refusjon.status == RefusjonStatus.KLAR_FOR_INNSENDING || refusjon.status == RefusjonStatus.FOR_TIDLIG) {
             settMinusBeløpFraTidligereRefusjonerTilknyttetAvtalen(refusjon)
         }
         settTotalBeløpUtbetalteVarigLønnstilskudd(refusjon)
         settOmFerieErTrukketForSammeMåned(refusjon)
+        oppdaterSistEndret(refusjon)
         gjørBeregning(refusjon, utførtAv)
     }
 

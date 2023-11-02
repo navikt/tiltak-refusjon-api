@@ -23,7 +23,7 @@ import org.springframework.web.filter.ServerHttpObservationFilter
  * I nais.yaml legger man til:
  * -   spec.observability.tracing.enabled: true
  */
-@Profile("!local")
+@Profile("!local & !dockercompose")
 @Configuration
 class OpenTelemetryConfiguration {
 

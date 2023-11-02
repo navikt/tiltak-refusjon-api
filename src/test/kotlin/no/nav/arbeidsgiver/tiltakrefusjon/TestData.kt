@@ -8,6 +8,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.varsling.VarselType
 import no.nav.arbeidsgiver.tiltakrefusjon.varsling.Varsling
 import java.time.YearMonth
 import java.time.temporal.TemporalAdjusters.lastDayOfMonth
+import java.util.UUID
 
 val innloggetTestbruker = innloggetBruker("testsystem", BrukerRolle.SYSTEM)
 
@@ -479,8 +480,8 @@ private fun Refusjon.medSvarPåInntekter(): Refusjon {
 }
 
 fun etTilskuddsgrunnlag(tiltakstype: Tiltakstype = Tiltakstype.SOMMERJOBB) = Tilskuddsgrunnlag(
-    avtaleId = ulid(),
-    tilskuddsperiodeId = ulid(),
+    avtaleId = UUID.randomUUID().toString(),
+    tilskuddsperiodeId = UUID.randomUUID().toString(),
     deltakerFornavn = "",
     deltakerEtternavn = "",
     arbeidsgiverFornavn = "Arne",

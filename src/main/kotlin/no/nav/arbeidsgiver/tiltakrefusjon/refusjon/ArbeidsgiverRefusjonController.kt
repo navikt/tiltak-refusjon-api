@@ -82,9 +82,9 @@ class ArbeidsgiverRefusjonController(
     }
 
     @PostMapping("{id}/oppdater-refusjon")
-    fun oppdaterRefusjon(@PathVariable id: String, @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant?): Refusjon? {
+    fun oppdaterRefusjon(@PathVariable id: String, @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant?) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-        return arbeidsgiver.oppdaterRefusjon(id, sistEndret);
+        arbeidsgiver.oppdaterRefusjon(id, sistEndret);
     }
 
     @PostMapping("/{id}/endre-bruttolønn")

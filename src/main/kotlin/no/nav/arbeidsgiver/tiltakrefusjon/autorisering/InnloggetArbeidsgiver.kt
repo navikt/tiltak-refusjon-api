@@ -185,23 +185,13 @@ data class InnloggetArbeidsgiver(
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
         sjekkSistEndret(refusjon, sistEndret)
         refusjon.settFratrekkRefunderbarBeløp(fratrekkRefunderbarBeløp, refunderbarBeløp)
+        if(fratrekkRefunderbarBeløp) {
+            val tolvMåneder = antallMånederEtter(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom, 12)
+            refusjon.forlengFristSykepenger(nyFrist = tolvMåneder, årsak = "Sykepenger", utførtAv = this)
+        }
         refusjonService.gjørBeregning(refusjon, this)
         refusjonService.oppdaterSistEndret(refusjon)
 
-        refusjonRepository.save(refusjon)
-    }
-
-    fun utsettFristSykepenger(id: String) {
-        val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
-        sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
-        log.info("Utsetter frist på refusjon ${refusjon.id} grunnet sykepenger/fravær i perioden")
-        val tolvMåneder = antallMånederEtter(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom, 12)
-        refusjon.forlengFrist(
-            nyFrist = tolvMåneder,
-            årsak = "Sykepenger",
-            utførtAv = this,
-            enforce = true
-        );
         refusjonRepository.save(refusjon)
     }
 
@@ -214,8 +204,8 @@ data class InnloggetArbeidsgiver(
     }
 
     private fun sjekkSistEndret(refusjon: Refusjon, sistEndret: Instant?) {
-        if ( refusjon.sistEndret != null && sistEndret != null) {
-            if (sistEndret.truncatedTo(ChronoUnit.MILLIS).isBefore(refusjon.sistEndret!!.truncatedTo(ChronoUnit.MILLIS))) {
+        if (refusjon.sistEndret != null && sistEndret != null) {
+            if (sistEndret.isBefore(refusjon.sistEndret)) {
                 throw FeilkodeException(Feilkode.SAMTIDIGE_ENDRINGER);
             }
         }

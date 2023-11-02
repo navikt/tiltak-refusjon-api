@@ -101,7 +101,7 @@ class ArbeidsgiverRefusjonController(
 
     @PostMapping("/{id}/lagre-bedriftKID")
     @Transactional
-    fun lagreBedriftKID(@PathVariable id: String, @RequestBody request: EndreBedriftKIDRequest ) {
+    fun lagreBedriftKID(@PathVariable id: String, @RequestBody request: EndreBedriftKIDRequest, @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
         arbeidsgiver.lagreBedriftKID(id, request.bedriftKID)
     }
@@ -111,13 +111,6 @@ class ArbeidsgiverRefusjonController(
     fun fratrekkSykepenger(@PathVariable id: String, @RequestBody request: FratrekkRefunderbarBeløp, @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
         arbeidsgiver.settFratrekkRefunderbarBeløp(id, request.fratrekkRefunderbarBeløp, request.refunderbarBeløp, sistEndret)
-    }
-
-    @PostMapping("/{id}/utsett-frist")
-    @Transactional
-    fun utsettFrist(@PathVariable id: String) {
-        val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-        arbeidsgiver.utsettFristSykepenger(id);
     }
 
     @PostMapping("/{id}/set-inntektslinje-opptjent-i-periode")
@@ -148,7 +141,7 @@ class ArbeidsgiverRefusjonController(
 
     @PostMapping("/{id}/merk-for-hent-inntekter-frem")
     @Transactional
-    fun merkForHentInntekterFrem(@PathVariable id: String, @RequestBody request: MerkInntekterFremRequest) {
+    fun merkForHentInntekterFrem(@PathVariable id: String, @RequestBody request: MerkInntekterFremRequest, @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
         arbeidsgiver.merkForHentInntekterFrem(id, request.merking)
     }

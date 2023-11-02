@@ -318,6 +318,19 @@ fun opprettKorreksjonsutkast(korreksjonsgrunner: Set<Korreksjonsgrunn>, unntakOm
         registerEvent(FristForlenget(this, gammelFristForGodkjenning, fristForGodkjenning, årsak, utførtAv))
     }
 
+    fun forlengFristSykepenger(nyFrist: LocalDate, årsak: String, utførtAv: InnloggetBruker) {
+        oppdaterStatus()
+        krevStatus(RefusjonStatus.FOR_TIDLIG, RefusjonStatus.KLAR_FOR_INNSENDING)
+
+        if (nyFrist > fristForGodkjenning) {
+            val gammelFristForGodkjenning = fristForGodkjenning
+            forrigeFristForGodkjenning = gammelFristForGodkjenning
+            fristForGodkjenning = nyFrist
+            oppdaterStatus()
+            registerEvent(FristForlenget(this, gammelFristForGodkjenning, fristForGodkjenning, årsak, utførtAv))
+        }
+    }
+
     fun skalGjøreInntektsoppslag(): Boolean {
         if (status != RefusjonStatus.KLAR_FOR_INNSENDING) {
             return false

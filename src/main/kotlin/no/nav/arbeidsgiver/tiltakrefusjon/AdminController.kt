@@ -209,6 +209,7 @@ class AdminController(
 
     @Unprotected
     @PostMapping("oppdater-alle-refusjoner-med-data")
+    @Transactional
     fun oppdaterAlleRefusjonerMedData() {
         val alleKlarForInnsending = refusjonRepository.findAllByStatus(RefusjonStatus.KLAR_FOR_INNSENDING);
 

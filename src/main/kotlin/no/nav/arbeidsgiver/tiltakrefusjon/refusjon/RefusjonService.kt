@@ -4,7 +4,6 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 import io.micrometer.observation.annotation.Observed
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
-import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.ADMIN_BRUKER
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBruker
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.SYSTEM_BRUKER
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService

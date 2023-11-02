@@ -13,8 +13,6 @@ import no.nav.arbeidsgiver.tiltakrefusjon.utils.KidValidator
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.antallMånederEtter
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.ulid
-import org.hibernate.annotations.OptimisticLockType
-import org.hibernate.annotations.OptimisticLocking
 import org.springframework.data.domain.AbstractAggregateRoot
 import java.time.Instant
 import java.time.LocalDate

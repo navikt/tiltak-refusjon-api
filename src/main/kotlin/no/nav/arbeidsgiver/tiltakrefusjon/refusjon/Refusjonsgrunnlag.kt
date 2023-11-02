@@ -5,7 +5,6 @@ import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.ulid
-import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 
 @Entity

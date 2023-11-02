@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
 import java.time.Instant
 
-
 const val REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON = "/api/arbeidsgiver/refusjon"
 
 data class HentArbeidsgiverRefusjonerQueryParametre(

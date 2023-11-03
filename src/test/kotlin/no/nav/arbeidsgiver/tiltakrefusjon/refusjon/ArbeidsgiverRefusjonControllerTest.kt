@@ -35,7 +35,7 @@ class ArbeidsgiverRefusjonControllerTest{
     fun `test at pdf controller endepunkt returnerer pdf som bytearray`(){
 
         every{innlogetServiceMock.hentInnloggetArbeidsgiver()} returns innloggetArbeidsgiver
-        every{innloggetArbeidsgiver.finnRefusjonImmutable(any())} returns `Suzanna Hansen`()
+        every{innloggetArbeidsgiver.finnRefusjon(any())} returns `Suzanna Hansen`()
         every{dokgenService.refusjonPdf(any())} returns ByteArray(1)
 
 
@@ -53,7 +53,7 @@ class ArbeidsgiverRefusjonControllerTest{
     fun `test at pdf controller endepunkt ikke finner refusjon`(){
 
         every{innlogetServiceMock.hentInnloggetArbeidsgiver()} returns innloggetArbeidsgiver
-        every{innloggetArbeidsgiver.finnRefusjonImmutable(any())} throws RessursFinnesIkkeException()
+        every{innloggetArbeidsgiver.finnRefusjon(any())} throws RessursFinnesIkkeException()
 
 
         assertThrows<RessursFinnesIkkeException> {controller.hentPDF(ulid())  }

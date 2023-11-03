@@ -93,16 +93,9 @@ data class InnloggetArbeidsgiver(
 
     }
 
-    fun finnRefusjonImmutable(id: String): Refusjon {
-        val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
-        sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
-        return refusjon
-    }
-
     fun finnRefusjon(id: String): Refusjon {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
-
         return refusjon
     }
 
@@ -119,24 +112,6 @@ data class InnloggetArbeidsgiver(
         refusjonService.oppdaterSistEndret(refusjon)
 
         return refusjonRepository.save(refusjon)
-    }
-
-    fun finnInntekter(id: String, sistEndret: Instant?): Refusjon {
-        val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
-        sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
-        sjekkSistEndret(refusjon, sistEndret)
-        refusjonService.gjørInntektsoppslag(refusjon, this)
-        refusjonService.oppdaterSistEndret(refusjon)
-        return refusjon
-    }
-
-    fun finnBedriftkontonummer(id: String, sistEndret: Instant?): Refusjon {
-        val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
-        sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
-        sjekkSistEndret(refusjon, sistEndret)
-        refusjonService.gjørBedriftKontonummeroppslag(refusjon)
-        refusjonService.oppdaterSistEndret(refusjon)
-        return refusjon
     }
 
     fun finnKorreksjon(id: String): Korreksjon {

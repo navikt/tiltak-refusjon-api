@@ -43,7 +43,7 @@ class ArbeidsgiverRefusjonController(
     fun hentPDF(@PathVariable id:String): HttpEntity<ByteArray>{
         if(id.trim().isEmpty()) return HttpEntity.EMPTY as HttpEntity<ByteArray>
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-        val refusjon = arbeidsgiver.finnRefusjonImmutable(id)
+        val refusjon = arbeidsgiver.finnRefusjon(id)
         val pdfDataAsByteArray: ByteArray = dokgenService.refusjonPdf(refusjon)
 
         val header = HttpHeaders()

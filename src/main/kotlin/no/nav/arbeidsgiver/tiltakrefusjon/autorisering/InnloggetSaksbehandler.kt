@@ -29,7 +29,7 @@ data class InnloggetSaksbehandler(
     override val rolle: BrukerRolle = BrukerRolle.BESLUTTER
 
     fun finnAlle(queryParametre: HentSaksbehandlerRefusjonerQueryParametre): Map<String, Any> {
-        val pageable: Pageable = PageRequest.of(queryParametre.page, queryParametre.size, Sort.Direction.ASC, "fristForGodkjenning")
+        val pageable: Pageable = PageRequest.of(queryParametre.page, queryParametre.size, Sort.Direction.ASC, "fristForGodkjenning", "status", "id")
 
         val statuser = if (queryParametre.status != null) listOf(queryParametre.status) else RefusjonStatus.values().toList()
         val tiltakstyper = if (queryParametre.tiltakstype != null) listOf(queryParametre.tiltakstype) else Tiltakstype.values().toList()

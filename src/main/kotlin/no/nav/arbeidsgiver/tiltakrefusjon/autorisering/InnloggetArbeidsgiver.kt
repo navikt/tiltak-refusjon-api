@@ -56,7 +56,7 @@ data class InnloggetArbeidsgiver(
     private fun getQueryMethodForFinnAlleForGittArbeidsgiver(bedriftNr: List<String>, status: RefusjonStatus?, tiltakstype: Tiltakstype?, sortingOrder: SortingOrder?, page: Int, size: Int): Page<Refusjon> {
         val paging: Pageable = PageRequest.of(page, size)
         if(sortingOrder != null && sortingOrder != SortingOrder.STATUS_ASC) {
-            return refusjonRepository.findAllByBedriftNrAndStatusDefinedSort(bedriftNr, status, tiltakstype, PageRequest.of(page, size, Sort.by(getSortingOrderForPageable(sortingOrder))))
+            return refusjonRepository.findAllByBedriftNrAndStatusDefinedSort(bedriftNr, status, tiltakstype, PageRequest.of(page, size, Sort.by(getSortingOrderForPageable(sortingOrder), Sort.Order.asc("id"))))
         }
         return refusjonRepository.findAllByBedriftNrAndStatusDefaultSort(bedriftNr, status, tiltakstype, paging)
     }

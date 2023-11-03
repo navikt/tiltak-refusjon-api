@@ -2,16 +2,12 @@
 
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
-import jakarta.persistence.LockModeType
-import org.hibernate.LockMode
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
-import org.springframework.data.jpa.repository.Lock
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import java.time.LocalDate
-
 
 interface RefusjonRepository : JpaRepository<Refusjon, String> {
     fun findAllByBedriftNr(bedriftNr: String): List<Refusjon>

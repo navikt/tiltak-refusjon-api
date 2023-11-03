@@ -80,8 +80,8 @@ class Refusjon(
 
     @JsonProperty
     fun harTattStillingTilAlleInntektslinjer(): Boolean {
-        val blaj = refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.find { inntekt -> inntekt.erOpptjentIPeriode === null }
-        return blaj === null
+        val harTattStilling = refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.find { inntekt -> inntekt.erOpptjentIPeriode === null }
+        return harTattStilling === null
     }
 
     private fun krevStatus(vararg gyldigeStatuser: RefusjonStatus) {

@@ -82,6 +82,7 @@ class ArbeidsgiverRefusjonController(
     }
 
     @PostMapping("{id}/oppdater-refusjon")
+    @Transactional
     fun oppdaterRefusjon(@PathVariable id: String, @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant?) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
         arbeidsgiver.oppdaterRefusjon(id, sistEndret);

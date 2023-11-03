@@ -294,11 +294,11 @@ class RefusjonService(
         // Ikke sett minusbeløp på allerede sendt inn refusjoner
         if(refusjon.status == RefusjonStatus.KLAR_FOR_INNSENDING || refusjon.status == RefusjonStatus.FOR_TIDLIG) {
             settMinusBeløpFraTidligereRefusjonerTilknyttetAvtalen(refusjon)
+            settTotalBeløpUtbetalteVarigLønnstilskudd(refusjon)
+            settOmFerieErTrukketForSammeMåned(refusjon)
+            oppdaterSistEndret(refusjon)
+            gjørBeregning(refusjon, utførtAv)
         }
-        settTotalBeløpUtbetalteVarigLønnstilskudd(refusjon)
-        settOmFerieErTrukketForSammeMåned(refusjon)
-        oppdaterSistEndret(refusjon)
-        gjørBeregning(refusjon, utførtAv)
     }
 
     fun oppdaterSistEndret(refusjon: Refusjon) {

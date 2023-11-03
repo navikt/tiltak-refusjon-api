@@ -81,11 +81,11 @@ class ArbeidsgiverRefusjonController(
         return arbeidsgiver.finnRefusjon(id)
     }
 
-    @PostMapping("{id}/oppdater-refusjon")
+    @PostMapping("{id}/sett-kontonummer-og-inntekter")
     @Transactional
-    fun oppdaterRefusjon(@PathVariable id: String, @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant?) {
+    fun settKontonummerOgInntekterPåRefusjon(@PathVariable id: String, @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant?) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-        arbeidsgiver.oppdaterRefusjon(id, sistEndret);
+        arbeidsgiver.settKontonummerOgInntekterPåRefusjon(id, sistEndret);
     }
 
     @PostMapping("/{id}/endre-bruttolønn")
@@ -104,7 +104,7 @@ class ArbeidsgiverRefusjonController(
     @Transactional
     fun lagreBedriftKID(@PathVariable id: String, @RequestBody request: EndreBedriftKIDRequest, @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-        arbeidsgiver.lagreBedriftKID(id, request.bedriftKID)
+        arbeidsgiver.lagreBedriftKID(id, request.bedriftKID, sistEndret)
     }
 
     @PostMapping("/{id}/fratrekk-sykepenger")
@@ -116,7 +116,7 @@ class ArbeidsgiverRefusjonController(
 
     @PostMapping("/{id}/set-inntektslinje-opptjent-i-periode")
     @Transactional
-    fun endreRefundertInntekslinje(@PathVariable id: String, @RequestBody request: EndreRefundertInntektslinjeRequest, @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant) {
+    fun settInntektslinjeOpptjentIPeriode(@PathVariable id: String, @RequestBody request: EndreRefundertInntektslinjeRequest, @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
         arbeidsgiver.setInntektslinjeTilOpptjentIPeriode(
             refusjonId = id,
@@ -144,6 +144,6 @@ class ArbeidsgiverRefusjonController(
     @Transactional
     fun merkForHentInntekterFrem(@PathVariable id: String, @RequestBody request: MerkInntekterFremRequest, @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-        arbeidsgiver.merkForHentInntekterFrem(id, request.merking)
+        arbeidsgiver.merkForHentInntekterFrem(id, request.merking, sistEndret)
     }
 }

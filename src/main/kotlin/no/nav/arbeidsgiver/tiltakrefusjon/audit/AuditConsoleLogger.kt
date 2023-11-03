@@ -12,6 +12,6 @@ class AuditConsoleLogger: AuditLogger {
     val log = LoggerFactory.getLogger(javaClass)
 
     override fun logg(event: AuditEntry) {
-        //log.info("Audit-event: {}", event)
+        log.info("Audit-event: {}", event)
     }
 }

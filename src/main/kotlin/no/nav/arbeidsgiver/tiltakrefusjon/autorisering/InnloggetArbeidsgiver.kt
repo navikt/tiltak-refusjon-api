@@ -18,7 +18,6 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import java.time.Instant
-import java.time.temporal.ChronoUnit
 
 data class InnloggetArbeidsgiver(
     override val identifikator: String,
@@ -99,11 +98,13 @@ data class InnloggetArbeidsgiver(
         return refusjon
     }
 
-    fun oppdaterRefusjon(id: String, sistEndret: Instant?): Refusjon {
+    fun settKontonummerOgInntekterPåRefusjon(id: String, sistEndret: Instant?): Refusjon {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
+        if(refusjon.status != RefusjonStatus.KLAR_FOR_INNSENDING) {
+            throw FeilkodeException(Feilkode.UGYLDIG_STATUS)
+        }
         sjekkSistEndret(refusjon, sistEndret)
-
         if(refusjon.åpnetFørsteGang == null) {
             refusjon.åpnetFørsteGang = Now.instant()
         }
@@ -133,14 +134,16 @@ data class InnloggetArbeidsgiver(
         sjekkSistEndret(refusjon, sistEndret)
         refusjonService.endreBruttolønn(refusjon, inntekterKunFraTiltaket, bruttoLønn)
         refusjonService.gjørBeregning(refusjon, this)
-
+        refusjonService.oppdaterSistEndret(refusjon)
         refusjonRepository.save(refusjon)
     }
 
-    fun lagreBedriftKID(id: String, bedriftKID: String?){
+    fun lagreBedriftKID(id: String, bedriftKID: String?, sistEndret: Instant?){
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
+        sjekkSistEndret(refusjon, sistEndret)
         refusjon.endreBedriftKID(bedriftKID)
+        refusjonService.oppdaterSistEndret(refusjon)
         refusjonRepository.save(refusjon)
     }
 
@@ -170,10 +173,12 @@ data class InnloggetArbeidsgiver(
         refusjonRepository.save(refusjon)
     }
 
-    fun merkForHentInntekterFrem(id: String, merking: Boolean) {
+    fun merkForHentInntekterFrem(id: String, merking: Boolean, sistEndret: Instant?) {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
+        sjekkSistEndret(refusjon, sistEndret)
         refusjon.merkForHentInntekterFrem(merking, this)
+        refusjonService.oppdaterSistEndret(refusjon)
         log.info("Merket refusjon ${refusjon.id} for henting av inntekter fremover")
         refusjonRepository.save(refusjon)
     }

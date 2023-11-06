@@ -212,12 +212,12 @@ class AdminController(
     @Transactional
     fun oppdaterAlleRefusjonerMedData() {
         val alleKlarForInnsending = refusjonRepository.findAllByStatus(RefusjonStatus.KLAR_FOR_INNSENDING);
-
+        logger.info("Hentet alle som er klar for innsending, totalt ${alleKlarForInnsending.size}")
         alleKlarForInnsending.forEach {
             refusjonService.oppdaterRefusjon(it, ADMIN_BRUKER)
         }
         val alleForTidlig = refusjonRepository.findAllByStatus(RefusjonStatus.FOR_TIDLIG);
-
+        logger.info("Hentet alle med status for tidlig, totalt ${alleKlarForInnsending.size}")
         alleForTidlig.forEach {
             refusjonService.oppdaterRefusjon(it, ADMIN_BRUKER)
         }

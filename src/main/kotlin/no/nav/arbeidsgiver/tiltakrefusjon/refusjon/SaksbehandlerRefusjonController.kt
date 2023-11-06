@@ -45,8 +45,8 @@ class SaksbehandlerRefusjonController(
 
     @GetMapping("/{id}/hendelselogg")
     fun hentHendelselogg(@PathVariable id: String): List<HendelsesloggDTO> {
-        val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler().finnRefusjon(id)
-        val hendelser = hendelsesloggRepository.findAll().filter { it.refusjonId == saksbehandler.id }
+        val refusjon = innloggetBrukerService.hentInnloggetSaksbehandler().finnRefusjon(id)
+        val hendelser = hendelsesloggRepository.findAllByRefusjonId(refusjon.id)
         return hendelser.map { HendelsesloggDTO(it) }
     }
 

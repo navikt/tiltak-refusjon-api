@@ -4,5 +4,4 @@ import org.springframework.data.jpa.repository.JpaRepository
 
 interface HendelsesloggRepository : JpaRepository<Hendelseslogg, String>{
     fun findAllByRefusjonId(refusjonId: String): List<Hendelseslogg>
-    fun findAllBy
 }

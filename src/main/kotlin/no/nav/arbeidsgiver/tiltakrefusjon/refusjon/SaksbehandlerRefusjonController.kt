@@ -6,6 +6,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.hendelseslogg.HendelsesloggDTO
 import no.nav.arbeidsgiver.tiltakrefusjon.hendelseslogg.HendelsesloggRepository
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.ForlengFristRequest
 import no.nav.security.token.support.core.api.ProtectedWithClaims
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.web.bind.annotation.*
 
 const val REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON = "/api/saksbehandler/refusjon"
@@ -45,8 +46,8 @@ class SaksbehandlerRefusjonController(
 
     @GetMapping("/{id}/hendelselogg")
     fun hentHendelselogg(@PathVariable id: String): List<HendelsesloggDTO> {
-        val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler().finnRefusjon(id)
-        val hendelser = hendelsesloggRepository.findAll().filter { it.refusjonId == saksbehandler.id }
+        val refusjon = innloggetBrukerService.hentInnloggetSaksbehandler().finnRefusjon(id)
+        val hendelser = hendelsesloggRepository.findAllByRefusjonId(refusjon.id)
         return hendelser.map { HendelsesloggDTO(it) }
     }
 

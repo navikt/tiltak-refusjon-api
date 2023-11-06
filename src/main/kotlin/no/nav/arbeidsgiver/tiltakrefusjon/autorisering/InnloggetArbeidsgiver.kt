@@ -186,6 +186,7 @@ data class InnloggetArbeidsgiver(
     private fun sjekkSistEndret(refusjon: Refusjon, sistEndret: Instant?) {
         if (refusjon.sistEndret != null && sistEndret != null) {
             if (sistEndret.isBefore(refusjon.sistEndret)) {
+                log.warn("Sist endret exception på refusjon ${refusjon.id}")
                 throw FeilkodeException(Feilkode.SAMTIDIGE_ENDRINGER);
             }
         }

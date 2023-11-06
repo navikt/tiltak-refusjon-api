@@ -255,9 +255,7 @@ class Refusjon(
         }
     }
 
-
-
-fun opprettKorreksjonsutkast(korreksjonsgrunner: Set<Korreksjonsgrunn>, unntakOmInntekterFremitid: Int?, annenGrunn: String?): Korreksjon {
+    fun opprettKorreksjonsutkast(korreksjonsgrunner: Set<Korreksjonsgrunn>, unntakOmInntekterFremitid: Int?, annenGrunn: String?): Korreksjon {
         krevStatus(RefusjonStatus.UTBETALT, RefusjonStatus.SENDT_KRAV,RefusjonStatus.GODKJENT_MINUSBELØP, RefusjonStatus.UTGÅTT, RefusjonStatus.GODKJENT_NULLBELØP)
         if (korreksjonId != null) {
             throw FeilkodeException(Feilkode.HAR_KORREKSJON)

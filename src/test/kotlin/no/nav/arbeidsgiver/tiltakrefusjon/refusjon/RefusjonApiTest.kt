@@ -325,7 +325,7 @@ class RefusjonApiTest(
     }
 
     private fun oppdaterRefusjonMedKontonrOgInntekter(id: String) {
-        sendRequest(post("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id/oppdater-refusjon"), arbGiverCookie)
+        sendRequest(post("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id/sett-kontonummer-og-inntekter"), arbGiverCookie)
     }
 
     private fun sendRequest(request: MockHttpServletRequestBuilder, cookie: Cookie): String {

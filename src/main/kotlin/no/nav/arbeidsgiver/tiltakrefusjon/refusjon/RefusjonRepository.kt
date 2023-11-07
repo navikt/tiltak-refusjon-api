@@ -13,6 +13,7 @@ interface RefusjonRepository : JpaRepository<Refusjon, String> {
     fun findAllByBedriftNr(bedriftNr: String): List<Refusjon>
     fun findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_TilskuddsperiodeId(tilskuddsperiodeId: String): List<Refusjon>
     fun findAllByStatus(status: RefusjonStatus): List<Refusjon>
+    fun findAllByStatus(status: RefusjonStatus, paging: Pageable): Page<Refusjon>
     fun findAllByFristForGodkjenningBeforeAndStatus(fristForGodkjenning: LocalDate, status: RefusjonStatus): List<Refusjon>
 
     // veilederIdent

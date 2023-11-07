@@ -8,6 +8,8 @@ import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeForko
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
 import no.nav.security.token.support.core.api.Unprotected
 import org.slf4j.LoggerFactory
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
@@ -208,20 +210,31 @@ class AdminController(
     fun hentRefusjonerMedStatusSendtKrav()  = refusjonRepository.findAllByStatus(RefusjonStatus.SENDT_KRAV)
 
     @Unprotected
-    @PostMapping("oppdater-alle-refusjoner-med-data")
+    @PostMapping("oppdater-alle-refusjoner-klar-med-data/{page}")
     @Transactional
-    fun oppdaterAlleRefusjonerMedData() {
-        val alleKlarForInnsending = refusjonRepository.findAllByStatus(RefusjonStatus.KLAR_FOR_INNSENDING);
-        logger.info("Hentet alle som er klar for innsending, totalt ${alleKlarForInnsending.size}")
+    fun oppdaterAlleRefusjonerKlarMedData(@PathVariable page: String) {
+
+        val pageable = PageRequest.of(Integer.parseInt(page), 100, Sort.by(Sort.Order.asc("id")))
+        val alleKlarForInnsending = refusjonRepository.findAllByStatus(RefusjonStatus.KLAR_FOR_INNSENDING, pageable)
+        logger.info("Hentet alle som er klar for innsending, totalt ${alleKlarForInnsending.size} antall pages ${alleKlarForInnsending.totalPages}")
         alleKlarForInnsending.forEach {
             refusjonService.oppdaterRefusjon(it, ADMIN_BRUKER)
         }
-        val alleForTidlig = refusjonRepository.findAllByStatus(RefusjonStatus.FOR_TIDLIG);
-        logger.info("Hentet alle med status for tidlig, totalt ${alleForTidlig.size}")
+    }
+
+    @Unprotected
+    @PostMapping("oppdater-alle-refusjoner-fortidlig-med-data/{page}")
+    @Transactional
+    fun oppdaterAlleRefusjonerForTidligMedData(@PathVariable page: String) {
+        val pageable = PageRequest.of(Integer.parseInt(page), 100, Sort.by(Sort.Order.asc("id")))
+        val alleForTidlig = refusjonRepository.findAllByStatus(RefusjonStatus.FOR_TIDLIG, pageable)
+        logger.info("Hentet alle med status for tidlig, totalt ${alleForTidlig.size} antall pages ${alleForTidlig.totalPages}")
         alleForTidlig.forEach {
             refusjonService.oppdaterRefusjon(it, ADMIN_BRUKER)
         }
+
     }
+
 }
 
 data class ReberegnRequest(val harFerietrekkForSammeMåned: Boolean, val minusBeløp: Int, val ferieTrekk: Int)

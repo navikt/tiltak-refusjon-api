@@ -8,6 +8,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.varsling.VarselType
 import no.nav.arbeidsgiver.tiltakrefusjon.varsling.Varsling
 import java.time.YearMonth
 import java.time.temporal.TemporalAdjusters.lastDayOfMonth
+import java.util.UUID
 
 val innloggetTestbruker = innloggetBruker("testsystem", BrukerRolle.SYSTEM)
 
@@ -88,6 +89,7 @@ fun gamleUtbetalteRefusjonerOgEnNy(): List<Refusjon> {
         )
         it.medBedriftKontonummer()
         it.medSvarPåInntekter()
+        it.medBeregning()
         it.medSendtKravFraArbeidsgiver()
         it.utbetalingVellykket()
     }
@@ -111,6 +113,7 @@ fun gamleUtbetalteRefusjonerOgEnNy(): List<Refusjon> {
         )
         it.medBedriftKontonummer()
         it.medSvarPåInntekter()
+        it.medBeregning()
         it.medSendtKravFraArbeidsgiver()
         it.utbetalingVellykket()
     }
@@ -134,6 +137,7 @@ fun gamleUtbetalteRefusjonerOgEnNy(): List<Refusjon> {
         )
         it.medBedriftKontonummer()
         it.medSvarPåInntekter()
+        it.medBeregning()
         it.medSendtKravFraArbeidsgiver()
         it.utbetalingVellykket()
     }
@@ -157,6 +161,7 @@ fun gamleUtbetalteRefusjonerOgEnNy(): List<Refusjon> {
         )
         it.medBedriftKontonummer()
         it.medSvarPåInntekter()
+        it.medBeregning()
         it.medSendtKravFraArbeidsgiver()
         it.utbetalingVellykket()
     }
@@ -180,6 +185,7 @@ fun gamleUtbetalteRefusjonerOgEnNy(): List<Refusjon> {
         )
         it.medBedriftKontonummer()
         it.medSvarPåInntekter()
+        it.medBeregning()
         it.medSendtKravFraArbeidsgiver()
         it.utbetalingVellykket()
     }
@@ -203,6 +209,7 @@ fun gamleUtbetalteRefusjonerOgEnNy(): List<Refusjon> {
         )
         it.medBedriftKontonummer()
         it.medSvarPåInntekter()
+        it.medBeregning()
         it.medSendtKravFraArbeidsgiver()
         it.utbetalingVellykket()
     }
@@ -226,6 +233,7 @@ fun gamleUtbetalteRefusjonerOgEnNy(): List<Refusjon> {
         )
         it.medBedriftKontonummer()
         it.medSvarPåInntekter()
+        it.medBeregning()
         it.medSendtKravFraArbeidsgiver()
         it.utbetalingVellykket()
     }
@@ -249,6 +257,7 @@ fun gamleUtbetalteRefusjonerOgEnNy(): List<Refusjon> {
         )
         it.medBedriftKontonummer()
         it.medSvarPåInntekter()
+        it.medBeregning()
         it.medSendtKravFraArbeidsgiver()
         it.utbetalingVellykket()
     }
@@ -292,6 +301,7 @@ fun refusjoner(): List<Refusjon> {
             .medInntektsgrunnlag(måned = YearMonth.of(tilskuddFom.year, tilskuddFom.month))
             .medBedriftKontonummer()
             .medSvarPåInntekter()
+            .medBeregning()
             .medSendtKravFraArbeidsgiver()
     }
     val BjørnsonUtgått = `Bjørnstjerne Bjørnson`().let {
@@ -314,6 +324,7 @@ fun refusjoner(): List<Refusjon> {
         )
         it.medBedriftKontonummer()
         it.medSvarPåInntekter()
+        it.medBeregning()
         it.medSendtKravFraArbeidsgiver()
     }
 
@@ -464,13 +475,13 @@ fun refusjoner(): List<Refusjon> {
 }
 
 private fun Refusjon.medSvarPåInntekter(): Refusjon {
-    this.endreBruttolønn(innloggetTestbruker, true, null)
+    this.endreBruttolønn(true, null)
     return this
 }
 
 fun etTilskuddsgrunnlag(tiltakstype: Tiltakstype = Tiltakstype.SOMMERJOBB) = Tilskuddsgrunnlag(
-    avtaleId = ulid(),
-    tilskuddsperiodeId = ulid(),
+    avtaleId = UUID.randomUUID().toString(),
+    tilskuddsperiodeId = UUID.randomUUID().toString(),
     deltakerFornavn = "",
     deltakerEtternavn = "",
     arbeidsgiverFornavn = "Arne",
@@ -702,6 +713,7 @@ fun `Suzanna Hansen`(): Refusjon {
         )
         it.medBedriftKontonummer()
         it.medSvarPåInntekter()
+        it.medBeregning()
         it.medSendtKravFraArbeidsgiver()
         it.utbetalingVellykket()
     }
@@ -731,6 +743,7 @@ fun `Siri Hansen`(): Refusjon {
         )
         it.medBedriftKontonummer()
         it.medSvarPåInntekter()
+        it.medBeregning()
         it.medSendtKravFraArbeidsgiver()
         it.utbetalingMislykket()
     }
@@ -759,7 +772,22 @@ fun Refusjon.medInntektsgrunnlag(
     måned: YearMonth = Now.yearMonth(),
     inntektsgrunnlag: Inntektsgrunnlag = etInntektsgrunnlag(måned = måned),
 ): Refusjon {
-    this.oppgiInntektsgrunnlag(innloggetTestbruker, inntektsgrunnlag)
+    this.oppgiInntektsgrunnlag(inntektsgrunnlag)
+    return this
+}
+
+fun Refusjon.medBeregning(
+): Refusjon {
+    this.refusjonsgrunnlag.beregning = beregnRefusjonsbeløp(
+        inntekter = this.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
+        tilskuddsgrunnlag = this.refusjonsgrunnlag.tilskuddsgrunnlag,
+        tidligereUtbetalt = this.refusjonsgrunnlag.tidligereUtbetalt,
+        korrigertBruttoLønn = this.refusjonsgrunnlag.endretBruttoLønn,
+        fratrekkRefunderbarSum = this.refusjonsgrunnlag.refunderbarBeløp,
+        forrigeRefusjonMinusBeløp = this.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
+        tilskuddFom = this.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
+        sumUtbetaltVarig = this.refusjonsgrunnlag.sumUtbetaltVarig,
+        harFerietrekkForSammeMåned = this.refusjonsgrunnlag.harFerietrekkForSammeMåned)
     return this
 }
 
@@ -767,7 +795,7 @@ fun Refusjon.medStortInntektsgrunnlag(
     måned: YearMonth = Now.yearMonth(),
     inntektsgrunnlag: Inntektsgrunnlag = etStortInntektsgrunnlag(måned = måned),
 ): Refusjon {
-    this.oppgiInntektsgrunnlag(innloggetTestbruker, inntektsgrunnlag)
+    this.oppgiInntektsgrunnlag(inntektsgrunnlag)
     return this
 }
 

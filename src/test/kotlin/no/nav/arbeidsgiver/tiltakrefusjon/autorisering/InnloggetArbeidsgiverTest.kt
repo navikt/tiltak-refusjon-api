@@ -484,7 +484,6 @@ internal class InnloggetArbeidsgiverTest(
         assertThat(refusjon1FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(0)
         refusjonService.godkjennForArbeidsgiver(refusjon1FunnetViaFinnRefusjon, innloggetArbeidsgiver)
 
-
         val refusjon2FunnetViaFinnRefusjon = innloggetArbeidsgiver.finnRefusjon(refusjon2.id)
         assertThat(refusjon2FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(0)
         refusjonService.godkjennForArbeidsgiver(refusjon2, innloggetArbeidsgiver)
@@ -630,11 +629,13 @@ internal class InnloggetArbeidsgiverTest(
         refusjon.unntakOmInntekterFremitid = 0
         refusjon.fristForGodkjenning = Now.localDate().plusDays(1)
         refusjonService.gjørBedriftKontonummeroppslag(refusjon)
-        refusjonService.gjørInntektsoppslag(innloggetArbeidsgiverBruker, refusjon)
+        refusjonService.gjørInntektsoppslag(refusjon, innloggetArbeidsgiverBruker)
         // Sett innhentede inntekter til opptjent i periode
         refusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.forEach { it.erOpptjentIPeriode = true }
         // Bekreft at alle inntektene kun er fra tiltaket
-        refusjon.endreBruttolønn(innloggetArbeidsgiverBruker, true, null)
+        refusjonService.endreBruttolønn(refusjon, true, null)
+        refusjonService.gjørBeregning(refusjon, innloggetArbeidsgiverBruker)
+
         refusjonRepository.save(refusjon)
         return refusjon;
     }

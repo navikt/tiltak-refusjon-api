@@ -1,6 +1,8 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.autorisering
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
+import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.RessursFinnesIkkeException
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
@@ -15,6 +17,7 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
+import java.time.Instant
 
 data class InnloggetArbeidsgiver(
     override val identifikator: String,
@@ -73,37 +76,43 @@ data class InnloggetArbeidsgiver(
         return getQueryMethodForFinnAlleForGittArbeidsgiver(finnAlleUnderenheterTilArbeidsgiver(), status, tiltakstype, sortingOrder, page, size)
     }
 
-    fun godkjenn(refusjonId: String) {
+    fun godkjenn(refusjonId: String, sistEndret: Instant?) {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(refusjonId) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
+        sjekkSistEndret(refusjon, sistEndret)
         refusjonService.godkjennForArbeidsgiver(refusjon, this)
+
     }
 
-    fun godkjennNullbeløp(refusjonId: String) {
+    fun godkjennNullbeløp(refusjonId: String, sistEndret: Instant?) {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(refusjonId) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
+        sjekkSistEndret(refusjon, sistEndret)
         refusjonService.godkjennNullbeløpForArbeidsgiver(refusjon, this)
+
     }
 
     fun finnRefusjon(id: String): Refusjon {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
-
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
+        return refusjon
+    }
 
-        // Ikke sett minusbeløp på allerede sendt inn refusjoner
-        if(refusjon.status == RefusjonStatus.KLAR_FOR_INNSENDING || refusjon.status == RefusjonStatus.FOR_TIDLIG) {
-            refusjonService.settMinusBeløpFraTidligereRefusjonerTilknyttetAvtalen(refusjon)
+    fun settKontonummerOgInntekterPåRefusjon(id: String, sistEndret: Instant?): Refusjon {
+        val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
+        sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
+        if(refusjon.status != RefusjonStatus.KLAR_FOR_INNSENDING) {
+            throw FeilkodeException(Feilkode.UGYLDIG_STATUS)
         }
-
+        sjekkSistEndret(refusjon, sistEndret)
         if(refusjon.åpnetFørsteGang == null) {
             refusjon.åpnetFørsteGang = Now.instant()
         }
-        refusjonService.settTotalBeløpUtbetalteVarigLønnstilskudd(refusjon)
-        refusjonService.settOmFerieErTrukketForSammeMåned(refusjon)
         refusjonService.gjørBedriftKontonummeroppslag(refusjon)
-        refusjonService.gjørInntektsoppslag(this, refusjon)
+        refusjonService.gjørInntektsoppslag(refusjon, this)
+        refusjonService.oppdaterSistEndret(refusjon)
 
-        return refusjon
+        return refusjonRepository.save(refusjon)
     }
 
     fun finnKorreksjon(id: String): Korreksjon {
@@ -119,54 +128,68 @@ data class InnloggetArbeidsgiver(
         return true
     }
 
-    fun endreBruttolønn(id: String, inntekterKunFraTiltaket: Boolean?, bruttoLønn: Int?) {
+    fun endreBruttolønn(id: String, inntekterKunFraTiltaket: Boolean?, bruttoLønn: Int?, sistEndret: Instant?) {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
-        refusjon.endreBruttolønn(this, inntekterKunFraTiltaket, bruttoLønn)
+        sjekkSistEndret(refusjon, sistEndret)
+        refusjonService.endreBruttolønn(refusjon, inntekterKunFraTiltaket, bruttoLønn)
+        refusjonService.gjørBeregning(refusjon, this)
+        refusjonService.oppdaterSistEndret(refusjon)
         refusjonRepository.save(refusjon)
     }
 
-    fun lagreBedriftKID(id: String, bedriftKID: String?){
+    fun lagreBedriftKID(id: String, bedriftKID: String?, sistEndret: Instant?){
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
+        sjekkSistEndret(refusjon, sistEndret)
         refusjon.endreBedriftKID(bedriftKID)
+        refusjonService.oppdaterSistEndret(refusjon)
         refusjonRepository.save(refusjon)
     }
 
-    fun setInntektslinjeTilOpptjentIPeriode(refusjonId: String, inntekslinjeId: String, erOpptjentIPeriode: Boolean) {
+    fun setInntektslinjeTilOpptjentIPeriode(refusjonId: String, inntekslinjeId: String, erOpptjentIPeriode: Boolean, sistEndret: Instant?) {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(refusjonId) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
-        refusjon.setInntektslinjeTilOpptjentIPeriode(this, inntekslinjeId, erOpptjentIPeriode)
+        sjekkSistEndret(refusjon, sistEndret)
+        refusjon.setInntektslinjeTilOpptjentIPeriode(inntekslinjeId, erOpptjentIPeriode)
+        refusjonService.gjørBeregning(refusjon, this)
+        refusjonService.oppdaterSistEndret(refusjon)
+
         refusjonRepository.save(refusjon)
     }
 
-    fun settFratrekkRefunderbarBeløp(id: String, fratrekkRefunderbarBeløp: Boolean, refunderbarBeløp: Int?) {
+    fun settFratrekkRefunderbarBeløp(id: String, fratrekkRefunderbarBeløp: Boolean, refunderbarBeløp: Int?, sistEndret: Instant?) {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
-        refusjon.settFratrekkRefunderbarBeløp(this, fratrekkRefunderbarBeløp, refunderbarBeløp)
+        sjekkSistEndret(refusjon, sistEndret)
+        refusjon.settFratrekkRefunderbarBeløp(fratrekkRefunderbarBeløp, refunderbarBeløp)
+        if(fratrekkRefunderbarBeløp) {
+            val tolvMåneder = antallMånederEtter(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom, 12)
+            refusjon.forlengFristSykepenger(nyFrist = tolvMåneder, årsak = "Sykepenger", utførtAv = this)
+        }
+        refusjonService.gjørBeregning(refusjon, this)
+        refusjonService.oppdaterSistEndret(refusjon)
+
         refusjonRepository.save(refusjon)
     }
 
-    fun utsettFristSykepenger(id: String) {
+    fun merkForHentInntekterFrem(id: String, merking: Boolean, sistEndret: Instant?) {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
-        log.info("Utsetter frist på refusjon ${refusjon.id} grunnet sykepenger/fravær i perioden")
-        val tolvMåneder = antallMånederEtter(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom, 12)
-        refusjon.forlengFrist(
-            nyFrist = tolvMåneder,
-            årsak = "Sykepenger",
-            utførtAv = this,
-            enforce = true
-        );
-        refusjonRepository.save(refusjon)
-    }
-
-    fun merkForHentInntekterFrem(id: String, merking: Boolean) {
-        val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
-        sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
+        sjekkSistEndret(refusjon, sistEndret)
         refusjon.merkForHentInntekterFrem(merking, this)
+        refusjonService.oppdaterSistEndret(refusjon)
         log.info("Merket refusjon ${refusjon.id} for henting av inntekter fremover")
         refusjonRepository.save(refusjon)
+    }
+
+    private fun sjekkSistEndret(refusjon: Refusjon, sistEndret: Instant?) {
+        if (refusjon.sistEndret != null && sistEndret != null) {
+            if (sistEndret.isBefore(refusjon.sistEndret)) {
+                log.warn("Sist endret exception på refusjon ${refusjon.id}")
+                throw FeilkodeException(Feilkode.SAMTIDIGE_ENDRINGER);
+            }
+        }
     }
 
 }

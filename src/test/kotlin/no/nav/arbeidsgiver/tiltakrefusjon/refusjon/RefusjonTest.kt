@@ -75,7 +75,7 @@ internal class RefusjonTest {
         val inntektsgrunnlag = Inntektsgrunnlag(listOf(enInntektslinjeIkkeTattStillingTilOpptjening, enInntektslinjeOpptjentIPeriode), "")
 
         val refusjon = enRefusjon().medBedriftKontonummer().medInntektsgrunnlag(inntektsgrunnlag = inntektsgrunnlag)
-        refusjon.endreBruttolønn(innloggetArbeidsgiver, true, null)
+        refusjon.endreBruttolønn(true, null)
 
         // 1 inntektslinje er ikke tatt stilling til
         assertFeilkode(Feilkode.IKKE_TATT_STILLING_TIL_ALLE_INNTEKTSLINJER) {
@@ -85,32 +85,46 @@ internal class RefusjonTest {
         }
 
         // Tar stilling til alle inntektslinjer
-        refusjon.setInntektslinjeTilOpptjentIPeriode(
-            innloggetArbeidsgiver,
-            enInntektslinjeIkkeTattStillingTilOpptjening.id,
-            true
-        )
+        refusjon.setInntektslinjeTilOpptjentIPeriode(enInntektslinjeIkkeTattStillingTilOpptjening.id, true)
+        refusjon.refusjonsgrunnlag.beregning = beregnRefusjonsbeløp(
+            inntekter = refusjon.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
+            tilskuddsgrunnlag = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag,
+            tidligereUtbetalt = refusjon.refusjonsgrunnlag.tidligereUtbetalt,
+            korrigertBruttoLønn = refusjon.refusjonsgrunnlag.endretBruttoLønn,
+            fratrekkRefunderbarSum = refusjon.refusjonsgrunnlag.refunderbarBeløp,
+            forrigeRefusjonMinusBeløp = refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
+            tilskuddFom = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
+            sumUtbetaltVarig = refusjon.refusjonsgrunnlag.sumUtbetaltVarig,
+            harFerietrekkForSammeMåned = refusjon.refusjonsgrunnlag.harFerietrekkForSammeMåned)
+
         refusjon.godkjennForArbeidsgiver(innloggetArbeidsgiver)
+
         assertThat(refusjon.godkjentAvArbeidsgiver).isNotNull
     }
 
     @Test
-    fun `kan ikke godkjenne for ag uten beregning`() {
+    fun `kan ikke godkjenne for ag uten inntekter`() {
         val refusjon = enRefusjon()
         assertFeilkode(Feilkode.INGEN_INNTEKTER) { refusjon.godkjennForArbeidsgiver(innloggetArbeidsgiver) }
     }
 
     @Test
-    fun `kan ikke godkjenne for invalid KID`() {
+    fun `kan ikke godkjenne for ag uten beregning`() {
         val refusjon = enRefusjon().medBedriftKontonummer().medInntekterKunFraTiltaket().medInntektsgrunnlag()
+        assertFeilkode(Feilkode.INGEN_BEREGNING) { refusjon.godkjennForArbeidsgiver(innloggetArbeidsgiver) }
+    }
+
+    @Test
+    fun `kan ikke godkjenne for invalid KID`() {
+        val refusjon = enRefusjon().medBedriftKontonummer().medInntekterKunFraTiltaket().medInntektsgrunnlag().medBeregning()
         refusjon.refusjonsgrunnlag.bedriftKid = "INVALID KID"
         assertThrows<FeilkodeException> { refusjon.godkjennForArbeidsgiver(innloggetArbeidsgiver) }
 
     }
 
     @Test
-    fun `kan ikke godkjenne for TOM invalid KID`() {
-        val refusjon = enRefusjon().medBedriftKontonummer().medInntekterKunFraTiltaket().medInntektsgrunnlag()
+    fun `kan godkjenne med TOM KID`() {
+        val refusjon = enRefusjon().medBedriftKontonummer().medInntekterKunFraTiltaket().medInntektsgrunnlag().medBeregning()
         refusjon.refusjonsgrunnlag.bedriftKid = ""
         assertDoesNotThrow { refusjon.godkjennForArbeidsgiver(innloggetArbeidsgiver) }
 
@@ -118,39 +132,40 @@ internal class RefusjonTest {
 
     @Test
     fun `kan godkjenne for ag med beregning`() {
-        val refusjon = enRefusjon().medBedriftKontonummer().medInntekterKunFraTiltaket().medInntektsgrunnlag()
+        val refusjon = enRefusjon().medBedriftKontonummer().medInntekterKunFraTiltaket().medInntektsgrunnlag().medBeregning()
         refusjon.godkjennForArbeidsgiver(innloggetArbeidsgiver)
+
         assertThat(refusjon.godkjentAvArbeidsgiver).isNotNull
         assertThat(refusjon.status).isEqualTo(RefusjonStatus.SENDT_KRAV)
     }
 
     @Test
     fun `kan ikke godkjenne for ag to ganger`() {
-        val refusjon = enRefusjon().medInntekterKunFraTiltaket().medBedriftKontonummer().medInntektsgrunnlag()
-            .medSendtKravFraArbeidsgiver()
+        val refusjon = enRefusjon().medInntekterKunFraTiltaket().medBedriftKontonummer().medInntektsgrunnlag().medBeregning().medSendtKravFraArbeidsgiver()
         assertFeilkode(Feilkode.UGYLDIG_STATUS) { refusjon.godkjennForArbeidsgiver(innloggetArbeidsgiver) }
+
     }
 
     @Test
     fun `oppgir inntektsgrunnlag for tidlig`() {
         val refusjon = enRefusjon(etTilskuddsgrunnlag().copy(tilskuddTom = Now.localDate().plusDays(1)))
         assertFeilkode(Feilkode.UGYLDIG_STATUS) {
-            refusjon.oppgiInntektsgrunnlag(innloggetArbeidsgiver, etInntektsgrunnlag())
+            refusjon.oppgiInntektsgrunnlag(etInntektsgrunnlag())
         }
     }
 
     @Test
     fun `godkjenner rett før frist`() {
         Now.fixedDate(LocalDate.of(2021, 8, 30))
-
         val refusjon = enRefusjon(
             etTilskuddsgrunnlag().copy(
                 tilskuddFom = LocalDate.of(2021, 6, 30),
                 tilskuddTom = LocalDate.of(2021, 6, 30)
             )
-        ).medInntekterKunFraTiltaket().medBedriftKontonummer().medInntektsgrunnlag()
+        ).medInntekterKunFraTiltaket().medBedriftKontonummer().medInntektsgrunnlag().medBeregning()
         refusjon.godkjennForArbeidsgiver(innloggetArbeidsgiver)
         Now.resetClock()
+
         assertThat(refusjon.godkjentAvArbeidsgiver).isNotNull
         assertThat(refusjon.status).isEqualTo(RefusjonStatus.SENDT_KRAV)
     }
@@ -164,7 +179,7 @@ internal class RefusjonTest {
                 tilskuddFom = LocalDate.of(2021, 6, 30),
                 tilskuddTom = LocalDate.of(2021, 6, 30)
             )
-        ).medInntektsgrunnlag()
+        ).medInntektsgrunnlag().medBeregning()
         Now.resetClock()
         assertFeilkode(Feilkode.UGYLDIG_STATUS) { refusjon.godkjennForArbeidsgiver(innloggetArbeidsgiver) }
     }
@@ -229,7 +244,7 @@ internal class RefusjonTest {
                 tilskuddTom = Now.localDate().minusDays(1),
                 tilskuddsbeløp = -200
             )
-        ).medInntekterKunFraTiltaket().medInntektsgrunnlag()
+        ).medInntekterKunFraTiltaket().medInntektsgrunnlag().medBeregning()
         refusjon.oppgiBedriftKontonummer("10000008145")
         refusjon.godkjennForArbeidsgiver(innloggetArbeidsgiver)
         assertThat(refusjon.status).isEqualTo(RefusjonStatus.GODKJENT_MINUSBELØP)
@@ -243,7 +258,7 @@ internal class RefusjonTest {
                 tilskuddTom = Now.localDate().minusDays(1),
                 tilskuddsbeløp = 0
             )
-        ).medInntekterKunFraTiltaket().medInntektsgrunnlag()
+        ).medInntekterKunFraTiltaket().medInntektsgrunnlag().medBeregning()
         refusjon.oppgiBedriftKontonummer("10000008145")
         refusjon.godkjennForArbeidsgiver(innloggetArbeidsgiver)
         assertThat(refusjon.status).isEqualTo(RefusjonStatus.GODKJENT_NULLBELØP)
@@ -286,7 +301,7 @@ internal class RefusjonTest {
                 tilskuddFom = Now.localDate().minusDays(2),
                 tilskuddTom = Now.localDate().minusDays(1)
             )
-        ).medInntekterKunFraTiltaket().medInntektsgrunnlag()
+        ).medInntekterKunFraTiltaket().medInntektsgrunnlag().medBeregning()
         assertFeilkode(Feilkode.INGEN_BEDRIFTKONTONUMMER) { refusjon.godkjennForArbeidsgiver(innloggetArbeidsgiver) }
         refusjon.oppgiBedriftKontonummer("10000008145")
         refusjon.godkjennForArbeidsgiver(innloggetArbeidsgiver)
@@ -301,7 +316,18 @@ internal class RefusjonTest {
         val inntektsgrunnlag = Inntektsgrunnlag(inntekter, "")
 
         val refusjon = enRefusjon().medBedriftKontonummer().medInntekterKunFraTiltaket()
-        refusjon.oppgiInntektsgrunnlag(innloggetArbeidsgiver, inntektsgrunnlag)
+        refusjon.oppgiInntektsgrunnlag(inntektsgrunnlag)
+        refusjon.refusjonsgrunnlag.beregning = beregnRefusjonsbeløp(
+            inntekter = refusjon.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
+            tilskuddsgrunnlag = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag,
+            tidligereUtbetalt = refusjon.refusjonsgrunnlag.tidligereUtbetalt,
+            korrigertBruttoLønn = refusjon.refusjonsgrunnlag.endretBruttoLønn,
+            fratrekkRefunderbarSum = refusjon.refusjonsgrunnlag.refunderbarBeløp,
+            forrigeRefusjonMinusBeløp = refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
+            tilskuddFom = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
+            sumUtbetaltVarig = refusjon.refusjonsgrunnlag.sumUtbetaltVarig,
+            harFerietrekkForSammeMåned = refusjon.refusjonsgrunnlag.harFerietrekkForSammeMåned)
+
         assertThat(refusjon.refusjonsgrunnlag.beregning?.lønn).isEqualTo(inntektslinjeOpptjentIPeriode.beløp.toInt())
     }
 

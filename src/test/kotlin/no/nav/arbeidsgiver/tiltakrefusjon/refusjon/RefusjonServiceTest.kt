@@ -82,7 +82,7 @@ class RefusjonServiceTest(
 
         val refusjon1 = refusjonService.opprettRefusjon(tilskuddMelding)!!
         refusjonService.gjørBedriftKontonummeroppslag(refusjon1)
-        refusjonService.gjørInntektsoppslag(innloggetArbeidsgiver, refusjon1)
+        refusjonService.gjørInntektsoppslag(refusjon1, innloggetArbeidsgiver)
         gjørInntektoppslagForRefusjon(refusjon1)
 
         assertThat(refusjonRepository.findAll().count()).isEqualTo(1)
@@ -179,17 +179,21 @@ class RefusjonServiceTest(
 
         val refusjon1 = refusjonService.opprettRefusjon(tilskuddMelding)!!
         refusjonService.gjørBedriftKontonummeroppslag(refusjon1)
-        refusjonService.gjørInntektsoppslag(innloggetArbeidsgiver, refusjon1)
+        refusjonService.gjørInntektsoppslag(refusjon1, innloggetArbeidsgiver)
         gjørInntektoppslagForRefusjon(refusjon1)
 
         val refusjon2 = refusjonService.opprettRefusjon(tilskuddMelding2LittEldreMedLøpenummer2)!!
         refusjonService.gjørBedriftKontonummeroppslag(refusjon2)
-        refusjonService.gjørInntektsoppslag(innloggetArbeidsgiver, refusjon2)
+        refusjonService.gjørInntektsoppslag(refusjon2, innloggetArbeidsgiver)
+        refusjonService.gjørBeregning(refusjon2, innloggetArbeidsgiver)
+
         gjørInntektoppslagForRefusjon(refusjon2)
 
         val refusjon3 = refusjonService.opprettRefusjon(tilskuddMelding3LittEldreMedLøpenummer3)!!
         refusjonService.gjørBedriftKontonummeroppslag(refusjon3)
-        refusjonService.gjørInntektsoppslag(innloggetArbeidsgiver, refusjon3)
+        refusjonService.gjørInntektsoppslag(refusjon3, innloggetArbeidsgiver)
+        refusjonService.gjørBeregning(refusjon3, innloggetArbeidsgiver)
+
         gjørInntektoppslagForRefusjon(refusjon3)
 
         assertThat(refusjonRepository.findAll().count()).isEqualTo(3)
@@ -231,7 +235,7 @@ class RefusjonServiceTest(
         )
         val refusjon = refusjonService.opprettRefusjon(tilskuddMelding)!!
         refusjonService.gjørBedriftKontonummeroppslag(refusjon)
-        refusjonService.gjørInntektsoppslag(innloggetArbeidsgiver, refusjon)
+        refusjonService.gjørInntektsoppslag(refusjon, innloggetArbeidsgiver)
         gjørInntektoppslagForRefusjon(refusjon)
         assertThat(refusjonRepository.findAll().count()).isEqualTo(1)
         assertDoesNotThrow { refusjonService.godkjennForArbeidsgiver(refusjon, innloggetArbeidsgiver) }
@@ -361,14 +365,14 @@ class RefusjonServiceTest(
         )
         var refusjon = refusjonService.opprettRefusjon(tilskuddMelding) ?: fail("Skulle kunne opprette refusjon")
 
-        refusjonService.gjørInntektsoppslag(innloggetArbeidsgiver, refusjon)
+        refusjonService.gjørInntektsoppslag(refusjon, innloggetArbeidsgiver)
         verify {
             inntektskomponentService.hentInntekter(tilskuddMelding.deltakerFnr, tilskuddMelding.bedriftNr, tilskuddMelding.tilskuddFom, tilskuddMelding.tilskuddTom.plusMonths(1))
         }
 
         Now.fixedDate(LocalDate.now().plusDays(1))
         refusjon.merkForUnntakOmInntekterToMånederFrem(2, innloggetSaksbehandler)
-        refusjonService.gjørInntektsoppslag(innloggetArbeidsgiver, refusjon)
+        refusjonService.gjørInntektsoppslag(refusjon, innloggetArbeidsgiver)
         verify {
             inntektskomponentService.hentInntekter(tilskuddMelding.deltakerFnr, tilskuddMelding.bedriftNr, tilskuddMelding.tilskuddFom, tilskuddMelding.tilskuddTom.plusMonths(2))
         }
@@ -407,7 +411,7 @@ class RefusjonServiceTest(
         )
         var refusjon = refusjonService.opprettRefusjon(tilskuddMelding) ?: fail("Skulle kunne opprette refusjon")
 
-        refusjonService.gjørInntektsoppslag(innloggetArbeidsgiver, refusjon)
+        refusjonService.gjørInntektsoppslag(refusjon, innloggetArbeidsgiver)
         verify {
             inntektskomponentService.hentInntekter(tilskuddMelding.deltakerFnr, tilskuddMelding.bedriftNr, tilskuddMelding.tilskuddFom, tilskuddMelding.tilskuddTom.plusMonths(0))
         }
@@ -415,7 +419,7 @@ class RefusjonServiceTest(
         Now.fixedDate(LocalDate.now().plusDays(1))
         //refusjon.merkForUnntakOmInntekterToMånederFrem(true, "")
         refusjon.merkForHentInntekterFrem(true, innloggetSaksbehandler)
-        refusjonService.gjørInntektsoppslag(innloggetArbeidsgiver, refusjon)
+        refusjonService.gjørInntektsoppslag(refusjon, innloggetArbeidsgiver)
         verify {
             inntektskomponentService.hentInntekter(tilskuddMelding.deltakerFnr, tilskuddMelding.bedriftNr, tilskuddMelding.tilskuddFom, tilskuddMelding.tilskuddTom.plusMonths(1))
         }
@@ -453,13 +457,13 @@ class RefusjonServiceTest(
             godkjentTidspunkt = LocalDateTime.now()
         )
         var refusjon = refusjonService.opprettRefusjon(tilskuddMelding) ?: fail("Skulle kunne opprette refusjon")
-        refusjonService.gjørInntektsoppslag(innloggetArbeidsgiver, refusjon)
+        refusjonService.gjørInntektsoppslag(refusjon, innloggetArbeidsgiver)
         verify {
             inntektskomponentService.hentInntekter(tilskuddMelding.deltakerFnr, tilskuddMelding.bedriftNr, tilskuddMelding.tilskuddFom, tilskuddMelding.tilskuddTom.plusMonths(0))
         }
         Now.fixedDate(LocalDate.now().plusDays(1))
         refusjon.merkForUnntakOmInntekterToMånederFrem(2, innloggetSaksbehandler)
-        refusjonService.gjørInntektsoppslag(innloggetArbeidsgiver, refusjon)
+        refusjonService.gjørInntektsoppslag(refusjon, innloggetArbeidsgiver)
         verify {
             inntektskomponentService.hentInntekter(tilskuddMelding.deltakerFnr, tilskuddMelding.bedriftNr, tilskuddMelding.tilskuddFom, tilskuddMelding.tilskuddTom.plusMonths(2))
         }
@@ -509,7 +513,9 @@ class RefusjonServiceTest(
         // Sett innhentede inntekter til opptjent i periode
         refusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.forEach { it.erOpptjentIPeriode = true }
         // Bekreft at alle inntektene kun er fra tiltaket
-        refusjon.endreBruttolønn(innloggetSaksbehandler, true, null)
+        refusjonService.endreBruttolønn(refusjon,true, null)
+        refusjonService.gjørBeregning(refusjon, innloggetArbeidsgiver)
+
     }
 
 }

@@ -165,12 +165,9 @@ class Korreksjon(
         registerEvent(KorreksjonMerketForTilbakekreving(this, utførtAv))
     }
 
-    fun endreBruttolønn(utførtAv: InnloggetBruker ,inntekterKunFraTiltaket: Boolean?, endretBruttoLønn: Int?) {
+    fun endreBruttolønn(inntekterKunFraTiltaket: Boolean?, endretBruttoLønn: Int?) {
         krevStatus(Korreksjonstype.UTKAST)
-        val harGjortBeregning = refusjonsgrunnlag.endreBruttolønn(inntekterKunFraTiltaket, endretBruttoLønn)
-        if (harGjortBeregning) {
-            registerEvent(KorreksjonBeregningUtført(this, utførtAv))
-        }
+        refusjonsgrunnlag.endreBruttolønn(inntekterKunFraTiltaket, endretBruttoLønn)
     }
 
     fun skalGjøreKontonummerOppslag(): Boolean {
@@ -186,34 +183,22 @@ class Korreksjon(
         return status == Korreksjonstype.UTKAST
     }
 
-    fun oppgiInntektsgrunnlag(utførtAv: InnloggetBruker, inntektsgrunnlag: Inntektsgrunnlag) {
-        val harGjortBeregning = this.refusjonsgrunnlag.oppgiInntektsgrunnlag(inntektsgrunnlag, this.refusjonsgrunnlag.inntektsgrunnlag)
-        if (harGjortBeregning) {
-            registerEvent(KorreksjonBeregningUtført(this, utførtAv))
-        }
+    fun oppgiInntektsgrunnlag(inntektsgrunnlag: Inntektsgrunnlag) {
+        this.refusjonsgrunnlag.oppgiInntektsgrunnlag(inntektsgrunnlag, this.refusjonsgrunnlag.inntektsgrunnlag)
     }
 
-    fun oppgiBedriftKontonummer(utførtAv: InnloggetBruker, bedrifKontonummer: String) {
-        val harGjortBeregning = this.refusjonsgrunnlag.oppgiBedriftKontonummer(bedrifKontonummer)
-        if (harGjortBeregning) {
-            registerEvent(KorreksjonBeregningUtført(this, utførtAv))
-        }
+    fun oppgiBedriftKontonummer(bedrifKontonummer: String) {
+        this.refusjonsgrunnlag.oppgiBedriftKontonummer(bedrifKontonummer)
     }
 
-    fun setInntektslinjeTilOpptjentIPeriode(utførtAv: InnloggetBruker ,inntekslinjeId: String, erOpptjentIPeriode: Boolean) {
+    fun setInntektslinjeTilOpptjentIPeriode(inntekslinjeId: String, erOpptjentIPeriode: Boolean) {
         krevStatus(Korreksjonstype.UTKAST)
-        val harGjortBeregning = refusjonsgrunnlag.setInntektslinjeTilOpptjentIPeriode(inntekslinjeId, erOpptjentIPeriode)
-        if (harGjortBeregning) {
-            registerEvent(KorreksjonBeregningUtført(this, utførtAv))
-        }
+        refusjonsgrunnlag.setInntektslinjeTilOpptjentIPeriode(inntekslinjeId, erOpptjentIPeriode)
     }
 
-    fun settFratrekkRefunderbarBeløp(utførtAv: InnloggetBruker, fratrekkRefunderbarBeløp: Boolean, refunderbarBeløp: Int?) {
+    fun settFratrekkRefunderbarBeløp(fratrekkRefunderbarBeløp: Boolean, refunderbarBeløp: Int?) {
         krevStatus(Korreksjonstype.UTKAST)
-        val harGjortBeregning = refusjonsgrunnlag.settFratrekkRefunderbarBeløp(fratrekkRefunderbarBeløp, refunderbarBeløp)
-        if (harGjortBeregning) {
-            registerEvent(KorreksjonBeregningUtført(this, utførtAv))
-        }
+        refusjonsgrunnlag.settFratrekkRefunderbarBeløp(fratrekkRefunderbarBeløp, refunderbarBeløp)
     }
 
     fun utbetalingMislykket() {

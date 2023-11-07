@@ -48,7 +48,7 @@ fun beregnRefusjonsbeløp(
     tilskuddFom: LocalDate,
     sumUtbetaltVarig: Int = 0,
     harFerietrekkForSammeMåned: Boolean,
-    ekstraFerietrekk: Int? = null
+    ekstraFerietrekk: Int? = null,
 
 ): Beregning {
     val kalkulertBruttoLønn = kalkulerBruttoLønn(inntekter).roundToInt()

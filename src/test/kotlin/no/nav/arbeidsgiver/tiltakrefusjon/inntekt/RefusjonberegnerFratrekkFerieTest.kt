@@ -91,11 +91,14 @@ class RefusjonberegnerFratrekkFerieTest(
         refusjon.unntakOmInntekterFremitid = 0
         refusjon.fristForGodkjenning = Now.localDate().plusDays(1)
         refusjonService.gjørBedriftKontonummeroppslag(refusjon)
-        refusjonService.gjørInntektsoppslag(innloggetArbeidsgiver, refusjon)
+        refusjonService.gjørInntektsoppslag(refusjon, innloggetArbeidsgiver)
         // Sett innhentede inntekter til opptjent i periode
         refusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.forEach { it.erOpptjentIPeriode = true }
         // Bekreft at alle inntektene kun er fra tiltaket
-        refusjon.endreBruttolønn(innloggetArbeidsgiver, true, null)
+        //refusjonService.oppdaterRefusjon(refusjon)
+        refusjonService.endreBruttolønn(refusjon, true, null)
+        refusjonService.gjørBeregning(refusjon, innloggetArbeidsgiver);
+
         return refusjon;
     }
 
@@ -273,6 +276,7 @@ class RefusjonberegnerFratrekkFerieTest(
 
         // Verifiser at ferietrekk ikke er med her
         val refusjon2 = opprettRefusjonOgGjørInntektoppslag(tilskuddsperiodeGodkjentMelding2)
+        refusjonService.gjørBeregning(refusjon2, innloggetArbeidsgiver)
         refusjonRepository.save(refusjon2)
         Now.fixedDateTime(LocalDateTime.of(2023, 7, 1, 1, 0, 0))
 

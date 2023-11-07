@@ -119,7 +119,8 @@ data class InnloggetSaksbehandler(
                 inntekter = inntektsoppslag.first,
                 respons = inntektsoppslag.second
             )
-            korreksjon.oppgiInntektsgrunnlag(this, inntektsgrunnlag)
+            korreksjon.oppgiInntektsgrunnlag(inntektsgrunnlag)
+            refusjonService.gjørKorreksjonBeregning(korreksjon, this)
             korreksjonRepository.save(korreksjon)
         }
         return korreksjon
@@ -209,7 +210,9 @@ data class InnloggetSaksbehandler(
         sjekkKorreksjonTilgang()
         val korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(korreksjon)
-        korreksjon.endreBruttolønn(this, inntekterKunFraTiltaket, endretBruttoLønn)
+        korreksjon.endreBruttolønn(inntekterKunFraTiltaket, endretBruttoLønn)
+        refusjonService.gjørKorreksjonBeregning(korreksjon, this)
+
         korreksjonRepository.save(korreksjon)
     }
 
@@ -230,14 +233,18 @@ data class InnloggetSaksbehandler(
         sjekkKorreksjonTilgang()
         val korreksjon = korreksjonRepository.findByIdOrNull(korreksjonId) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(korreksjon)
-        korreksjon.setInntektslinjeTilOpptjentIPeriode(this, inntekslinjeId, erOpptjentIPeriode)
+        korreksjon.setInntektslinjeTilOpptjentIPeriode(inntekslinjeId, erOpptjentIPeriode)
+        refusjonService.gjørKorreksjonBeregning(korreksjon, this)
+
         korreksjonRepository.save(korreksjon)
     }
 
     fun settFratrekkRefunderbarBeløp(id: String, fratrekkRefunderbarBeløp: Boolean, refunderbarBeløp: Int?) {
         val korreksjon: Korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(korreksjon)
-        korreksjon.settFratrekkRefunderbarBeløp(this, fratrekkRefunderbarBeløp, refunderbarBeløp)
+        korreksjon.settFratrekkRefunderbarBeløp(fratrekkRefunderbarBeløp, refunderbarBeløp)
+        refusjonService.gjørKorreksjonBeregning(korreksjon, this)
+
         korreksjonRepository.save(korreksjon)
     }
 

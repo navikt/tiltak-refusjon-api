@@ -61,6 +61,7 @@ class Refusjon(
     var åpnetFørsteGang: Instant? = null
     @OneToOne(orphanRemoval = true, cascade = [CascadeType.ALL])
     var minusbelop: Minusbelop? = null
+    var sistEndret: Instant? = null
     init {
         oppdaterStatus()
         registerEvent(RefusjonOpprettet(this, SYSTEM_BRUKER))
@@ -78,8 +79,10 @@ class Refusjon(
     }
 
     @JsonProperty
-    fun harTattStillingTilAlleInntektslinjer(): Boolean =
-        refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.find { inntekt -> inntekt.erOpptjentIPeriode === null } === null
+    fun harTattStillingTilAlleInntektslinjer(): Boolean {
+        val harTattStilling = refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.find { inntekt -> inntekt.erOpptjentIPeriode === null }
+        return harTattStilling === null
+    }
 
     private fun krevStatus(vararg gyldigeStatuser: RefusjonStatus) {
         if (status !in gyldigeStatuser) throw FeilkodeException(Feilkode.UGYLDIG_STATUS)
@@ -119,30 +122,22 @@ class Refusjon(
     }
 
     fun oppgiInntektsgrunnlag(
-        utførtAv: InnloggetBruker,
         inntektsgrunnlag: Inntektsgrunnlag,
         gjeldendeInntektsgrunnlag: Inntektsgrunnlag? = null
     ) {
         oppdaterStatus()
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
-
-        val harGjortBeregning = this.refusjonsgrunnlag.oppgiInntektsgrunnlag(inntektsgrunnlag, gjeldendeInntektsgrunnlag)
-        if (harGjortBeregning) {
-            registerEvent(BeregningUtført(this, utførtAv))
-        }
+        this.refusjonsgrunnlag.oppgiInntektsgrunnlag(inntektsgrunnlag, gjeldendeInntektsgrunnlag)
     }
 
     fun oppgiBedriftKontonummer(bedrifKontonummer: String?) {
         refusjonsgrunnlag.oppgiBedriftKontonummer(bedrifKontonummer)
     }
 
-    fun endreBruttolønn(utførtAv: InnloggetBruker, inntekterKunFraTiltaket: Boolean?, bruttoLønn: Int?) {
+    fun endreBruttolønn(inntekterKunFraTiltaket: Boolean?, bruttoLønn: Int?) {
         oppdaterStatus()
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
-        val harGjortBeregning = refusjonsgrunnlag.endreBruttolønn(inntekterKunFraTiltaket, bruttoLønn)
-        if (harGjortBeregning) {
-            registerEvent(BeregningUtført(this, utførtAv))
-        }
+        refusjonsgrunnlag.endreBruttolønn(inntekterKunFraTiltaket, bruttoLønn)
     }
 
     fun endreBedriftKID( bedriftKID: String?) {
@@ -166,6 +161,9 @@ class Refusjon(
         }
         if (!this.harTattStillingTilAlleInntektslinjer()) {
             throw FeilkodeException(Feilkode.IKKE_TATT_STILLING_TIL_ALLE_INNTEKTSLINJER)
+        }
+        if (refusjonsgrunnlag.beregning == null) {
+            throw FeilkodeException(Feilkode.INGEN_BEREGNING)
         }
         godkjentAvArbeidsgiver = Now.instant()
         status = RefusjonStatus.SENDT_KRAV
@@ -257,9 +255,7 @@ class Refusjon(
         }
     }
 
-
-
-fun opprettKorreksjonsutkast(korreksjonsgrunner: Set<Korreksjonsgrunn>, unntakOmInntekterFremitid: Int?, annenGrunn: String?): Korreksjon {
+    fun opprettKorreksjonsutkast(korreksjonsgrunner: Set<Korreksjonsgrunn>, unntakOmInntekterFremitid: Int?, annenGrunn: String?): Korreksjon {
         krevStatus(RefusjonStatus.UTBETALT, RefusjonStatus.SENDT_KRAV,RefusjonStatus.GODKJENT_MINUSBELØP, RefusjonStatus.UTGÅTT, RefusjonStatus.GODKJENT_NULLBELØP)
         if (korreksjonId != null) {
             throw FeilkodeException(Feilkode.HAR_KORREKSJON)
@@ -320,6 +316,19 @@ fun opprettKorreksjonsutkast(korreksjonsgrunner: Set<Korreksjonsgrunn>, unntakOm
         registerEvent(FristForlenget(this, gammelFristForGodkjenning, fristForGodkjenning, årsak, utførtAv))
     }
 
+    fun forlengFristSykepenger(nyFrist: LocalDate, årsak: String, utførtAv: InnloggetBruker) {
+        oppdaterStatus()
+        krevStatus(RefusjonStatus.FOR_TIDLIG, RefusjonStatus.KLAR_FOR_INNSENDING)
+
+        if (nyFrist > fristForGodkjenning) {
+            val gammelFristForGodkjenning = fristForGodkjenning
+            forrigeFristForGodkjenning = gammelFristForGodkjenning
+            fristForGodkjenning = nyFrist
+            oppdaterStatus()
+            registerEvent(FristForlenget(this, gammelFristForGodkjenning, fristForGodkjenning, årsak, utførtAv))
+        }
+    }
+
     fun skalGjøreInntektsoppslag(): Boolean {
         if (status != RefusjonStatus.KLAR_FOR_INNSENDING) {
             return false
@@ -378,29 +387,21 @@ fun opprettKorreksjonsutkast(korreksjonsgrunner: Set<Korreksjonsgrunn>, unntakOm
     }
 
     fun setInntektslinjeTilOpptjentIPeriode(
-        utførtAv: InnloggetBruker,
         inntekslinjeId: String,
         erOpptjentIPeriode: Boolean
     ) {
         oppdaterStatus()
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
-        var harGjortBeregning  = refusjonsgrunnlag.setInntektslinjeTilOpptjentIPeriode(inntekslinjeId, erOpptjentIPeriode)
-        if (harGjortBeregning) {
-            registerEvent(BeregningUtført(this, utførtAv))
-        }
+        refusjonsgrunnlag.setInntektslinjeTilOpptjentIPeriode(inntekslinjeId, erOpptjentIPeriode)
     }
 
     fun settFratrekkRefunderbarBeløp(
-        utførtAv: InnloggetBruker,
         fratrekkRefunderbarBeløp: Boolean,
         refunderbarBeløp: Int?
     ) {
         oppdaterStatus()
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
-        val harGjortBeregning = refusjonsgrunnlag.settFratrekkRefunderbarBeløp(fratrekkRefunderbarBeløp, refunderbarBeløp)
-        if (harGjortBeregning) {
-            registerEvent(BeregningUtført(this, utførtAv))
-        }
+        refusjonsgrunnlag.settFratrekkRefunderbarBeløp(fratrekkRefunderbarBeløp, refunderbarBeløp)
     }
 
 }

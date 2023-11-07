@@ -26,18 +26,21 @@ class SaksbehandlerKorreksjonController(
     }
 
     @PostMapping("opprett-korreksjonsutkast")
+    @Transactional
     fun opprettKorreksjonsutkast(@RequestBody request: KorrigerRequest): Refusjon {
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
         return saksbehandler.opprettKorreksjonsutkast(request.refusjonId, request.korreksjonsgrunner, request.unntakOmInntekterFremitid, request.annenKorreksjonsGrunn)
     }
 
     @PostMapping("/{id}/slett-korreksjonsutkast")
+    @Transactional
     fun slettKorreksjonsutkast(@PathVariable id: String) {
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
         saksbehandler.slettKorreksjonsutkast(id)
     }
 
     @PostMapping("/{id}/utbetal-korreksjon")
+    @Transactional
     fun utbetalKorreksjon(@PathVariable id: String) {
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
         return saksbehandler.utbetalKorreksjon(id)

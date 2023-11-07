@@ -9,7 +9,6 @@ import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import java.time.LocalDate
 
-
 interface RefusjonRepository : JpaRepository<Refusjon, String> {
     fun findAllByBedriftNr(bedriftNr: String): List<Refusjon>
     fun findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_TilskuddsperiodeId(tilskuddsperiodeId: String): List<Refusjon>

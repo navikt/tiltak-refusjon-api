@@ -10,9 +10,11 @@ import jakarta.servlet.http.Cookie
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
 import no.nav.arbeidsgiver.tiltakrefusjon.audit.AuditConsoleLogger
+import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.ADMIN_BRUKER
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.REQUEST_MAPPING_INNLOGGET_ARBEIDSGIVER
 import no.nav.arbeidsgiver.tiltakrefusjon.hendelseslogg.HendelsesloggRepository
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjoner
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.varsling.VarslingRepository
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
@@ -39,6 +41,7 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse.BodyHandlers
 import java.nio.charset.StandardCharsets
+import java.time.LocalDate
 
 data class InnloggetBrukerTest(val identifikator: String, val organisasjoner: Set<Organisasjon>)
 data class RefusjonlistFraFlereOrgTest(
@@ -58,6 +61,7 @@ data class RefusjonlistFraFlereOrgTest(
 @DirtiesContext
 class RefusjonApiTest(
     @Autowired val refusjonRepository: RefusjonRepository,
+    @Autowired val refusjonService: RefusjonService,
     @Autowired val mapper: ObjectMapper,
     @Autowired val mockMvc: MockMvc,
     @Autowired val hendelsesloggRepository: HendelsesloggRepository,
@@ -77,6 +81,9 @@ class RefusjonApiTest(
     @BeforeEach
     fun setUp() {
         refusjonRepository.saveAll(refusjoner())
+        refusjonRepository.findAll().forEach {
+            refusjonService.oppdaterRefusjon(it, ADMIN_BRUKER)
+        }
         resetAuditCount()
     }
 
@@ -255,6 +262,8 @@ class RefusjonApiTest(
         val id = refusjonRepository.findAll().find { it.deltakerFnr == "28128521498" }?.id
 
         // Inntektsoppslag ved henting av refusjon
+        hentRefusjon(id)
+        oppdaterRefusjonMedKontonrOgInntekter(id!!)
         val refusjonEtterInntektsgrunnlag = hentRefusjon(id)
         assertThat(refusjonEtterInntektsgrunnlag.refusjonsgrunnlag.inntektsgrunnlag).isNotNull()
 
@@ -295,6 +304,7 @@ class RefusjonApiTest(
             post("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id/godkjenn")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
+                .header("If-Unmodified-Since", Now.instant())
                 .cookie(arbGiverCookie)
         )
             .andExpect(status().isBadRequest)
@@ -312,6 +322,10 @@ class RefusjonApiTest(
     private fun hentRefusjon(id: String?): Refusjon {
         val json = sendRequest(get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id"), arbGiverCookie)
         return mapper.readValue(json, Refusjon::class.java)
+    }
+
+    private fun oppdaterRefusjonMedKontonrOgInntekter(id: String) {
+        sendRequest(post("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id/sett-kontonummer-og-inntekter"), arbGiverCookie)
     }
 
     private fun sendRequest(request: MockHttpServletRequestBuilder, cookie: Cookie): String {
@@ -332,6 +346,7 @@ class RefusjonApiTest(
             request
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
+                .header("If-Unmodified-Since", Now.instant())
                 .cookie(cookie)
         )
             .andExpect(status)
@@ -344,6 +359,7 @@ class RefusjonApiTest(
             request
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
+                .header("If-Unmodified-Since", Now.instant())
                 .cookie(cookie)
         )
             .andExpect(forventetStatus)

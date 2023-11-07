@@ -27,7 +27,6 @@ class KorreksjonTest {
             annenGrunn = null
         )
         korreksjon.oppgiInntektsgrunnlag(
-            innloggetBeslutter,
             etInntektsgrunnlag(
                 måned = YearMonth.of(
                     tilskuddsgrunnlag.tilskuddFom.year,
@@ -35,8 +34,20 @@ class KorreksjonTest {
                 )
             )
         )
-        korreksjon.oppgiBedriftKontonummer(innloggetBeslutter, "99999999999")
+        korreksjon.oppgiBedriftKontonummer("99999999999")
+        korreksjon.refusjonsgrunnlag.beregning = beregnRefusjonsbeløp(
+            inntekter = korreksjon.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
+            tilskuddsgrunnlag = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag,
+            tidligereUtbetalt = korreksjon.refusjonsgrunnlag.tidligereUtbetalt,
+            korrigertBruttoLønn = korreksjon.refusjonsgrunnlag.endretBruttoLønn,
+            fratrekkRefunderbarSum = korreksjon.refusjonsgrunnlag.refunderbarBeløp,
+            forrigeRefusjonMinusBeløp = korreksjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
+            tilskuddFom = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
+            sumUtbetaltVarig = korreksjon.refusjonsgrunnlag.sumUtbetaltVarig,
+            harFerietrekkForSammeMåned = korreksjon.refusjonsgrunnlag.harFerietrekkForSammeMåned
+        )
         korreksjon.utbetalKorreksjon(innloggetBeslutter, "1000")
+
         assertThat(korreksjon.status).isEqualTo(Korreksjonstype.TILLEGSUTBETALING)
     }
 
@@ -57,7 +68,6 @@ class KorreksjonTest {
             annenGrunn = null
         )
         korreksjon.oppgiInntektsgrunnlag(
-            innloggetBeslutter,
             etInntektsgrunnlag(
                 måned = YearMonth.of(
                     tilskuddsgrunnlag.tilskuddFom.year,
@@ -65,8 +75,20 @@ class KorreksjonTest {
                 )
             )
         )
-        korreksjon.oppgiBedriftKontonummer(innloggetBeslutter, "99999999999")
+        korreksjon.oppgiBedriftKontonummer("99999999999")
+        korreksjon.refusjonsgrunnlag.beregning = beregnRefusjonsbeløp(
+            inntekter = korreksjon.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
+            tilskuddsgrunnlag = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag,
+            tidligereUtbetalt = korreksjon.refusjonsgrunnlag.tidligereUtbetalt,
+            korrigertBruttoLønn = korreksjon.refusjonsgrunnlag.endretBruttoLønn,
+            fratrekkRefunderbarSum = korreksjon.refusjonsgrunnlag.refunderbarBeløp,
+            forrigeRefusjonMinusBeløp = korreksjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
+            tilskuddFom = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
+            sumUtbetaltVarig = korreksjon.refusjonsgrunnlag.sumUtbetaltVarig,
+            harFerietrekkForSammeMåned = korreksjon.refusjonsgrunnlag.harFerietrekkForSammeMåned
+        )
         assertFeilkode(Feilkode.KOSTNADSSTED_MANGLER) { korreksjon.utbetalKorreksjon(innloggetBeslutter, "") }
+
     }
 
     @Disabled("Sperrer ikke for dette pt")
@@ -87,7 +109,6 @@ class KorreksjonTest {
             annenGrunn = null
         )
         korreksjon.oppgiInntektsgrunnlag(
-            innloggetBeslutter,
             etInntektsgrunnlag(
                 måned = YearMonth.of(
                     tilskuddsgrunnlag.tilskuddFom.year,
@@ -95,7 +116,7 @@ class KorreksjonTest {
                 )
             )
         )
-        korreksjon.oppgiBedriftKontonummer(innloggetBeslutter, "99999999999")
+        korreksjon.oppgiBedriftKontonummer("99999999999")
         assertFeilkode(Feilkode.KORREKSJON_KOSTNADSSTED_ANNET_FYLKE) {
             korreksjon.utbetalKorreksjon(innloggetBeslutter, "2009")
         }
@@ -118,7 +139,6 @@ class KorreksjonTest {
             annenGrunn = null
         )
         korreksjon.oppgiInntektsgrunnlag(
-            innloggetBeslutter,
             etInntektsgrunnlag(
                 måned = YearMonth.of(
                     tilskuddsgrunnlag.tilskuddFom.year,
@@ -126,7 +146,18 @@ class KorreksjonTest {
                 )
             )
         )
-        korreksjon.oppgiBedriftKontonummer(innloggetBeslutter, "99999999999")
+        korreksjon.oppgiBedriftKontonummer("99999999999")
+        korreksjon.refusjonsgrunnlag.beregning = beregnRefusjonsbeløp(
+            inntekter = korreksjon.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
+            tilskuddsgrunnlag = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag,
+            tidligereUtbetalt = korreksjon.refusjonsgrunnlag.tidligereUtbetalt,
+            korrigertBruttoLønn = korreksjon.refusjonsgrunnlag.endretBruttoLønn,
+            fratrekkRefunderbarSum = korreksjon.refusjonsgrunnlag.refunderbarBeløp,
+            forrigeRefusjonMinusBeløp = korreksjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
+            tilskuddFom = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
+            sumUtbetaltVarig = korreksjon.refusjonsgrunnlag.sumUtbetaltVarig,
+            harFerietrekkForSammeMåned = korreksjon.refusjonsgrunnlag.harFerietrekkForSammeMåned
+        )
         korreksjon.utbetalKorreksjon(innloggetBeslutter, "1009")
         assertThat(korreksjon.status).isEqualTo(Korreksjonstype.TILLEGSUTBETALING)
     }
@@ -148,7 +179,6 @@ class KorreksjonTest {
             annenGrunn = null
         )
         korreksjon.oppgiInntektsgrunnlag(
-            innloggetBeslutter,
             etInntektsgrunnlag(
                 måned = YearMonth.of(
                     tilskuddsgrunnlag.tilskuddFom.year,
@@ -156,7 +186,18 @@ class KorreksjonTest {
                 )
             )
         )
-        korreksjon.oppgiBedriftKontonummer(innloggetBeslutter, "99999999999")
+        korreksjon.oppgiBedriftKontonummer("99999999999")
+        korreksjon.refusjonsgrunnlag.beregning = beregnRefusjonsbeløp(
+            inntekter = korreksjon.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
+            tilskuddsgrunnlag = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag,
+            tidligereUtbetalt = korreksjon.refusjonsgrunnlag.tidligereUtbetalt,
+            korrigertBruttoLønn = korreksjon.refusjonsgrunnlag.endretBruttoLønn,
+            fratrekkRefunderbarSum = korreksjon.refusjonsgrunnlag.refunderbarBeløp,
+            forrigeRefusjonMinusBeløp = korreksjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
+            tilskuddFom = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
+            sumUtbetaltVarig = korreksjon.refusjonsgrunnlag.sumUtbetaltVarig,
+            harFerietrekkForSammeMåned = korreksjon.refusjonsgrunnlag.harFerietrekkForSammeMåned
+        )
         assertFeilkode(Feilkode.KORREKSJONSBELOP_NEGATIVT) { korreksjon.utbetalKorreksjon(innloggetBeslutter, "9999") }
         assertFeilkode(Feilkode.KORREKSJONSBELOP_IKKE_NULL) { korreksjon.fullførKorreksjonVedOppgjort(innloggetBeslutter) }
         korreksjon.fullførKorreksjonVedTilbakekreving(innloggetBeslutter)
@@ -180,7 +221,6 @@ class KorreksjonTest {
             annenGrunn = null
         )
         korreksjon.oppgiInntektsgrunnlag(
-            innloggetBeslutter,
             etInntektsgrunnlag(
                 måned = YearMonth.of(
                     tilskuddsgrunnlag.tilskuddFom.year,
@@ -188,14 +228,22 @@ class KorreksjonTest {
                 )
             )
         )
-        korreksjon.oppgiBedriftKontonummer(innloggetBeslutter, "99999999999")
+        korreksjon.oppgiBedriftKontonummer("99999999999")
+        korreksjon.refusjonsgrunnlag.beregning = beregnRefusjonsbeløp(
+            inntekter = korreksjon.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
+            tilskuddsgrunnlag = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag,
+            tidligereUtbetalt = korreksjon.refusjonsgrunnlag.tidligereUtbetalt,
+            korrigertBruttoLønn = korreksjon.refusjonsgrunnlag.endretBruttoLønn,
+            fratrekkRefunderbarSum = korreksjon.refusjonsgrunnlag.refunderbarBeløp,
+            forrigeRefusjonMinusBeløp = korreksjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
+            tilskuddFom = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
+            sumUtbetaltVarig = korreksjon.refusjonsgrunnlag.sumUtbetaltVarig,
+            harFerietrekkForSammeMåned = korreksjon.refusjonsgrunnlag.harFerietrekkForSammeMåned
+        )
         assertFeilkode(Feilkode.KORREKSJONSBELOP_NEGATIVT) { korreksjon.utbetalKorreksjon(innloggetBeslutter, "9999") }
-        assertFeilkode(Feilkode.KORREKSJONSBELOP_POSITIVT) {
-            korreksjon.fullførKorreksjonVedTilbakekreving(
-                innloggetBeslutter
-            )
-        }
+        assertFeilkode(Feilkode.KORREKSJONSBELOP_POSITIVT) { korreksjon.fullførKorreksjonVedTilbakekreving(innloggetBeslutter) }
         korreksjon.fullførKorreksjonVedOppgjort(innloggetBeslutter)
+
         assertThat(korreksjon.status).isEqualTo(Korreksjonstype.OPPGJORT)
     }
 
@@ -222,9 +270,20 @@ class KorreksjonTest {
             inntektslinjeIkkeOptjentIPeriode
         )
         val inntektsgrunnlag = Inntektsgrunnlag(inntekter, "")
-        korreksjon.oppgiBedriftKontonummer(innloggetBeslutter, "123456789")
-        korreksjon.oppgiInntektsgrunnlag(innloggetBeslutter, inntektsgrunnlag)
 
+        korreksjon.oppgiBedriftKontonummer("123456789")
+        korreksjon.oppgiInntektsgrunnlag(inntektsgrunnlag)
+        korreksjon.refusjonsgrunnlag.beregning = beregnRefusjonsbeløp(
+            inntekter = korreksjon.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
+            tilskuddsgrunnlag = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag,
+            tidligereUtbetalt = korreksjon.refusjonsgrunnlag.tidligereUtbetalt,
+            korrigertBruttoLønn = korreksjon.refusjonsgrunnlag.endretBruttoLønn,
+            fratrekkRefunderbarSum = korreksjon.refusjonsgrunnlag.refunderbarBeløp,
+            forrigeRefusjonMinusBeløp = korreksjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
+            tilskuddFom = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
+            sumUtbetaltVarig = korreksjon.refusjonsgrunnlag.sumUtbetaltVarig,
+            harFerietrekkForSammeMåned = korreksjon.refusjonsgrunnlag.harFerietrekkForSammeMåned
+        )
         assertThat(korreksjon.refusjonsgrunnlag.beregning?.lønn).isEqualTo(inntektslinjeOpptjentIPeriode.beløp.toInt())
     }
 }

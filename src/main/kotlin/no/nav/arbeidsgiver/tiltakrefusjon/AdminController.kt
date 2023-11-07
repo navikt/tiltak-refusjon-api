@@ -18,6 +18,7 @@ import java.time.LocalDate
 class AdminController(
     val service: RefusjonService,
     val refusjonRepository: RefusjonRepository,
+    val refusjonService: RefusjonService,
     val leaderPodCheck: LeaderPodCheck
 ) {
     val logger = LoggerFactory.getLogger(javaClass)
@@ -205,6 +206,22 @@ class AdminController(
     @Unprotected
     @GetMapping("hent-refusjoner-med-status-sendt")
     fun hentRefusjonerMedStatusSendtKrav()  = refusjonRepository.findAllByStatus(RefusjonStatus.SENDT_KRAV)
+
+    @Unprotected
+    @PostMapping("oppdater-alle-refusjoner-med-data")
+    @Transactional
+    fun oppdaterAlleRefusjonerMedData() {
+        val alleKlarForInnsending = refusjonRepository.findAllByStatus(RefusjonStatus.KLAR_FOR_INNSENDING);
+        logger.info("Hentet alle som er klar for innsending, totalt ${alleKlarForInnsending.size}")
+        alleKlarForInnsending.forEach {
+            refusjonService.oppdaterRefusjon(it, ADMIN_BRUKER)
+        }
+        val alleForTidlig = refusjonRepository.findAllByStatus(RefusjonStatus.FOR_TIDLIG);
+        logger.info("Hentet alle med status for tidlig, totalt ${alleForTidlig.size}")
+        alleForTidlig.forEach {
+            refusjonService.oppdaterRefusjon(it, ADMIN_BRUKER)
+        }
+    }
 }
 
 data class ReberegnRequest(val harFerietrekkForSammeMåned: Boolean, val minusBeløp: Int, val ferieTrekk: Int)

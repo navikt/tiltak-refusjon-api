@@ -8,7 +8,7 @@ import org.springframework.data.domain.Page
 import org.springframework.http.*
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
-
+import java.time.Instant
 
 const val REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON = "/api/arbeidsgiver/refusjon"
 
@@ -40,7 +40,6 @@ class ArbeidsgiverRefusjonController(
     }
 
     @GetMapping("/{id}/pdf")
-    @Transactional
     fun hentPDF(@PathVariable id:String): HttpEntity<ByteArray>{
         if(id.trim().isEmpty()) return HttpEntity.EMPTY as HttpEntity<ByteArray>
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
@@ -77,72 +76,74 @@ class ArbeidsgiverRefusjonController(
     }
 
     @GetMapping("/{id}")
-    @Transactional
     fun hent(@PathVariable id: String): Refusjon? {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
         return arbeidsgiver.finnRefusjon(id)
     }
 
+    @PostMapping("{id}/sett-kontonummer-og-inntekter")
+    @Transactional
+    fun settKontonummerOgInntekterPåRefusjon(@PathVariable id: String, @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant?) {
+        val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
+        arbeidsgiver.settKontonummerOgInntekterPåRefusjon(id, sistEndret);
+    }
+
     @PostMapping("/{id}/endre-bruttolønn")
     @Transactional
-    fun endreBruttolønn(@PathVariable id: String, @RequestBody request: EndreBruttolønnRequest) {
+    fun endreBruttolønn(@PathVariable id: String, @RequestBody request: EndreBruttolønnRequest, @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
          arbeidsgiver.endreBruttolønn(
             id,
             request.inntekterKunFraTiltaket,
-            request.bruttoLønn
+            request.bruttoLønn,
+            sistEndret
         )
     }
 
     @PostMapping("/{id}/lagre-bedriftKID")
-    fun lagreBedriftKID(@PathVariable id: String, @RequestBody request: EndreBedriftKIDRequest ) {
+    @Transactional
+    fun lagreBedriftKID(@PathVariable id: String, @RequestBody request: EndreBedriftKIDRequest, @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-        arbeidsgiver.lagreBedriftKID(id, request.bedriftKID)
+        arbeidsgiver.lagreBedriftKID(id, request.bedriftKID, sistEndret)
     }
 
     @PostMapping("/{id}/fratrekk-sykepenger")
     @Transactional
-    fun fratrekkSykepenger(@PathVariable id: String, @RequestBody request: FratrekkRefunderbarBeløp) {
+    fun fratrekkSykepenger(@PathVariable id: String, @RequestBody request: FratrekkRefunderbarBeløp, @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-        arbeidsgiver.settFratrekkRefunderbarBeløp(id, request.fratrekkRefunderbarBeløp, request.refunderbarBeløp)
-    }
-
-    @PostMapping("/{id}/utsett-frist")
-    @Transactional
-    fun utsettFrist(@PathVariable id: String) {
-        val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-        arbeidsgiver.utsettFristSykepenger(id);
+        arbeidsgiver.settFratrekkRefunderbarBeløp(id, request.fratrekkRefunderbarBeløp, request.refunderbarBeløp, sistEndret)
     }
 
     @PostMapping("/{id}/set-inntektslinje-opptjent-i-periode")
     @Transactional
-    fun endreRefundertInntekslinje(@PathVariable id: String, @RequestBody request: EndreRefundertInntektslinjeRequest) {
+    fun settInntektslinjeOpptjentIPeriode(@PathVariable id: String, @RequestBody request: EndreRefundertInntektslinjeRequest, @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
         arbeidsgiver.setInntektslinjeTilOpptjentIPeriode(
             refusjonId = id,
             inntekslinjeId = request.inntektslinjeId,
-            erOpptjentIPeriode = request.erOpptjentIPeriode
+            erOpptjentIPeriode = request.erOpptjentIPeriode,
+            sistEndret
         )
     }
 
     @PostMapping("/{id}/godkjenn")
     @Transactional
-    fun godkjenn(@PathVariable id: String) {
+    fun godkjenn(@PathVariable id: String, @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-        arbeidsgiver.godkjenn(id)
+        arbeidsgiver.godkjenn(id, sistEndret)
     }
 
     @PostMapping("/{id}/godkjenn-nullbeløp")
     @Transactional
-    fun godkjennNullbeløp(@PathVariable id: String) {
+    fun godkjennNullbeløp(@PathVariable id: String, @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-        arbeidsgiver.godkjennNullbeløp(id)
+        arbeidsgiver.godkjennNullbeløp(id, sistEndret)
     }
 
     @PostMapping("/{id}/merk-for-hent-inntekter-frem")
     @Transactional
-    fun merkForHentInntekterFrem(@PathVariable id: String, @RequestBody request: MerkInntekterFremRequest) {
+    fun merkForHentInntekterFrem(@PathVariable id: String, @RequestBody request: MerkInntekterFremRequest, @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-        arbeidsgiver.merkForHentInntekterFrem(id, request.merking)
+        arbeidsgiver.merkForHentInntekterFrem(id, request.merking, sistEndret)
     }
 }

@@ -217,7 +217,7 @@ class AdminController(
             refusjonService.oppdaterRefusjon(it, ADMIN_BRUKER)
         }
         val alleForTidlig = refusjonRepository.findAllByStatus(RefusjonStatus.FOR_TIDLIG);
-        logger.info("Hentet alle med status for tidlig, totalt ${alleKlarForInnsending.size}")
+        logger.info("Hentet alle med status for tidlig, totalt ${alleForTidlig.size}")
         alleForTidlig.forEach {
             refusjonService.oppdaterRefusjon(it, ADMIN_BRUKER)
         }

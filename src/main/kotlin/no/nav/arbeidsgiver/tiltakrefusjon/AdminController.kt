@@ -226,9 +226,9 @@ class AdminController(
     @PostMapping("oppdater-alle-refusjoner-fortidlig-med-data/{page}")
     @Transactional
     fun oppdaterAlleRefusjonerForTidligMedData(@PathVariable page: String) {
-        val pageable = PageRequest.of(Integer.parseInt(page), 100, Sort.by(Sort.Order.asc("id")))
+        val pageable = PageRequest.of(Integer.parseInt(page), 200, Sort.by(Sort.Order.asc("id")))
         val alleForTidlig = refusjonRepository.findAllByStatus(RefusjonStatus.FOR_TIDLIG, pageable)
-        logger.info("Hentet alle med status for tidlig, totalt ${alleForTidlig.size} antall pages ${alleForTidlig.totalPages}")
+        logger.info("Hentet alle på side $page med status for tidlig, totalt ${alleForTidlig.size} antall pages ${alleForTidlig.totalPages}")
         alleForTidlig.forEach {
             refusjonService.oppdaterRefusjon(it, ADMIN_BRUKER)
         }

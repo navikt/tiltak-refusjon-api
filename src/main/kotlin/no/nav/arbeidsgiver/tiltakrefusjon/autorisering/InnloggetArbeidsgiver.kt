@@ -111,7 +111,6 @@ data class InnloggetArbeidsgiver(
         refusjonService.gjørBedriftKontonummeroppslag(refusjon)
         refusjonService.gjørInntektsoppslag(refusjon, this)
         refusjonService.oppdaterSistEndret(refusjon)
-
         return refusjonRepository.save(refusjon)
     }
 
@@ -154,7 +153,6 @@ data class InnloggetArbeidsgiver(
         refusjon.setInntektslinjeTilOpptjentIPeriode(inntekslinjeId, erOpptjentIPeriode)
         refusjonService.gjørBeregning(refusjon, this)
         refusjonService.oppdaterSistEndret(refusjon)
-
         refusjonRepository.save(refusjon)
     }
 

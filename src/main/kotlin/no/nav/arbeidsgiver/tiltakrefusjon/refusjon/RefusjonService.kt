@@ -18,6 +18,8 @@ import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Propagation
+import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 import java.time.YearMonth
 
@@ -300,7 +302,6 @@ class RefusjonService(
 
     fun oppdaterSistEndret(refusjon: Refusjon) {
         refusjon.sistEndret = Instant.now()
-        refusjonRepository.save(refusjon)
     }
 
     fun gjørBeregning(refusjon: Refusjon, utførtAv: InnloggetBruker) {
@@ -316,6 +317,7 @@ class RefusjonService(
                 sumUtbetaltVarig = refusjon.refusjonsgrunnlag.sumUtbetaltVarig,
                 harFerietrekkForSammeMåned = refusjon.refusjonsgrunnlag.harFerietrekkForSammeMåned)
             refusjon.refusjonsgrunnlag.beregning = beregning
+            log.info("Oppdatert beregning på refusjon ${refusjon.id} til ${beregning.id}")
             applicationEventPublisher.publishEvent(BeregningUtført(refusjon, utførtAv))
         }
     }
@@ -346,7 +348,6 @@ class RefusjonService(
 
     fun endreBruttolønn(refusjon: Refusjon, inntekterKunFraTiltaket: Boolean?, bruttoLønn: Int?) {
         refusjon.endreBruttolønn(inntekterKunFraTiltaket, bruttoLønn)
-        refusjonRepository.save(refusjon)
     }
 
 }

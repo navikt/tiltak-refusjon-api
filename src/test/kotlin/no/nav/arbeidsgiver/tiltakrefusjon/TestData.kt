@@ -470,6 +470,7 @@ fun refusjoner(): List<Refusjon> {
         `Jonas Lie`(),
         `Geir Geirsen`(),
         `dodsfallUnderTiltakRefusjon`(),
+        `Formye Ferietrekksen`(),
         SnorreKorreksjonLønnEtterDødsfallMedIngenInntekt
     )
 }
@@ -560,6 +561,21 @@ fun `Snorre Sturlason`(): Refusjon {
             bedriftNr = bedriftNr,
             deltakerFornavn = "Snorre",
             deltakerEtternavn = "Sturlason",
+            tilskuddsbeløp = 13337,
+            veilederNavIdent = "Z123456"
+        ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
+    )
+}
+
+fun `Formye Ferietrekksen`(): Refusjon {
+    val deltakerFnr = "28061827902"
+    val bedriftNr = "999999999"
+    return Refusjon(
+        tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
+            deltakerFnr = deltakerFnr,
+            bedriftNr = bedriftNr,
+            deltakerFornavn = "Formye",
+            deltakerEtternavn = "Ferietrekksen",
             tilskuddsbeløp = 13337,
             veilederNavIdent = "Z123456"
         ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr

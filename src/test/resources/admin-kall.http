@@ -19,3 +19,13 @@ Content-Type: application/json
 {
   "tilskuddsperiodeId": "XXXXXXXX"
 }
+
+### Fikse kvitteringen (reberegn)
+POST http://localhost:12345/internal/admin/reberegn-dry/{id}
+Content-Type: application/json
+
+{
+  "harFerietrekkForSammeMåned": false,
+  "minusBeløp": -3796,
+  "ferieTrekk": 0
+}

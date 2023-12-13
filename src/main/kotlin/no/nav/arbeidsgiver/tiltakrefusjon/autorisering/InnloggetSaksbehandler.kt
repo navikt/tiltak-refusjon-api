@@ -251,20 +251,8 @@ data class InnloggetSaksbehandler(
     fun settManueltMinusbeløp(id: String, minusBeløp: Int) {
         val korreksjon: Korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(korreksjon)
-        val beregning =  beregnRefusjonsbeløp(
-            inntekter = korreksjon.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
-            tilskuddsgrunnlag = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag,
-            tidligereUtbetalt = korreksjon.refusjonsgrunnlag.tidligereUtbetalt,
-            korrigertBruttoLønn = korreksjon.refusjonsgrunnlag.endretBruttoLønn,
-            fratrekkRefunderbarSum = korreksjon.refusjonsgrunnlag.refunderbarBeløp,
-            forrigeRefusjonMinusBeløp = minusBeløp,
-            tilskuddFom = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
-            harFerietrekkForSammeMåned = korreksjon.refusjonsgrunnlag.harFerietrekkForSammeMåned,
-            sumUtbetaltVarig = korreksjon.refusjonsgrunnlag.sumUtbetaltVarig,
-        )
         korreksjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp = minusBeløp
-        korreksjon.refusjonsgrunnlag.beregning = beregning
-        korreksjonRepository.save(korreksjon)
+        refusjonService.gjørKorreksjonBeregning(korreksjon, this);
     }
 
     fun hentEnhet(enhet: String): String? {

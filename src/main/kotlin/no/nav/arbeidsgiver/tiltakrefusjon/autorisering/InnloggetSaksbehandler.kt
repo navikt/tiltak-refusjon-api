@@ -254,12 +254,12 @@ data class InnloggetSaksbehandler(
         val beregning =  beregnRefusjonsbeløp(
             inntekter = korreksjon.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
             tilskuddsgrunnlag = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag,
-            tidligereUtbetalt = 0,
+            tidligereUtbetalt = korreksjon.refusjonsgrunnlag.tidligereUtbetalt,
             korrigertBruttoLønn = korreksjon.refusjonsgrunnlag.endretBruttoLønn,
             fratrekkRefunderbarSum = korreksjon.refusjonsgrunnlag.refunderbarBeløp,
             forrigeRefusjonMinusBeløp = minusBeløp,
             tilskuddFom = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
-            harFerietrekkForSammeMåned = false,
+            harFerietrekkForSammeMåned = korreksjon.refusjonsgrunnlag.harFerietrekkForSammeMåned,
             sumUtbetaltVarig = korreksjon.refusjonsgrunnlag.sumUtbetaltVarig,
         )
         korreksjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp = minusBeløp

@@ -68,6 +68,12 @@ class SaksbehandlerKorreksjonController(
         )
     }
 
+    @PutMapping("/{id}/sett-manuelt-minusbeløp")
+    fun settManueltMinusbeløp(@PathVariable id: String, @RequestBody minusbeløpRequest: MinusbeløpRequest) {
+        val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
+        saksbehandler.settManueltMinusbeløp(id, minusbeløpRequest.minusbeløp)
+    }
+
     @PostMapping("/{id}/fratrekk-sykepenger")
     @Transactional
     fun fratrekkSykepenger(@PathVariable id: String, @RequestBody request: FratrekkRefunderbarBeløp) {
@@ -81,3 +87,7 @@ class SaksbehandlerKorreksjonController(
         return saksbehandler.hentEnhet(enhet)
     }
 }
+
+data class MinusbeløpRequest(
+    val minusbeløp: Int
+)

@@ -248,6 +248,13 @@ data class InnloggetSaksbehandler(
         korreksjonRepository.save(korreksjon)
     }
 
+    fun settManueltMinusbeløp(id: String, minusBeløp: Int) {
+        val korreksjon: Korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
+        sjekkLesetilgang(korreksjon)
+        korreksjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp = minusBeløp
+        refusjonService.gjørKorreksjonBeregning(korreksjon, this);
+    }
+
     fun hentEnhet(enhet: String): String? {
         return norgeService.hentEnhetNavn(enhet)
     }

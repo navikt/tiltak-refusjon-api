@@ -68,7 +68,7 @@ class SaksbehandlerKorreksjonController(
         )
     }
 
-    @PutMapping("/{id}/sett-manuelt-minusbeløp")
+    @PutMapping("/{id}/sett-manuelt-minusbelop")
     fun settManueltMinusbeløp(@PathVariable id: String, @RequestBody minusbeløpRequest: MinusbeløpRequest) {
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
         saksbehandler.settManueltMinusbeløp(id, minusbeløpRequest.minusbeløp)

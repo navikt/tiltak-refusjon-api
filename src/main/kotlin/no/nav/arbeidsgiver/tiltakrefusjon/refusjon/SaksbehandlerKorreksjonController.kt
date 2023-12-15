@@ -72,7 +72,14 @@ class SaksbehandlerKorreksjonController(
     @Transactional
     fun settManueltMinusbeløp(@PathVariable id: String, @RequestBody minusbeløpRequest: MinusbeløpRequest) {
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
-        saksbehandler.settManueltMinusbeløp(id, minusbeløpRequest.minusbeløp)
+        saksbehandler.overstyrMinusbeløp(id, minusbeløpRequest.minusbeløp)
+    }
+
+    @PutMapping("/{id}/har-ferietrekk-for-samme-maaned")
+    @Transactional
+    fun settHarFerietrekkForSammeMåned(@PathVariable id: String, @RequestBody harFerietrekkForSammeMånedRequest: HarFerietrekkForSammeMånedRequest) {
+        val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
+        saksbehandler.overstyrHarFerietrekkForSammeMåned(id, harFerietrekkForSammeMånedRequest.harFerietrekkForSammeMåned)
     }
 
     @PostMapping("/{id}/fratrekk-sykepenger")
@@ -91,4 +98,8 @@ class SaksbehandlerKorreksjonController(
 
 data class MinusbeløpRequest(
     val minusbeløp: Int
+)
+
+data class HarFerietrekkForSammeMånedRequest(
+    val harFerietrekkForSammeMåned: Boolean
 )

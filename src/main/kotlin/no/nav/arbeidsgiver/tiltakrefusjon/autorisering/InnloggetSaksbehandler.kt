@@ -248,10 +248,17 @@ data class InnloggetSaksbehandler(
         korreksjonRepository.save(korreksjon)
     }
 
-    fun settManueltMinusbeløp(id: String, minusBeløp: Int) {
+    fun overstyrMinusbeløp(id: String, minusBeløp: Int) {
         val korreksjon: Korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(korreksjon)
         korreksjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp = minusBeløp
+        refusjonService.gjørKorreksjonBeregning(korreksjon, this);
+    }
+
+    fun overstyrHarFerietrekkForSammeMåned(id: String, harFerietrekkForSammeMåned: Boolean) {
+        val korreksjon: Korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
+        sjekkLesetilgang(korreksjon)
+        korreksjon.refusjonsgrunnlag.harFerietrekkForSammeMåned = harFerietrekkForSammeMåned
         refusjonService.gjørKorreksjonBeregning(korreksjon, this);
     }
 

@@ -170,7 +170,7 @@ class RefusjonService(
             .map { minusbelop -> minusbelop.beløp}
             .filterNotNull()
             .reduceOrNull{sum, beløp -> sum + beløp}
-        // Om det er et gammelt minusbeløp, men alle minusbeløp er gjrot opp må refusjonen lastes på ny for å reberegnes
+        // Om det er et gammelt minusbeløp, men alle minusbeløp er gjort opp må refusjonen lastes på ny for å reberegnes
         if (sumMinusbelop != null && sumMinusbelop != 0 && refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp != sumMinusbelop) {
             log.info("Arbeidsgiver prøver sende inn en refusjon hvor minusbeløp er gjort opp/endret av annen refusjon $refusjon.id")
             throw FeilkodeException(Feilkode.LAST_REFUSJONEN_PÅ_NYTT_REFUSJONSGRUNNLAG_ENDRET)

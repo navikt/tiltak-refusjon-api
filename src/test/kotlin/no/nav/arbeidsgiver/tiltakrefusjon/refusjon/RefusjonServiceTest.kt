@@ -363,7 +363,7 @@ class RefusjonServiceTest(
             enhet = "1000",
             godkjentTidspunkt = LocalDateTime.now()
         )
-        var refusjon = refusjonService.opprettRefusjon(tilskuddMelding) ?: fail("Skulle kunne opprette refusjon")
+        val refusjon = refusjonService.opprettRefusjon(tilskuddMelding) ?: fail("Skulle kunne opprette refusjon")
 
         refusjonService.gjørInntektsoppslag(refusjon, innloggetArbeidsgiver)
         verify {
@@ -409,7 +409,7 @@ class RefusjonServiceTest(
             enhet = "1000",
             godkjentTidspunkt = LocalDateTime.now()
         )
-        var refusjon = refusjonService.opprettRefusjon(tilskuddMelding) ?: fail("Skulle kunne opprette refusjon")
+        val refusjon = refusjonService.opprettRefusjon(tilskuddMelding) ?: fail("Skulle kunne opprette refusjon")
 
         refusjonService.gjørInntektsoppslag(refusjon, innloggetArbeidsgiver)
         verify {
@@ -456,7 +456,7 @@ class RefusjonServiceTest(
             enhet = "1000",
             godkjentTidspunkt = LocalDateTime.now()
         )
-        var refusjon = refusjonService.opprettRefusjon(tilskuddMelding) ?: fail("Skulle kunne opprette refusjon")
+        val refusjon = refusjonService.opprettRefusjon(tilskuddMelding) ?: fail("Skulle kunne opprette refusjon")
         refusjonService.gjørInntektsoppslag(refusjon, innloggetArbeidsgiver)
         verify {
             inntektskomponentService.hentInntekter(tilskuddMelding.deltakerFnr, tilskuddMelding.bedriftNr, tilskuddMelding.tilskuddFom, tilskuddMelding.tilskuddTom.plusMonths(0))
@@ -515,7 +515,6 @@ class RefusjonServiceTest(
         // Bekreft at alle inntektene kun er fra tiltaket
         refusjonService.endreBruttolønn(refusjon,true, null)
         refusjonService.gjørBeregning(refusjon, innloggetArbeidsgiver)
-
     }
 
 }

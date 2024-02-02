@@ -14,12 +14,9 @@ import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.MidlerFrigjortÅrsak
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeAnnullertMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeForkortetMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
-import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Propagation
-import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 import java.time.YearMonth
 
@@ -94,12 +91,12 @@ class RefusjonService(
     fun settMinusBeløpFraTidligereRefusjonerTilknyttetAvtalen(refusjon: Refusjon) {
         val avtaleNr = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr
         val alleMinusbeløp = minusbelopRepository.findAllByAvtaleNr(avtaleNr = avtaleNr)
-        if(!alleMinusbeløp.isNullOrEmpty()) {
+        if (!alleMinusbeløp.isNullOrEmpty()) {
             val sumMinusbelop = alleMinusbeløp
                 .filter { !it.gjortOpp }
-                .map { minusbelop -> minusbelop.beløp}
+                .map { minusbelop -> minusbelop.beløp }
                 .filterNotNull()
-                .reduceOrNull{sum, beløp -> sum + beløp}
+                .reduceOrNull { sum, beløp -> sum + beløp }
             if (sumMinusbelop != null) {
                 refusjon.refusjonsgrunnlag.oppgiForrigeRefusjonsbeløp(sumMinusbelop)
                 refusjonRepository.save(refusjon)
@@ -111,22 +108,23 @@ class RefusjonService(
     }
 
     fun settTotalBeløpUtbetalteVarigLønnstilskudd(refusjon: Refusjon) {
-        if((refusjon.status == RefusjonStatus.KLAR_FOR_INNSENDING || refusjon.status == RefusjonStatus.FOR_TIDLIG) && refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype == Tiltakstype.VARIG_LONNSTILSKUDD) {
-            val alleUtbetalteVarige =
+        if ((refusjon.status == RefusjonStatus.KLAR_FOR_INNSENDING || refusjon.status == RefusjonStatus.FOR_TIDLIG) && refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype == Tiltakstype.VARIG_LONNSTILSKUDD) {
+            val alleUtbetalteVarigeForSammeÅrSomAlleredeErGodkjent =
                 refusjonRepository.findAllByDeltakerFnrAndBedriftNrAndStatusInAndRefusjonsgrunnlag_Tilskuddsgrunnlag_Tiltakstype(
                     refusjon.deltakerFnr,
                     refusjon.bedriftNr,
                     listOf(RefusjonStatus.UTBETALT, RefusjonStatus.SENDT_KRAV),
                     Tiltakstype.VARIG_LONNSTILSKUDD
-                ).filter { it.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom.year.equals(Now.localDate().year) };
-            val sumUtbetalt = alleUtbetalteVarige
-                .map {refusjon -> refusjon.refusjonsgrunnlag.beregning?.refusjonsbeløp ?: 0 }
-                .reduceOrNull{sum, beløp -> sum + beløp}
-            if (sumUtbetalt != null) {
-                refusjon.refusjonsgrunnlag.sumUtbetaltVarig = sumUtbetalt
+                ).filter {
+                    // Inkluder alle tidligere refusjoner som gjelder for samme år som refusjonen vi behandler.
+                    it.fraSammeÅrSom(refusjon)
+                }
+
+            if (alleUtbetalteVarigeForSammeÅrSomAlleredeErGodkjent.isNotEmpty()) {
+                refusjon.refusjonsgrunnlag.sumUtbetaltVarig =
+                    alleUtbetalteVarigeForSammeÅrSomAlleredeErGodkjent.sumOf { it.refusjonsgrunnlag.beregning?.refusjonsbeløp ?: 0 }
             }
         }
-
     }
 
     fun gjørInntektsoppslag(refusjon: Refusjon, utførtAv: InnloggetBruker) {
@@ -167,9 +165,9 @@ class RefusjonService(
         val alleMinusBeløp = minusbelopRepository.findAllByAvtaleNr(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr)
         val sumMinusbelop = alleMinusBeløp
             .filter { !it.gjortOpp }
-            .map { minusbelop -> minusbelop.beløp}
+            .map { minusbelop -> minusbelop.beløp }
             .filterNotNull()
-            .reduceOrNull{sum, beløp -> sum + beløp}
+            .reduceOrNull { sum, beløp -> sum + beløp }
         // Om det er et gammelt minusbeløp, men alle minusbeløp er gjort opp må refusjonen lastes på ny for å reberegnes
         if (sumMinusbelop != null && sumMinusbelop != 0 && refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp != sumMinusbelop) {
             log.info("Arbeidsgiver prøver sende inn en refusjon hvor minusbeløp er gjort opp/endret av annen refusjon $refusjon.id")
@@ -187,28 +185,28 @@ class RefusjonService(
             }
         }
         // Lag en nytt minusbeløp om refusjonen er i minus
-        if(refusjon.status == RefusjonStatus.GODKJENT_MINUSBELØP) {
-            val minusbelop = Minusbelop (
+        if (refusjon.status == RefusjonStatus.GODKJENT_MINUSBELØP) {
+            val minusbelop = Minusbelop(
                 avtaleNr = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr,
                 beløp = refusjon.refusjonsgrunnlag.beregning?.refusjonsbeløp,
-                løpenummer = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.løpenummer)
+                løpenummer = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.løpenummer
+            )
             refusjon.minusbelop = minusbelop
             log.info("Setter minusbeløp ${minusbelop.id} på refusjon ${refusjon.id}")
         }
         refusjonRepository.save(refusjon)
         // Oppdater ikke innsendte refusjoner med data (f eks maksbløp, ferietrekk etc..)
-        val alleRefusjonserSomSkalSendesInn =
+        val alleRefusjonerSomSkalSendesInn =
             refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_AvtaleNrAndStatusIn(
                 refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr,
                 listOf(RefusjonStatus.FOR_TIDLIG, RefusjonStatus.KLAR_FOR_INNSENDING)
             )
-        alleRefusjonserSomSkalSendesInn.forEach {
-            if(it.id != refusjon.id) {
+        alleRefusjonerSomSkalSendesInn.forEach {
+            if (it.id != refusjon.id) {
                 oppdaterRefusjon(it, utførtAv)
                 refusjonRepository.save(it)
             }
         }
-
     }
 
     fun godkjennNullbeløpForArbeidsgiver(refusjon: Refusjon, utførtAv: InnloggetBruker) {
@@ -264,7 +262,7 @@ class RefusjonService(
         }
         val statuser = listOf(RefusjonStatus.UTBETALT, RefusjonStatus.SENDT_KRAV, RefusjonStatus.GODKJENT_MINUSBELØP, RefusjonStatus.GODKJENT_NULLBELØP)
         refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_AvtaleNrAndStatusIn(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr, statuser)
-            .filter { YearMonth.from(it.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom)  == YearMonth.from(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom) }
+            .filter { YearMonth.from(it.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom) == YearMonth.from(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom) }
             .forEach {
                 if (it.refusjonsgrunnlag.beregning?.fratrekkLønnFerie != 0) {
                     log.info("Forsøkte å godkjenne refusjon ${refusjon.id} med ferietrekk. Det er allerde trukket for ferie i en refusjon i samme måned: ${it.id}")
@@ -277,7 +275,7 @@ class RefusjonService(
         if (refusjon.status == RefusjonStatus.KLAR_FOR_INNSENDING || refusjon.status == RefusjonStatus.FOR_TIDLIG) {
             val statuser = listOf(RefusjonStatus.UTBETALT, RefusjonStatus.SENDT_KRAV, RefusjonStatus.GODKJENT_MINUSBELØP, RefusjonStatus.GODKJENT_NULLBELØP)
             refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_AvtaleNrAndStatusIn(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr, statuser)
-                .filter { YearMonth.from(it.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom)  == YearMonth.from(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom) }
+                .filter { YearMonth.from(it.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom) == YearMonth.from(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom) }
                 .forEach {
                     if (it.refusjonsgrunnlag.beregning?.fratrekkLønnFerie != 0 && !refusjon.refusjonsgrunnlag.harFerietrekkForSammeMåned) {
                         log.info("Ferietrekk er trukket på en tidligere refusjon: ${it.id} på samme avtalenr i samme måned på denne refusjonen: ${refusjon.id} setter harFerieTrekkForSammeMåned til true")
@@ -291,7 +289,7 @@ class RefusjonService(
     fun oppdaterRefusjon(refusjon: Refusjon, utførtAv: InnloggetBruker) {
         log.info("Oppdaterer refusjon ${refusjon.id} med data")
         // Ikke sett minusbeløp på allerede sendt inn refusjoner
-        if(refusjon.status == RefusjonStatus.KLAR_FOR_INNSENDING || refusjon.status == RefusjonStatus.FOR_TIDLIG) {
+        if (refusjon.status == RefusjonStatus.KLAR_FOR_INNSENDING || refusjon.status == RefusjonStatus.FOR_TIDLIG) {
             settMinusBeløpFraTidligereRefusjonerTilknyttetAvtalen(refusjon)
             settTotalBeløpUtbetalteVarigLønnstilskudd(refusjon)
             settOmFerieErTrukketForSammeMåned(refusjon)
@@ -315,7 +313,8 @@ class RefusjonService(
                 forrigeRefusjonMinusBeløp = refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
                 tilskuddFom = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
                 sumUtbetaltVarig = refusjon.refusjonsgrunnlag.sumUtbetaltVarig,
-                harFerietrekkForSammeMåned = refusjon.refusjonsgrunnlag.harFerietrekkForSammeMåned)
+                harFerietrekkForSammeMåned = refusjon.refusjonsgrunnlag.harFerietrekkForSammeMåned
+            )
             refusjon.refusjonsgrunnlag.beregning = beregning
             log.info("Oppdatert beregning på refusjon ${refusjon.id} til ${beregning.id}")
             applicationEventPublisher.publishEvent(BeregningUtført(refusjon, utførtAv))
@@ -323,7 +322,7 @@ class RefusjonService(
     }
 
     fun gjørKorreksjonBeregning(korreksjon: Korreksjon, utførtAv: InnloggetBruker) {
-        if(erAltOppgitt(korreksjon.refusjonsgrunnlag)) {
+        if (erAltOppgitt(korreksjon.refusjonsgrunnlag)) {
             val beregning = beregnRefusjonsbeløp(
                 inntekter = korreksjon.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
                 tilskuddsgrunnlag = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag,
@@ -333,7 +332,8 @@ class RefusjonService(
                 forrigeRefusjonMinusBeløp = korreksjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
                 tilskuddFom = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
                 sumUtbetaltVarig = korreksjon.refusjonsgrunnlag.sumUtbetaltVarig,
-                harFerietrekkForSammeMåned = korreksjon.refusjonsgrunnlag.harFerietrekkForSammeMåned)
+                harFerietrekkForSammeMåned = korreksjon.refusjonsgrunnlag.harFerietrekkForSammeMåned
+            )
             korreksjon.refusjonsgrunnlag.beregning = beregning
             applicationEventPublisher.publishEvent(KorreksjonBeregningUtført(korreksjon, utførtAv))
         }
@@ -351,3 +351,5 @@ class RefusjonService(
     }
 
 }
+
+private fun Refusjon.fraSammeÅrSom(refusjon: Refusjon): Boolean = this.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom.year.equals(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom.year)

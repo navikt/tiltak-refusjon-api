@@ -130,8 +130,8 @@ class Refusjon(
         this.refusjonsgrunnlag.oppgiInntektsgrunnlag(inntektsgrunnlag, gjeldendeInntektsgrunnlag)
     }
 
-    fun oppgiBedriftKontonummer(bedrifKontonummer: String?) {
-        refusjonsgrunnlag.oppgiBedriftKontonummer(bedrifKontonummer)
+    fun oppgiBedriftKontonummer(bedriftKontonummer: String?) {
+        refusjonsgrunnlag.oppgiBedriftKontonummer(bedriftKontonummer)
     }
 
     fun endreBruttolønn(inntekterKunFraTiltaket: Boolean?, bruttoLønn: Int?) {

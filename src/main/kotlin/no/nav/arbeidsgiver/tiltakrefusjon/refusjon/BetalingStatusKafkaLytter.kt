@@ -18,7 +18,7 @@ class BetalingStatusKafkaLytter(private val refusjonRepository: RefusjonReposito
     fun behandleRefusjon(betalingsstatus: BetalingStatusEndringMelding) {
         val refusjon = refusjonRepository.findByIdOrNull(betalingsstatus.refusjonId)
         if (refusjon == null) {
-            log.error("Mottatt en betaling status for en ukjent refusjon  ${betalingsstatus.refusjonId}")
+            log.error("Mottatt en betaling status for en ukjent refusjon ${betalingsstatus.refusjonId}")
             return
         }
         if (betalingsstatus.erUtbetalt()) {
@@ -33,7 +33,7 @@ class BetalingStatusKafkaLytter(private val refusjonRepository: RefusjonReposito
     fun behandleKorreksjon(betalingsstatus: BetalingStatusEndringMelding) {
         val korreksjon: Korreksjon? = korreksjonRepository.findByIdOrNull(betalingsstatus.korreksjonId)
         if (korreksjon == null) {
-            log.error("Mottatt en betaling status for en ukjent korreksjon  ${betalingsstatus.korreksjonId}")
+            log.error("Mottatt en betaling status for en ukjent korreksjon ${betalingsstatus.korreksjonId}")
             return
         }
         if (betalingsstatus.erUtbetalt()) {

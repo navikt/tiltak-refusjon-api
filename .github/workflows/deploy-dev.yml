@@ -22,7 +22,7 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
       - name: Bygg og test med Maven
-        run: mvn package -B -Dsurefire.useFile=false
+        run: mvn package -B
       - name: Push docker image to GAR
         uses: nais/docker-build-push@v0
         id: docker-build-push

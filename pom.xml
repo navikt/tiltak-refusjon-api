@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.1.0</version>
+        <version>3.2.2</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>no.nav.arbeidsgiver</groupId>
@@ -15,8 +15,8 @@
     <properties>
         <java.version>17</java.version>
         <kotlin.version>1.8.10</kotlin.version>
-        <cucumber.version>6.4.0</cucumber.version>
-        <token-support.version>3.1.0</token-support.version>
+        <cucumber.version>7.15.0</cucumber.version>
+        <token-support.version>3.2.0</token-support.version>
     </properties>
 
     <dependencies>
@@ -91,12 +91,6 @@
             <version>${cucumber.version}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>de.monochromata.cucumber</groupId>
-            <artifactId>reporting-plugin</artifactId>
-            <version>4.0.70</version>
-            <scope>test</scope>
-        </dependency>
         <!-- Database -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -114,6 +108,7 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
+            <version>42.7.2</version>
         </dependency>
         <!--Tokensupport -->
         <dependency>
@@ -167,20 +162,13 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-contract-stub-runner</artifactId>
-            <version>2.2.5.RELEASE</version>
+            <version>4.1.1</version>
         </dependency>
 
         <dependency>
             <groupId>de.huxhorn.sulky</groupId>
             <artifactId>de.huxhorn.sulky.ulid</artifactId>
             <version>8.2.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.awaitility</groupId>
-            <artifactId>awaitility-kotlin</artifactId>
-            <version>4.0.3</version>
-            <scope>test</scope>
         </dependency>
 
         <dependency>

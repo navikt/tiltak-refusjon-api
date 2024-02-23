@@ -26,7 +26,7 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
       - name: Bygg og test med Maven
-        run: mvn package -B -Dsurefire.useFile=false
+        run: mvn package -B
 
       - name: Bygg, tag og push Docker-image
         env:

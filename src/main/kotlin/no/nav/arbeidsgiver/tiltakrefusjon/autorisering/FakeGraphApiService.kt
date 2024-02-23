@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service
 @ConditionalOnProperty("tiltak-refusjon.graph-api.fake")
 class FakeGraphApiService(val context: TokenValidationContextHolder) : GraphApiService {
     override fun hent(): GraphApiService.GraphApiResponse {
-        val claims = context.tokenValidationContext.getClaims("aad")
+        val claims = context.getTokenValidationContext().getClaims("aad")
         return GraphApiService.GraphApiResponse(claims.getStringClaim("NAVident"), "Navn Testnavn")
     }
 }

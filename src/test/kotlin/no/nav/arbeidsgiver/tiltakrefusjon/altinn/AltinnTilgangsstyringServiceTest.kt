@@ -29,7 +29,7 @@ class AltinnTilgangsstyringServiceTest {
         // GITT
         altinnTilgangsstyringProperties.serviceCode = 4936
         val fnr = Fnr("10000000007")
-        every { context.tokenValidationContext.getClaims(any()).getStringClaim("pid") } returns fnr.verdi
+        every { context.getTokenValidationContext().getClaims(any()).getStringClaim("pid") } returns fnr.verdi
 
         // NÅR
         val organisasjoner: Set<Organisasjon> = altinnTilgangsstyringService.hentTilganger(fnr.verdi)
@@ -43,7 +43,7 @@ class AltinnTilgangsstyringServiceTest {
         // GITT
         altinnTilgangsstyringProperties.serviceCode = 4936
         val fnr = Fnr("21234567890")
-        every { context.tokenValidationContext.getClaims(any()).getStringClaim("pid") } returns fnr.verdi
+        every { context.getTokenValidationContext().getClaims(any()).getStringClaim("pid") } returns fnr.verdi
 
         // NÅR
         assertFeilkode(Feilkode.ALTINN) {
@@ -57,7 +57,7 @@ class AltinnTilgangsstyringServiceTest {
         altinnTilgangsstyringProperties.serviceCode = 5516
         altinnTilgangsstyringService = AltinnTilgangsstyringService(altinnTilgangsstyringProperties, RestTemplate())
         val fnr = Fnr("21234567890")
-        every { context.tokenValidationContext.getClaims(any()).getStringClaim("pid") } returns fnr.verdi
+        every { context.getTokenValidationContext().getClaims(any()).getStringClaim("pid") } returns fnr.verdi
 
         // NÅR
         val organisasjoner: Set<Organisasjon> = altinnTilgangsstyringService.hentTilganger(fnr.verdi)
@@ -72,7 +72,7 @@ class AltinnTilgangsstyringServiceTest {
         altinnTilgangsstyringProperties.serviceCode = 0
         altinnTilgangsstyringService = AltinnTilgangsstyringService(altinnTilgangsstyringProperties, RestTemplate())
         val fnr = Fnr("21234567890")
-        every { context.tokenValidationContext.getClaims(any()).getStringClaim("pid") } returns fnr.verdi
+        every { context.getTokenValidationContext().getClaims(any()).getStringClaim("pid") } returns fnr.verdi
 
         // NÅR
         assertFeilkode(Feilkode.ALTINN) {

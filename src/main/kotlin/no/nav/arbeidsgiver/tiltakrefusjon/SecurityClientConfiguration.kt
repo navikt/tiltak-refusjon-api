@@ -45,10 +45,10 @@ class SecurityClientConfiguration(
     private fun bearerTokenInterceptor(
             clientProperties: ClientProperties,
             oAuth2AccessTokenService: OAuth2AccessTokenService
-    ): ClientHttpRequestInterceptor? {
+    ): ClientHttpRequestInterceptor {
         return ClientHttpRequestInterceptor { request: HttpRequest, body: ByteArray?, execution: ClientHttpRequestExecution ->
             val response = oAuth2AccessTokenService.getAccessToken(clientProperties)
-            request.headers.setBearerAuth(response.accessToken)
+            request.headers.setBearerAuth(response.accessToken!!)
             execution.execute(request, body!!)
         }
     }

@@ -30,15 +30,15 @@ class InnloggetBrukerService(
     var logger: Logger = LoggerFactory.getLogger(javaClass)
 
     fun erArbeidsgiver(): Boolean {
-        return context.tokenValidationContext.hasTokenFor("tokenx")
+        return context.getTokenValidationContext().hasTokenFor("tokenx")
     }
 
     fun erSaksbehandler(): Boolean {
-        return context.tokenValidationContext.hasTokenFor("aad")
+        return context.getTokenValidationContext().hasTokenFor("aad")
     }
 
     fun erBeslutter(): Boolean {
-        val groupClaim  = context.tokenValidationContext.getClaims("aad").get("groups") as List<String>
+        val groupClaim = context.getTokenValidationContext().getClaims("aad").get("groups") as List<String>
         return erSaksbehandler() && groupClaim.contains(beslutterRolleConfig.id)
     }
 
@@ -47,11 +47,11 @@ class InnloggetBrukerService(
     }
 
     fun navIdent(): String {
-        return context.tokenValidationContext.getClaims("aad").getStringClaim("NAVident")
+        return context.getTokenValidationContext().getClaims("aad").getStringClaim("NAVident")
     }
 
     fun displayName(): String {
-        val displayNameClaim = context.tokenValidationContext.getClaims("aad").get("name")
+        val displayNameClaim = context.getTokenValidationContext().getClaims("aad").get("name")
         if (displayNameClaim != null) {
             return displayNameClaim as String
         }
@@ -61,9 +61,10 @@ class InnloggetBrukerService(
     fun hentInnloggetArbeidsgiver(): InnloggetArbeidsgiver {
         return when {
             erArbeidsgiver() -> {
-                val fnr = Fnr(context.tokenValidationContext.getClaims("tokenx").getStringClaim("pid"))
+                val fnr = Fnr(context.getTokenValidationContext().getClaims("tokenx").getStringClaim("pid"))
                 InnloggetArbeidsgiver(fnr.verdi, altinnTilgangsstyringService, refusjonRepository, korreksjonRepository, refusjonService, eregClient)
             }
+
             else -> {
                 throw RuntimeException("Feil ved token, kunne ikke identifisere arbeidsgiver")
             }
@@ -86,6 +87,7 @@ class InnloggetBrukerService(
                     norgeService = norgService
                 )
             }
+
             else -> {
                 throw RuntimeException("Feil ved token, kunne ikke identifisere saksbehandler")
             }

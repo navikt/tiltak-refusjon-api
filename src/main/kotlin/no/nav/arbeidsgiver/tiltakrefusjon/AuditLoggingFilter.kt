@@ -47,7 +47,7 @@ class AuditLoggingFilter(
             try {
                 val fnr: List<String> = JsonPath.read<List<String>?>(wrapper.contentInputStream, "$..deltakerFnr").distinct()
                 val utførtTid = Now.instant()
-                val brukerId = context.tokenValidationContext.getClaims("tokenx")?.getStringClaim("pid") ?: context.tokenValidationContext.getClaims("aad")?.getStringClaim("NAVident")
+                val brukerId = context.getTokenValidationContext().getClaims("tokenx")?.getStringClaim("pid") ?: context.getTokenValidationContext().getClaims("aad")?.getStringClaim("NAVident")
 
                 val uri = URI.create(request.requestURI)
                 // Logger kun oppslag dersom en innlogget bruker utførte oppslaget

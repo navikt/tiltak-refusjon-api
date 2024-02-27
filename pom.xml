@@ -17,6 +17,7 @@
         <kotlin.version>1.9.22</kotlin.version>
         <cucumber.version>7.15.0</cucumber.version>
         <token-support.version>3.2.0</token-support.version>
+        <postgres.version>42.7.2</postgres.version>
     </properties>
 
     <dependencies>
@@ -108,7 +109,7 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.7.2</version>
+            <version>${postgres.version}</version>
         </dependency>
         <!--Tokensupport -->
         <dependency>

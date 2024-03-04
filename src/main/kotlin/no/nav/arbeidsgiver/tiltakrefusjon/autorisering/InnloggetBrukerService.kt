@@ -7,6 +7,8 @@ import no.nav.arbeidsgiver.tiltakrefusjon.norg.NorgService
 import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterService
 import no.nav.arbeidsgiver.tiltakrefusjon.organisasjon.EregClient
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.Issuer
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.getClaims
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -38,7 +40,7 @@ class InnloggetBrukerService(
     }
 
     fun erBeslutter(): Boolean {
-        val groupClaim = context.getTokenValidationContext().getClaims("aad").get("groups") as List<String>
+        val groupClaim = context.getClaims(Issuer.AZURE)?.get("groups") as List<String>
         return erSaksbehandler() && groupClaim.contains(beslutterRolleConfig.id)
     }
 
@@ -47,11 +49,11 @@ class InnloggetBrukerService(
     }
 
     fun navIdent(): String {
-        return context.getTokenValidationContext().getClaims("aad").getStringClaim("NAVident")
+        return context.getClaims(Issuer.AZURE)?.getStringClaim("NAVident") ?: throw IllegalArgumentException("Forsøker å hente navident for bruker som ikke er NAV-ansatt")
     }
 
     fun displayName(): String {
-        val displayNameClaim = context.getTokenValidationContext().getClaims("aad").get("name")
+        val displayNameClaim = context.getClaims(Issuer.AZURE)?.get("name")
         if (displayNameClaim != null) {
             return displayNameClaim as String
         }
@@ -61,7 +63,7 @@ class InnloggetBrukerService(
     fun hentInnloggetArbeidsgiver(): InnloggetArbeidsgiver {
         return when {
             erArbeidsgiver() -> {
-                val fnr = Fnr(context.getTokenValidationContext().getClaims("tokenx").getStringClaim("pid"))
+                val fnr = Fnr(context.getClaims(Issuer.TOKEN_X)?.getStringClaim("pid") ?: throw IllegalArgumentException("Forsøker å hente pid for bruker som ikke er arbeidsgiver"))
                 InnloggetArbeidsgiver(fnr.verdi, altinnTilgangsstyringService, refusjonRepository, korreksjonRepository, refusjonService, eregClient)
             }
 

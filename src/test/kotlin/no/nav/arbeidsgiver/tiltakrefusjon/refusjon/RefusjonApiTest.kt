@@ -6,7 +6,6 @@ import com.ninjasquad.springmockk.SpykBean
 import io.mockk.every
 import io.mockk.verify
 import io.mockk.clearMocks
-import jakarta.servlet.http.Cookie
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
 import no.nav.arbeidsgiver.tiltakrefusjon.audit.AuditConsoleLogger
@@ -41,7 +40,6 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse.BodyHandlers
 import java.nio.charset.StandardCharsets
-import java.time.LocalDate
 
 data class InnloggetBrukerTest(val identifikator: String, val organisasjoner: Set<Organisasjon>)
 data class RefusjonlistFraFlereOrgTest(
@@ -69,14 +67,11 @@ class RefusjonApiTest(
     @Autowired val korreksjonRepository: KorreksjonRepository,
     @Autowired val varslingRepository: VarslingRepository
 ) {
-    private final val TOKEN_X_COOKIE_NAVN = "tokenx-token"
-    private final val AAD_COOKIE_NAVN = "aad-token"
-
     @SpykBean
     lateinit var consoleLogger: AuditConsoleLogger
 
-    val navCookie = Cookie(AAD_COOKIE_NAVN, lagTokenForNavId("Z123456"))
-    val arbGiverCookie = Cookie(TOKEN_X_COOKIE_NAVN, lagTokenForFnr("16120102137"))
+    val navToken = lagTokenForNavId("Z123456")
+    val arbGiverToken = lagTokenForFnr("16120102137")
 
     @BeforeEach
     fun setUp() {
@@ -105,7 +100,7 @@ class RefusjonApiTest(
 
     @Test
     fun `hentAlle() er tilgjengelig for saksbehandler`() {
-        val json = sendRequest(get("$REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON?enhet=1000"), navCookie)
+        val json = sendRequest(get("$REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON?enhet=1000"), navToken)
         val liste = mapper.readValue(json, object : TypeReference<Map<String, Any>>() {})
         val refusjoner = liste.get("refusjoner") as List<Map<String, Any>>
         assertFalse(refusjoner.isEmpty())
@@ -122,7 +117,7 @@ class RefusjonApiTest(
             get(REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .cookie(arbGiverCookie)
+                .header("authorization", "Bearer $arbGiverToken")
         )
             .andExpect(status().isBadRequest)
     }
@@ -133,7 +128,7 @@ class RefusjonApiTest(
         val bedriftNr = "998877665"
 
         // NÅR
-        val json = sendRequest(get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON?bedriftNr=$bedriftNr"), arbGiverCookie)
+        val json = sendRequest(get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON?bedriftNr=$bedriftNr"), arbGiverToken)
         val liste = mapper.readValue(json, object : TypeReference<List<Refusjon>>() {})
 
         // DA
@@ -154,26 +149,26 @@ class RefusjonApiTest(
         val BEDRIFT_NR2 = "999999999"
 
         // NÅR
-        val brukerJson = sendRequest(get("$REQUEST_MAPPING_INNLOGGET_ARBEIDSGIVER/innlogget-bruker"), arbGiverCookie)
+        val brukerJson = sendRequest(get("$REQUEST_MAPPING_INNLOGGET_ARBEIDSGIVER/innlogget-bruker"), arbGiverToken)
         val bruker: InnloggetBrukerTest = mapper.readValue(brukerJson, object : TypeReference<InnloggetBrukerTest>() {})
         val refusjonJson =
-            sendRequest(get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/hentliste?page=0&size=3"), arbGiverCookie)
+            sendRequest(get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/hentliste?page=0&size=3"), arbGiverToken)
         val refusjonlist: RefusjonlistFraFlereOrgTest = mapper.readValue(refusjonJson, object : TypeReference<RefusjonlistFraFlereOrgTest>() {})
-        verify(exactly = refusjonlist.refusjoner.map { it.deltakerFnr }.toSet().size) {
+        verify(exactly = refusjonlist.refusjoner.map { mapOf("deltaker" to it.deltakerFnr, "bedrift" to it.bedriftNr) }.toSet().size) {
             consoleLogger.logg(any())
         }
         resetAuditCount()
         val refusjonJson2 =
-            sendRequest(get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/hentliste?page=1&size=3"), arbGiverCookie)
+            sendRequest(get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/hentliste?page=1&size=3"), arbGiverToken)
         val refusjonlist2: RefusjonlistFraFlereOrgTest = mapper.readValue(refusjonJson2, object : TypeReference<RefusjonlistFraFlereOrgTest>() {})
-        verify(exactly = refusjonlist2.refusjoner.map { it.deltakerFnr }.toSet().size) {
+        verify(exactly = refusjonlist2.refusjoner.map { mapOf("deltaker" to it.deltakerFnr, "bedrift" to it.bedriftNr) }.toSet().size) {
             consoleLogger.logg(any())
         }
         resetAuditCount()
         val refusjonJson3 =
-            sendRequest(get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/hentliste?page=0&size=6"), arbGiverCookie)
+            sendRequest(get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/hentliste?page=0&size=6"), arbGiverToken)
         val refusjonlist3: RefusjonlistFraFlereOrgTest = mapper.readValue(refusjonJson3, object : TypeReference<RefusjonlistFraFlereOrgTest>() {})
-        verify(exactly = refusjonlist3.refusjoner.map { it.deltakerFnr }.toSet().size) {
+        verify(exactly = refusjonlist3.refusjoner.map { mapOf("deltaker" to it.deltakerFnr, "bedrift" to it.bedriftNr) }.toSet().size) {
             consoleLogger.logg(any())
         }
 
@@ -192,7 +187,7 @@ class RefusjonApiTest(
         // NÅR
         val json4 = sendRequest(
             get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/hentliste?bedriftNr=$BEDRIFT_NR1,$BEDRIFT_NR2&page=0&size=6"),
-            arbGiverCookie
+            arbGiverToken
         )
 
         val refusjonlist4: RefusjonlistFraFlereOrgTest = mapper.readValue(json4, object : TypeReference<RefusjonlistFraFlereOrgTest>() {})
@@ -206,7 +201,7 @@ class RefusjonApiTest(
     fun `hent() - Arbeidsgiver henter refusjon med id`() {
         val id = refusjonRepository.findAll().find { it.deltakerFnr == "07098142678" }?.id
 
-        val json = sendRequest(get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id"), arbGiverCookie)
+        val json = sendRequest(get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id"), arbGiverToken)
         val refusjon = mapper.readValue(json, Refusjon::class.java)
         assertEquals(id, refusjon.id)
 
@@ -219,14 +214,14 @@ class RefusjonApiTest(
     fun `hent() - Arbeidsgiver mangler tilgang til refusjon med id`() {
         val id = refusjonRepository.findAll().find { it.deltakerFnr == "23119409195" }?.id
 
-        sendRequest(get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id"), arbGiverCookie, status().isUnauthorized)
+        sendRequest(get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id"), arbGiverToken, status().isUnauthorized)
     }
 
     @Test
     fun `hent() - Saksbehandler henter refusjon med id`() {
         val id = refusjonRepository.findAll().find { it.deltakerFnr == "28128521498" }?.id
 
-        val json = sendRequest(get("$REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON/$id"), navCookie)
+        val json = sendRequest(get("$REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON/$id"), navToken)
         val refusjon = mapper.readValue(json, Refusjon::class.java)
         assertEquals(id, refusjon.id)
 
@@ -238,7 +233,7 @@ class RefusjonApiTest(
     @Test
     fun `hent() - Saksbehandler mangler tilgang til henter refusjon med id`() {
         val id = refusjonRepository.findAll().find { it.deltakerFnr == "07098142678" }?.id
-        sendRequest(get("$REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON/$id"), navCookie, status().isUnauthorized)
+        sendRequest(get("$REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON/$id"), navToken, status().isUnauthorized)
     }
 
     @Test
@@ -280,7 +275,7 @@ class RefusjonApiTest(
         // Svarer på spørsmål om alle inntekter er fra tiltaket
         sendRequest(
             post("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id/endre-bruttolønn"),
-            arbGiverCookie,
+            arbGiverToken,
             EndreBruttolønnRequest(true, null)
         )
         val refusjonEtterInntektsspørsmål = hentRefusjon(id)
@@ -290,7 +285,7 @@ class RefusjonApiTest(
         assertTrue(harLagretHendelselogg)
 
         // Godkjenn
-        sendRequest(post("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id/godkjenn"), arbGiverCookie)
+        sendRequest(post("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id/godkjenn"), arbGiverToken)
         val refusjonEtterGodkjennelse = hentRefusjon(id)
         assertThat(refusjonEtterGodkjennelse.godkjentAvArbeidsgiver).isNotNull()
     }
@@ -305,7 +300,7 @@ class RefusjonApiTest(
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .header("If-Unmodified-Since", Now.instant())
-                .cookie(arbGiverCookie)
+                .header("authorization", "Bearer $arbGiverToken")
         )
             .andExpect(status().isBadRequest)
             .andExpect(header().string("feilkode", Feilkode.INGEN_INNTEKTER.toString()))
@@ -314,32 +309,32 @@ class RefusjonApiTest(
     private fun setInntektslinjeOpptjentIPeriode(refusjonId: String, inntektslinjeId: String, erOpptjentIPeriode: Boolean) {
         val json = sendRequest(
             post("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$refusjonId/set-inntektslinje-opptjent-i-periode"),
-            arbGiverCookie,
+            arbGiverToken,
             EndreRefundertInntektslinjeRequest(inntektslinjeId, erOpptjentIPeriode)
         )
     }
 
     private fun hentRefusjon(id: String?): Refusjon {
-        val json = sendRequest(get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id"), arbGiverCookie)
+        val json = sendRequest(get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id"), arbGiverToken)
         return mapper.readValue(json, Refusjon::class.java)
     }
 
     private fun oppdaterRefusjonMedKontonrOgInntekter(id: String) {
-        sendRequest(post("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id/sett-kontonummer-og-inntekter"), arbGiverCookie)
+        sendRequest(post("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id/sett-kontonummer-og-inntekter"), arbGiverToken)
     }
 
-    private fun sendRequest(request: MockHttpServletRequestBuilder, cookie: Cookie): String {
-        return sendRequest(request, cookie, null)
+    private fun sendRequest(request: MockHttpServletRequestBuilder, token: String): String {
+        return sendRequest(request, token, null)
     }
 
     private fun sendRequest(
         request: MockHttpServletRequestBuilder,
-        cookie: Cookie,
+        token: String,
         content: Any?,
         status: ResultMatcher = status().isOk
     ): String {
         if (content != null) {
-            request.content(mapper.writeValueAsString(content))
+            request.content(mapper.writeValueAsString(content)).contentType(MediaType.APPLICATION_JSON)
         }
 
         return mockMvc.perform(
@@ -347,25 +342,25 @@ class RefusjonApiTest(
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .header("If-Unmodified-Since", Now.instant())
-                .cookie(cookie)
+                .header("authorization", "Bearer $token")
         )
             .andExpect(status)
             .andReturn()
             .response.getContentAsString(StandardCharsets.UTF_8)
     }
 
-    private fun sendRequest(request: MockHttpServletRequestBuilder, cookie: Cookie, forventetStatus: ResultMatcher) {
+    private fun sendRequest(request: MockHttpServletRequestBuilder, token: String, forventetStatus: ResultMatcher) {
         mockMvc.perform(
             request
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .header("If-Unmodified-Since", Now.instant())
-                .cookie(cookie)
+                .header("authorization", "Bearer $token")
         )
             .andExpect(forventetStatus)
     }
 
-    private final fun lagTokenForFnr(fnr: String): String? {
+    private final fun lagTokenForFnr(fnr: String): String {
         return HttpClient.newHttpClient().send(
             HttpRequest.newBuilder()
                 .GET()
@@ -374,7 +369,7 @@ class RefusjonApiTest(
         ).body()
     }
 
-    private final fun lagTokenForNavId(navId: String): String? {
+    private final fun lagTokenForNavId(navId: String): String {
         return HttpClient.newHttpClient().send(
             HttpRequest.newBuilder()
                 .GET()

@@ -21,11 +21,9 @@ no.nav.security.jwt:
     aad:
       discoveryurl: https://tiltak-fakelogin.ekstern.dev.nav.no/metadata?issuer=aad
       accepted_audience: aud-aad
-      cookie_name: aad-token
     tokenx:
       discoveryurl: https://tiltak-fakelogin.ekstern.dev.nav.no/metadata?issuer=tokenx
       accepted_audience: aud-tokenx
-      cookie_name: tokenx-token
   client: null
 
 logging:

@@ -7,7 +7,11 @@ import jakarta.servlet.http.HttpServletResponse
 import no.nav.arbeidsgiver.tiltakrefusjon.audit.AuditLogger
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.AuditEntry
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.EventType
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.Issuer
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.erAzureBruker
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.erTokenXBruker
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.getClaims
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import org.slf4j.LoggerFactory
 import org.springframework.core.Ordered

@@ -34,6 +34,9 @@ management:
     enabled: false
 
 no.nav.security.jwt:
+  tokenvalidationfilter:
+    # Gå vekk fra "highest presedence" slik at CookieTokenFilter får kjøre først
+    order: -10000
   issuer:
     aad:
       discoveryurl: https://tiltak-fakelogin.ekstern.dev.nav.no/metadata?issuer=aad

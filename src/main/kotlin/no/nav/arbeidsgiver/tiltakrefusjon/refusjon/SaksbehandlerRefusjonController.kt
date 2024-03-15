@@ -59,9 +59,16 @@ class SaksbehandlerRefusjonController(
     @PostMapping("/{id}/merk-for-unntak-om-inntekter-to-mnd-frem")
     fun merkForUnntakOmInntekterToMånederFrem(@PathVariable id: String, @RequestBody request: MerkForUnntakOmInntekterToMånederFremRequest) {
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
+        saksbehandler.merkForUnntakOmInntekterFremITid(id, request.merking)
+    }
+
+    @PostMapping("/{id}/merk-for-unntak-om-inntekter-frem-i-tid")
+    fun merkForUnntakOmInntekterFremITid(@PathVariable id: String, @RequestBody request: MerkForUnntakOmInntekterToMånederFremRequest) {
+        val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
         saksbehandler.merkForUnntakOmInntekterToMånederFrem(id, request.merking)
     }
-    
+
+
     @PostMapping("reberegn-dry/{id}")
     fun reberegnDryRun(@PathVariable id: String, @RequestBody request: ReberegnRequest): Beregning {
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()

@@ -229,6 +229,12 @@ data class InnloggetSaksbehandler(
         refusjonRepository.save(refusjon)
     }
 
+    fun merkForUnntakOmInntekterFremITid(id: String, merking: Int) {
+        val refusjon = finnRefusjon(id)
+        refusjon.merkForUnntakOmInntekterFremITid(merking, this)
+        refusjonRepository.save(refusjon)
+    }
+
     fun setInntektslinjeTilOpptjentIPeriode(korreksjonId: String, inntekslinjeId: String, erOpptjentIPeriode: Boolean) {
         sjekkKorreksjonTilgang()
         val korreksjon = korreksjonRepository.findByIdOrNull(korreksjonId) ?: throw RessursFinnesIkkeException()

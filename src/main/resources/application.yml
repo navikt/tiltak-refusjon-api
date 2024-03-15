@@ -50,10 +50,6 @@ management:
       exposure:
         include: info, health, metrics, prometheus
       base-path: /internal/actuator
-  tracing:
-    enabled: true
-    sampling:
-      probability: 0.33
 
 no.nav.security.jwt:
   issuer:

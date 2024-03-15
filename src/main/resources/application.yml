@@ -114,7 +114,5 @@ tiltak-refusjon:
     antall: 500
     altinnApiKey: ${ALTINN_API_KEY}
     apiGwApiKey: ${ALTINN_API_GW_API_KEY}
-  graph-api:
-    uri: "https://graph.microsoft.com/v1.0/me?$select=onPremisesSamAccountName,displayName"
   dokgen:
     uri: "http://tiltak-dokgen/template/tiltak-refusjon/create-pdf"

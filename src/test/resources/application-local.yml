@@ -76,9 +76,6 @@ tiltak-refusjon:
     serviceEdition: 1
   abac-tilgangstyring:
     uri: http://localhost:${wiremock.port}/abac-tilgangstyring
-  graph-api:
-    uri: ""
-    fake: true
   unleash:
     mock: true
   varsling:

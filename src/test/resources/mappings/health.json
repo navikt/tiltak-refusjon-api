@@ -3,7 +3,7 @@
     {
       "request": {
         "method": "GET",
-        "urlPattern": "/graph-api"
+        "urlPattern": "/health"
       },
       "response": {
         "status": 200,
@@ -11,8 +11,7 @@
           "Content-Type": "application/json"
         },
         "jsonBody": {
-          "onPremisesSamAccountName": "X123456",
-          "displayName": "Navn Navnesen"
+          "status": "UP"
         }
       }
     }

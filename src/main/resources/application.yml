@@ -50,10 +50,6 @@ management:
       exposure:
         include: info, health, metrics, prometheus
       base-path: /internal/actuator
-  tracing:
-    enabled: true
-    sampling:
-      probability: 0.33
 
 no.nav.security.jwt:
   issuer:
@@ -114,7 +110,5 @@ tiltak-refusjon:
     antall: 500
     altinnApiKey: ${ALTINN_API_KEY}
     apiGwApiKey: ${ALTINN_API_GW_API_KEY}
-  graph-api:
-    uri: "https://graph.microsoft.com/v1.0/me?$select=onPremisesSamAccountName,displayName"
   dokgen:
     uri: "http://tiltak-dokgen/template/tiltak-refusjon/create-pdf"

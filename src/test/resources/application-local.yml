@@ -29,10 +29,6 @@ spring:
       enabled: true
       path: /h2-console
 
-management:
-  tracing:
-    enabled: false
-
 no.nav.security.jwt:
   tokenvalidationfilter:
     # Gå vekk fra "highest presedence" slik at CookieTokenFilter får kjøre først
@@ -76,9 +72,6 @@ tiltak-refusjon:
     serviceEdition: 1
   abac-tilgangstyring:
     uri: http://localhost:${wiremock.port}/abac-tilgangstyring
-  graph-api:
-    uri: ""
-    fake: true
   unleash:
     mock: true
   varsling:

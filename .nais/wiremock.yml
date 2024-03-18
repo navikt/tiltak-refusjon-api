@@ -12,13 +12,13 @@ spec:
     max: 1
   port: 8080
   liveness:
-    path: /graph-api
+    path: /health
     initialDelay: 1
     timeout: 1
     periodSeconds: 10
     failureThreshold: 3
   readiness:
-    path: /graph-api
+    path: /health
     initialDelay: 1
     timeout: 1
     periodSeconds: 10

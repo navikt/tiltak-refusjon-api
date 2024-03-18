@@ -363,15 +363,6 @@ class Refusjon(
         return id.hashCode()
     }
 
-    fun merkForUnntakOmInntekterToMånederFrem(merking: Int, utførtAv: InnloggetBruker) {
-        krevStatus(RefusjonStatus.FOR_TIDLIG, RefusjonStatus.KLAR_FOR_INNSENDING)
-        if(merking == 1 && hentInntekterLengerFrem != null) {
-            throw FeilkodeException(Feilkode.HAR_ALLERDE_UNNTAK_OM_INNTEKTER_1_MND_FREM)
-        }
-        unntakOmInntekterFremitid = merking
-        registerEvent(SaksbehandlerMerketForInntekterLengerFrem(this, merking, utførtAv))
-    }
-
     fun merkForUnntakOmInntekterFremITid(merking: Int, utførtAv: InnloggetBruker) {
         krevStatus(RefusjonStatus.FOR_TIDLIG, RefusjonStatus.KLAR_FOR_INNSENDING)
         if(merking == 1 && hentInntekterLengerFrem != null) {

@@ -223,9 +223,9 @@ data class InnloggetSaksbehandler(
         return refusjon
     }
 
-    fun merkForUnntakOmInntekterToMånederFrem(id: String, merking: Int) {
+    fun merkForUnntakOmInntekterFremITid(id: String, merking: Int) {
         val refusjon = finnRefusjon(id)
-        refusjon.merkForUnntakOmInntekterToMånederFrem(merking, this)
+        refusjon.merkForUnntakOmInntekterFremITid(merking, this)
         refusjonRepository.save(refusjon)
     }
 

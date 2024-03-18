@@ -24,6 +24,7 @@ import org.springframework.web.filter.OncePerRequestFilter
 @Order(Ordered.HIGHEST_PRECEDENCE)
 class CookieTokenFilter: OncePerRequestFilter() {
     override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain) {
+
         val aadToken = request.cookies?.find { it.name == "aad-token" }?.value
         val tokenxToken = request.cookies?.find { it.name == "tokenx-token" }?.value
 

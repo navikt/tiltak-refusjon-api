@@ -2,7 +2,16 @@ package no.nav.arbeidsgiver.tiltakrefusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.ADMIN_BRUKER
 import no.nav.arbeidsgiver.tiltakrefusjon.leader.LeaderPodCheck
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Beregning
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Korreksjonsgrunn
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonKafkaProducer
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonRepository
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonService
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonStatus
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.StatusJobb
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.beregnRefusjonsbeløp
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonEndretStatus
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.MidlerFrigjortÅrsak
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeForkortetMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
@@ -11,8 +20,14 @@ import org.slf4j.LoggerFactory
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.http.ResponseEntity
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 import java.time.LocalDate
 
 @RestController
@@ -21,7 +36,8 @@ class AdminController(
     val service: RefusjonService,
     val refusjonRepository: RefusjonRepository,
     val refusjonService: RefusjonService,
-    val leaderPodCheck: LeaderPodCheck
+    val leaderPodCheck: LeaderPodCheck,
+    val refusjonKafkaProducer: RefusjonKafkaProducer?
 ) {
     val logger = LoggerFactory.getLogger(javaClass)
 
@@ -172,7 +188,7 @@ class AdminController(
             tilskuddsgrunnlag = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag,
             tidligereUtbetalt = 0,
             korrigertBruttoLønn = refusjon.refusjonsgrunnlag.endretBruttoLønn,
-            fratrekkRefunderbarSum =refusjon.refusjonsgrunnlag.refunderbarBeløp,
+            fratrekkRefunderbarSum = refusjon.refusjonsgrunnlag.refunderbarBeløp,
             forrigeRefusjonMinusBeløp = request.minusBeløp,
             tilskuddFom = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
             harFerietrekkForSammeMåned = request.harFerietrekkForSammeMåned,
@@ -186,7 +202,7 @@ class AdminController(
     @Transactional
     fun reberegn(@PathVariable id: String, @RequestBody request: ReberegnRequest): Beregning {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
-        val beregning =  beregnRefusjonsbeløp(
+        val beregning = beregnRefusjonsbeløp(
             inntekter = refusjon.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
             tilskuddsgrunnlag = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag,
             tidligereUtbetalt = 0,
@@ -207,7 +223,7 @@ class AdminController(
 
     @Unprotected
     @GetMapping("hent-refusjoner-med-status-sendt")
-    fun hentRefusjonerMedStatusSendtKrav()  = refusjonRepository.findAllByStatus(RefusjonStatus.SENDT_KRAV)
+    fun hentRefusjonerMedStatusSendtKrav() = refusjonRepository.findAllByStatus(RefusjonStatus.SENDT_KRAV)
 
     @Unprotected
     @PostMapping("oppdater-alle-refusjoner-klar-med-data/{page}")
@@ -232,9 +248,26 @@ class AdminController(
         alleForTidlig.forEach {
             refusjonService.oppdaterRefusjon(it, ADMIN_BRUKER)
         }
-
     }
 
+    @Unprotected
+    @PostMapping("send-refusjon-godkjent-melding")
+    @Transactional
+    fun sendRefusjonGodkjentMelding(@RequestBody refusjonGodkjentRequest: RefusjonGodkjentRequest): ResponseEntity<String> {
+        val refusjon = refusjonRepository.findById(refusjonGodkjentRequest.refusjonId).orElseThrow()
+
+        refusjonKafkaProducer!!.refusjonEndretStatus(RefusjonEndretStatus(refusjon))
+        if (refusjon.refusjonsgrunnlag.refusjonsgrunnlagetErNullSomIZero()) {
+            refusjonKafkaProducer!!.annullerTilskuddsperiodeEtterNullEllerMinusBeløp(refusjon, MidlerFrigjortÅrsak.REFUSJON_GODKJENT_NULL_BELØP)
+            return ResponseEntity.ok("Sendt godkjent nullbeløp-melding for ${refusjon.id}")
+        } else if (!refusjon.refusjonsgrunnlag.refusjonsgrunnlagetErPositivt()) {
+            refusjonKafkaProducer!!.annullerTilskuddsperiodeEtterNullEllerMinusBeløp(refusjon, MidlerFrigjortÅrsak.REFUSJON_MINUS_BELØP)
+            return ResponseEntity.ok("Sendt godkjent minusbeløp-melding for ${refusjon.id}")
+        } else {
+            refusjonKafkaProducer!!.sendRefusjonGodkjentMelding(refusjon)
+            return ResponseEntity.ok("Sendt godkjent-melding for ${refusjon.id}")
+        }
+    }
 }
 
 data class ReberegnRequest(val harFerietrekkForSammeMåned: Boolean, val minusBeløp: Int, val ferieTrekk: Int)
@@ -242,3 +275,4 @@ data class KorreksjonRequest(val refusjonIder: List<String>, val korreksjonsgrun
 data class ForlengFristerRequest(val refusjonIder: List<String>, val nyFrist: LocalDate, val årsak: String, val enforce: Boolean)
 data class ForlengFristerTilOgMedRequest(val tilDato: LocalDate, val nyFrist: LocalDate, val årsak: String, val enforce: Boolean)
 data class AnnullerRefusjon(val tilskuddsperiodeId: String)
+data class RefusjonGodkjentRequest(val refusjonId: String)

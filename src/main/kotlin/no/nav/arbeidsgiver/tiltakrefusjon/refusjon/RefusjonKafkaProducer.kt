@@ -24,14 +24,16 @@ class RefusjonKafkaProducer(
     var log: Logger = LoggerFactory.getLogger(javaClass)
 
     @TransactionalEventListener
-    fun refusjonGodkjent(event: GodkjentAvArbeidsgiver) {
-        val melding = create(event.refusjon)
-        refusjonGodkjentkafkaTemplate.send(Topics.REFUSJON_GODKJENT, event.refusjon.id, melding)
+    fun refusjonGodkjentLytter(event: GodkjentAvArbeidsgiver) = sendRefusjonGodkjentMelding(event.refusjon)
+
+    fun sendRefusjonGodkjentMelding(refusjon: Refusjon) {
+        val melding = create(refusjon)
+        refusjonGodkjentkafkaTemplate.send(Topics.REFUSJON_GODKJENT, refusjon.id, melding)
             .whenComplete { it, ex ->
                 if (ex != null) {
                     log.error(
                         "Melding med id {} kunne ikke sendes til Kafka topic {}",
-                        event.refusjon.id,
+                        refusjon.id,
                         Topics.REFUSJON_GODKJENT,
                         ex
                     )
@@ -120,25 +122,20 @@ class RefusjonKafkaProducer(
     }
 
     @TransactionalEventListener
-    fun refusjonGodkjentMinusBeløp(event: RefusjonGodkjentMinusBeløp) {
-        log.info("Godkjent refusjon ${event.refusjon.id} med minusbeløp, sender annullering")
-        annullerTilskuddsperiodeEtterNullEllerMinusBeløp(event.refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId, MidlerFrigjortÅrsak.REFUSJON_MINUS_BELØP)
-    }
+    fun refusjonGodkjentMinusBeløpLytter(event: RefusjonGodkjentMinusBeløp) = annullerTilskuddsperiodeEtterNullEllerMinusBeløp(event.refusjon, MidlerFrigjortÅrsak.REFUSJON_MINUS_BELØP)
 
     @TransactionalEventListener
-    fun refusjonGodkjentNullBeløp(event: RefusjonGodkjentNullBeløp) {
-        log.info("Godkjent refusjon ${event.refusjon.id} med nullbeløp, sender annullering")
-        annullerTilskuddsperiodeEtterNullEllerMinusBeløp(event.refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId, MidlerFrigjortÅrsak.REFUSJON_GODKJENT_NULL_BELØP)
-    }
+    fun refusjonGodkjentNullBeløpLytter(event: RefusjonGodkjentNullBeløp) = annullerTilskuddsperiodeEtterNullEllerMinusBeløp(event.refusjon, MidlerFrigjortÅrsak.REFUSJON_GODKJENT_NULL_BELØP)
 
-    private fun annullerTilskuddsperiodeEtterNullEllerMinusBeløp(tilskuddsperiodeId: String, årsak: MidlerFrigjortÅrsak) {
+    fun annullerTilskuddsperiodeEtterNullEllerMinusBeløp(refusjon: Refusjon, årsak: MidlerFrigjortÅrsak) {
+        log.info("Godkjent refusjon ${refusjon.id} uten positivt beløp, sender annullering med årsak ${årsak.name}")
         val tilskuddperiodeAnnullertMelding = TilskuddsperiodeAnnullertMelding(
-            tilskuddsperiodeId = tilskuddsperiodeId,
+            tilskuddsperiodeId = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId,
             årsak = årsak
         )
         tilskuddperiodeAnnullertKafkaTemplate.send(
             Topics.TILSKUDDSPERIODE_ANNULLERT,
-            tilskuddsperiodeId,
+            refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId,
             tilskuddperiodeAnnullertMelding
         ).whenComplete { it, ex ->
             if (ex != null) {

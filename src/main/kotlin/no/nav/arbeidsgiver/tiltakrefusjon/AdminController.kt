@@ -268,6 +268,28 @@ class AdminController(
             return ResponseEntity.ok("Sendt godkjent-melding for ${refusjon.id}")
         }
     }
+
+    @Unprotected
+    @PostMapping("send-tilskuddsperiode-annullert-melding")
+    @Transactional
+    fun sentTilskuddsperiodeAnnullertMelding(@RequestBody annullerRefusjon: AnnullerRefusjon): ResponseEntity<String> {
+        val refusjoner = refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_TilskuddsperiodeId(annullerRefusjon.tilskuddsperiodeId)
+        if (refusjoner.size > 1) {
+            return ResponseEntity.badRequest().body("Fant flere refusjoner med tilskuddsperiodeId ${annullerRefusjon.tilskuddsperiodeId}")
+        }
+        val refusjon = refusjoner.firstOrNull() ?: return ResponseEntity.badRequest().body("Fant ingen refusjon med tilskuddsperiodeId ${annullerRefusjon.tilskuddsperiodeId}")
+
+        refusjonKafkaProducer!!.refusjonEndretStatus(RefusjonEndretStatus(refusjon))
+        if (refusjon.refusjonsgrunnlag.refusjonsgrunnlagetErNullSomIZero()) {
+            refusjonKafkaProducer!!.annullerTilskuddsperiodeEtterNullEllerMinusBeløp(refusjon, MidlerFrigjortÅrsak.REFUSJON_GODKJENT_NULL_BELØP)
+            return ResponseEntity.ok("Sendt godkjent nullbeløp-melding for ${refusjon.id}")
+        } else if (!refusjon.refusjonsgrunnlag.refusjonsgrunnlagetErPositivt()) {
+            refusjonKafkaProducer!!.annullerTilskuddsperiodeEtterNullEllerMinusBeløp(refusjon, MidlerFrigjortÅrsak.REFUSJON_MINUS_BELØP)
+            return ResponseEntity.ok("Sendt godkjent minusbeløp-melding for ${refusjon.id}")
+        } else {
+            return ResponseEntity.ok("Kunne ikke annullere refusjon ${refusjon.id}")
+        }
+    }
 }
 
 data class ReberegnRequest(val harFerietrekkForSammeMåned: Boolean, val minusBeløp: Int, val ferieTrekk: Int)

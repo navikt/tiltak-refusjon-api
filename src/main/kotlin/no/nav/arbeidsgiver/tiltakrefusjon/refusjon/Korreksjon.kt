@@ -1,11 +1,19 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import jakarta.persistence.*
+import jakarta.persistence.CascadeType
+import jakarta.persistence.ElementCollection
+import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
+import jakarta.persistence.FetchType
+import jakarta.persistence.Id
+import jakarta.persistence.OneToOne
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
+import no.nav.arbeidsgiver.tiltakrefusjon.audit.FnrOgBedrift
+import no.nav.arbeidsgiver.tiltakrefusjon.audit.RefusjonMedFnrOgBedrift
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBruker
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.KorreksjonBeregningUtført
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.KorreksjonMerketForOppgjort
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.KorreksjonMerketForTilbakekreving
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.KorreksjonSendtTilUtbetaling
@@ -25,7 +33,7 @@ class Korreksjon(
     val bedriftNr: String,
     val unntakOmInntekterFremitid: Int?,
     val annenGrunn: String?
-) : AbstractAggregateRoot<Korreksjon>() {
+) : AbstractAggregateRoot<Korreksjon>(), RefusjonMedFnrOgBedrift {
     constructor(
         korrigererRefusjonId: String,
         korreksjonsnummer: Int,
@@ -74,6 +82,8 @@ class Korreksjon(
 
     @JsonProperty
     fun harTattStillingTilAlleInntektslinjer(): Boolean = refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.find { inntekt -> inntekt.erOpptjentIPeriode === null } === null
+
+    override fun getFnrOgBedrift(): FnrOgBedrift = FnrOgBedrift(deltakerFnr, bedriftNr)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

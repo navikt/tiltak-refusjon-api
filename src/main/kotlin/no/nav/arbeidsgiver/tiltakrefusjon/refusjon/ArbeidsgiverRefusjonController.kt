@@ -1,6 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.UgyldigRequestException
+import no.nav.arbeidsgiver.tiltakrefusjon.audit.AuditLogging
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBrukerService
 import no.nav.arbeidsgiver.tiltakrefusjon.dokgen.DokgenService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
@@ -44,6 +45,7 @@ class ArbeidsgiverRefusjonController(
 ) {
     var logger: Logger = LoggerFactory.getLogger(javaClass)
 
+    @AuditLogging("Oversikt over refusjoner")
     @GetMapping
     fun hentAlle(queryParametre: HentArbeidsgiverRefusjonerQueryParametre): List<Refusjon> {
         if (queryParametre.bedriftNr == null) {
@@ -70,6 +72,7 @@ class ArbeidsgiverRefusjonController(
 
     }
 
+    @AuditLogging("Oversikt over refusjoner")
     @GetMapping("/hentliste")
     fun hentListAvBedrifter(queryParametre: HentArbeidsgiverRefusjonerQueryParametre): ResponseEntity<Map<String, Any>> {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
@@ -91,6 +94,7 @@ class ArbeidsgiverRefusjonController(
         return ResponseEntity<Map<String, Any>>(response, HttpStatus.OK)
     }
 
+    @AuditLogging("Hent detaljer om en refusjon")
     @GetMapping("/{id}")
     fun hent(@PathVariable id: String): Refusjon? {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()

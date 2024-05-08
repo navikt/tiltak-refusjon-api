@@ -109,7 +109,7 @@ class AuditLoggingAspect(val context: TokenValidationContextHolder, val auditLog
                     }
                     val traceHeader: String? = request.getHeader("trace_id")
                     if (traceHeader == null) {
-                        log.error("trace_id header mangler i request!")
+                        log.error("trace_id header mangler i request! Headere tilgjengelig: ${request.headerNames.toList()}")
                     }
                     auditLogger.logg(
                         AuditEntry(

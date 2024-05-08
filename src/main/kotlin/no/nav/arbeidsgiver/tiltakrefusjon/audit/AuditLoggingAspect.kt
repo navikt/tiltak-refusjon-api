@@ -107,9 +107,12 @@ class AuditLoggingAspect(val context: TokenValidationContextHolder, val auditLog
                     if (fnrOgBedrift.deltakerFnr.equals(innloggetBrukerId)) {
                         return
                     }
-                    val traceHeader: String? = request.getHeader("trace_id")
+                    // Traceparent header-format: https://www.w3.org/TR/trace-context/#traceparent-header
+                    // Eksempel: 00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01
+                    // Vi er interessert i del 2.
+                    val traceHeader: String? = request.getHeader("traceparent")?.split("-")?.getOrNull(1)
                     if (traceHeader == null) {
-                        log.error("trace_id header mangler i request! Headere tilgjengelig: ${request.headerNames.toList()}")
+                        log.error("traceparent header mangler i request!")
                     }
                     auditLogger.logg(
                         AuditEntry(

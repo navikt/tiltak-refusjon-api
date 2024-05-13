@@ -27,7 +27,7 @@ class AuditLoggingAspect(val context: TokenValidationContextHolder, val auditLog
 
     /**
      * Denne "handleren" kjøres etter at en controller-metode er ferdigkjørt, og brukes for å se om verdien som returneres
-     * er en eller flere avtaler som kan logges. Hvis det er tilfellet, logges det et audit-event for hver unike kombinasjon
+     * er en eller flere refusjoner som kan logges. Hvis det er tilfellet, logges det et audit-event for hver unike kombinasjon
      * av deltaker/bedrift.
      *
      * @param joinPoint            Dette er punktet som denne handleren "henger" på. Brukes for å hente ut annotasjonsbeskrivelsen
@@ -46,7 +46,7 @@ class AuditLoggingAspect(val context: TokenValidationContextHolder, val auditLog
      * faktisk inneholder en "auditerbar" avtale.
      * <br/>
      * Hvis returverdien er en ResponseEntity eller HashMap, så "unboxer" vi disse og kaller funksjonen igjen.
-     * I tilfellet hvor objektet er et HashMap prøver vi å hente ut avtaler fra "avtaler"-nøkkelen.
+     * I tilfellet hvor objektet er et HashMap prøver vi å hente ut avtaler fra "refusjoner"-nøkkelen.
      */
     private fun hentEntiteterSomKanAuditlogges(resultatobjekt: Any?): Set<FnrOgBedrift> {
         if (resultatobjekt is ResponseEntity<*>) {
@@ -59,14 +59,14 @@ class AuditLoggingAspect(val context: TokenValidationContextHolder, val auditLog
 
         val entiteter = ArrayList<RefusjonMedFnrOgBedrift>()
         if (resultatobjekt is Collection<*>) {
-            resultatobjekt.forEach { avtale ->
-                if (avtale is RefusjonMedFnrOgBedrift) {
-                    entiteter.add(avtale)
+            resultatobjekt.forEach { refusjon ->
+                if (refusjon is RefusjonMedFnrOgBedrift) {
+                    entiteter.add(refusjon)
                 }
             }
             if (resultatobjekt.size != entiteter.size) {
                 log.error(
-                    "AuditLoggingAspect fant en respons som ikke inneholdt avtaler: {}", resultatobjekt.first()?.javaClass?.name ?: "null"
+                    "AuditLoggingAspect fant en respons som ikke inneholdt refusjoner: {}", resultatobjekt.first()?.javaClass?.name ?: "null"
                 )
             }
         } else if (resultatobjekt is RefusjonMedFnrOgBedrift) {
@@ -84,8 +84,8 @@ class AuditLoggingAspect(val context: TokenValidationContextHolder, val auditLog
     }
 
     /**
-     * Konverterer auditerbare avtaler til et FnrOgBedrift-sett for å sikre at vi får ut unike
-     * oppslag (hvis vi ikke gjør dette vil man feks logge oppslag mot samme deltaker i to avtaler dobbelt).
+     * Konverterer auditerbare refusjoner til et FnrOgBedrift-sett for å sikre at vi får ut unike
+     * oppslag (hvis vi ikke gjør dette vil man feks logge oppslag mot samme deltaker i to refusjoner dobbelt).
      */
     private fun hentOppslagsdata(result: Collection<RefusjonMedFnrOgBedrift>): Set<FnrOgBedrift> {
         return result.map {

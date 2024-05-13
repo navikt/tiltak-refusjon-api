@@ -116,17 +116,17 @@ class AuditLoggingAspect(val context: TokenValidationContextHolder, val auditLog
                     }
                     auditLogger.logg(
                         AuditEntry(
-                            "tiltak-refusjon-api",
+                            appNavn = "tiltak-refusjon-api",
                             // ArcSight vil ikke ha oppslag som er utført av en privatperson; oppslaget må derfor være "utført av" en bedrift
-                            if (innloggetBrukerErPrivatperson) fnrOgBedrift.bedrift else innloggetBrukerId,
-                            fnrOgBedrift.deltakerFnr,
-                            EventType.READ,
-                            true,
-                            utførtTid,
-                            apiBeskrivelse,
-                            uri,
-                            request.method,
-                            traceHeader ?: ""
+                            utførtAv = if (innloggetBrukerErPrivatperson) fnrOgBedrift.bedrift else innloggetBrukerId,
+                            oppslagPå = fnrOgBedrift.deltakerFnr,
+                            eventType = EventType.READ,
+                            forespørselTillatt = true,
+                            oppslagUtførtTid = utførtTid,
+                            beskrivelse = apiBeskrivelse,
+                            requestUrl = uri,
+                            requestMethod = request.method,
+                            correlationId = traceHeader ?: ""
                         )
                     )
                 }

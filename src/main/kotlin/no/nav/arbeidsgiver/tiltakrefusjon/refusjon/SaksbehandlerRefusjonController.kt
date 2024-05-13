@@ -1,6 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.ReberegnRequest
+import no.nav.arbeidsgiver.tiltakrefusjon.audit.AuditLogging
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBrukerService
 import no.nav.arbeidsgiver.tiltakrefusjon.hendelseslogg.HendelsesloggDTO
 import no.nav.arbeidsgiver.tiltakrefusjon.hendelseslogg.HendelsesloggRepository
@@ -31,12 +32,14 @@ class SaksbehandlerRefusjonController(
     val innloggetBrukerService: InnloggetBrukerService,
     val hendelsesloggRepository: HendelsesloggRepository,
 ) {
+    @AuditLogging("Oversiktsbilde over refusjoner")
     @GetMapping
     fun hentAlle(queryParametre: HentSaksbehandlerRefusjonerQueryParametre): Map<String, Any> {
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
         return saksbehandler.finnAlle(queryParametre)
     }
 
+    @AuditLogging("Hent detaljer om en refusjon")
     @GetMapping("/{id}")
     fun hent(@PathVariable id: String): Refusjon? {
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()

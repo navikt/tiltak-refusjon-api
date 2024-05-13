@@ -46,7 +46,7 @@ class AuditLoggingAspect(val context: TokenValidationContextHolder, val auditLog
      * faktisk inneholder en "auditerbar" avtale.
      * <br/>
      * Hvis returverdien er en ResponseEntity eller HashMap, så "unboxer" vi disse og kaller funksjonen igjen.
-     * I tilfellet hvor objektet er et HashMap prøver vi å hente ut avtaler fra "refusjoner"-nøkkelen.
+     * I tilfellet hvor objektet er et HashMap prøver vi å hente ut refusjoner fra "refusjoner"-nøkkelen.
      */
     private fun hentEntiteterSomKanAuditlogges(resultatobjekt: Any?): Set<FnrOgBedrift> {
         if (resultatobjekt is ResponseEntity<*>) {

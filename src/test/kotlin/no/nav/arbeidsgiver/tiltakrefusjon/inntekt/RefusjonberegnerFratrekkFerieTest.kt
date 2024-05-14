@@ -7,7 +7,6 @@ import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetArbeidsgiver
 import no.nav.arbeidsgiver.tiltakrefusjon.etInntektsgrunnlag
 import no.nav.arbeidsgiver.tiltakrefusjon.innloggetBruker
-import no.nav.arbeidsgiver.tiltakrefusjon.organisasjon.EregClient
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
@@ -41,8 +40,6 @@ class RefusjonberegnerFratrekkFerieTest(
     lateinit var altinnTilgangsstyringService: AltinnTilgangsstyringService
     @MockkBean
     lateinit var korreksjonRepository: KorreksjonRepository
-    @MockkBean
-    lateinit var eregClient: EregClient
 
     val WIREMOCK_IDENT: String = "08098613316"
     val WIREMOCK_VIRKSOMHET_IDENTIFIKATOR: String = "972674818"
@@ -245,7 +242,7 @@ class RefusjonberegnerFratrekkFerieTest(
     @Test
     fun `trekk i lønn for ferie skal ikke trekkes på 2 refusjoner for samme måned`() {
         every { altinnTilgangsstyringService.hentTilganger(any()) } returns setOf<Organisasjon>(Organisasjon("Bedrift AS", "Bedrift type", WIREMOCK_VIRKSOMHET_IDENTIFIKATOR,"Org form","Status"))
-        val innloggetArbeidsgiver = InnloggetArbeidsgiver("12345678901",altinnTilgangsstyringService,refusjonRepository,korreksjonRepository,refusjonService,eregClient)
+        val innloggetArbeidsgiver = InnloggetArbeidsgiver("12345678901",altinnTilgangsstyringService,refusjonRepository,korreksjonRepository,refusjonService)
 
         // Det kan oppstå 2 refusjoner innenfor samme måned ved f.eks. forlengelse. (eks. 01-15 og 16-30)
         //Now.fixedDate(LocalDate.of(2023, 7, 1))

@@ -5,7 +5,6 @@ import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
 import no.nav.arbeidsgiver.tiltakrefusjon.norg.NorgService
 import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterService
-import no.nav.arbeidsgiver.tiltakrefusjon.organisasjon.EregClient
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import org.slf4j.Logger
@@ -24,7 +23,6 @@ class InnloggetBrukerService(
     val inntektskomponentService: InntektskomponentService,
     val kontoregisterService: KontoregisterService,
     val norgService: NorgService,
-    val eregClient: EregClient,
     val beslutterRolleConfig: BeslutterRolleConfig
 ) {
     var logger: Logger = LoggerFactory.getLogger(javaClass)
@@ -62,7 +60,7 @@ class InnloggetBrukerService(
         return when {
             erArbeidsgiver() -> {
                 val fnr = Fnr(context.getTokenValidationContext().getClaims("tokenx").getStringClaim("pid"))
-                InnloggetArbeidsgiver(fnr.verdi, altinnTilgangsstyringService, refusjonRepository, korreksjonRepository, refusjonService, eregClient)
+                InnloggetArbeidsgiver(fnr.verdi, altinnTilgangsstyringService, refusjonRepository, korreksjonRepository, refusjonService)
             }
 
             else -> {

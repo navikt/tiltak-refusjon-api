@@ -7,7 +7,6 @@ import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
 import no.nav.arbeidsgiver.tiltakrefusjon.innloggetBruker
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
-import no.nav.arbeidsgiver.tiltakrefusjon.organisasjon.EregClient
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
@@ -44,7 +43,6 @@ internal class InnloggetArbeidsgiverTest(
     lateinit var inntektskomponentService: InntektskomponentService
     @MockkBean lateinit var altinnTilgangsstyringService: AltinnTilgangsstyringService
     @MockkBean lateinit var korreksjonRepository: KorreksjonRepository
-    @MockkBean lateinit var eregClient: EregClient
     @BeforeEach
     fun setup() {
         varslingRepository.deleteAll()
@@ -113,7 +111,7 @@ internal class InnloggetArbeidsgiverTest(
         val refusjon2 = refusjonService.opprettRefusjon(tilskuddMelding2LittEldreMedLøpenummer2)!!
 
         every { altinnTilgangsstyringService.hentTilganger(any()) } returns setOf<Organisasjon>(Organisasjon("Bedrift AS", "Bedrift type", "999999999","Org form","Status"))
-        val innloggetArbeidsgiver = InnloggetArbeidsgiver("12345678901",altinnTilgangsstyringService,refusjonRepository,korreksjonRepository,refusjonService,eregClient)
+        val innloggetArbeidsgiver = InnloggetArbeidsgiver("12345678901",altinnTilgangsstyringService,refusjonRepository,korreksjonRepository,refusjonService)
         val refusjonFunnet = innloggetArbeidsgiver.finnRefusjon(refusjon1.id)
         assertThat(refusjonFunnet).isEqualTo(refusjon1)
 
@@ -140,8 +138,7 @@ internal class InnloggetArbeidsgiverTest(
             altinnTilgangsstyringService,
             refusjonRepository,
             korreksjonRepository,
-            refusjonService,
-            eregClient
+            refusjonService
         )
 
         val tilskuddMelding2LittEldreMedLøpenummer2 = TilskuddsperiodeGodkjentMelding(
@@ -308,7 +305,7 @@ internal class InnloggetArbeidsgiverTest(
         )
 
         every { altinnTilgangsstyringService.hentTilganger(any()) } returns setOf<Organisasjon>(Organisasjon("Bedrift AS", "Bedrift type", "999999999","Org form","Status"))
-        val innloggetArbeidsgiver = InnloggetArbeidsgiver("12345678901",altinnTilgangsstyringService,refusjonRepository,korreksjonRepository,refusjonService,eregClient)
+        val innloggetArbeidsgiver = InnloggetArbeidsgiver("12345678901",altinnTilgangsstyringService,refusjonRepository,korreksjonRepository,refusjonService)
 
         // Tre refusjoner med samme avtalenr.
         val refusjon1 = opprettRefusjonOgGjørInntektoppslag(tilskuddMelding)
@@ -472,7 +469,7 @@ internal class InnloggetArbeidsgiverTest(
         )
 
         every { altinnTilgangsstyringService.hentTilganger(any()) } returns setOf<Organisasjon>(Organisasjon("Bedrift AS", "Bedrift type", "999999999","Org form","Status"))
-        val innloggetArbeidsgiver = InnloggetArbeidsgiver("12345678901",altinnTilgangsstyringService,refusjonRepository,korreksjonRepository,refusjonService,eregClient)
+        val innloggetArbeidsgiver = InnloggetArbeidsgiver("12345678901",altinnTilgangsstyringService,refusjonRepository,korreksjonRepository,refusjonService)
 
         // Tre refusjoner med ulik avtalenr
         val refusjon1 = opprettRefusjonOgGjørInntektoppslag(tilskuddMelding)!!
@@ -536,7 +533,7 @@ internal class InnloggetArbeidsgiverTest(
 
 
         every { altinnTilgangsstyringService.hentTilganger(any()) } returns setOf<Organisasjon>(Organisasjon("Bedrift AS", "Bedrift type", "999999999","Org form","Status"))
-        val innloggetArbeidsgiver = InnloggetArbeidsgiver("12345678901",altinnTilgangsstyringService,refusjonRepository,korreksjonRepository,refusjonService,eregClient)
+        val innloggetArbeidsgiver = InnloggetArbeidsgiver("12345678901",altinnTilgangsstyringService,refusjonRepository,korreksjonRepository,refusjonService)
 
         val refusjon1FunnetViaFinnRefusjon = innloggetArbeidsgiver.finnRefusjon(refusjon1.id)
 
@@ -590,7 +587,7 @@ internal class InnloggetArbeidsgiverTest(
         )
 
         every { altinnTilgangsstyringService.hentTilganger(any()) } returns setOf<Organisasjon>(Organisasjon("Bedrift AS", "Bedrift type", "999999999","Org form","Status"))
-        val innloggetArbeidsgiver = InnloggetArbeidsgiver("12345678901",altinnTilgangsstyringService,refusjonRepository,korreksjonRepository,refusjonService,eregClient)
+        val innloggetArbeidsgiver = InnloggetArbeidsgiver("12345678901",altinnTilgangsstyringService,refusjonRepository,korreksjonRepository,refusjonService)
 
         val refusjon2 = opprettRefusjonOgGjørInntektoppslag(tilskuddMelding2LittEldreMedLøpenummer2)
         val refusjon3 = opprettRefusjonOgGjørInntektoppslag(tilskuddMelding3LittEldreMedLøpenummer3)

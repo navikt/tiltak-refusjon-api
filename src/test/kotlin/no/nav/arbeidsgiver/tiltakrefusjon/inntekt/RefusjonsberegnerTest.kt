@@ -13,6 +13,8 @@ class RefusjonsberegnerTest {
 
     lateinit var juni: Inntektslinje
     lateinit var juli: Inntektslinje
+    lateinit var september: Inntektslinje
+    lateinit var enInntektslinje: Inntektsgrunnlag
     lateinit var juniUregelmessig: Inntektslinje
     lateinit var inntektsliste: List<Inntektslinje>
     lateinit var inntektsgrunnlag: Inntektsgrunnlag
@@ -24,6 +26,11 @@ class RefusjonsberegnerTest {
             lagEnInntektslinje(20000.00, YearMonth.of(2023, 7), LocalDate.of(2023, 6, 1), LocalDate.of(2023, 6, 30))
         juli =
             lagEnInntektslinje(20000.00, YearMonth.of(2023, 7), LocalDate.of(2023, 7, 1), LocalDate.of(2023, 7, 31))
+        september =
+            lagEnInntektslinje(16666.00, YearMonth.of(2023, 9), LocalDate.of(2023, 9, 1), LocalDate.of(2023, 9, 30))
+
+        enInntektslinje = Inntektsgrunnlag(listOf(september), "repons fra Inntekt")
+
         inntektsliste = listOf(juni, juli)
         inntektsgrunnlag = Inntektsgrunnlag(inntektsliste, "repons fra Inntekt")
 
@@ -52,7 +59,7 @@ class RefusjonsberegnerTest {
             bedriftNavn = "Kiwi Majorstuen",
             bedriftNr = "",
             otpSats = 0.02,
-            feriepengerSats = 0.12,
+            feriepengerSats = 0.102,
             arbeidsgiveravgiftSats = 0.141,
             lønnstilskuddsprosent = 40,
             tilskuddFom = tilskuddFom,
@@ -118,7 +125,7 @@ class RefusjonsberegnerTest {
             tilskuddFom = LocalDate.of(2023,6,1),
             harFerietrekkForSammeMåned = false
         )
-        val beregnetBeløpHeleInntektsgrunnlaget = 20856
+        val beregnetBeløpHeleInntektsgrunnlaget = 20520
         assertThat(beregning.refusjonsbeløp).isEqualTo(beregnetBeløpHeleInntektsgrunnlaget)
     }
 
@@ -138,7 +145,7 @@ class RefusjonsberegnerTest {
             tilskuddFom = LocalDate.of(2023,6,1),
             harFerietrekkForSammeMåned = false
         )
-        val beregnetBeløpAvAntallDagerJobbetInnenforInntektsgrunnlaget = 20856
+        val beregnetBeløpAvAntallDagerJobbetInnenforInntektsgrunnlaget = 20520
         assertThat(beregning.refusjonsbeløp).isEqualTo(beregnetBeløpAvAntallDagerJobbetInnenforInntektsgrunnlaget)
     }
 
@@ -173,7 +180,30 @@ class RefusjonsberegnerTest {
         // Beregning uten 5G-sjekk skal gi et refusjonsbeløp på 20856
         // Med 590000 allerede utbetalt så vil dette være over tilgjengelig sum
         assertThat(beregning.refusjonsbeløp).isEqualTo(3100)
-        assertThat(beregning2.refusjonsbeløp).isEqualTo(20856)
+        assertThat(beregning2.refusjonsbeløp).isEqualTo(20520)
+
+    }
+
+    @Test
+    fun `Beregning_av_refusjongrunnlag_sumUtgifter`(){
+        val tilskuddsgrunnlagLønnstilskudd = lagEtTilskuddsgrunnlag(
+            LocalDate.of(2023, 9, 1),
+            LocalDate.of(2023, 9, 30),
+            Tiltakstype.VARIG_LONNSTILSKUDD,
+            10000
+        )
+
+        val beregning = beregnRefusjonsbeløp(
+            enInntektslinje.inntekter.toList(),
+            tilskuddsgrunnlagLønnstilskudd,
+            0,
+            null,
+            tilskuddFom = LocalDate.of(2023,9,1),
+            sumUtbetaltVarig = 16666,
+            harFerietrekkForSammeMåned = false
+        )
+
+        assertThat(beregning.sumUtgifter).isEqualTo(21375)
 
     }
 }

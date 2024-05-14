@@ -1,6 +1,5 @@
 spring:
   datasource:
-    platform: postgres
     url: jdbc:h2:mem:db;DB_CLOSE_DELAY=-1;MODE=PostgreSQL
     username: sa
     password: sa
@@ -11,25 +10,23 @@ spring:
       path: /h2-console
   main:
     banner-mode: "console"
+  sql:
+    init:
+      platform: postgres
 
 no.nav.security.jwt:
   issuer:
     aad:
       discoveryurl: http://tiltak-fakelogin/metadata?issuer=aad
       accepted_audience: aud-aad
-      cookie_name: aad-token
     tokenx:
       discoveryurl: http://tiltak-fakelogin/metadata?issuer=tokenx
       accepted_audience: aud-tokenx
-      cookie_name: tokenx-token
   client: null
 
 tiltak-refusjon:
   kafka:
     enabled: false
-    fake: true
-  graph-api:
-    uri: ""
     fake: true
   ereg:
     uri: http://tiltak-refusjon-api-wiremock/ereg

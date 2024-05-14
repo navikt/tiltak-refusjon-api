@@ -17,15 +17,16 @@ spring:
   datasource:
     url: "jdbc:postgresql://localhost:7432/sample?user=sample&password=sample"
 no.nav.security.jwt:
+  tokenvalidationfilter:
+    # Gå vekk fra "highest presedence" slik at CookieTokenFilter får kjøre først
+    order: -10000
   issuer:
     aad:
       discoveryurl: https://tiltak-fakelogin.ekstern.dev.nav.no/metadata?issuer=aad
       accepted_audience: aud-aad
-      cookie_name: aad-token
     tokenx:
       discoveryurl: https://tiltak-fakelogin.ekstern.dev.nav.no/metadata?issuer=tokenx
       accepted_audience: aud-tokenx
-      cookie_name: tokenx-token
   client: null
 
 logging:
@@ -53,9 +54,6 @@ tiltak-refusjon:
     uri: http://localhost:${wiremock.port}/abac-tilgangstyring
     username: na
     password: na
-  graph-api:
-    uri: ""
-    fake: true
   unleash:
     mock: true
   norg:

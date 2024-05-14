@@ -1,6 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.ReberegnRequest
+import no.nav.arbeidsgiver.tiltakrefusjon.audit.AuditLogging
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBrukerService
 import no.nav.arbeidsgiver.tiltakrefusjon.hendelseslogg.HendelsesloggDTO
 import no.nav.arbeidsgiver.tiltakrefusjon.hendelseslogg.HendelsesloggRepository
@@ -31,12 +32,14 @@ class SaksbehandlerRefusjonController(
     val innloggetBrukerService: InnloggetBrukerService,
     val hendelsesloggRepository: HendelsesloggRepository,
 ) {
+    @AuditLogging("Oversiktsbilde over refusjoner")
     @GetMapping
     fun hentAlle(queryParametre: HentSaksbehandlerRefusjonerQueryParametre): Map<String, Any> {
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
         return saksbehandler.finnAlle(queryParametre)
     }
 
+    @AuditLogging("Hent detaljer om en refusjon")
     @GetMapping("/{id}")
     fun hent(@PathVariable id: String): Refusjon? {
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
@@ -59,9 +62,16 @@ class SaksbehandlerRefusjonController(
     @PostMapping("/{id}/merk-for-unntak-om-inntekter-to-mnd-frem")
     fun merkForUnntakOmInntekterToMånederFrem(@PathVariable id: String, @RequestBody request: MerkForUnntakOmInntekterToMånederFremRequest) {
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
-        saksbehandler.merkForUnntakOmInntekterToMånederFrem(id, request.merking)
+        saksbehandler.merkForUnntakOmInntekterFremITid(id, request.merking)
     }
-    
+
+    @PostMapping("/{id}/merk-for-unntak-om-inntekter-frem-i-tid")
+    fun merkForUnntakOmInntekterFremITid(@PathVariable id: String, @RequestBody request: MerkForUnntakOmInntekterToMånederFremRequest) {
+        val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
+        saksbehandler.merkForUnntakOmInntekterFremITid(id, request.merking)
+    }
+
+
     @PostMapping("reberegn-dry/{id}")
     fun reberegnDryRun(@PathVariable id: String, @RequestBody request: ReberegnRequest): Beregning {
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()

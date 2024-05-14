@@ -371,7 +371,7 @@ class RefusjonServiceTest(
         }
 
         Now.fixedDate(LocalDate.now().plusDays(1))
-        refusjon.merkForUnntakOmInntekterToMånederFrem(2, innloggetSaksbehandler)
+        refusjon.merkForUnntakOmInntekterFremITid(2, innloggetSaksbehandler)
         refusjonService.gjørInntektsoppslag(refusjon, innloggetArbeidsgiver)
         verify {
             inntektskomponentService.hentInntekter(tilskuddMelding.deltakerFnr, tilskuddMelding.bedriftNr, tilskuddMelding.tilskuddFom, tilskuddMelding.tilskuddTom.plusMonths(2))
@@ -462,7 +462,7 @@ class RefusjonServiceTest(
             inntektskomponentService.hentInntekter(tilskuddMelding.deltakerFnr, tilskuddMelding.bedriftNr, tilskuddMelding.tilskuddFom, tilskuddMelding.tilskuddTom.plusMonths(0))
         }
         Now.fixedDate(LocalDate.now().plusDays(1))
-        refusjon.merkForUnntakOmInntekterToMånederFrem(2, innloggetSaksbehandler)
+        refusjon.merkForUnntakOmInntekterFremITid(2, innloggetSaksbehandler)
         refusjonService.gjørInntektsoppslag(refusjon, innloggetArbeidsgiver)
         verify {
             inntektskomponentService.hentInntekter(tilskuddMelding.deltakerFnr, tilskuddMelding.bedriftNr, tilskuddMelding.tilskuddFom, tilskuddMelding.tilskuddTom.plusMonths(2))

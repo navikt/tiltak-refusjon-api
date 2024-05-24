@@ -7,7 +7,7 @@ import java.util.*
 
 @Component
 class ByEnvironmentStrategy : Strategy {
-    val environment: String
+    final val environment: String = Optional.ofNullable(System.getenv("MILJO")).orElse("local")
     override fun getName(): String {
         return "byEnvironment"
     }
@@ -17,9 +17,5 @@ class ByEnvironmentStrategy : Strategy {
             .map { map: Map<String, String> -> map["miljø"] }
             .map { env: String? -> Arrays.asList(*env!!.split(",").toTypedArray()).contains(environment) }
             .orElse(false)
-    }
-
-    init {
-        environment = Optional.ofNullable(System.getenv("MILJO")).orElse("local")
     }
 }

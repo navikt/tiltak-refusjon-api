@@ -15,6 +15,9 @@ import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.exchange
 import java.util.*
 
+/*
+* SLACK: PO-UTBETALING - GITHUB https://github.com/navikt/sokos-kontoregister
+* */
 @Service
 @ConditionalOnPropertyNotEmpty("tiltak-refusjon.kontoregister.uri")
 class KontoregisterServiceImpl(

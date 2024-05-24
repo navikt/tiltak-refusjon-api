@@ -1,7 +1,4 @@
 tiltak-refusjon:
-  ereg:
-    uri: https://tiltak-proxy.dev-fss-pub.nais.io/ereg
-    consumer-id: tiltak-refusjon-api
   kontoregister:
     uri: https://tiltak-proxy.dev-fss-pub.nais.io/kontoregister/api/v1/hent-kontonummer-for-organisasjon
     consumer-id: tiltak-refusjon-api

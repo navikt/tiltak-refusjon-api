@@ -70,7 +70,7 @@ class RefusjonApiTest(
     @SpykBean
     lateinit var consoleLogger: AuditConsoleLogger
 
-    val navToken = lagTokenForNavId("Z123456")
+    val navToken = lagTokenForNavId("Z123456", "550e8400-e29b-41d4-a716-446655440000")
     val arbGiverToken = lagTokenForFnr("16120102137")
 
     @BeforeEach
@@ -369,11 +369,11 @@ class RefusjonApiTest(
         ).body()
     }
 
-    private final fun lagTokenForNavId(navId: String): String {
+    private final fun lagTokenForNavId(navId: String, azureId: String): String {
         return HttpClient.newHttpClient().send(
             HttpRequest.newBuilder()
                 .GET()
-                .uri(URI.create("https://tiltak-fakelogin.ekstern.dev.nav.no/token?NAVident=${navId}&iss=aad&aud=aud-aad"))
+                .uri(URI.create("https://tiltak-fakelogin.ekstern.dev.nav.no/token?NAVident=${navId}&iss=aad&aud=aud-aad&oid=${azureId}"))
                 .build(), BodyHandlers.ofString()
         ).body()
     }

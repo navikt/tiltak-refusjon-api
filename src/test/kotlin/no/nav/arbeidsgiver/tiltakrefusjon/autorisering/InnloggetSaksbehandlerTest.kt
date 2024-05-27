@@ -14,6 +14,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock
 import org.springframework.test.context.ActiveProfiles
+import java.util.*
 
 @SpringBootTest
 @ActiveProfiles("local")
@@ -21,22 +22,32 @@ import org.springframework.test.context.ActiveProfiles
 @AutoConfigureWireMock(port = 8091)
 class InnloggetSaksbehandlerTest(
     @Autowired val refusjonRepository: RefusjonRepository,
-    @Autowired val abacTilgangsstyringService: AbacTilgangsstyringService,
+    @Autowired val tilgangskontrollService: TilgangskontrollService,
     @Autowired val korreksjonRepository: KorreksjonRepository,
     @Autowired val refusjonService: RefusjonService,
     @Autowired val inntektskomponentService: FakeInntektskomponentService,
     @Autowired val kontoregisterService: FakeKontoregisterService,
-    @Autowired val norgService: NorgService) {
-
-
+    @Autowired val norgService: NorgService
+) {
     @BeforeEach
     fun setUp() {
         refusjonRepository.deleteAll()
         refusjonRepository.saveAll(refusjoner())
     }
 
-    val saksbehandler = InnloggetSaksbehandler("Z123456", "Geir", abacTilgangsstyringService, norgService, refusjonRepository, korreksjonRepository, refusjonService, inntektskomponentService, kontoregisterService, true)
-
+    val saksbehandler = InnloggetSaksbehandler(
+        "Z123456",
+        UUID.fromString("550e8400-e29b-41d4-a716-446655440000"),
+        "Geir",
+        tilgangskontrollService,
+        norgService,
+        refusjonRepository,
+        korreksjonRepository,
+        refusjonService,
+        inntektskomponentService,
+        kontoregisterService,
+        true
+    )
 
     @Test
     fun `saksbehandler får ikke opp refusjoner som den ikke har tilgang til`() {
@@ -54,12 +65,9 @@ class InnloggetSaksbehandlerTest(
     fun `saksbehandler henter refusjoner for ett BedriftNr`() {
         val bedriftNrDetSlåesOppPå = "998877665"
 
-        val alleRefusjoner = saksbehandler.finnAlle(HentSaksbehandlerRefusjonerQueryParametre(size = 1000, bedriftNr = bedriftNrDetSlåesOppPå ))
+        val alleRefusjoner = saksbehandler.finnAlle(HentSaksbehandlerRefusjonerQueryParametre(size = 1000, bedriftNr = bedriftNrDetSlåesOppPå))
         val refusjonerSaksbehandlerHartilgangtil = alleRefusjoner.get("refusjoner") as List<Refusjon>
         Assertions.assertThat(refusjonerSaksbehandlerHartilgangtil).allMatch { it.bedriftNr == bedriftNrDetSlåesOppPå }
         assertEquals(4, refusjonerSaksbehandlerHartilgangtil.size)
-
     }
-
-
 }

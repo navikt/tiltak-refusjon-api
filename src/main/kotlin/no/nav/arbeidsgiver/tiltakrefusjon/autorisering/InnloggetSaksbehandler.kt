@@ -5,17 +5,35 @@ import no.nav.arbeidsgiver.tiltakrefusjon.RessursFinnesIkkeException
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
 import no.nav.arbeidsgiver.tiltakrefusjon.norg.NorgService
 import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterService
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Beregning
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.BrukerRolle
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.HentSaksbehandlerRefusjonerQueryParametre
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Inntektsgrunnlag
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Korreksjon
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.KorreksjonRepository
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Korreksjonsgrunn
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonRepository
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonService
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonStatus
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.beregnRefusjonsbeløp
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.data.domain.*
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import java.time.LocalDate
+import java.util.*
 
 data class InnloggetSaksbehandler(
     override val identifikator: String,
+    val azureOid: UUID,
     val navn: String,
-    @JsonIgnore val abacTilgangsstyringService: AbacTilgangsstyringService,
+    @JsonIgnore val tilgangskontrollService: TilgangskontrollService,
     @JsonIgnore val norgeService: NorgService,
     @JsonIgnore val refusjonRepository: RefusjonRepository,
     @JsonIgnore val korreksjonRepository: KorreksjonRepository,
@@ -26,6 +44,7 @@ data class InnloggetSaksbehandler(
 ) : InnloggetBruker {
     @JsonIgnore
     val log: Logger = LoggerFactory.getLogger(javaClass)
+    val internIdentifikatorer = InternIdentifikatorer(identifikator, azureOid)
     override val rolle: BrukerRolle = BrukerRolle.BESLUTTER
 
     fun finnAlle(queryParametre: HentSaksbehandlerRefusjonerQueryParametre): Map<String, Any> {
@@ -35,46 +54,46 @@ data class InnloggetSaksbehandler(
         val tiltakstyper = if (queryParametre.tiltakstype != null) listOf(queryParametre.tiltakstype) else Tiltakstype.values().toList()
 
         val liste: Page<Refusjon> =
-                if (!queryParametre.veilederNavIdent.isNullOrBlank()) {
-                    refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_VeilederNavIdentAndStatusInAndRefusjonsgrunnlag_Tilskuddsgrunnlag_TiltakstypeIn(
-                            queryParametre.veilederNavIdent,
-                            statuser,
-                            tiltakstyper,
-                            pageable
-                    )
-                } else if (!queryParametre.deltakerFnr.isNullOrBlank()) {
-                    refusjonRepository.findAllByDeltakerFnrAndStatusInAndRefusjonsgrunnlag_Tilskuddsgrunnlag_TiltakstypeIn(
-                            queryParametre.deltakerFnr,
-                            statuser,
-                            tiltakstyper,
-                            pageable
-                    )
-                } else if (!queryParametre.bedriftNr.isNullOrBlank()) {
-                    refusjonRepository.findAllByBedriftNrAndStatusInAndRefusjonsgrunnlag_Tilskuddsgrunnlag_TiltakstypeIn(
-                            queryParametre.bedriftNr,
-                            statuser,
-                            tiltakstyper,
-                            pageable
-                    )
-                } else if (!queryParametre.enhet.isNullOrBlank()) {
-                    refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_EnhetAndStatusInAndRefusjonsgrunnlag_Tilskuddsgrunnlag_TiltakstypeIn(
-                            queryParametre.enhet,
-                            statuser,
-                            tiltakstyper,
-                            pageable
-                    )
-                } else if (queryParametre.avtaleNr != null) {
-                    refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_AvtaleNrAndStatusInAndRefusjonsgrunnlag_Tilskuddsgrunnlag_TiltakstypeIn(
-                            queryParametre.avtaleNr!!,
-                            statuser,
-                            tiltakstyper,
-                            pageable
-                    )
-                } else {
-                    PageImpl(emptyList())
-                }
+            if (!queryParametre.veilederNavIdent.isNullOrBlank()) {
+                refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_VeilederNavIdentAndStatusInAndRefusjonsgrunnlag_Tilskuddsgrunnlag_TiltakstypeIn(
+                    queryParametre.veilederNavIdent,
+                    statuser,
+                    tiltakstyper,
+                    pageable
+                )
+            } else if (!queryParametre.deltakerFnr.isNullOrBlank()) {
+                refusjonRepository.findAllByDeltakerFnrAndStatusInAndRefusjonsgrunnlag_Tilskuddsgrunnlag_TiltakstypeIn(
+                    queryParametre.deltakerFnr,
+                    statuser,
+                    tiltakstyper,
+                    pageable
+                )
+            } else if (!queryParametre.bedriftNr.isNullOrBlank()) {
+                refusjonRepository.findAllByBedriftNrAndStatusInAndRefusjonsgrunnlag_Tilskuddsgrunnlag_TiltakstypeIn(
+                    queryParametre.bedriftNr,
+                    statuser,
+                    tiltakstyper,
+                    pageable
+                )
+            } else if (!queryParametre.enhet.isNullOrBlank()) {
+                refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_EnhetAndStatusInAndRefusjonsgrunnlag_Tilskuddsgrunnlag_TiltakstypeIn(
+                    queryParametre.enhet,
+                    statuser,
+                    tiltakstyper,
+                    pageable
+                )
+            } else if (queryParametre.avtaleNr != null) {
+                refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_AvtaleNrAndStatusInAndRefusjonsgrunnlag_Tilskuddsgrunnlag_TiltakstypeIn(
+                    queryParametre.avtaleNr!!,
+                    statuser,
+                    tiltakstyper,
+                    pageable
+                )
+            } else {
+                PageImpl(emptyList())
+            }
 
-        val refusjonerMedTilgang = liste.content.filter { abacTilgangsstyringService.harLeseTilgang(identifikator, it.deltakerFnr) }
+        val refusjonerMedTilgang = liste.content.filter { tilgangskontrollService.harLeseTilgang(internIdentifikatorer, it.deltakerFnr) }
         val response = mapOf(
             Pair("refusjoner", refusjonerMedTilgang),
             Pair("size", liste.size),
@@ -102,7 +121,7 @@ data class InnloggetSaksbehandler(
         if (korreksjon.skalGjøreInntektsoppslag()) {
             var antallMånederSomSkalSjekkes: Long = 1
             if (korreksjon.korreksjonsgrunner.contains(Korreksjonsgrunn.HENT_INNTEKTER_TO_MÅNEDER_FREM)) {
-                if(korreksjon.unntakOmInntekterFremitid != null) {
+                if (korreksjon.unntakOmInntekterFremitid != null) {
                     antallMånederSomSkalSjekkes = korreksjon.unntakOmInntekterFremitid.toLong()
                 } else {
                     antallMånederSomSkalSjekkes = 2
@@ -127,16 +146,17 @@ data class InnloggetSaksbehandler(
     }
 
     private fun sjekkLesetilgang(refusjon: Refusjon) {
-        if (!abacTilgangsstyringService.harLeseTilgang(identifikator, refusjon.deltakerFnr)) {
+        if (!tilgangskontrollService.harLeseTilgang(internIdentifikatorer, refusjon.deltakerFnr)) {
             throw TilgangskontrollException()
         }
     }
 
     private fun sjekkLesetilgang(korreksjon: Korreksjon) {
-        if (!abacTilgangsstyringService.harLeseTilgang(identifikator, korreksjon.deltakerFnr)) {
+        if (!tilgangskontrollService.harLeseTilgang(internIdentifikatorer, korreksjon.deltakerFnr)) {
             throw TilgangskontrollException()
         }
     }
+
     private fun sjekkKorreksjonTilgang() {
         if (!harKorreksjonTilgang) {
             throw TilgangskontrollException()
@@ -171,7 +191,7 @@ data class InnloggetSaksbehandler(
         val refusjon = finnRefusjon(korreksjon.korrigererRefusjonId)
         sjekkLesetilgang(refusjon)
 
-        korreksjon.utbetalKorreksjon(this, korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.enhet?: "")
+        korreksjon.utbetalKorreksjon(this, korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.enhet ?: "")
         refusjon.status = RefusjonStatus.KORRIGERT
 
         refusjonRepository.save(refusjon)
@@ -273,7 +293,7 @@ data class InnloggetSaksbehandler(
             tilskuddsgrunnlag = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag,
             tidligereUtbetalt = 0,
             korrigertBruttoLønn = refusjon.refusjonsgrunnlag.endretBruttoLønn,
-            fratrekkRefunderbarSum =refusjon.refusjonsgrunnlag.refunderbarBeløp,
+            fratrekkRefunderbarSum = refusjon.refusjonsgrunnlag.refunderbarBeløp,
             forrigeRefusjonMinusBeløp = minusBeløp,
             tilskuddFom = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
             harFerietrekkForSammeMåned = harFerietrekkForSammeMåned,

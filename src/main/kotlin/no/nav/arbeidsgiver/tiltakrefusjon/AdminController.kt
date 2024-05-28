@@ -46,8 +46,14 @@ class AdminController(
 
     @Unprotected
     @GetMapping("kontoregister/{orgnr}")
-    fun kontoregisterKall(@PathVariable orgnr: String): String?{
-        return kontoregisterService?.hentBankkontonummer(orgnr)
+    fun kontoregisterKall(@PathVariable orgnr: String): String{
+        return "Bank kontonummer: " + kontoregisterService?.hentBankkontonummer(orgnr)
+    }
+
+    @Unprotected
+    @GetMapping("/")
+    fun hjem(): String?{
+        return "Velkommen til Refusjon Admin API"
     }
 
     @Unprotected

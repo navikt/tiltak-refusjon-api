@@ -22,7 +22,7 @@ import java.util.*
 @ConditionalOnPropertyNotEmpty("tiltak-refusjon.kontoregister.uri")
 class KontoregisterServiceImpl(
     val properties: KontoregisterProperties,
-    @Qualifier("anonymProxyRestTemplate") val restTemplate: RestTemplate
+    @Qualifier("påVegneAvSaksbehandlerGraphRestTemplate") val restTemplate: RestTemplate
 ) : KontoregisterService {
 
     val log: Logger = LoggerFactory.getLogger(javaClass)

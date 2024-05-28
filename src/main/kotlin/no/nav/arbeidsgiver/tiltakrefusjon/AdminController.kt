@@ -2,6 +2,8 @@ package no.nav.arbeidsgiver.tiltakrefusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.ADMIN_BRUKER
 import no.nav.arbeidsgiver.tiltakrefusjon.leader.LeaderPodCheck
+import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterService
+import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterServiceImpl
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Beregning
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Korreksjonsgrunn
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
@@ -37,9 +39,16 @@ class AdminController(
     val refusjonRepository: RefusjonRepository,
     val refusjonService: RefusjonService,
     val leaderPodCheck: LeaderPodCheck,
-    val refusjonKafkaProducer: RefusjonKafkaProducer?
+    val refusjonKafkaProducer: RefusjonKafkaProducer?,
+    val kontoregisterService: KontoregisterServiceImpl?
 ) {
     val logger = LoggerFactory.getLogger(javaClass)
+
+    @Unprotected
+    @GetMapping("kontoregister/{orgnr}")
+    fun kontoregisterKall(@PathVariable orgnr: String): String?{
+        return kontoregisterService?.hentBankkontonummer(orgnr)
+    }
 
     @Unprotected
     @PostMapping("opprett-refusjon")

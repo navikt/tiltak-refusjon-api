@@ -1,6 +1,6 @@
 tiltak-refusjon:
   kontoregister:
-    uri: https://tiltak-proxy.dev-fss-pub.nais.io/kontoregister/api/v1/hent-kontonummer-for-organisasjon
+    uri: https://sokos-kontoregister-q1.dev-fss-pub.nais.io/kontoregister/api/v1/hent-kontonummer-for-organisasjon
     consumer-id: tiltak-refusjon-api
   inntektskomponenten:
     uri: https://tiltak-proxy.dev-fss-pub.nais.io/inntektskomponenten-ws/rs/api/v1/hentinntektliste

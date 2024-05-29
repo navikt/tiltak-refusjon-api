@@ -38,6 +38,9 @@ class SecurityClientConfiguration(
     @Bean
     fun anonymProxyRestTemplate() = restTemplateForRegistration("aad-anonym")
 
+    @Bean
+    fun sokosRestTemplate() = restTemplateForRegistration("sokos-kontoregister")
+
 
     private fun restTemplateForRegistration(registration: String): RestTemplate {
         val clientProperties = clientConfigurationProperties.registration[registration]

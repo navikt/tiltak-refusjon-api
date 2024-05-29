@@ -3,7 +3,9 @@ package no.nav.arbeidsgiver.tiltakrefusjon
 import no.nav.security.token.support.client.core.ClientProperties
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService
 import no.nav.security.token.support.client.spring.ClientConfigurationProperties
+import no.nav.security.token.support.client.spring.oauth2.ClientConfigurationPropertiesMatcher
 import no.nav.security.token.support.client.spring.oauth2.EnableOAuth2Client
+import no.nav.security.token.support.client.spring.oauth2.OAuth2ClientRequestInterceptor
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -12,6 +14,8 @@ import org.springframework.http.HttpRequest
 import org.springframework.http.client.ClientHttpRequestExecution
 import org.springframework.http.client.ClientHttpRequestInterceptor
 import org.springframework.web.client.RestTemplate
+import java.net.URI
+import java.util.*
 
 @EnableOAuth2Client(cacheEnabled = true)
 @Configuration
@@ -34,9 +38,6 @@ class SecurityClientConfiguration(
     @Bean
     fun anonymProxyRestTemplate() = restTemplateForRegistration("aad-anonym")
 
-    @Bean
-    fun sokosRestTemplate() = restTemplateForRegistration("sokos-kontoregister")
-
 
     private fun restTemplateForRegistration(registration: String): RestTemplate {
         val clientProperties = clientConfigurationProperties.registration[registration]
@@ -45,6 +46,7 @@ class SecurityClientConfiguration(
                 .additionalInterceptors(bearerTokenInterceptor(clientProperties, oAuth2AccessTokenService))
                 .build()
     }
+
 
     private fun bearerTokenInterceptor(
             clientProperties: ClientProperties,

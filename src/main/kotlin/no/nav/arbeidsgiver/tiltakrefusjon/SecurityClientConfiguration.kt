@@ -51,7 +51,7 @@ class SecurityClientConfiguration(
     private fun restTemplateForRegistration(registration: String): RestTemplate {
         val clientProperties = clientConfigurationProperties.registration[registration]
                 ?: throw RuntimeException("could not find oauth2 client config for $registration")
-        when(registration ) {
+        when(registration) {
             "sokos-kontoregister" -> {
                 val restTemplate: RestTemplate = restTemplateBuilder
                     .additionalInterceptors(
@@ -99,7 +99,7 @@ class SecurityClientConfiguration(
             request.headers.setBearerAuth(response.accessToken!!)
             request.headers.set("Nav-Consumer-Id",properties.consumerId)
             request.headers.set("Nav-Call-Id",UUID.randomUUID().toString())
-            log.info("#### HEADERS: ${request.headers}");
+            log.warn("#### HEADERS: ${request.headers}");
             execution.execute(request, body)
         }
     }

@@ -31,6 +31,7 @@ class KontoregisterServiceImpl(
         val requestEntity = lagRequest()
         val url = "${properties.uri}/${bedriftNr}"
         try {
+            log.warn("Kontoregister kaller denne urlen: ", url);
             val responseMedKontonummerTilBedrift =
                 restTemplate.exchange<KontoregisterResponse>(url, HttpMethod.GET, requestEntity).body
             return responseMedKontonummerTilBedrift?.kontonr

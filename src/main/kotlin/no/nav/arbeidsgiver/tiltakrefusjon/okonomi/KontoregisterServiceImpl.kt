@@ -31,10 +31,10 @@ class KontoregisterServiceImpl(
         val requestEntity = lagRequest()
         val url = "${properties.uri}/${bedriftNr}"
         try {
-
+            log.warn("##### kall url: ${url} ");
             val responseMedKontonummerTilBedrift =
                 restTemplate.exchange<KontoregisterResponse>(url, HttpMethod.GET, requestEntity)
-            log.warn("##### Kontoregister kaller denne urlen og headers: ${url}   +   ${responseMedKontonummerTilBedrift.headers}");
+            log.warn("##### kall headers: ${responseMedKontonummerTilBedrift.headers}");
             return responseMedKontonummerTilBedrift?.body?.kontonr
         } catch (e: RestClientException) {
             log.warn("Kontoregister call feiler", e)

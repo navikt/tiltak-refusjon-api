@@ -1,11 +1,14 @@
 package no.nav.arbeidsgiver.tiltakrefusjon
 
+import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterProperties
 import no.nav.security.token.support.client.core.ClientProperties
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService
 import no.nav.security.token.support.client.spring.ClientConfigurationProperties
 import no.nav.security.token.support.client.spring.oauth2.ClientConfigurationPropertiesMatcher
 import no.nav.security.token.support.client.spring.oauth2.EnableOAuth2Client
 import no.nav.security.token.support.client.spring.oauth2.OAuth2ClientRequestInterceptor
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -21,10 +24,13 @@ import java.util.*
 @Configuration
 @Profile("dev-gcp", "prod-gcp")
 class SecurityClientConfiguration(
-        val restTemplateBuilder: RestTemplateBuilder,
-        val clientConfigurationProperties: ClientConfigurationProperties,
-        val oAuth2AccessTokenService: OAuth2AccessTokenService
+    val properties: KontoregisterProperties,
+    val restTemplateBuilder: RestTemplateBuilder,
+    val clientConfigurationProperties: ClientConfigurationProperties,
+    val oAuth2AccessTokenService: OAuth2AccessTokenService
 ) {
+
+    val log: Logger = LoggerFactory.getLogger(javaClass)
 
     @Bean
     fun påVegneAvSaksbehandlerGraphRestTemplate() = restTemplateForRegistration("aad-graph")
@@ -45,9 +51,31 @@ class SecurityClientConfiguration(
     private fun restTemplateForRegistration(registration: String): RestTemplate {
         val clientProperties = clientConfigurationProperties.registration[registration]
                 ?: throw RuntimeException("could not find oauth2 client config for $registration")
-        return restTemplateBuilder
-                .additionalInterceptors(bearerTokenInterceptor(clientProperties, oAuth2AccessTokenService))
-                .build()
+        when(registration ) {
+            "sokos-kontoregister" -> {
+                val restTemplate: RestTemplate = restTemplateBuilder
+                    .additionalInterceptors(
+                        bearerTokenInterceptorKontoregister(
+                            clientProperties,
+                            oAuth2AccessTokenService
+                        )
+                    )
+                    .build()
+                return restTemplate
+            }
+            else -> {
+                val restTemplate: RestTemplate = restTemplateBuilder
+                    .additionalInterceptors(
+                        bearerTokenInterceptor(
+                            clientProperties,
+                            oAuth2AccessTokenService
+                        )
+                    )
+                    .build()
+                return restTemplate
+            }
+
+        }
     }
 
 
@@ -58,6 +86,20 @@ class SecurityClientConfiguration(
         return ClientHttpRequestInterceptor { request: HttpRequest, body: ByteArray, execution: ClientHttpRequestExecution ->
             val response = oAuth2AccessTokenService.getAccessToken(clientProperties)
             request.headers.setBearerAuth(response.accessToken!!)
+            execution.execute(request, body)
+        }
+    }
+
+    private fun bearerTokenInterceptorKontoregister(
+            clientProperties: ClientProperties,
+            oAuth2AccessTokenService: OAuth2AccessTokenService
+    ): ClientHttpRequestInterceptor {
+        return ClientHttpRequestInterceptor { request: HttpRequest, body: ByteArray, execution: ClientHttpRequestExecution ->
+            val response = oAuth2AccessTokenService.getAccessToken(clientProperties)
+            request.headers.setBearerAuth(response.accessToken!!)
+            request.headers.set("Nav-Consumer-Id",properties.consumerId)
+            request.headers.set("Nav-Call-Id",UUID.randomUUID().toString())
+            log.info("#### HEADERS: ${request.headers}");
             execution.execute(request, body)
         }
     }

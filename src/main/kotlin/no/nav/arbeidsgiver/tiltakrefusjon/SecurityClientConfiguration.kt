@@ -44,7 +44,7 @@ class SecurityClientConfiguration(
     @Bean
     fun anonymProxyRestTemplate() = restTemplateForRegistration("aad-anonym")
 
-    @Bean
+    @Bean("sokosRestTemplate")
     fun sokosRestTemplate() = restTemplateForRegistration("sokos-kontoregister")
 
 

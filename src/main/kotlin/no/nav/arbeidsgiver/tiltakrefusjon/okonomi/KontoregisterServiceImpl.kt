@@ -37,7 +37,7 @@ class KontoregisterServiceImpl(
     override fun hentBankkontonummer(bedriftNr: String): String? {
         val url = "${properties.uri}/${bedriftNr}"
         try {
-            log.warn("##### kall url: ${url} ${restTemplate}");
+            log.warn("##### kall url: ${url} ${restTemplate} TEMPLATE CLASS: ${restTemplate.javaClass}");
             val responseMedKontonummerTilBedrift =
                 restTemplate.exchange<KontoregisterResponse>(url, HttpMethod.GET)
             return responseMedKontonummerTilBedrift?.body?.kontonr

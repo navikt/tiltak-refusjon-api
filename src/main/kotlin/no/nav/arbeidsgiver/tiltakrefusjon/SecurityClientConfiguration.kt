@@ -96,6 +96,7 @@ class SecurityClientConfiguration(
             oAuth2AccessTokenService: OAuth2AccessTokenService
     ): ClientHttpRequestInterceptor {
         return ClientHttpRequestInterceptor { request: HttpRequest, body: ByteArray, execution: ClientHttpRequestExecution ->
+            log.warn("#### OAUTH CALL: ${clientProperties.tokenEndpointUrl} ### ${clientProperties.scope} ### ${clientProperties.grantType}");
             val response = oAuth2AccessTokenService.getAccessToken(clientProperties) //todo feil her!!!!
             request.headers.setBearerAuth(response.accessToken!!)
             request.headers.set("Nav-Consumer-Id",properties.consumerId)

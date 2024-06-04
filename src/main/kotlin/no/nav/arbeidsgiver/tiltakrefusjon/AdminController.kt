@@ -3,7 +3,6 @@ package no.nav.arbeidsgiver.tiltakrefusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.ADMIN_BRUKER
 import no.nav.arbeidsgiver.tiltakrefusjon.leader.LeaderPodCheck
 import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterServiceImpl
-import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.prodtest.KontoregisterService2Impl
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Beregning
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Korreksjonsgrunn
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
@@ -40,7 +39,7 @@ class AdminController(
     val refusjonService: RefusjonService,
     val leaderPodCheck: LeaderPodCheck,
     val refusjonKafkaProducer: RefusjonKafkaProducer?,
-    val kontoregisterService2: KontoregisterService2Impl?,
+    val kontoregisterService2: KontoregisterServiceImpl?,
     val kontoregisterService: KontoregisterServiceImpl?
 ) {
     val logger = LoggerFactory.getLogger(javaClass)

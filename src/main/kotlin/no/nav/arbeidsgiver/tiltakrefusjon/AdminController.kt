@@ -2,6 +2,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.ADMIN_BRUKER
 import no.nav.arbeidsgiver.tiltakrefusjon.leader.LeaderPodCheck
+import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterServiceImpl
 import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.prodtest.KontoregisterService2Impl
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Beregning
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Korreksjonsgrunn
@@ -39,14 +40,21 @@ class AdminController(
     val refusjonService: RefusjonService,
     val leaderPodCheck: LeaderPodCheck,
     val refusjonKafkaProducer: RefusjonKafkaProducer?,
-    val kontoregisterService: KontoregisterService2Impl?
+    val kontoregisterService2: KontoregisterService2Impl?,
+    val kontoregisterService: KontoregisterServiceImpl?
 ) {
     val logger = LoggerFactory.getLogger(javaClass)
 
     @Unprotected
     @GetMapping("kontoregister/{orgnr}")
     fun kontoregisterKall(@PathVariable orgnr: String): String{
-        return "Bank kontonummer: " + kontoregisterService?.hentBankkontonummer(orgnr)
+        return "Bank kontonummer: " + kontoregisterService2?.hentBankkontonummer(orgnr)
+    }
+
+    @Unprotected
+    @GetMapping("kontoregister-tiltak-proxy/{orgnr}")
+    fun kontoregistergTiltakProxyKall(@PathVariable orgnr: String): String{
+        return "Bank kontonummer via Tiltak Proxy: " + kontoregisterService?.hentBankkontonummer(orgnr)
     }
 
     @Unprotected

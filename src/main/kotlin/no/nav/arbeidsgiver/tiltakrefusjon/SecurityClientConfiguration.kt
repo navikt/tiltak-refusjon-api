@@ -9,6 +9,7 @@ import no.nav.security.token.support.client.spring.oauth2.EnableOAuth2Client
 import no.nav.security.token.support.client.spring.oauth2.OAuth2ClientRequestInterceptor
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -95,7 +96,7 @@ class SecurityClientConfiguration(
             oAuth2AccessTokenService: OAuth2AccessTokenService
     ): ClientHttpRequestInterceptor {
         return ClientHttpRequestInterceptor { request: HttpRequest, body: ByteArray, execution: ClientHttpRequestExecution ->
-            val response = oAuth2AccessTokenService.getAccessToken(clientProperties)
+            val response = oAuth2AccessTokenService.getAccessToken(clientProperties) //todo feil her!!!!
             request.headers.setBearerAuth(response.accessToken!!)
             request.headers.set("Nav-Consumer-Id",properties.consumerId)
             request.headers.set("Nav-Call-Id",UUID.randomUUID().toString())

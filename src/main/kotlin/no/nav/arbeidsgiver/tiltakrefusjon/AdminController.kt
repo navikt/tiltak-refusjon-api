@@ -39,21 +39,14 @@ class AdminController(
     val refusjonService: RefusjonService,
     val leaderPodCheck: LeaderPodCheck,
     val refusjonKafkaProducer: RefusjonKafkaProducer?,
-    val kontoregisterService2: KontoregisterServiceImpl?,
-    val kontoregisterService: KontoregisterServiceImpl?
+    val kontoregisterService: KontoregisterServiceImpl?,
 ) {
     val logger = LoggerFactory.getLogger(javaClass)
 
     @Unprotected
     @GetMapping("kontoregister/{orgnr}")
     fun kontoregisterKall(@PathVariable orgnr: String): String{
-        return "Bank kontonummer: " + kontoregisterService2?.hentBankkontonummer(orgnr)
-    }
-
-    @Unprotected
-    @GetMapping("kontoregister-tiltak-proxy/{orgnr}")
-    fun kontoregistergTiltakProxyKall(@PathVariable orgnr: String): String{
-        return "Bank kontonummer via Tiltak Proxy: " + kontoregisterService?.hentBankkontonummer(orgnr)
+        return "Bank kontonummer: " + kontoregisterService?.hentBankkontonummer(orgnr)
     }
 
     @Unprotected

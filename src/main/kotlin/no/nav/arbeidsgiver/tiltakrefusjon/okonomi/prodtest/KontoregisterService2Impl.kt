@@ -1,5 +1,6 @@
-package no.nav.arbeidsgiver.tiltakrefusjon.okonomi
+package no.nav.arbeidsgiver.tiltakrefusjon.okonomi.prodtest
 
+import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterService
 import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.request.KontoregisterRequest
 import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.response.KontoregisterResponse
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.ConditionalOnPropertyNotEmpty
@@ -19,13 +20,13 @@ import java.util.*
 * SLACK: PO-UTBETALING - GITHUB https://github.com/navikt/sokos-kontoregister
 * */
 @Service
-@ConditionalOnPropertyNotEmpty("tiltak-refusjon.kontoregister.uri")
-class KontoregisterServiceImpl(
-    val properties: KontoregisterProperties,
-    @Qualifier("anonymProxyRestTemplate") val restTemplate: RestTemplate
-) : KontoregisterService {
-    val log: Logger = LoggerFactory.getLogger(javaClass)
+@ConditionalOnPropertyNotEmpty("tiltak-refusjon.kontoregister2.uri")
+class KontoregisterService2Impl(
+    val properties: KontoregisterProperties2,
+    @Qualifier("sokosRestTemplate") val restTemplate: RestTemplate,
+) : KontoregisterService2 {
 
+    val log: Logger = LoggerFactory.getLogger(javaClass)
     override fun hentBankkontonummer(bedriftNr: String): String? {
         val requestEntity = lagRequest()
         val url = "${properties.uri}/${bedriftNr}"
@@ -34,7 +35,7 @@ class KontoregisterServiceImpl(
                 restTemplate.exchange<KontoregisterResponse>(url, HttpMethod.GET, requestEntity).body
             return responseMedKontonummerTilBedrift?.kontonr
         } catch (e: RestClientException) {
-            log.warn("Kontoregister call feiler", e)
+            log.warn("Kontoregister kall feiler", e)
         }
         return null
     }
@@ -46,4 +47,5 @@ class KontoregisterServiceImpl(
         val body = null
         return HttpEntity(body, headers)
     }
+
 }

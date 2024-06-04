@@ -1,5 +1,8 @@
 tiltak-refusjon:
   kontoregister:
+    uri: https://tiltak-proxy.dev-fss-pub.nais.io/kontoregister/api/v1/hent-kontonummer-for-organisasjon
+    consumer-id: tiltak-refusjon-api
+  kontoregister2:
     uri: https://sokos-kontoregister-q2.dev-fss-pub.nais.io/kontoregister/api/v1/hent-kontonummer-for-organisasjon
     consumer-id: tiltak-refusjon-api
     scope: api://dev-fss.okonomi.sokos-kontoregister-q2/.default

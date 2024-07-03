@@ -15,16 +15,27 @@ data class HendelsesloggDTO(
     constructor(hendelseslogg: Hendelseslogg) : this(
         refusjonId = hendelseslogg.refusjonId,
         korreksjonId = hendelseslogg.korreksjonId,
-        utførtAv = if (hendelseslogg.utførtRolle == BrukerRolle.ARBEIDSGIVER) {
-            hendelseslogg.utførtRolle.name
-        } else if (erGyldigFnr(hendelseslogg.utførtAv)) {
-            // rolle mangler på eldre events
-            ""
-        } else {
-            hendelseslogg.utførtAv
-        },
+        utførtAv = utførtAv(hendelseslogg),
         event = hendelseslogg.event,
         metadata = hendelseslogg.metadata,
         tidspunkt = hendelseslogg.tidspunkt,
     )
 }
+
+private val RollerSomSkalAnonymiseres = setOf(
+    BrukerRolle.ARBEIDSGIVER,
+    BrukerRolle.SYSTEM
+)
+
+private fun hendelseSkalAnonymiseres(hendelseslogg: Hendelseslogg) =
+    RollerSomSkalAnonymiseres.contains(hendelseslogg.utførtRolle)
+
+private fun utførtAv(hendelseslogg: Hendelseslogg) =
+    if (hendelseSkalAnonymiseres(hendelseslogg)) {
+        hendelseslogg.utførtRolle!!.name
+    } else if (erGyldigFnr(hendelseslogg.utførtAv)) {
+        // rolle mangler på eldre events
+        ""
+    } else {
+        hendelseslogg.utførtAv
+    }

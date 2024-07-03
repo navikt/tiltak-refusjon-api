@@ -12,7 +12,6 @@ import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.audit.FnrOgBedrift
 import no.nav.arbeidsgiver.tiltakrefusjon.audit.RefusjonMedFnrOgBedrift
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBruker
-import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.KAFKA_BRUKER
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.SYSTEM_BRUKER
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.FristForlenget
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.GodkjentAvArbeidsgiver
@@ -258,7 +257,7 @@ class Refusjon(
         refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom = tilskuddTom
         refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsbeløp = tilskuddsbeløp
         oppdaterStatus()
-        registerEvent(RefusjonForkortet(this, KAFKA_BRUKER))
+        registerEvent(RefusjonForkortet(this, SYSTEM_BRUKER))
     }
 
     fun korreksjongrunnerInnholdSjekk(korreksjonsgrunner: Set<Korreksjonsgrunn>): Int {

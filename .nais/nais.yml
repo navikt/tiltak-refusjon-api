@@ -24,10 +24,10 @@ spec:
       memory: {{memory-requests}}
   liveness:
     path: /internal/actuator/health
-    initialDelay: 20
+    initialDelay: 40
   readiness:
     path: /internal/actuator/health
-    initialDelay: 20
+    initialDelay: 40
   accessPolicy:
     inbound:
       rules:

@@ -15,3 +15,4 @@ db-tier: db-custom-2-7680
 memory-limit: 6000Mi
 memory-requests: 4000Mi
 unleash-environment: production
+postgres-version: POSTGRES_11

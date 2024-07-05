@@ -62,7 +62,7 @@ spec:
   leaderElection: true
   gcp:
     sqlInstances:
-      - type: POSTGRES_11
+      - type: {{postgres-version}}
         tier: {{db-tier}}
         databases:
           - name: tiltak-refusjon

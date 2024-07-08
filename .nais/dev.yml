@@ -15,4 +15,3 @@ db-tier: db-f1-micro
 memory-limit: 3000Mi
 memory-requests: 1000Mi
 unleash-environment: development
-postgres-version: POSTGRES_15

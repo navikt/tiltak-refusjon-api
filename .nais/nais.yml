@@ -64,6 +64,10 @@ spec:
     sqlInstances:
       - type: POSTGRES_15
         tier: {{db-tier}}
+        cascadingDelete: false
+        highAvailability: true
+        diskAutoresize: true
+        diskAutoresizeLimit: 60
         databases:
           - name: tiltak-refusjon
             envVarPrefix: DB

@@ -1,29 +1,14 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import jakarta.persistence.CascadeType
-import jakarta.persistence.Entity
-import jakarta.persistence.EnumType
-import jakarta.persistence.Enumerated
-import jakarta.persistence.Id
-import jakarta.persistence.OneToOne
+import jakarta.persistence.*
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.audit.FnrOgBedrift
 import no.nav.arbeidsgiver.tiltakrefusjon.audit.RefusjonMedFnrOgBedrift
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBruker
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.SYSTEM_BRUKER
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.FristForlenget
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.GodkjentAvArbeidsgiver
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.MerketForInntekterFrem
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonAnnullert
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonEndretStatus
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonForkortet
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonGodkjentMinusBeløp
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonGodkjentNullBeløp
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonOpprettet
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonUtgått
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.SaksbehandlerMerketForInntekterLengerFrem
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.*
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.MidlerFrigjortÅrsak
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.KidValidator
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
@@ -98,8 +83,8 @@ class Refusjon(
 
     @JsonProperty
     fun harTattStillingTilAlleInntektslinjer(): Boolean {
-        val harTattStilling = refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.find { inntekt -> inntekt.erOpptjentIPeriode === null }
-        return harTattStilling === null
+        val harTattStilling = refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.find { inntekt -> inntekt.erOpptjentIPeriode == null }
+        return harTattStilling == null
     }
 
     private fun krevStatus(vararg gyldigeStatuser: RefusjonStatus) {
@@ -342,7 +327,7 @@ class Refusjon(
             forrigeFristForGodkjenning = gammelFristForGodkjenning
             fristForGodkjenning = nyFrist
             oppdaterStatus()
-            registerEvent(FristForlenget(this, gammelFristForGodkjenning, fristForGodkjenning, årsak, utførtAv))
+            registerEvent(KryssetAvForFravær(this, gammelFristForGodkjenning, fristForGodkjenning, årsak, utførtAv))
         }
     }
 

@@ -80,8 +80,8 @@ class Refusjon(
 
     @JsonProperty
     fun harTattStillingTilAlleInntektslinjer(): Boolean {
-        val harTattStilling = refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.find { inntekt -> inntekt.erOpptjentIPeriode === null }
-        return harTattStilling === null
+        val harTattStilling = refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.find { inntekt -> inntekt.erOpptjentIPeriode == null }
+        return harTattStilling == null
     }
 
     private fun krevStatus(vararg gyldigeStatuser: RefusjonStatus) {
@@ -325,7 +325,7 @@ class Refusjon(
             forrigeFristForGodkjenning = gammelFristForGodkjenning
             fristForGodkjenning = nyFrist
             oppdaterStatus()
-            registerEvent(FristForlenget(this, gammelFristForGodkjenning, fristForGodkjenning, årsak, utførtAv))
+            registerEvent(KryssetAvForFravær(this, gammelFristForGodkjenning, fristForGodkjenning, årsak, utførtAv))
         }
     }
 

@@ -15,15 +15,17 @@ import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.exchange
 import java.util.*
 
+/*
+* SLACK: PO-UTBETALING - GITHUB https://github.com/navikt/sokos-kontoregister
+* */
 @Service
 @ConditionalOnPropertyNotEmpty("tiltak-refusjon.kontoregister.uri")
 class KontoregisterServiceImpl(
     val properties: KontoregisterProperties,
-    @Qualifier("anonymProxyRestTemplate") val restTemplate: RestTemplate
+    @Qualifier("sokosRestTemplate") val restTemplate: RestTemplate,
 ) : KontoregisterService {
 
     val log: Logger = LoggerFactory.getLogger(javaClass)
-
     override fun hentBankkontonummer(bedriftNr: String): String? {
         val requestEntity = lagRequest()
         val url = "${properties.uri}/${bedriftNr}"
@@ -32,7 +34,7 @@ class KontoregisterServiceImpl(
                 restTemplate.exchange<KontoregisterResponse>(url, HttpMethod.GET, requestEntity).body
             return responseMedKontonummerTilBedrift?.kontonr
         } catch (e: RestClientException) {
-            log.warn("Kontoregister call feiler", e)
+            log.warn("Kontoregister kall feiler", e)
         }
         return null
     }
@@ -44,4 +46,5 @@ class KontoregisterServiceImpl(
         val body = null
         return HttpEntity(body, headers)
     }
+
 }

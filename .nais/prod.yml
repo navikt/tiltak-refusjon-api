@@ -1,5 +1,6 @@
 host:
   - tiltak-proxy.prod-fss-pub.nais.io
+  - sokos-kontoregister.prod-fss-pub.nais.io
   - graph.microsoft.com
   - login.microsoftonline.com
   - team-tiltak-unleash-api.nav.cloud.nais.io

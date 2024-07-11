@@ -28,9 +28,6 @@ tiltak-refusjon:
   kafka:
     enabled: false
     fake: true
-  ereg:
-    uri: http://tiltak-refusjon-api-wiremock/ereg
-    consumer-id: "tiltak-refusjon-api"
   kontoregister:
     fake: true
   inntektskomponenten:

@@ -1,10 +1,8 @@
 tiltak-refusjon:
-  ereg:
-    uri: https://tiltak-proxy.prod-fss-pub.nais.io/ereg
-    consumer-id: tiltak-refusjon-api
   kontoregister:
-    uri: https://tiltak-proxy.prod-fss-pub.nais.io/kontoregister/api/v1/hent-kontonummer-for-organisasjon
+    uri: https://sokos-kontoregister.prod-fss-pub.nais.io/kontoregister/api/v1/hent-kontonummer-for-organisasjon
     consumer-id: tiltak-refusjon-api
+    scope: api://prod-fss.okonomi.sokos-kontoregister/.default
   inntektskomponenten:
     uri: https://tiltak-proxy.prod-fss-pub.nais.io/inntektskomponenten-ws/rs/api/v1/hentinntektliste
     filter: KontrollArbeidsmarkedstiltakA-inntekt

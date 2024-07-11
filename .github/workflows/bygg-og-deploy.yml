@@ -1,6 +1,10 @@
-name: Bygg og deploy branch til dev-gcp
+name: Bygg og deploy
 
-on: workflow_dispatch
+on:
+  push:
+    branches:
+      - 'master'
+  workflow_dispatch:
 
 jobs:
   build:
@@ -8,9 +12,9 @@ jobs:
     permissions:
       contents: read
       id-token: write
-    runs-on: ubuntu-latest
     outputs:
       image: ${{ steps.docker-build-push.outputs.image }}
+    runs-on: ubuntu-latest
     steps:
       - name: Sjekk ut kode
         uses: actions/checkout@v4
@@ -19,14 +23,16 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: 21
-          distribution: 'temurin'
-          cache: 'maven'
+          distribution: temurin
+          cache: maven
       - name: Bygg og test med Maven
         run: mvn package -B -Dsurefire.useFile=false
+
       - name: Push docker image to GAR
         uses: nais/docker-build-push@v0
         id: docker-build-push
         with:
+          byosbom: target/bom.json
           team: arbeidsgiver
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
@@ -46,8 +52,28 @@ jobs:
         uses: nais/deploy/actions/deploy@v2
         env:
           CLUSTER: dev-gcp
-          RESOURCE: .nais/nais.yml,.nais/unleash-apitoken.yml
+          RESOURCE: .nais/nais.yml,.nais/alertsNy.yml,.nais/alertsTesting.yml,.nais/unleash-apitoken.yml
           VARS: .nais/dev.yml
+          VAR: image=${{ needs.build.outputs.image }}
+
+  deploy-prod:
+    name: Deploy til prod
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      contents: read
+      id-token: write
+    if: github.ref == 'refs/heads/master'
+    steps:
+      - name: Sjekk ut kode
+        uses: actions/checkout@v4
+
+      - name: Deploy til prod-gcp
+        uses: nais/deploy/actions/deploy@v2
+        env:
+          CLUSTER: prod-gcp
+          RESOURCE: .nais/nais.yml,.nais/alertsNy.yml,.nais/unleash-apitoken.yml
+          VARS: .nais/prod.yml
           VAR: image=${{ needs.build.outputs.image }}
 
   deploy-dev-gcp-labs:

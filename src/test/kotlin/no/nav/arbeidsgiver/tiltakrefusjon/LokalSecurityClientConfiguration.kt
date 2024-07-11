@@ -17,4 +17,7 @@ class LokalSecurityClientConfiguration(val restTemplateBuilder: RestTemplateBuil
 
     @Bean
     fun anonymProxyRestTemplate() = restTemplateBuilder.build()
+
+    @Bean("sokosRestTemplate")
+    fun sokosRestTemplate() = restTemplateBuilder.build()
 }

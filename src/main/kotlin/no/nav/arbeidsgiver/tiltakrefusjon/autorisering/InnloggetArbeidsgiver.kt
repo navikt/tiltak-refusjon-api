@@ -6,7 +6,6 @@ import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.RessursFinnesIkkeException
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
-import no.nav.arbeidsgiver.tiltakrefusjon.organisasjon.EregClient
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.antallMånederEtter
@@ -25,7 +24,6 @@ data class InnloggetArbeidsgiver(
     @JsonIgnore val refusjonRepository: RefusjonRepository,
     @JsonIgnore val korreksjonRepository: KorreksjonRepository,
     @JsonIgnore val refusjonService: RefusjonService,
-    @JsonIgnore val eregClient: EregClient,
 ) : InnloggetBruker {
 
     @JsonIgnore

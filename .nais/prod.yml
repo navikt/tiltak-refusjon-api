@@ -12,6 +12,7 @@ env:
   PROXY_CLIENT_ID: prod-fss.arbeidsgiver.tiltak-proxy
   MILJO: prod-gcp
 db-tier: db-custom-2-7680
+db-high-availability: true
 memory-limit: 6000Mi
 memory-requests: 4000Mi
 unleash-environment: production

@@ -13,6 +13,8 @@ import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.ulid
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -104,6 +106,11 @@ class RefusjonberegnerFratrekkFerieTest(
         val (lønn, _, feriepenger,tjenestepensjon, arbeidsgiveravgift) = beregning
         val resultatForAssert = ((lønn + TREKKFORFERIEGRUNNLAG + feriepenger + tjenestepensjon + arbeidsgiveravgift) * 0.40).toInt()
         return resultatForAssert
+    }
+
+    @BeforeEach
+    fun slettAlt(){
+        refusjonRepository.deleteAll()
     }
 
     @Test
@@ -281,6 +288,39 @@ class RefusjonberegnerFratrekkFerieTest(
 
         assertThat(refusjon2FraDb.refusjonsgrunnlag.beregning!!.fratrekkLønnFerie).isEqualTo(0)
 
+        Now.resetClock()
+    }
+
+    @Test
+    fun `feil med feriepenger_FAGSYSTEM-339222`(){
+        every { altinnTilgangsstyringService.hentTilganger(any()) } returns setOf<Organisasjon>(Organisasjon("Bedrift AS", "Bedrift type", WIREMOCK_VIRKSOMHET_IDENTIFIKATOR,"Org form","Status"))
+        val innloggetArbeidsgiver = InnloggetArbeidsgiver("12345678901",altinnTilgangsstyringService,refusjonRepository,korreksjonRepository,refusjonService)
+
+        Now.fixedDateTime(LocalDateTime.of(2024, 7, 1, 0, 0, 0))
+        val fnrMedFerieTrekkIWireMock = "29047497068"
+
+        val tilskuddsperiodeGodkjentMelding1: TilskuddsperiodeGodkjentMelding = lagEnTilskuddsperiodeGodkjentMelding(
+            tilskuddFom = LocalDate.of(2024, 6, 1),
+            tilskuddTom = LocalDate.of(2024, 6, 15),
+            tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
+            tilskuddsbeløp = 60000,
+            deltakerFnr = fnrMedFerieTrekkIWireMock,
+            bedriftNr = WIREMOCK_VIRKSOMHET_IDENTIFIKATOR,
+        )
+        val tilskuddsperiodeGodkjentMelding2: TilskuddsperiodeGodkjentMelding = lagEnTilskuddsperiodeGodkjentMelding(
+            tilskuddFom = LocalDate.of(2024, 6, 16),
+            tilskuddTom = LocalDate.of(2024, 6, 30),
+            tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
+            tilskuddsbeløp = 60000,
+            deltakerFnr = fnrMedFerieTrekkIWireMock,
+            bedriftNr = WIREMOCK_VIRKSOMHET_IDENTIFIKATOR,
+        )
+        val refusjon = opprettRefusjonOgGjørInntektoppslag(tilskuddsperiodeGodkjentMelding1)
+        // Send inn
+        refusjonService.godkjennForArbeidsgiver(refusjon, innloggetArbeidsgiver)
+        assertEquals(-52700,refusjon.refusjonsgrunnlag.beregning!!.fratrekkLønnFerie)
+        assertEquals(45863,refusjon.refusjonsgrunnlag.beregning!!.lønn)
+        assertEquals(-3565,refusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp)
         Now.resetClock()
     }
 }

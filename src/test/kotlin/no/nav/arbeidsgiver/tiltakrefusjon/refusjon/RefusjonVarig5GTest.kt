@@ -48,9 +48,9 @@ class RefusjonVarig5GTest(
     fun `refusjon som overskrider 5g fører til redusert utbetaling`() {
         listOf(
             tilskuddsmelding,
-            tilskuddsmelding.medNyId("februar").medNyPeriode(2023, 2),
-            tilskuddsmelding.medNyId("mars").medNyPeriode(2023, 3),
-            tilskuddsmelding.medNyId("april").medNyPeriode(2023, 4)
+            tilskuddsmelding.medNyId("februar").medNyPeriode(2024, 2),
+            tilskuddsmelding.medNyId("mars").medNyPeriode(2024, 3),
+            tilskuddsmelding.medNyId("april").medNyPeriode(2024, 4)
         ).map { it.opprettRefusjonMedJustertTid() }.forEach { godkjennRefusjonMedJustertTid(it) }
 
         val refusjonFraBaseEtterGodkjenning = refusjonRepository.findAll()
@@ -72,13 +72,13 @@ class RefusjonVarig5GTest(
         // Denne testen sikrer at logikken for 5G faktisk summerer for riktig år på refusjoner som godkjennes på nyåret.
         listOf(
             tilskuddsmelding,
-            tilskuddsmelding.medNyId("februar").medNyPeriode(2023, 2),
-            tilskuddsmelding.medNyId("mars").medNyPeriode(2023, 3)
+            tilskuddsmelding.medNyId("februar").medNyPeriode(2024, 2),
+            tilskuddsmelding.medNyId("mars").medNyPeriode(2024, 3)
         ).map { it.opprettRefusjonMedJustertTid() }.forEach { godkjennRefusjonMedJustertTid(it) }
 
         // Når alle tidligere refusjoner er godkjent og behandlet (og har gått over 5G), kommer en ny refusjon for desember,
         // men den blir opprettet i januar året etter.
-        val desemberRefusjon = tilskuddsmelding.medNyId("desember").medNyPeriode(2023, 12).opprettRefusjonMedJustertTid()
+        val desemberRefusjon = tilskuddsmelding.medNyId("desember").medNyPeriode(2024, 12).opprettRefusjonMedJustertTid()
         godkjennRefusjonMedJustertTid(desemberRefusjon)
 
         // Desember-refusjonen som ble opprettet etter alle tidligere refusjoner ble godkjent skal også overskride 5G selv om den er opprettet/godkjent på nyåret.
@@ -89,9 +89,9 @@ class RefusjonVarig5GTest(
     fun `refusjon på avtale som har gått over 5G gir IKKE redusert utbetaling etter årsskifte`() {
         val refusjonsliste = listOf(
             tilskuddsmelding,
-            tilskuddsmelding.medNyId("februar").medNyPeriode(2023, 2),
-            tilskuddsmelding.medNyId("mars").medNyPeriode(2023, 3),
-            tilskuddsmelding.medNyId("januar2024").medNyPeriode(2024, 1)
+            tilskuddsmelding.medNyId("februar").medNyPeriode(2024, 2),
+            tilskuddsmelding.medNyId("mars").medNyPeriode(2024, 3),
+            tilskuddsmelding.medNyId("januar2025").medNyPeriode(2025, 1)
         ).map { it.opprettRefusjonMedJustertTid() }
         refusjonsliste.forEach { godkjennRefusjonMedJustertTid(it) }
 
@@ -99,18 +99,18 @@ class RefusjonVarig5GTest(
         assertThat(refusjonFraBaseEtterGodkjenning.count()).isEqualTo(refusjonsliste.size)
         assertThat(refusjonFraBaseEtterGodkjenning.count { it.over5G() }).isEqualTo(1)
         assertThat(refusjonFraBaseEtterGodkjenning.tilskuddsperiode("mars").over5G()).isTrue()
-        assertThat(refusjonFraBaseEtterGodkjenning.tilskuddsperiode("januar2024").over5G()).isFalse()
+        assertThat(refusjonFraBaseEtterGodkjenning.tilskuddsperiode("januar2025").over5G()).isFalse()
     }
 
     @Test
     fun `refusjoner for perioden hvor grunnbeløp økes medfører at differansen mellom forrige 5G og ny 5G utbetales`() {
         listOf(
             tilskuddsmelding,
-            tilskuddsmelding.medNyId("februar").medNyPeriode(2023, 2),
-            tilskuddsmelding.medNyId("mars").medNyPeriode(2023, 3),
-            tilskuddsmelding.medNyId("april").medNyPeriode(2023, 4),
-            tilskuddsmelding.medNyId("mai").medNyPeriode(2023, 5),
-            tilskuddsmelding.medNyId("juni").medNyPeriode(2023, 6)
+            tilskuddsmelding.medNyId("februar").medNyPeriode(2024, 2),
+            tilskuddsmelding.medNyId("mars").medNyPeriode(2024, 3),
+            tilskuddsmelding.medNyId("april").medNyPeriode(2024, 4),
+            tilskuddsmelding.medNyId("mai").medNyPeriode(2024, 5),
+            tilskuddsmelding.medNyId("juni").medNyPeriode(2024, 6)
         ).map { it.opprettRefusjonMedJustertTid() }.forEach { godkjennRefusjonMedJustertTid(it) }
 
         val alleRefusjoner = refusjonRepository.findAll()
@@ -171,16 +171,16 @@ private val tilskuddsmelding = TilskuddsperiodeGodkjentMelding(
     deltakerFnr = deltakerFnr,
     feriepengerSats = 0.141,
     otpSats = 0.02,
-    tilskuddFom = LocalDate.of(2023, 1, 1),
-    tilskuddTom = LocalDate.of(2023, 1, 31),
-    tilskuddsperiodeId = "januar2023",
+    tilskuddFom = LocalDate.of(2024, 1, 1),
+    tilskuddTom = LocalDate.of(2024, 1, 31),
+    tilskuddsperiodeId = "januar2024",
     veilederNavIdent = "X123456",
     lønnstilskuddsprosent = 75,
     avtaleNr = 3456,
     løpenummer = 1,
     resendingsnummer = null,
     enhet = "1000",
-    godkjentTidspunkt = LocalDateTime.of(2023, 2, 1, 0, 0)
+    godkjentTidspunkt = LocalDateTime.of(2024, 2, 1, 0, 0)
 )
 
 private val differanseI5G = (åretsG * 5) - (forrigeÅretsG * 5)

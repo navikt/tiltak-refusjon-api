@@ -62,10 +62,10 @@ spec:
   leaderElection: true
   gcp:
     sqlInstances:
-      - type: POSTGRES_15
+      - type: POSTGRES_16
         tier: {{db-tier}}
         cascadingDelete: false
-        highAvailability: true
+        highAvailability: {{ db-high-availability }}
         diskAutoresize: true
         diskAutoresizeLimit: 60
         databases:

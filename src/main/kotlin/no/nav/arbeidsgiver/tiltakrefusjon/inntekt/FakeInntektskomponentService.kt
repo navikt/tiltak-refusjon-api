@@ -69,7 +69,7 @@ class FakeInntektskomponentService : InntektskomponentService {
         } else if (fnr == "08098138758") {
             val inntektslinjer = ArrayList<Inntektslinje>()
             val måned = YearMonth.of(datoFra.year, datoFra.month)
-            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "fastloenn", 200000.0,  måned, datoTil, måned.atEndOfMonth()))
+            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "fastloenn", 220000.0,  måned, datoTil, måned.atEndOfMonth()))
             return Pair(inntektslinjer, "fake respons med veldig høy lønn")
 
         } else if (fnr == "30038738743") {

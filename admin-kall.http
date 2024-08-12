@@ -40,3 +40,15 @@ Content-Type: application/json
   "minusBeløp": -3796,
   "ferieTrekk": 0
 }
+
+### Resend refusjon-godkjent-melding
+# Burde kun brukes i tilfeller hvor en refusjon ble godkjent, men meldingen ble
+# ikke publisert på Kafka.
+# Et relevant eksempel kan være at appen fikk problemer og restartet nøyaktig etter
+# en vellykket godkjenning (databasetransaksjon), men før eventlytteren ble kalt.
+POST http://localhost:12345/internal/admin/send-refusjon-godkjent-melding
+Content-Type: application/json
+
+{
+  "refusjonId": "<REFUSJON_ID"
+}

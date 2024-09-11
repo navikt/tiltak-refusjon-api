@@ -45,3 +45,5 @@ tiltak-refusjon:
     mock: true
   norg:
     fake: true
+  beslutter-ad-gruppe:
+    id: BESLUTTER_AD_GRUPPE

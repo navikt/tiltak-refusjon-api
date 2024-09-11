@@ -2,7 +2,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon.hendelseslogg
 
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.BrukerRolle
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.erGyldigFnr
-import java.time.LocalDateTime
+import java.time.Instant
 
 data class HendelsesloggDTO(
     val refusjonId: String,
@@ -10,7 +10,7 @@ data class HendelsesloggDTO(
     val utførtAv: String,
     val event: String,
     val metadata: HendelseMetadata? = null,
-    val tidspunkt: LocalDateTime,
+    val tidspunkt: Instant,
 ) {
     constructor(hendelseslogg: Hendelseslogg) : this(
         refusjonId = hendelseslogg.refusjonId,

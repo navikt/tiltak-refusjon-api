@@ -81,7 +81,7 @@ class Korreksjon(
     var besluttetTidspunkt: Instant? = null
 
     @JsonProperty
-    fun harTattStillingTilAlleInntektslinjer(): Boolean = refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.find { inntekt -> inntekt.erOpptjentIPeriode === null } === null
+    fun harTattStillingTilAlleInntektslinjer(): Boolean = if (refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype == Tiltakstype.VTAO) true else (refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.find { inntekt -> inntekt.erOpptjentIPeriode === null } === null)
 
     override fun getFnrOgBedrift(): FnrOgBedrift = FnrOgBedrift(deltakerFnr, bedriftNr)
 

@@ -82,10 +82,7 @@ class Refusjon(
     }
 
     @JsonProperty
-    fun harTattStillingTilAlleInntektslinjer(): Boolean {
-        val harTattStilling = refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.find { inntekt -> inntekt.erOpptjentIPeriode == null }
-        return harTattStilling == null
-    }
+    fun harTattStillingTilAlleInntektslinjer(): Boolean = if (refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype == Tiltakstype.VTAO) true else (refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.find { inntekt -> inntekt.erOpptjentIPeriode === null } === null)
 
     private fun krevStatus(vararg gyldigeStatuser: RefusjonStatus) {
         if (status !in gyldigeStatuser) throw FeilkodeException(Feilkode.UGYLDIG_STATUS)

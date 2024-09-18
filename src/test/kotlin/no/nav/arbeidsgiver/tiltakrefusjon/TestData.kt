@@ -449,6 +449,9 @@ fun refusjoner(): List<Refusjon> {
         `Amalie Skram`(),
         `Suzanna Hansen`(),
         `Siri Hansen`(),
+        `Vidar Fortidlig`(),
+        `Vidar SendKrav`(),
+        `Vidar Utbetalt`(),
         `Camilla Collett`(),
         `Snorre Sturlason`(),
         `Sigrid Undset`(),
@@ -762,6 +765,76 @@ fun `Siri Hansen`(): Refusjon {
         it.medBeregning()
         it.medSendtKravFraArbeidsgiver()
         it.utbetalingMislykket()
+    }
+
+    return refusjon
+}
+
+fun `Vidar Fortidlig`(): Refusjon {
+    val deltakerFnr = "23119409195"
+    val bedriftNr = "999999999"
+    val refusjon = Refusjon(
+        tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
+            tiltakstype = Tiltakstype.VTAO,
+            deltakerFornavn = "Vidar",
+            deltakerEtternavn = "Olsen",
+            deltakerFnr = deltakerFnr,
+            bedriftNr = bedriftNr,
+            tilskuddsbeløp = 6808,
+            veilederNavIdent = "X123456"
+        ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr,
+    )
+
+    refusjon.let {
+        it.medBedriftKontonummer()
+        it.status = RefusjonStatus.FOR_TIDLIG
+    }
+
+    return refusjon
+}
+
+fun `Vidar SendKrav`(): Refusjon {
+    val deltakerFnr = "23119409195"
+    val bedriftNr = "999999999"
+    val refusjon = Refusjon(
+        tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
+            tiltakstype = Tiltakstype.VTAO,
+            deltakerFornavn = "Vidar",
+            deltakerEtternavn = "Olsen",
+            deltakerFnr = deltakerFnr,
+            bedriftNr = bedriftNr,
+            tilskuddsbeløp = 6808,
+            veilederNavIdent = "X123456"
+        ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
+    )
+
+    refusjon.let {
+        it.medBedriftKontonummer()
+        it.status = RefusjonStatus.SENDT_KRAV
+    }
+
+    return refusjon
+}
+
+fun `Vidar Utbetalt`(): Refusjon {
+    val deltakerFnr = "23119409195"
+    val bedriftNr = "999999999"
+    val refusjon = Refusjon(
+        tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
+            tiltakstype = Tiltakstype.VTAO,
+            deltakerFornavn = "Vidar",
+            deltakerEtternavn = "Olsen",
+            deltakerFnr = deltakerFnr,
+            bedriftNr = bedriftNr,
+            tilskuddsbeløp = 6808,
+            veilederNavIdent = "X123456"
+        ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
+    )
+
+    refusjon.let {
+        it.medBedriftKontonummer()
+        it.status = RefusjonStatus.UTBETALT
+
     }
 
     return refusjon

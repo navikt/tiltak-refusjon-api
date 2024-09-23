@@ -7,6 +7,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.utils.ulid
 import no.nav.arbeidsgiver.tiltakrefusjon.varsling.VarselType
 import no.nav.arbeidsgiver.tiltakrefusjon.varsling.Varsling
 import java.time.YearMonth
+import java.time.ZoneId
 import java.time.temporal.TemporalAdjusters.lastDayOfMonth
 import java.util.UUID
 
@@ -781,7 +782,9 @@ fun `Vidar Fortidlig`(): Refusjon {
             deltakerFnr = deltakerFnr,
             bedriftNr = bedriftNr,
             tilskuddsbeløp = 6808,
-            veilederNavIdent = "X123456"
+            veilederNavIdent = "X123456",
+            avtaleFom = Now.localDate().minusMonths(3).withDayOfMonth(1),
+            avtaleTom = Now.localDate().plusYears(2).withDayOfMonth(1),
         ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr,
     )
 
@@ -804,13 +807,16 @@ fun `Vidar SendKrav`(): Refusjon {
             deltakerFnr = deltakerFnr,
             bedriftNr = bedriftNr,
             tilskuddsbeløp = 6808,
-            veilederNavIdent = "X123456"
+            veilederNavIdent = "X123456",
+            avtaleFom = Now.localDate().minusMonths(3).withDayOfMonth(1),
+            avtaleTom = Now.localDate().plusYears(2).withDayOfMonth(1),
         ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
     )
 
     refusjon.let {
         it.medBedriftKontonummer()
         it.status = RefusjonStatus.SENDT_KRAV
+        it.godkjentAvArbeidsgiver = Now.instant().atZone(ZoneId.of("Europe/Oslo")).minusDays(5).toInstant()
     }
 
     return refusjon
@@ -827,14 +833,17 @@ fun `Vidar Utbetalt`(): Refusjon {
             deltakerFnr = deltakerFnr,
             bedriftNr = bedriftNr,
             tilskuddsbeløp = 6808,
-            veilederNavIdent = "X123456"
+            veilederNavIdent = "X123456",
+            avtaleFom = Now.localDate().minusMonths(3).withDayOfMonth(1),
+            avtaleTom = Now.localDate().plusYears(2).withDayOfMonth(1),
         ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
     )
 
     refusjon.let {
         it.medBedriftKontonummer()
         it.status = RefusjonStatus.UTBETALT
-
+        it.godkjentAvArbeidsgiver = Now.instant().atZone(ZoneId.of("Europe/Oslo")).minusDays(5).toInstant()
+        it.utbetaltTidspunkt = Now.instant().atZone(ZoneId.of("Europe/Oslo")).minusDays(2).toInstant()
     }
 
     return refusjon

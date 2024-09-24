@@ -816,7 +816,7 @@ fun `Vidar SendKrav`(): Refusjon {
     refusjon.let {
         it.medBedriftKontonummer()
         it.status = RefusjonStatus.SENDT_KRAV
-        it.godkjentAvArbeidsgiver = Now.instant().atZone(ZoneId.of("Europe/Oslo")).minusDays(5).toInstant()
+        it.godkjentAvArbeidsgiver = Now.localDate().minusMonths(1).with(lastDayOfMonth()).plusDays(1).atStartOfDay(ZoneId.of("Europe/Oslo")).toInstant()
     }
 
     return refusjon
@@ -842,8 +842,8 @@ fun `Vidar Utbetalt`(): Refusjon {
     refusjon.let {
         it.medBedriftKontonummer()
         it.status = RefusjonStatus.UTBETALT
-        it.godkjentAvArbeidsgiver = Now.instant().atZone(ZoneId.of("Europe/Oslo")).minusDays(5).toInstant()
-        it.utbetaltTidspunkt = Now.instant().atZone(ZoneId.of("Europe/Oslo")).minusDays(2).toInstant()
+        it.godkjentAvArbeidsgiver = Now.localDate().minusMonths(1).with(lastDayOfMonth()).plusDays(1).atStartOfDay(ZoneId.of("Europe/Oslo")).toInstant()
+        it.utbetaltTidspunkt = Now.localDate().minusMonths(1).with(lastDayOfMonth()).plusDays(3).atStartOfDay(ZoneId.of("Europe/Oslo")).toInstant()
     }
 
     return refusjon

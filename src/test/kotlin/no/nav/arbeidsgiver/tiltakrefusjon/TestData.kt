@@ -1,14 +1,23 @@
 package no.nav.arbeidsgiver.tiltakrefusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBruker
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.BrukerRolle
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Inntektsgrunnlag
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Inntektslinje
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonStatus
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tilskuddsgrunnlag
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.beregnRefusjonsbeløp
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.ulid
 import no.nav.arbeidsgiver.tiltakrefusjon.varsling.VarselType
 import no.nav.arbeidsgiver.tiltakrefusjon.varsling.Varsling
 import java.time.YearMonth
+import java.time.ZoneId
+import java.time.temporal.TemporalAdjusters.firstDayOfMonth
 import java.time.temporal.TemporalAdjusters.lastDayOfMonth
-import java.util.UUID
+import java.util.*
 
 val innloggetTestbruker = innloggetBruker("testsystem", BrukerRolle.SYSTEM)
 
@@ -449,6 +458,9 @@ fun refusjoner(): List<Refusjon> {
         `Amalie Skram`(),
         `Suzanna Hansen`(),
         `Siri Hansen`(),
+        `Vidar Fortidlig`(),
+        `Vidar SendKrav`(),
+        `Vidar Utbetalt`(),
         `Camilla Collett`(),
         `Snorre Sturlason`(),
         `Sigrid Undset`(),
@@ -762,6 +774,103 @@ fun `Siri Hansen`(): Refusjon {
         it.medBeregning()
         it.medSendtKravFraArbeidsgiver()
         it.utbetalingMislykket()
+    }
+
+    return refusjon
+}
+
+fun `Vidar Fortidlig`(): Refusjon {
+    val deltakerFnr = "23119409195"
+    val bedriftNr = "999999999"
+    val refusjon = Refusjon(
+        tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
+            avtaleId = UUID.randomUUID().toString(),
+            avtaleNr = 4414,
+            tilskuddsperiodeId = UUID.randomUUID().toString(),
+            tiltakstype = Tiltakstype.VTAO,
+            deltakerFornavn = "Vidar",
+            deltakerEtternavn = "Olsen",
+            deltakerFnr = deltakerFnr,
+            bedriftNr = bedriftNr,
+            tilskuddsbeløp = 6808,
+            veilederNavIdent = "X123456",
+            avtaleFom = Now.localDate().minusMonths(3).withDayOfMonth(1),
+            avtaleTom = Now.localDate().plusYears(2).withDayOfMonth(1),
+        ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr,
+    )
+
+    refusjon.let {
+        it.medBedriftKontonummer()
+        it.status = RefusjonStatus.FOR_TIDLIG
+    }
+
+    return refusjon
+}
+
+fun `Vidar SendKrav`(): Refusjon {
+    val deltakerFnr = "23119409195"
+    val bedriftNr = "999999999"
+    val refusjon = Refusjon(
+        tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
+            avtaleId = UUID.randomUUID().toString(),
+            avtaleNr = 4414,
+            tilskuddsperiodeId = UUID.randomUUID().toString(),
+            tiltakstype = Tiltakstype.VTAO,
+            deltakerFornavn = "Vidar",
+            deltakerEtternavn = "Olsen",
+            deltakerFnr = deltakerFnr,
+            bedriftNr = bedriftNr,
+            tilskuddsbeløp = 6808,
+            veilederNavIdent = "X123456",
+            avtaleFom = Now.localDate().minusMonths(3).withDayOfMonth(1),
+            avtaleTom = Now.localDate().plusYears(2).withDayOfMonth(1),
+        ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
+    )
+
+    refusjon.let {
+        it.medBedriftKontonummer()
+        it.status = RefusjonStatus.SENDT_KRAV
+        it.godkjentAvArbeidsgiver = Now.localDate()
+            .with(firstDayOfMonth())
+            .atStartOfDay(ZoneId.of("Europe/Oslo"))
+            .toInstant()
+    }
+
+    return refusjon
+}
+
+fun `Vidar Utbetalt`(): Refusjon {
+    val deltakerFnr = "23119409195"
+    val bedriftNr = "999999999"
+    val refusjon = Refusjon(
+        tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
+            avtaleId = UUID.randomUUID().toString(),
+            avtaleNr = 4414,
+            tilskuddsperiodeId = UUID.randomUUID().toString(),
+            tiltakstype = Tiltakstype.VTAO,
+            deltakerFornavn = "Vidar",
+            deltakerEtternavn = "Olsen",
+            deltakerFnr = deltakerFnr,
+            bedriftNr = bedriftNr,
+            tilskuddsbeløp = 6808,
+            veilederNavIdent = "X123456",
+            avtaleFom = Now.localDate().minusMonths(3).withDayOfMonth(1),
+            avtaleTom = Now.localDate().plusYears(2).withDayOfMonth(1),
+        ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
+    )
+
+    refusjon.let {
+        it.medBedriftKontonummer()
+        it.status = RefusjonStatus.UTBETALT
+        it.godkjentAvArbeidsgiver = Now.localDate()
+            .with(firstDayOfMonth())
+            .atStartOfDay(ZoneId.of("Europe/Oslo"))
+            .toInstant()
+        it.utbetaltTidspunkt = Now.localDate()
+            .with(firstDayOfMonth())
+            .plusDays(2)
+            .atStartOfDay(ZoneId.of("Europe/Oslo"))
+            .toInstant()
     }
 
     return refusjon

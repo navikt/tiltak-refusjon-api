@@ -784,6 +784,9 @@ fun `Vidar Fortidlig`(): Refusjon {
     val bedriftNr = "999999999"
     val refusjon = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
+            avtaleId = UUID.randomUUID().toString(),
+            avtaleNr = 4414,
+            tilskuddsperiodeId = UUID.randomUUID().toString(),
             tiltakstype = Tiltakstype.VTAO,
             deltakerFornavn = "Vidar",
             deltakerEtternavn = "Olsen",
@@ -809,6 +812,9 @@ fun `Vidar SendKrav`(): Refusjon {
     val bedriftNr = "999999999"
     val refusjon = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
+            avtaleId = UUID.randomUUID().toString(),
+            avtaleNr = 4414,
+            tilskuddsperiodeId = UUID.randomUUID().toString(),
             tiltakstype = Tiltakstype.VTAO,
             deltakerFornavn = "Vidar",
             deltakerEtternavn = "Olsen",
@@ -838,6 +844,9 @@ fun `Vidar Utbetalt`(): Refusjon {
     val bedriftNr = "999999999"
     val refusjon = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
+            avtaleId = UUID.randomUUID().toString(),
+            avtaleNr = 4414,
+            tilskuddsperiodeId = UUID.randomUUID().toString(),
             tiltakstype = Tiltakstype.VTAO,
             deltakerFornavn = "Vidar",
             deltakerEtternavn = "Olsen",

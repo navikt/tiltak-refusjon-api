@@ -1,15 +1,23 @@
 package no.nav.arbeidsgiver.tiltakrefusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBruker
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.BrukerRolle
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Inntektsgrunnlag
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Inntektslinje
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonStatus
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tilskuddsgrunnlag
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.beregnRefusjonsbeløp
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.ulid
 import no.nav.arbeidsgiver.tiltakrefusjon.varsling.VarselType
 import no.nav.arbeidsgiver.tiltakrefusjon.varsling.Varsling
 import java.time.YearMonth
 import java.time.ZoneId
+import java.time.temporal.TemporalAdjusters.firstDayOfMonth
 import java.time.temporal.TemporalAdjusters.lastDayOfMonth
-import java.util.UUID
+import java.util.*
 
 val innloggetTestbruker = innloggetBruker("testsystem", BrukerRolle.SYSTEM)
 
@@ -816,7 +824,10 @@ fun `Vidar SendKrav`(): Refusjon {
     refusjon.let {
         it.medBedriftKontonummer()
         it.status = RefusjonStatus.SENDT_KRAV
-        it.godkjentAvArbeidsgiver = Now.localDate().minusMonths(1).with(lastDayOfMonth()).plusDays(1).atStartOfDay(ZoneId.of("Europe/Oslo")).toInstant()
+        it.godkjentAvArbeidsgiver = Now.localDate()
+            .with(firstDayOfMonth())
+            .atStartOfDay(ZoneId.of("Europe/Oslo"))
+            .toInstant()
     }
 
     return refusjon
@@ -842,8 +853,15 @@ fun `Vidar Utbetalt`(): Refusjon {
     refusjon.let {
         it.medBedriftKontonummer()
         it.status = RefusjonStatus.UTBETALT
-        it.godkjentAvArbeidsgiver = Now.localDate().minusMonths(1).with(lastDayOfMonth()).plusDays(1).atStartOfDay(ZoneId.of("Europe/Oslo")).toInstant()
-        it.utbetaltTidspunkt = Now.localDate().minusMonths(1).with(lastDayOfMonth()).plusDays(3).atStartOfDay(ZoneId.of("Europe/Oslo")).toInstant()
+        it.godkjentAvArbeidsgiver = Now.localDate()
+            .with(firstDayOfMonth())
+            .atStartOfDay(ZoneId.of("Europe/Oslo"))
+            .toInstant()
+        it.utbetaltTidspunkt = Now.localDate()
+            .with(firstDayOfMonth())
+            .plusDays(2)
+            .atStartOfDay(ZoneId.of("Europe/Oslo"))
+            .toInstant()
     }
 
     return refusjon

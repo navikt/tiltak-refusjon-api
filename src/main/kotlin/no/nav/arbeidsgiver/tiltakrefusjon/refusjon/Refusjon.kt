@@ -82,7 +82,13 @@ class Refusjon(
     }
 
     @JsonProperty
-    fun harTattStillingTilAlleInntektslinjer(): Boolean = if (refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype == Tiltakstype.VTAO) true else (refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.find { inntekt -> inntekt.erOpptjentIPeriode === null } === null)
+    fun harTattStillingTilAlleInntektslinjer(): Boolean =
+        refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }
+            ?.find { inntekt -> inntekt.erOpptjentIPeriode == null } == null
+
+    @JsonProperty
+    fun måTaStillingTilInntekter(): Boolean =
+        refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype != Tiltakstype.VTAO
 
     private fun krevStatus(vararg gyldigeStatuser: RefusjonStatus) {
         if (status !in gyldigeStatuser) throw FeilkodeException(Feilkode.UGYLDIG_STATUS)
@@ -159,7 +165,7 @@ class Refusjon(
         if (refusjonsgrunnlag.bedriftKontonummer == null) {
             throw FeilkodeException(Feilkode.INGEN_BEDRIFTKONTONUMMER)
         }
-        if (!this.harTattStillingTilAlleInntektslinjer()) {
+        if (this.måTaStillingTilInntekter() && !this.harTattStillingTilAlleInntektslinjer()) {
             throw FeilkodeException(Feilkode.IKKE_TATT_STILLING_TIL_ALLE_INNTEKTSLINJER)
         }
         if (refusjonsgrunnlag.beregning == null) {

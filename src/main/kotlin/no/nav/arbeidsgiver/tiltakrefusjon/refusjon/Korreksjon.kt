@@ -81,7 +81,13 @@ class Korreksjon(
     var besluttetTidspunkt: Instant? = null
 
     @JsonProperty
-    fun harTattStillingTilAlleInntektslinjer(): Boolean = if (refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype == Tiltakstype.VTAO) true else (refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.find { inntekt -> inntekt.erOpptjentIPeriode === null } === null)
+    fun harTattStillingTilAlleInntektslinjer(): Boolean =
+        refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }
+            ?.find { inntekt -> inntekt.erOpptjentIPeriode == null } == null
+
+    @JsonProperty
+    fun måTaStillingTilInntekter(): Boolean =
+        refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype != Tiltakstype.VTAO
 
     override fun getFnrOgBedrift(): FnrOgBedrift = FnrOgBedrift(deltakerFnr, bedriftNr)
 
@@ -130,7 +136,7 @@ class Korreksjon(
         if (kostnadssted.isBlank()) {
             throw FeilkodeException(Feilkode.KOSTNADSSTED_MANGLER)
         }
-        if (!this.harTattStillingTilAlleInntektslinjer()) {
+        if (this.måTaStillingTilInntekter() && !this.harTattStillingTilAlleInntektslinjer()) {
             throw FeilkodeException(Feilkode.IKKE_TATT_STILLING_TIL_ALLE_INNTEKTSLINJER)
         }
 
@@ -150,7 +156,7 @@ class Korreksjon(
         if (refusjonsbeløp == null || refusjonsbeløp != 0) {
             throw FeilkodeException(Feilkode.KORREKSJONSBELOP_IKKE_NULL)
         }
-        if (!this.harTattStillingTilAlleInntektslinjer()) {
+        if (this.måTaStillingTilInntekter() && !this.harTattStillingTilAlleInntektslinjer()) {
             throw FeilkodeException(Feilkode.IKKE_TATT_STILLING_TIL_ALLE_INNTEKTSLINJER)
         }
         this.godkjentTidspunkt = Now.instant()
@@ -166,7 +172,7 @@ class Korreksjon(
         if (refusjonsbeløp == null || refusjonsbeløp >= 0) {
             throw FeilkodeException(Feilkode.KORREKSJONSBELOP_POSITIVT)
         }
-        if (!this.harTattStillingTilAlleInntektslinjer()) {
+        if (this.måTaStillingTilInntekter() && !this.harTattStillingTilAlleInntektslinjer()) {
             throw FeilkodeException(Feilkode.IKKE_TATT_STILLING_TIL_ALLE_INNTEKTSLINJER)
         }
         this.godkjentTidspunkt = Now.instant()

@@ -43,6 +43,10 @@ data class InnloggetArbeidsgiver(
 
     fun getSortingOrderForPageable(sortingOrder: SortingOrder): Sort.Order {
         when (sortingOrder) {
+            SortingOrder.TILTAKSTYPE_ASC -> return Sort.Order.asc("refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype")
+            SortingOrder.TILTAKSTYPE_DESC -> return Sort.Order.desc("refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype")
+            SortingOrder.BEDRIFT_ASC -> return Sort.Order.asc("refusjonsgrunnlag.tilskuddsgrunnlag.bedriftNavn")
+            SortingOrder.BEDRIFT_DESC-> return Sort.Order.desc("refusjonsgrunnlag.tilskuddsgrunnlag.bedriftNavn")
             SortingOrder.DELTAKER_ASC -> return Sort.Order.asc("refusjonsgrunnlag.tilskuddsgrunnlag.deltakerFornavn")
             SortingOrder.DELTAKER_DESC -> return Sort.Order.desc("refusjonsgrunnlag.tilskuddsgrunnlag.deltakerFornavn")
             SortingOrder.PERIODE_ASC -> return Sort.Order.asc("refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom")
@@ -165,7 +169,6 @@ data class InnloggetArbeidsgiver(
         }
         refusjonService.gjørBeregning(refusjon, this)
         refusjonService.oppdaterSistEndret(refusjon)
-
         refusjonRepository.save(refusjon)
     }
 

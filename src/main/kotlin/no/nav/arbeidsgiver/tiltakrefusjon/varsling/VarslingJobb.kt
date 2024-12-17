@@ -6,14 +6,12 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonStatus
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
-import org.springframework.scheduling.annotation.EnableScheduling
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import java.time.Duration
 import java.time.LocalDate
 
 @Component
-@EnableScheduling
 @ConditionalOnProperty("tiltak-refusjon.kafka.enabled")
 class VarslingJobb(
     val refusjonRepository: RefusjonRepository,

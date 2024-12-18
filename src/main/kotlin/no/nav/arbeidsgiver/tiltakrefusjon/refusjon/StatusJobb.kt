@@ -1,7 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
+import no.nav.arbeidsgiver.tiltakrefusjon.automatisk_utbetaling.AutomatiskInnsendingService
 import no.nav.arbeidsgiver.tiltakrefusjon.leader.LeaderPodCheck
-import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component
 class StatusJobb(
     val refusjonRepository: RefusjonRepository,
     val leaderPodCheck: LeaderPodCheck,
+    private val automatiskInnsendingService: AutomatiskInnsendingService,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -20,18 +21,21 @@ class StatusJobb(
             logger.info("Pod er ikke leader, så kjører ikke jobb for å finne refusjoner med statusendring")
             return
         }
-        sjekkOmUtgått()
-        sjekkOmKlarForInnsending()
+        settForTidligTilKlarForInnsendingHvisMulig()
+        settKlarForInnsendingTilUtgåttHvisMulig()
+        automatiskInnsendingService.utførAutomatiskInnsendingHvisMulig()
     }
 
-    fun sjekkOmKlarForInnsending() {
-        logger.info("Sjekker statuser som skal får KLAR_FOR_INNSENDING")
-        val refusjoner = refusjonRepository.findAllByStatus(RefusjonStatus.FOR_TIDLIG)
-        var antallEndretTilKlarForInnsending: Int = 0;
+    fun settForTidligTilKlarForInnsendingHvisMulig() {
+        logger.info("Sjekker for tidliger refusjoner som skal settes til KLAR_FOR_INNSENDING")
+        val refusjoner = refusjonRepository.findAllByStatusAndRefusjonsgrunnlagTilskuddsgrunnlagTiltakstypeNotIn(
+            RefusjonStatus.FOR_TIDLIG,
+            automatiskInnsendingService.tiltakstyperSomKanSendesInnAutomatisk
+        )
+        var antallEndretTilKlarForInnsending = 0;
         refusjoner.forEach {
             try {
-                if (Now.localDate().isAfter(it.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom)) {
-                    it.gjørKlarTilInnsending()
+                if (it.settKlarTilInnsendingHvisMulig()) {
                     antallEndretTilKlarForInnsending++
                     refusjonRepository.save(it)
                 }
@@ -43,13 +47,12 @@ class StatusJobb(
         logger.info("Endret til KLAR_FOR_INNSENDING på $antallEndretTilKlarForInnsending refusjoner")
     }
 
-    fun sjekkOmUtgått() {
+    fun settKlarForInnsendingTilUtgåttHvisMulig() {
         val refusjoner = refusjonRepository.findAllByStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
-        var antallEndretTilUtgått: Int = 0
+        var antallEndretTilUtgått = 0
         refusjoner.forEach {
             try {
-                if (Now.localDate().isAfter(it.fristForGodkjenning)) {
-                    it.gjørRefusjonUtgått()
+                if (it.settTilUtgåttHvisMulig()) {
                     antallEndretTilUtgått++
                     refusjonRepository.save(it)
                 }

@@ -1,5 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon
 
+import no.nav.arbeidsgiver.tiltakrefusjon.automatisk_utbetaling.AutomatiskInnsendingService
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.ADMIN_BRUKER
 import no.nav.arbeidsgiver.tiltakrefusjon.leader.LeaderPodCheck
 import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterServiceImpl
@@ -40,18 +41,19 @@ class AdminController(
     val leaderPodCheck: LeaderPodCheck,
     val refusjonKafkaProducer: RefusjonKafkaProducer?,
     val kontoregisterService: KontoregisterServiceImpl?,
+    val automatiskInnsendingService: AutomatiskInnsendingService
 ) {
     val logger = LoggerFactory.getLogger(javaClass)
 
     @Unprotected
     @GetMapping("kontoregister/{orgnr}")
-    fun kontoregisterKall(@PathVariable orgnr: String): String{
+    fun kontoregisterKall(@PathVariable orgnr: String): String {
         return "Bank kontonummer: " + kontoregisterService?.hentBankkontonummer(orgnr)
     }
 
     @Unprotected
     @GetMapping("/")
-    fun hjem(): String?{
+    fun hjem(): String? {
         return "Velkommen til Refusjon Admin API"
     }
 
@@ -184,13 +186,13 @@ class AdminController(
     @Unprotected
     @PostMapping("sjekk-for-klar-for-innsending")
     fun sjekkForKlarforInnsending() {
-        StatusJobb(refusjonRepository, leaderPodCheck).sjekkOmKlarForInnsending()
+        StatusJobb(refusjonRepository, leaderPodCheck, automatiskInnsendingService).settForTidligTilKlarForInnsendingHvisMulig()
     }
 
     @Unprotected
     @PostMapping("sjekk-for-utgått")
     fun sjekkForUtgått() {
-        StatusJobb(refusjonRepository, leaderPodCheck).sjekkOmUtgått()
+        StatusJobb(refusjonRepository, leaderPodCheck, automatiskInnsendingService).settKlarForInnsendingTilUtgåttHvisMulig()
     }
 
     @Unprotected
@@ -274,7 +276,7 @@ class AdminController(
         if (refusjon.refusjonsgrunnlag.refusjonsgrunnlagetErNullSomIZero()) {
             refusjonKafkaProducer!!.annullerTilskuddsperiodeEtterNullEllerMinusBeløp(refusjon, MidlerFrigjortÅrsak.REFUSJON_GODKJENT_NULL_BELØP)
             return ResponseEntity.ok("Sendt godkjent nullbeløp-melding for ${refusjon.id}")
-        } else if (!refusjon.refusjonsgrunnlag.refusjonsgrunnlagetErPositivt()) {
+        } else if (refusjon.refusjonsgrunnlag.refusjonsgrunnlagetErNegativt()) {
             refusjonKafkaProducer!!.annullerTilskuddsperiodeEtterNullEllerMinusBeløp(refusjon, MidlerFrigjortÅrsak.REFUSJON_MINUS_BELØP)
             return ResponseEntity.ok("Sendt godkjent minusbeløp-melding for ${refusjon.id}")
         } else {
@@ -297,12 +299,19 @@ class AdminController(
         if (refusjon.refusjonsgrunnlag.refusjonsgrunnlagetErNullSomIZero()) {
             refusjonKafkaProducer!!.annullerTilskuddsperiodeEtterNullEllerMinusBeløp(refusjon, MidlerFrigjortÅrsak.REFUSJON_GODKJENT_NULL_BELØP)
             return ResponseEntity.ok("Sendt godkjent nullbeløp-melding for ${refusjon.id}")
-        } else if (!refusjon.refusjonsgrunnlag.refusjonsgrunnlagetErPositivt()) {
+        } else if (refusjon.refusjonsgrunnlag.refusjonsgrunnlagetErNegativt()) {
             refusjonKafkaProducer!!.annullerTilskuddsperiodeEtterNullEllerMinusBeløp(refusjon, MidlerFrigjortÅrsak.REFUSJON_MINUS_BELØP)
             return ResponseEntity.ok("Sendt godkjent minusbeløp-melding for ${refusjon.id}")
         } else {
             return ResponseEntity.ok("Kunne ikke annullere refusjon ${refusjon.id}")
         }
+    }
+
+    @Unprotected
+    @PostMapping("utfoer-automatisk-innsending")
+    @Transactional
+    fun manuellAutomatiskUtbetaling() {
+        automatiskInnsendingService.utførAutomatiskInnsendingHvisMulig()
     }
 }
 

@@ -85,7 +85,7 @@ class Refusjon(
 
     @JsonProperty
     fun måTaStillingTilInntekter(): Boolean =
-        refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype != Tiltakstype.VTAO
+        !refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype.utbetalesAutomatisk()
 
     private fun krevStatus(vararg gyldigeStatuser: RefusjonStatus) {
         if (status !in gyldigeStatuser) throw FeilkodeException(Feilkode.UGYLDIG_STATUS)
@@ -156,7 +156,7 @@ class Refusjon(
         if (!refusjonsgrunnlag.bedriftKid?.trim().isNullOrEmpty()) {
             KidValidator(refusjonsgrunnlag.bedriftKid)
         }
-        if (refusjonsgrunnlag.inntektsgrunnlag == null || refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.isEmpty()) {
+        if (this.måTaStillingTilInntekter() && (refusjonsgrunnlag.inntektsgrunnlag == null || refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.isEmpty())) {
             throw FeilkodeException(Feilkode.INGEN_INNTEKTER)
         }
         if (refusjonsgrunnlag.bedriftKontonummer == null) {
@@ -174,7 +174,7 @@ class Refusjon(
         if (refusjonsgrunnlag.refusjonsgrunnlagetErNullSomIZero()) {
             status = RefusjonStatus.GODKJENT_NULLBELØP
             registerEvent(RefusjonGodkjentNullBeløp(this, utførtAv))
-        } else if (!refusjonsgrunnlag.refusjonsgrunnlagetErPositivt()) {
+        } else if (refusjonsgrunnlag.refusjonsgrunnlagetErNegativt()) {
             status = RefusjonStatus.GODKJENT_MINUSBELØP
             registerEvent(RefusjonGodkjentMinusBeløp(this, utførtAv))
         } else {
@@ -219,21 +219,38 @@ class Refusjon(
         registerEvent(RefusjonEndretStatus(this))
     }
 
-    fun gjørKlarTilInnsending() {
-        krevStatus(RefusjonStatus.FOR_TIDLIG)
-        if (Now.localDate().isAfter(refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom)) {
+    /**
+     * Forsøk å sett refusjon til KLAR_FOR_INNSENDING.
+     * Returnerer true dersom statusendring var vellykket, ellers false.
+     *
+     * En refusjon kan settes til klar for innsending dersom statusen var
+     * "for tidlig", og dagens dato er etter slutten på refusjonens
+     * tilskuddsperiode.
+     */
+    fun settKlarTilInnsendingHvisMulig(): Boolean {
+        if (status == RefusjonStatus.FOR_TIDLIG && Now.localDate().isAfter(refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom)) {
             status = RefusjonStatus.KLAR_FOR_INNSENDING
             registerEvent(RefusjonEndretStatus(this))
+            return true;
         }
+        return false;
     }
 
-    fun gjørRefusjonUtgått() {
-        krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
-        if (Now.localDate().isAfter(fristForGodkjenning)) {
+    /**
+     * Forsøk å sett refusjon til UTGÅTT.
+     * Returnerer true dersom statusendring var vellykket, ellers false.
+     *
+     * En refusjon kan settes til utgått dersom statusen var "klar for innsending",
+     * og frist for godkjenning har passert.
+     */
+    fun settTilUtgåttHvisMulig(): Boolean {
+        if (status == RefusjonStatus.KLAR_FOR_INNSENDING && Now.localDate().isAfter(fristForGodkjenning)) {
             status = RefusjonStatus.UTGÅTT
             registerEvent(RefusjonUtgått(this))
             registerEvent(RefusjonEndretStatus(this))
+            return true
         }
+        return false
     }
 
     fun forkort(tilskuddTom: LocalDate, tilskuddsbeløp: Int) {

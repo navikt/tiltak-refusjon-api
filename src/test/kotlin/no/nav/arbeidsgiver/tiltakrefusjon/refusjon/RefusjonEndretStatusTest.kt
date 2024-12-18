@@ -58,7 +58,7 @@ class RefusjonEndretStatusTest(
             )
         )
         Now.fixedDate(LocalDate.now().plusMonths(3))
-        refusjon.gjørRefusjonUtgått()
+        refusjon.settTilUtgåttHvisMulig()
         refusjonRepository.save(refusjon)
         val record = KafkaTestUtils.getSingleRecord(consumer, Topics.REFUSJON_ENDRET_STATUS)
         val json = JSONObject(record.value())

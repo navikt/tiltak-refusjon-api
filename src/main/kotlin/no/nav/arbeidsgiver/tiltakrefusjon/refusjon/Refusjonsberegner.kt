@@ -38,6 +38,23 @@ private fun antallDager(
     tom: LocalDate,
 ) = fom.datesUntil(tom.plusDays(1)).count().toInt()
 
+fun fastBeløpBeregning(tilskuddsgrunnlag: Tilskuddsgrunnlag, tidligereUtbetalt: Int) = Beregning(
+    lønn = 0,
+    lønnFratrukketFerie = 0,
+    feriepenger = 0,
+    tjenestepensjon = 0,
+    arbeidsgiveravgift = 0,
+    sumUtgifter = 0,
+    beregnetBeløp = tilskuddsgrunnlag.tilskuddsbeløp,
+    refusjonsbeløp = tilskuddsgrunnlag.tilskuddsbeløp,
+    overTilskuddsbeløp = false,
+    tidligereUtbetalt = tidligereUtbetalt,
+    fratrekkLønnFerie = 0,
+    tidligereRefundertBeløp = 0,
+    overFemGrunnbeløp = false,
+    sumUtgifterFratrukketRefundertBeløp = 0
+)
+
 fun beregnRefusjonsbeløp(
     inntekter: List<Inntektslinje>,
     tilskuddsgrunnlag: Tilskuddsgrunnlag,
@@ -50,7 +67,9 @@ fun beregnRefusjonsbeløp(
     harFerietrekkForSammeMåned: Boolean,
     ekstraFerietrekk: Int? = null,
 
-): Beregning {
+    ): Beregning {
+    if (tilskuddsgrunnlag.tiltakstype.utbetalesAutomatisk()) return fastBeløpBeregning(tilskuddsgrunnlag, tidligereUtbetalt)
+
     val kalkulertBruttoLønn = kalkulerBruttoLønn(inntekter).roundToInt()
     val lønn = if (korrigertBruttoLønn != null) minOf(korrigertBruttoLønn, kalkulertBruttoLønn) else kalkulertBruttoLønn
     val trekkgrunnlagFerie = if (harFerietrekkForSammeMåned) 0 else leggSammenTrekkGrunnlag(inntekter, tilskuddFom, ekstraFerietrekk).roundToInt()
@@ -61,7 +80,7 @@ fun beregnRefusjonsbeløp(
     val arbeidsgiveravgift = (lønnFratrukketFerie + tjenestepensjon + feriepenger) * tilskuddsgrunnlag.arbeidsgiveravgiftSats
     val sumUtgifter = lønnFratrukketFerie + tjenestepensjon + feriepenger + arbeidsgiveravgift
     val sumUtgifterFratrukketRefundertBeløp = sumUtgifter - fratrekkRefunderbarBeløp
-    val beregnetBeløpUtenFratrukketRefundertBeløp = sumUtgifter  * (tilskuddsgrunnlag.lønnstilskuddsprosent / 100.0)
+    val beregnetBeløpUtenFratrukketRefundertBeløp = sumUtgifter * (tilskuddsgrunnlag.lønnstilskuddsprosent / 100.0)
     var beregnetBeløp = sumUtgifterFratrukketRefundertBeløp * (tilskuddsgrunnlag.lønnstilskuddsprosent / 100.0)
 
     if (beregnetBeløpUtenFratrukketRefundertBeløp > 0 && beregnetBeløp < 0) {
@@ -96,11 +115,12 @@ fun beregnRefusjonsbeløp(
         fratrekkLønnFerie = trekkgrunnlagFerie,
         tidligereRefundertBeløp = fratrekkRefunderbarBeløp,
         overFemGrunnbeløp = overFemGrunnbeløp,
-        sumUtgifterFratrukketRefundertBeløp = sumUtgifterFratrukketRefundertBeløp.roundToInt())
+        sumUtgifterFratrukketRefundertBeløp = sumUtgifterFratrukketRefundertBeløp.roundToInt()
+    )
 }
 
 fun leggSammenTrekkGrunnlag(inntekter: List<Inntektslinje>, tilskuddFom: LocalDate, ekstraFerietrekk: Int? = null): Double {
-    var ferieTrekkGrunnlag =  inntekter.filter { it.skalTrekkesIfraInntektsgrunnlag(tilskuddFom) }
+    var ferieTrekkGrunnlag = inntekter.filter { it.skalTrekkesIfraInntektsgrunnlag(tilskuddFom) }
         .sumOf { it.beløp }
     if (ekstraFerietrekk != null) {
         ferieTrekkGrunnlag += ekstraFerietrekk

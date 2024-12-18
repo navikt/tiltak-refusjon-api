@@ -46,7 +46,7 @@ class Refusjonsgrunnlag(
                 }
             }
         }
-        if(inntektsgrunnlag.inntekter.filter { it.erMedIInntektsgrunnlag() }.find { it.erOpptjentIPeriode === null } !== null) {
+        if (inntektsgrunnlag.inntekter.filter { it.erMedIInntektsgrunnlag() }.find { it.erOpptjentIPeriode === null } !== null) {
             this.resetEndreBruttolønn()
         }
         this.inntektsgrunnlag = inntektsgrunnlag
@@ -54,7 +54,7 @@ class Refusjonsgrunnlag(
 
     fun finnInntektslinjeIListeMedInntekter(linje1: Inntektslinje, inntektslinjer: Set<Inntektslinje>): Inntektslinje? {
         return inntektslinjer.find {
-                    it.inntektType == linje1.inntektType &&
+            it.inntektType == linje1.inntektType &&
                     it.beskrivelse == linje1.beskrivelse &&
                     it.beløp == linje1.beløp &&
                     it.måned == linje1.måned &&
@@ -88,8 +88,8 @@ class Refusjonsgrunnlag(
         this.endretBruttoLønn = bruttoLønn
     }
 
-    fun refusjonsgrunnlagetErPositivt(): Boolean {
-        return this.beregning?.refusjonsbeløp != null && this.beregning!!.refusjonsbeløp > 0
+    fun refusjonsgrunnlagetErNegativt(): Boolean {
+        return this.beregning?.refusjonsbeløp != null && this.beregning!!.refusjonsbeløp < 0
     }
 
     fun refusjonsgrunnlagetErNullSomIZero(): Boolean {
@@ -106,12 +106,12 @@ class Refusjonsgrunnlag(
 
         var erNoenOpptjentIPerioden = false
         inntektsgrunnlag?.inntekter?.forEach {
-            if(it.erOpptjentIPeriode == true) {
+            if (it.erOpptjentIPeriode == true) {
                 erNoenOpptjentIPerioden = true
             }
         }
 
-        if(!erNoenOpptjentIPerioden) {
+        if (!erNoenOpptjentIPerioden) {
             beregning = null
             endretBruttoLønn = null
             fratrekkRefunderbarBeløp = null
@@ -125,5 +125,14 @@ class Refusjonsgrunnlag(
         }
         this.fratrekkRefunderbarBeløp = fratrekkRefunderbarBeløp
         this.refunderbarBeløp = refunderbarBeløp
+    }
+
+    fun erAltOppgitt(): Boolean {
+        if (tilskuddsgrunnlag.tiltakstype.utbetalesAutomatisk()) return true
+
+        val inntektsgrunnlag = inntektsgrunnlag
+        if (inntektsgrunnlag == null || inntektsgrunnlag.inntekter.none { it.erMedIInntektsgrunnlag() }) return false
+        return bedriftKontonummer != null && (inntekterKunFraTiltaket == true && endretBruttoLønn == null ||
+                ((inntekterKunFraTiltaket == false || inntekterKunFraTiltaket == null) && endretBruttoLønn != null))
     }
 }

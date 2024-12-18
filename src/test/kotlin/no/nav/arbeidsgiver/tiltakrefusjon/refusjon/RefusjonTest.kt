@@ -207,7 +207,7 @@ internal class RefusjonTest {
         )
         Now.fixedDate(LocalDate.now().plusMonths(3))
         //Frist skal nå bli utgått ved neste sjekk
-        refusjon.gjørRefusjonUtgått()
+        refusjon.settTilUtgåttHvisMulig()
         assertThat(refusjon.status).isEqualTo(RefusjonStatus.UTGÅTT)
         Now.resetClock()
     }

@@ -47,13 +47,13 @@ class AdminController(
 
     @Unprotected
     @GetMapping("kontoregister/{orgnr}")
-    fun kontoregisterKall(@PathVariable orgnr: String): String{
+    fun kontoregisterKall(@PathVariable orgnr: String): String {
         return "Bank kontonummer: " + kontoregisterService?.hentBankkontonummer(orgnr)
     }
 
     @Unprotected
     @GetMapping("/")
-    fun hjem(): String?{
+    fun hjem(): String? {
         return "Velkommen til Refusjon Admin API"
     }
 
@@ -305,6 +305,13 @@ class AdminController(
         } else {
             return ResponseEntity.ok("Kunne ikke annullere refusjon ${refusjon.id}")
         }
+    }
+
+    @Unprotected
+    @PostMapping("utfoer-automatisk-utbetaling")
+    @Transactional
+    fun manuellAutomatiskUtbetaling() {
+        automatiskUtbetaling.utførAutomatiskUtbetaling()
     }
 }
 

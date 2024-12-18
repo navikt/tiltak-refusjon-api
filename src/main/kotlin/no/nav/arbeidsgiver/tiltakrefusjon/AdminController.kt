@@ -1,5 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon
 
+import no.nav.arbeidsgiver.tiltakrefusjon.automatisk_utbetaling.AutomatiskUtbetaling
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.ADMIN_BRUKER
 import no.nav.arbeidsgiver.tiltakrefusjon.leader.LeaderPodCheck
 import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterServiceImpl
@@ -40,6 +41,7 @@ class AdminController(
     val leaderPodCheck: LeaderPodCheck,
     val refusjonKafkaProducer: RefusjonKafkaProducer?,
     val kontoregisterService: KontoregisterServiceImpl?,
+    val automatiskUtbetaling: AutomatiskUtbetaling
 ) {
     val logger = LoggerFactory.getLogger(javaClass)
 
@@ -184,13 +186,13 @@ class AdminController(
     @Unprotected
     @PostMapping("sjekk-for-klar-for-innsending")
     fun sjekkForKlarforInnsending() {
-        StatusJobb(refusjonRepository, leaderPodCheck).sjekkOmKlarForInnsending()
+        StatusJobb(refusjonRepository, leaderPodCheck, automatiskUtbetaling).fraForTidligTilKlarForInnsending()
     }
 
     @Unprotected
     @PostMapping("sjekk-for-utgått")
     fun sjekkForUtgått() {
-        StatusJobb(refusjonRepository, leaderPodCheck).sjekkOmUtgått()
+        StatusJobb(refusjonRepository, leaderPodCheck, automatiskUtbetaling).fraKlarForInnsendingTilUtgått()
     }
 
     @Unprotected

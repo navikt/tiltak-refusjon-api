@@ -276,7 +276,7 @@ class AdminController(
         if (refusjon.refusjonsgrunnlag.refusjonsgrunnlagetErNullSomIZero()) {
             refusjonKafkaProducer!!.annullerTilskuddsperiodeEtterNullEllerMinusBeløp(refusjon, MidlerFrigjortÅrsak.REFUSJON_GODKJENT_NULL_BELØP)
             return ResponseEntity.ok("Sendt godkjent nullbeløp-melding for ${refusjon.id}")
-        } else if (!refusjon.refusjonsgrunnlag.refusjonsgrunnlagetErPositivt()) {
+        } else if (refusjon.refusjonsgrunnlag.refusjonsgrunnlagetErNegativt()) {
             refusjonKafkaProducer!!.annullerTilskuddsperiodeEtterNullEllerMinusBeløp(refusjon, MidlerFrigjortÅrsak.REFUSJON_MINUS_BELØP)
             return ResponseEntity.ok("Sendt godkjent minusbeløp-melding for ${refusjon.id}")
         } else {
@@ -299,7 +299,7 @@ class AdminController(
         if (refusjon.refusjonsgrunnlag.refusjonsgrunnlagetErNullSomIZero()) {
             refusjonKafkaProducer!!.annullerTilskuddsperiodeEtterNullEllerMinusBeløp(refusjon, MidlerFrigjortÅrsak.REFUSJON_GODKJENT_NULL_BELØP)
             return ResponseEntity.ok("Sendt godkjent nullbeløp-melding for ${refusjon.id}")
-        } else if (!refusjon.refusjonsgrunnlag.refusjonsgrunnlagetErPositivt()) {
+        } else if (refusjon.refusjonsgrunnlag.refusjonsgrunnlagetErNegativt()) {
             refusjonKafkaProducer!!.annullerTilskuddsperiodeEtterNullEllerMinusBeløp(refusjon, MidlerFrigjortÅrsak.REFUSJON_MINUS_BELØP)
             return ResponseEntity.ok("Sendt godkjent minusbeløp-melding for ${refusjon.id}")
         } else {

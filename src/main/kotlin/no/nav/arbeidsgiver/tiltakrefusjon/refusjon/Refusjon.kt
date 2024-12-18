@@ -88,7 +88,7 @@ class Refusjon(
 
     @JsonProperty
     fun måTaStillingTilInntekter(): Boolean =
-        refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype != Tiltakstype.VTAO
+        refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype.harFastUtbetaling()
 
     private fun krevStatus(vararg gyldigeStatuser: RefusjonStatus) {
         if (status !in gyldigeStatuser) throw FeilkodeException(Feilkode.UGYLDIG_STATUS)
@@ -159,7 +159,7 @@ class Refusjon(
         if (!refusjonsgrunnlag.bedriftKid?.trim().isNullOrEmpty()) {
             KidValidator(refusjonsgrunnlag.bedriftKid)
         }
-        if (refusjonsgrunnlag.inntektsgrunnlag == null || refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.isEmpty()) {
+        if (this.måTaStillingTilInntekter() && (refusjonsgrunnlag.inntektsgrunnlag == null || refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.isEmpty())) {
             throw FeilkodeException(Feilkode.INGEN_INNTEKTER)
         }
         if (refusjonsgrunnlag.bedriftKontonummer == null) {
@@ -177,7 +177,7 @@ class Refusjon(
         if (refusjonsgrunnlag.refusjonsgrunnlagetErNullSomIZero()) {
             status = RefusjonStatus.GODKJENT_NULLBELØP
             registerEvent(RefusjonGodkjentNullBeløp(this, utførtAv))
-        } else if (!refusjonsgrunnlag.refusjonsgrunnlagetErPositivt()) {
+        } else if (refusjonsgrunnlag.refusjonsgrunnlagetErNegativt()) {
             status = RefusjonStatus.GODKJENT_MINUSBELØP
             registerEvent(RefusjonGodkjentMinusBeløp(this, utførtAv))
         } else {

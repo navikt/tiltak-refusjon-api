@@ -20,9 +20,13 @@ class AutomatiskUtbetaling(
         refusjonRepository.findAllByStatusAndRefusjonsgrunnlag_Tilskuddsgrunnlag_TiltakstypeIn(
             RefusjonStatus.FOR_TIDLIG,
             Tiltakstype.somUtbetalesAutomatisk()
-        ).forEach { refusjon ->
-            utførAutomatiskUtbetaling(refusjon)
-        }
+        )
+            .forEach { refusjon ->
+                refusjon.gjørKlarTilInnsending()
+                if (refusjon.status == RefusjonStatus.KLAR_FOR_INNSENDING) {
+                    utførAutomatiskUtbetaling(refusjon)
+                }
+            }
     }
 
     fun utførAutomatiskUtbetaling(refusjon: Refusjon) {
@@ -30,10 +34,12 @@ class AutomatiskUtbetaling(
         if (!Tiltakstype.somUtbetalesAutomatisk().contains(refusjonensTiltaktstype)) {
             throw IllegalStateException("Refusjon ${refusjon.id} hadde ikke riktig tiltakstype (${refusjonensTiltaktstype})")
         }
-        log.info("Utfører automatisk utbetaling for refusjon {}-{} ({})",
+        log.info(
+            "Utfører automatisk utbetaling for refusjon {}-{} ({})",
             refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr,
             refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.løpenummer,
-            refusjon.id)
+            refusjon.id
+        )
         refusjonService.gjørBeregning(refusjon, SYSTEM_BRUKER)
         refusjon.godkjennForArbeidsgiver(utførtAv = SYSTEM_BRUKER)
         refusjonRepository.save(refusjon)

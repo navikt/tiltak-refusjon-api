@@ -36,8 +36,8 @@ class StatusJobb(
         var antallEndretTilKlarForInnsending = 0;
         refusjoner.forEach {
             try {
-                if (Now.localDate().isAfter(it.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom)) {
-                    it.gjørKlarTilInnsending()
+                it.gjørKlarTilInnsending()
+                if (it.status == RefusjonStatus.KLAR_FOR_INNSENDING) {
                     antallEndretTilKlarForInnsending++
                     refusjonRepository.save(it)
                 }
@@ -54,7 +54,8 @@ class StatusJobb(
         var antallEndretTilUtgått: Int = 0
         refusjoner.forEach {
             try {
-                if (Now.localDate().isAfter(it.fristForGodkjenning)) {
+                it.gjørRefusjonUtgått()
+                if (it.status == RefusjonStatus.UTGÅTT) {
                     it.gjørRefusjonUtgått()
                     antallEndretTilUtgått++
                     refusjonRepository.save(it)

@@ -15,7 +15,7 @@ import java.time.LocalDate
 
 @ActiveProfiles("local")
 @SpringBootTest
-class AutomatiskUtbetalingTest {
+class AutomatiskInnsendingServiceTest {
     @Autowired
     private lateinit var statusJobb: StatusJobb
 

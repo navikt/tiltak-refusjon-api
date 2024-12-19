@@ -7,35 +7,39 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonStatus
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
 import org.slf4j.LoggerFactory
-import org.springframework.stereotype.Component
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
-@Component
-class AutomatiskUtbetaling(
+@Service
+class AutomatiskInnsendingService(
     private val refusjonRepository: RefusjonRepository,
     private val refusjonService: RefusjonService
 ) {
-    val log = LoggerFactory.getLogger(AutomatiskUtbetaling::class.java.name)
+    val log = LoggerFactory.getLogger(AutomatiskInnsendingService::class.java.name)
 
-    fun utførAutomatiskUtbetaling() {
+    val tiltakstyperSomKanSendesInnAutomatisk = Tiltakstype.entries.filter { it.harFastUtbetaling() }.toSet()
+
+    @Transactional
+    fun utførAutomatiskInnsending() {
         refusjonRepository.findAllByStatusAndRefusjonsgrunnlag_Tilskuddsgrunnlag_TiltakstypeIn(
             RefusjonStatus.FOR_TIDLIG,
-            Tiltakstype.somUtbetalesAutomatisk()
+            tiltakstyperSomKanSendesInnAutomatisk
         )
             .forEach { refusjon ->
                 refusjon.gjørKlarTilInnsending()
                 if (refusjon.status == RefusjonStatus.KLAR_FOR_INNSENDING) {
-                    utførAutomatiskUtbetaling(refusjon)
+                    utførAutomatiskInnsending(refusjon)
                 }
             }
     }
 
-    fun utførAutomatiskUtbetaling(refusjon: Refusjon) {
+    fun utførAutomatiskInnsending(refusjon: Refusjon) {
         val refusjonensTiltaktstype = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype
-        if (!Tiltakstype.somUtbetalesAutomatisk().contains(refusjonensTiltaktstype)) {
-            throw IllegalStateException("Refusjon ${refusjon.id} hadde ikke riktig tiltakstype (${refusjonensTiltaktstype})")
+        if (!refusjonensTiltaktstype.harFastUtbetaling()) {
+            throw IllegalStateException("Refusjon ${refusjon.id} kan ikke sendes inn automatisk (tiltakstype ${refusjonensTiltaktstype})")
         }
         log.info(
-            "Utfører automatisk utbetaling for refusjon {}-{} ({})",
+            "Utfører automatisk innsending av refusjon {}-{} ({})",
             refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr,
             refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.løpenummer,
             refusjon.id

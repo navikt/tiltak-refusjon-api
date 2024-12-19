@@ -1,8 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
-import no.nav.arbeidsgiver.tiltakrefusjon.automatisk_utbetaling.AutomatiskUtbetaling
+import no.nav.arbeidsgiver.tiltakrefusjon.automatisk_utbetaling.AutomatiskInnsendingService
 import no.nav.arbeidsgiver.tiltakrefusjon.leader.LeaderPodCheck
-import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
@@ -11,7 +10,7 @@ import org.springframework.stereotype.Component
 class StatusJobb(
     val refusjonRepository: RefusjonRepository,
     val leaderPodCheck: LeaderPodCheck,
-    private val automatiskUtbetaling: AutomatiskUtbetaling,
+    private val automatiskInnsendingService: AutomatiskInnsendingService,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -24,14 +23,14 @@ class StatusJobb(
         }
         fraKlarForInnsendingTilUtgått()
         fraForTidligTilKlarForInnsending()
-        automatiskUtbetaling.utførAutomatiskUtbetaling()
+        automatiskInnsendingService.utførAutomatiskInnsending()
     }
 
     fun fraForTidligTilKlarForInnsending() {
         logger.info("Sjekker for tidliger refusjoner som skal settes til KLAR_FOR_INNSENDING")
         val refusjoner = refusjonRepository.findAllByStatusAndRefusjonsgrunnlag_Tilskuddsgrunnlag_TiltakstypeNotIn(
             RefusjonStatus.FOR_TIDLIG,
-            Tiltakstype.somUtbetalesAutomatisk()
+            automatiskInnsendingService.tiltakstyperSomKanSendesInnAutomatisk
         )
         var antallEndretTilKlarForInnsending = 0;
         refusjoner.forEach {

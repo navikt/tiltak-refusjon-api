@@ -1,6 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon
 
-import no.nav.arbeidsgiver.tiltakrefusjon.automatisk_utbetaling.AutomatiskUtbetaling
+import no.nav.arbeidsgiver.tiltakrefusjon.automatisk_utbetaling.AutomatiskInnsendingService
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.ADMIN_BRUKER
 import no.nav.arbeidsgiver.tiltakrefusjon.leader.LeaderPodCheck
 import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterServiceImpl
@@ -41,7 +41,7 @@ class AdminController(
     val leaderPodCheck: LeaderPodCheck,
     val refusjonKafkaProducer: RefusjonKafkaProducer?,
     val kontoregisterService: KontoregisterServiceImpl?,
-    val automatiskUtbetaling: AutomatiskUtbetaling
+    val automatiskInnsendingService: AutomatiskInnsendingService
 ) {
     val logger = LoggerFactory.getLogger(javaClass)
 
@@ -186,13 +186,13 @@ class AdminController(
     @Unprotected
     @PostMapping("sjekk-for-klar-for-innsending")
     fun sjekkForKlarforInnsending() {
-        StatusJobb(refusjonRepository, leaderPodCheck, automatiskUtbetaling).fraForTidligTilKlarForInnsending()
+        StatusJobb(refusjonRepository, leaderPodCheck, automatiskInnsendingService).fraForTidligTilKlarForInnsending()
     }
 
     @Unprotected
     @PostMapping("sjekk-for-utgått")
     fun sjekkForUtgått() {
-        StatusJobb(refusjonRepository, leaderPodCheck, automatiskUtbetaling).fraKlarForInnsendingTilUtgått()
+        StatusJobb(refusjonRepository, leaderPodCheck, automatiskInnsendingService).fraKlarForInnsendingTilUtgått()
     }
 
     @Unprotected
@@ -308,10 +308,10 @@ class AdminController(
     }
 
     @Unprotected
-    @PostMapping("utfoer-automatisk-utbetaling")
+    @PostMapping("utfoer-automatisk-innsending")
     @Transactional
     fun manuellAutomatiskUtbetaling() {
-        automatiskUtbetaling.utførAutomatiskUtbetaling()
+        automatiskInnsendingService.utførAutomatiskInnsending()
     }
 }
 

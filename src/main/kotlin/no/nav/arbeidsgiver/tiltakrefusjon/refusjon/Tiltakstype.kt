@@ -4,8 +4,4 @@ enum class Tiltakstype {
     MIDLERTIDIG_LONNSTILSKUDD, VARIG_LONNSTILSKUDD, SOMMERJOBB, VTAO;
 
     fun harFastUtbetaling() = this == VTAO
-
-    companion object {
-        fun somUtbetalesAutomatisk() = setOf(VTAO)
-    }
 }

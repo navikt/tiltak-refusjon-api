@@ -88,7 +88,7 @@ class Refusjon(
 
     @JsonProperty
     fun måTaStillingTilInntekter(): Boolean =
-        !refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype.harFastUtbetaling()
+        !refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype.utbetalesAutomatisk()
 
     private fun krevStatus(vararg gyldigeStatuser: RefusjonStatus) {
         if (status !in gyldigeStatuser) throw FeilkodeException(Feilkode.UGYLDIG_STATUS)

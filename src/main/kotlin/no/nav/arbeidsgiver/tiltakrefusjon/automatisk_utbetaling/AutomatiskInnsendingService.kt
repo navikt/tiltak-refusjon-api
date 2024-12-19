@@ -17,7 +17,7 @@ class AutomatiskInnsendingService(
 ) {
     val log = LoggerFactory.getLogger(AutomatiskInnsendingService::class.java.name)
 
-    val tiltakstyperSomKanSendesInnAutomatisk = Tiltakstype.entries.filter { it.harFastUtbetaling() }.toSet()
+    val tiltakstyperSomKanSendesInnAutomatisk = Tiltakstype.entries.filter { it.utbetalesAutomatisk() }.toSet()
 
     @Transactional
     fun utførAutomatiskInnsending() {
@@ -35,7 +35,7 @@ class AutomatiskInnsendingService(
 
     fun utførAutomatiskInnsending(refusjon: Refusjon) {
         val refusjonensTiltaktstype = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype
-        if (!refusjonensTiltaktstype.harFastUtbetaling()) {
+        if (!refusjonensTiltaktstype.utbetalesAutomatisk()) {
             throw IllegalStateException("Refusjon ${refusjon.id} kan ikke sendes inn automatisk (tiltakstype ${refusjonensTiltaktstype})")
         }
         log.info(

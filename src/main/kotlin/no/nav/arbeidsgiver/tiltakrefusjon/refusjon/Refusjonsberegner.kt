@@ -68,7 +68,7 @@ fun beregnRefusjonsbeløp(
     ekstraFerietrekk: Int? = null,
 
     ): Beregning {
-    if (tilskuddsgrunnlag.tiltakstype.harFastUtbetaling()) return fastBeløpBeregning(tilskuddsgrunnlag, tidligereUtbetalt)
+    if (tilskuddsgrunnlag.tiltakstype.utbetalesAutomatisk()) return fastBeløpBeregning(tilskuddsgrunnlag, tidligereUtbetalt)
 
     val kalkulertBruttoLønn = kalkulerBruttoLønn(inntekter).roundToInt()
     val lønn = if (korrigertBruttoLønn != null) minOf(korrigertBruttoLønn, kalkulertBruttoLønn) else kalkulertBruttoLønn

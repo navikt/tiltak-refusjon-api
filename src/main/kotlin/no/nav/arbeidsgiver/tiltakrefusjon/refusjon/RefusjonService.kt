@@ -303,9 +303,9 @@ class RefusjonService(
     }
 
     fun gjørBeregning(refusjon: Refusjon, utførtAv: InnloggetBruker) {
-        if (erAltOppgitt(refusjon.refusjonsgrunnlag)) {
+        if (refusjon.refusjonsgrunnlag.erAltOppgitt()) {
             val beregning = beregnRefusjonsbeløp(
-                inntekter = refusjon.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
+                inntekter = refusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.toList() ?: emptyList(),
                 tilskuddsgrunnlag = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag,
                 tidligereUtbetalt = refusjon.refusjonsgrunnlag.tidligereUtbetalt,
                 korrigertBruttoLønn = refusjon.refusjonsgrunnlag.endretBruttoLønn,
@@ -322,7 +322,7 @@ class RefusjonService(
     }
 
     fun gjørKorreksjonBeregning(korreksjon: Korreksjon, utførtAv: InnloggetBruker) {
-        if (erAltOppgitt(korreksjon.refusjonsgrunnlag)) {
+        if (korreksjon.refusjonsgrunnlag.erAltOppgitt()) {
             val beregning = beregnRefusjonsbeløp(
                 inntekter = korreksjon.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
                 tilskuddsgrunnlag = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag,
@@ -337,13 +337,6 @@ class RefusjonService(
             korreksjon.refusjonsgrunnlag.beregning = beregning
             applicationEventPublisher.publishEvent(KorreksjonBeregningUtført(korreksjon, utførtAv))
         }
-    }
-
-    private fun erAltOppgitt(refusjonsgrunnlag: Refusjonsgrunnlag): Boolean {
-        val inntektsgrunnlag = refusjonsgrunnlag.inntektsgrunnlag
-        if (inntektsgrunnlag == null || inntektsgrunnlag.inntekter.none { it.erMedIInntektsgrunnlag() }) return false
-        return refusjonsgrunnlag.bedriftKontonummer != null && (refusjonsgrunnlag.inntekterKunFraTiltaket == true && refusjonsgrunnlag.endretBruttoLønn == null ||
-                ((refusjonsgrunnlag.inntekterKunFraTiltaket == false || refusjonsgrunnlag.inntekterKunFraTiltaket == null) && refusjonsgrunnlag.endretBruttoLønn != null))
     }
 
     fun endreBruttolønn(refusjon: Refusjon, inntekterKunFraTiltaket: Boolean?, bruttoLønn: Int?) {

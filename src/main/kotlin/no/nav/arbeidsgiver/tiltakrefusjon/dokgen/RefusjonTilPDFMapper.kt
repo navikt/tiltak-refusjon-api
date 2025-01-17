@@ -9,10 +9,10 @@ import java.time.format.DateTimeFormatter
 
 object RefusjonTilPDFMapper {
     fun tilPDFdata(refusjon : Refusjon) : RefusjonTilPDF {
-        val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.YYYY")
-        var godkjentArbeidsgiverDato: String =  ""
-        var utbetaltDato:String = ""
-        var bedriftKid:String = ""
+        val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+        var godkjentArbeidsgiverDato =  ""
+        var utbetaltDato = ""
+        var bedriftKid = ""
 
         if(refusjon.godkjentAvArbeidsgiver != null)   godkjentArbeidsgiverDato = formatter.format(LocalDate.ofInstant(refusjon.godkjentAvArbeidsgiver,ZoneId.systemDefault()))
         if(refusjon.utbetaltTidspunkt != null)   utbetaltDato =
@@ -26,7 +26,7 @@ object RefusjonTilPDFMapper {
             formatter.format(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom)
 
         val tilskuddTom =
-            formatter.format( refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom)
+            formatter.format(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom)
 
         if(refusjon.refusjonsgrunnlag.beregning == null){
             if(refusjon.status != RefusjonStatus.GODKJENT_NULLBELØP) {

@@ -168,7 +168,7 @@ class Korreksjon(
     // Ved negativt beløp, skal tilbakekreves
     fun fullførKorreksjonVedTilbakekreving(utførtAv: InnloggetBruker) {
         krevStatus(Korreksjonstype.UTKAST)
-        val refusjonsbeløp = if(refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype == Tiltakstype.VTAO) {
+        val refusjonsbeløp = if (refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype == Tiltakstype.VTAO) {
             -refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsbeløp
         } else {
             refusjonsgrunnlag.beregning?.refusjonsbeløp

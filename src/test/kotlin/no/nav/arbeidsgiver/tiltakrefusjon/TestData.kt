@@ -794,7 +794,7 @@ fun `Vidar Fortidlig`(): Refusjon {
             bedriftNr = bedriftNr,
             tilskuddsbeløp = 6808,
             veilederNavIdent = "X123456",
-            avtaleFom = Now.localDate().minusMonths(3).withDayOfMonth(1),
+            avtaleFom = Now.localDate().minusMonths(4).withDayOfMonth(1),
             avtaleTom = Now.localDate().plusYears(2).withDayOfMonth(1),
         ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr,
     )

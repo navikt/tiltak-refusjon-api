@@ -163,6 +163,7 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-contract-stub-runner</artifactId>
             <version>4.1.1</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>

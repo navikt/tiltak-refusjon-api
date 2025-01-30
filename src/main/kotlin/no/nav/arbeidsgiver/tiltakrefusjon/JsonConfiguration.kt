@@ -20,7 +20,7 @@ class JsonConfiguration {
         mapper.registerModule(JavaTimeModule())
         mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-        mapper.registerModule(KotlinModule())
+        mapper.registerModule(KotlinModule.Builder().build())
         return mapper
     }
 }

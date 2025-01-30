@@ -35,14 +35,12 @@ class InntektskomponentServiceImpl(
     @Qualifier("anonymProxyRestTemplate") val restTemplate: RestTemplate,
 ) : InntektskomponentService {
 
-    private val log = LoggerFactory.getLogger(javaClass)
-
     private val objectMapper = run {
         val mapper = ObjectMapper()
         mapper.registerModule(JavaTimeModule())
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
         mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-        mapper.registerModule(KotlinModule())
+        mapper.registerModule(KotlinModule.Builder().build())
         mapper
     }
 

@@ -8,6 +8,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.hendelseslogg.HendelsesloggRepository
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.ForlengFristRequest
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.web.bind.annotation.*
+import java.time.LocalDate
 
 const val REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON = "/api/saksbehandler/refusjon"
 
@@ -76,5 +77,15 @@ class SaksbehandlerRefusjonController(
     fun reberegnDryRun(@PathVariable id: String, @RequestBody request: ReberegnRequest): Beregning {
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
         return saksbehandler.reberegnDryRun(id, request.harFerietrekkForSammeMåned, request.minusBeløp)
+    }
+
+    @GetMapping("/{id}/hent-min-og-maks-godkjenningsfrist")
+    fun hentMinOgMaksGodkjenningsfrist(@PathVariable id: String): Map<String, LocalDate> {
+        val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
+        val refusjon = saksbehandler.finnRefusjon(id)
+        return mapOf(
+            "minDato" to refusjon.fristForGodkjenning,
+            "maksDato" to refusjon.maksForlengeFrist()
+        )
     }
 }

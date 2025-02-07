@@ -78,14 +78,4 @@ class SaksbehandlerRefusjonController(
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
         return saksbehandler.reberegnDryRun(id, request.harFerietrekkForSammeMåned, request.minusBeløp)
     }
-
-    @GetMapping("/{id}/tidligste-og-seneste-godkjenningsfrist")
-    fun hentTidligsteOgSenesteGodkjenningsfrist(@PathVariable id: String): Map<String, LocalDate> {
-        val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
-        val refusjon = saksbehandler.finnRefusjon(id)
-        return mapOf(
-            "tidligsteFrist" to refusjon.fristForGodkjenning,
-            "senesteFrist" to refusjon.lengsteMuligeFrist()
-        )
-    }
 }

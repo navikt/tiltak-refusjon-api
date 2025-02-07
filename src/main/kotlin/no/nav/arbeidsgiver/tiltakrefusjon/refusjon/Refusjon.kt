@@ -288,7 +288,8 @@ class Refusjon(
         }
     }
 
-    fun lengsteMuligeFrist(): LocalDate {
+    @JsonProperty
+    fun senestMuligeGodkjenningsfrist(): LocalDate {
         val tidligsteFrist = finnTidligsteFristForGodkjenning()
         return if (refusjonsgrunnlag.fratrekkRefunderbarBeløp == true) antallMånederEtter(
             refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom,
@@ -307,7 +308,7 @@ class Refusjon(
 
         // Opprinnelig frist er er 2 mnd. Det er enten 2 mnd etter tilskuddTom eller 2 mnd etter godkjentAvBeslutterTidspunkt.
         // Maks forlengelse er 1 mnd hvis ikke det er markert for fravær i perioden
-        if (!enforce && (nyFrist > lengsteMuligeFrist())) {
+        if (!enforce && (nyFrist > senestMuligeGodkjenningsfrist())) {
             throw FeilkodeException(Feilkode.FOR_LANG_FORLENGELSE_AV_FRIST)
         }
 

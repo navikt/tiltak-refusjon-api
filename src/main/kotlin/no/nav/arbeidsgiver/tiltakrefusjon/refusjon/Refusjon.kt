@@ -38,7 +38,7 @@ class Refusjon(
     val id: String = ulid()
 
     // Fristen er satt til 2 mnd ihht reimplementation. Hvis etterregistrert 2 mnd etter godkjent tidspunkt av beslutter
-    var fristForGodkjenning: LocalDate = tidligsteFristForGodkjenning()
+    var fristForGodkjenning: LocalDate = finnTidligsteFristForGodkjenning()
 
     var forrigeFristForGodkjenning: LocalDate? = null
 
@@ -70,7 +70,7 @@ class Refusjon(
         registerEvent(RefusjonOpprettet(this, SYSTEM_BRUKER))
     }
 
-    fun tidligsteFristForGodkjenning(): LocalDate {
+    fun finnTidligsteFristForGodkjenning(): LocalDate {
         if (refusjonsgrunnlag.tilskuddsgrunnlag.godkjentAvBeslutterTidspunkt.toLocalDate().isAfter(refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom)) {
             return antallMånederEtter(refusjonsgrunnlag.tilskuddsgrunnlag.godkjentAvBeslutterTidspunkt.toLocalDate(), 2)
         } else {
@@ -289,7 +289,7 @@ class Refusjon(
     }
 
     fun lengsteMuligeFrist(): LocalDate {
-        val tidligsteFrist = tidligsteFristForGodkjenning()
+        val tidligsteFrist = finnTidligsteFristForGodkjenning()
         return if (refusjonsgrunnlag.fratrekkRefunderbarBeløp == true) antallMånederEtter(
             refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom,
             13

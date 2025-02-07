@@ -38,7 +38,7 @@ class Refusjon(
     val id: String = ulid()
 
     // Fristen er satt til 2 mnd ihht reimplementation. Hvis etterregistrert 2 mnd etter godkjent tidspunkt av beslutter
-    var fristForGodkjenning: LocalDate = lagFristForGodkjenning()
+    var fristForGodkjenning: LocalDate = finnTidligsteFristForGodkjenning()
 
     var forrigeFristForGodkjenning: LocalDate? = null
 
@@ -70,10 +70,7 @@ class Refusjon(
         registerEvent(RefusjonOpprettet(this, SYSTEM_BRUKER))
     }
 
-    fun lagFristForGodkjenning(): LocalDate {
-        if (refusjonsgrunnlag.tilskuddsgrunnlag.godkjentAvBeslutterTidspunkt == null) {
-            return antallMånederEtter(refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom, 2)
-        }
+    fun finnTidligsteFristForGodkjenning(): LocalDate {
         if (refusjonsgrunnlag.tilskuddsgrunnlag.godkjentAvBeslutterTidspunkt.toLocalDate().isAfter(refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom)) {
             return antallMånederEtter(refusjonsgrunnlag.tilskuddsgrunnlag.godkjentAvBeslutterTidspunkt.toLocalDate(), 2)
         } else {
@@ -291,12 +288,12 @@ class Refusjon(
         }
     }
 
-    fun maksForlengeFrist(): LocalDate {
-        val opprinneligFrist = lagFristForGodkjenning()
+    fun lengsteMuligeFrist(): LocalDate {
+        val tidligsteFrist = finnTidligsteFristForGodkjenning()
         return if (refusjonsgrunnlag.fratrekkRefunderbarBeløp == true) antallMånederEtter(
             refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom,
             13
-        ) else antallMånederEtter(opprinneligFrist, 1)
+        ) else antallMånederEtter(tidligsteFrist, 1)
     }
 
     fun forlengFrist(nyFrist: LocalDate, årsak: String, utførtAv: InnloggetBruker, enforce: Boolean = false) {
@@ -310,7 +307,7 @@ class Refusjon(
 
         // Opprinnelig frist er er 2 mnd. Det er enten 2 mnd etter tilskuddTom eller 2 mnd etter godkjentAvBeslutterTidspunkt.
         // Maks forlengelse er 1 mnd hvis ikke det er markert for fravær i perioden
-        if (!enforce && (nyFrist > maksForlengeFrist())) {
+        if (!enforce && (nyFrist > lengsteMuligeFrist())) {
             throw FeilkodeException(Feilkode.FOR_LANG_FORLENGELSE_AV_FRIST)
         }
 

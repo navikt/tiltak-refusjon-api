@@ -38,22 +38,26 @@ private fun antallDager(
     tom: LocalDate,
 ) = fom.datesUntil(tom.plusDays(1)).count().toInt()
 
-fun fastBeløpBeregning(tilskuddsgrunnlag: Tilskuddsgrunnlag, tidligereUtbetalt: Int) = Beregning(
-    lønn = 0,
-    lønnFratrukketFerie = 0,
-    feriepenger = 0,
-    tjenestepensjon = 0,
-    arbeidsgiveravgift = 0,
-    sumUtgifter = 0,
-    beregnetBeløp = tilskuddsgrunnlag.tilskuddsbeløp,
-    refusjonsbeløp = tilskuddsgrunnlag.tilskuddsbeløp,
-    overTilskuddsbeløp = false,
-    tidligereUtbetalt = tidligereUtbetalt,
-    fratrekkLønnFerie = 0,
-    tidligereRefundertBeløp = 0,
-    overFemGrunnbeløp = false,
-    sumUtgifterFratrukketRefundertBeløp = 0
-)
+fun fastBeløpBeregning(tilskuddsgrunnlag: Tilskuddsgrunnlag, tidligereUtbetalt: Int, korriger: Boolean = false): Beregning {
+    val beregnetBeløp = if (korriger) 0 else tilskuddsgrunnlag.tilskuddsbeløp
+
+    return Beregning(
+        lønn = 0,
+        lønnFratrukketFerie = 0,
+        feriepenger = 0,
+        tjenestepensjon = 0,
+        arbeidsgiveravgift = 0,
+        sumUtgifter = 0,
+        beregnetBeløp = beregnetBeløp,
+        refusjonsbeløp = beregnetBeløp - tidligereUtbetalt,
+        overTilskuddsbeløp = false,
+        tidligereUtbetalt = tidligereUtbetalt,
+        fratrekkLønnFerie = 0,
+        tidligereRefundertBeløp = 0,
+        overFemGrunnbeløp = false,
+        sumUtgifterFratrukketRefundertBeløp = 0
+    )
+}
 
 fun beregnRefusjonsbeløp(
     inntekter: List<Inntektslinje>,
@@ -68,8 +72,6 @@ fun beregnRefusjonsbeløp(
     ekstraFerietrekk: Int? = null,
 
     ): Beregning {
-    if (tilskuddsgrunnlag.tiltakstype.utbetalesAutomatisk()) return fastBeløpBeregning(tilskuddsgrunnlag, tidligereUtbetalt)
-
     val kalkulertBruttoLønn = kalkulerBruttoLønn(inntekter).roundToInt()
     val lønn = if (korrigertBruttoLønn != null) minOf(korrigertBruttoLønn, kalkulertBruttoLønn) else kalkulertBruttoLønn
     val trekkgrunnlagFerie = if (harFerietrekkForSammeMåned) 0 else leggSammenTrekkGrunnlag(inntekter, tilskuddFom, ekstraFerietrekk).roundToInt()

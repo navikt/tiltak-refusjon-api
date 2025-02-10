@@ -251,6 +251,14 @@ class RefusjonService(
 
     fun opprettKorreksjonsutkast(refusjon: Refusjon, korreksjonsgrunner: Set<Korreksjonsgrunn>, unntakOmInntekterFremitid: Int?, annetGrunn: String?): Korreksjon {
         val korreksjonsutkast = refusjon.opprettKorreksjonsutkast(korreksjonsgrunner, unntakOmInntekterFremitid, annetGrunn)
+        if (refusjon.tiltakstype().harFastUtbetalingssum()) {
+            // Utfør beregning umiddelbart
+            korreksjonsutkast.refusjonsgrunnlag.beregning = fastBeløpBeregning(
+                korreksjonsutkast.refusjonsgrunnlag.tilskuddsgrunnlag,
+                refusjon.refusjonsgrunnlag.beregning?.refusjonsbeløp ?: 0,
+                true
+            )
+        }
         korreksjonRepository.save(korreksjonsutkast)
         refusjonRepository.save(refusjon)
         return korreksjonsutkast
@@ -303,8 +311,9 @@ class RefusjonService(
     }
 
     fun gjørBeregning(refusjon: Refusjon, utførtAv: InnloggetBruker) {
+        var beregning: Beregning? = null
         if (refusjon.refusjonsgrunnlag.erAltOppgitt()) {
-            val beregning = beregnRefusjonsbeløp(
+            beregning = beregnRefusjonsbeløp(
                 inntekter = refusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.toList() ?: emptyList(),
                 tilskuddsgrunnlag = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag,
                 tidligereUtbetalt = refusjon.refusjonsgrunnlag.tidligereUtbetalt,
@@ -315,6 +324,10 @@ class RefusjonService(
                 sumUtbetaltVarig = refusjon.refusjonsgrunnlag.sumUtbetaltVarig,
                 harFerietrekkForSammeMåned = refusjon.refusjonsgrunnlag.harFerietrekkForSammeMåned
             )
+        } else if (refusjon.tiltakstype().harFastUtbetalingssum()) {
+            beregning = fastBeløpBeregning(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag, refusjon.refusjonsgrunnlag.tidligereUtbetalt)
+        }
+        if (beregning != null) {
             refusjon.refusjonsgrunnlag.beregning = beregning
             log.info("Oppdatert beregning på refusjon ${refusjon.id} til ${beregning.id}")
             applicationEventPublisher.publishEvent(BeregningUtført(refusjon, utførtAv))

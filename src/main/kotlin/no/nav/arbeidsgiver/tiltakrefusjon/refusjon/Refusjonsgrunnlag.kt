@@ -128,8 +128,6 @@ class Refusjonsgrunnlag(
     }
 
     fun erAltOppgitt(): Boolean {
-        if (tilskuddsgrunnlag.tiltakstype.utbetalesAutomatisk()) return true
-
         val inntektsgrunnlag = inntektsgrunnlag
         if (inntektsgrunnlag == null || inntektsgrunnlag.inntekter.none { it.erMedIInntektsgrunnlag() }) return false
         return bedriftKontonummer != null && (inntekterKunFraTiltaket == true && endretBruttoLønn == null ||

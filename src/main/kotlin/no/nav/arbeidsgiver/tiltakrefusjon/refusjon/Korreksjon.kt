@@ -87,7 +87,7 @@ class Korreksjon(
 
     @JsonProperty
     fun måTaStillingTilInntekter(): Boolean =
-        refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype != Tiltakstype.VTAO
+        !tiltakstype().harFastUtbetalingssum()
 
     override fun getFnrOgBedrift(): FnrOgBedrift = FnrOgBedrift(deltakerFnr, bedriftNr)
 
@@ -114,10 +114,16 @@ class Korreksjon(
         if (status != Korreksjonstype.UTKAST) {
             return false
         }
+        if (this.tiltakstype().harFastUtbetalingssum())
+        {
+            return false
+        }
         return refusjonsgrunnlag.inntektsgrunnlag?.innhentetTidspunkt?.isBefore(
             Now.localDateTime().minusMinutes(1)
         ) ?: true
     }
+
+    fun tiltakstype(): Tiltakstype = refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype
 
     // Ved positivt beløp, skal etterbetale
     fun utbetalKorreksjon(utførtAv: InnloggetBruker, kostnadssted: String) {
@@ -168,11 +174,7 @@ class Korreksjon(
     // Ved negativt beløp, skal tilbakekreves
     fun fullførKorreksjonVedTilbakekreving(utførtAv: InnloggetBruker) {
         krevStatus(Korreksjonstype.UTKAST)
-        val refusjonsbeløp = if (refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype == Tiltakstype.VTAO) {
-            -refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsbeløp
-        } else {
-            refusjonsgrunnlag.beregning?.refusjonsbeløp
-        }
+        val refusjonsbeløp = refusjonsgrunnlag.beregning?.refusjonsbeløp
         if (refusjonsbeløp == null || refusjonsbeløp >= 0) {
             throw FeilkodeException(Feilkode.KORREKSJONSBELOP_POSITIVT)
         }

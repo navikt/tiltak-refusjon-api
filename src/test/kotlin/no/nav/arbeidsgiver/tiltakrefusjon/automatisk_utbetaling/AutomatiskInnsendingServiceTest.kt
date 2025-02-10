@@ -6,6 +6,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonStatus
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.StatusJobb
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -26,6 +27,9 @@ class AutomatiskInnsendingServiceTest {
     @DirtiesContext
     fun `vtao-avtale utbetales automatisk`() {
         val vtaoRefusjon = refusjonRepository.save(`Vidar Fortidlig`())
+
+        assertEquals(RefusjonStatus.FOR_TIDLIG, vtaoRefusjon.status)
+        assertNull(vtaoRefusjon.refusjonsgrunnlag.beregning)
 
         statusJobb.sjekkForStatusEndring()
 

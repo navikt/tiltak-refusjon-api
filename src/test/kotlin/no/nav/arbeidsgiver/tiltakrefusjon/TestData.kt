@@ -9,6 +9,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonStatus
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tilskuddsgrunnlag
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.beregnRefusjonsbeløp
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.fastBeløpBeregning
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.ulid
 import no.nav.arbeidsgiver.tiltakrefusjon.varsling.VarselType
@@ -828,6 +829,7 @@ fun `Vidar SendKrav`(): Refusjon {
     )
 
     refusjon.let {
+        it.medBeregning()
         it.medBedriftKontonummer()
         it.status = RefusjonStatus.SENDT_KRAV
         it.godkjentAvArbeidsgiver = Now.localDate()
@@ -860,6 +862,7 @@ fun `Vidar Utbetalt`(): Refusjon {
     )
 
     refusjon.let {
+        it.medBeregning()
         it.medBedriftKontonummer()
         it.status = RefusjonStatus.UTBETALT
         it.godkjentAvArbeidsgiver = Now.localDate()
@@ -903,16 +906,21 @@ fun Refusjon.medInntektsgrunnlag(
 
 fun Refusjon.medBeregning(
 ): Refusjon {
-    this.refusjonsgrunnlag.beregning = beregnRefusjonsbeløp(
-        inntekter = this.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
-        tilskuddsgrunnlag = this.refusjonsgrunnlag.tilskuddsgrunnlag,
-        tidligereUtbetalt = this.refusjonsgrunnlag.tidligereUtbetalt,
-        korrigertBruttoLønn = this.refusjonsgrunnlag.endretBruttoLønn,
-        fratrekkRefunderbarSum = this.refusjonsgrunnlag.refunderbarBeløp,
-        forrigeRefusjonMinusBeløp = this.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
-        tilskuddFom = this.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
-        sumUtbetaltVarig = this.refusjonsgrunnlag.sumUtbetaltVarig,
-        harFerietrekkForSammeMåned = this.refusjonsgrunnlag.harFerietrekkForSammeMåned)
+    if (this.tiltakstype().harFastUtbetalingssum()) {
+        this.refusjonsgrunnlag.beregning = fastBeløpBeregning(this.refusjonsgrunnlag.tilskuddsgrunnlag, 0)
+    } else {
+        this.refusjonsgrunnlag.beregning = beregnRefusjonsbeløp(
+            inntekter = this.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.toList() ?: emptyList(),
+            tilskuddsgrunnlag = this.refusjonsgrunnlag.tilskuddsgrunnlag,
+            tidligereUtbetalt = this.refusjonsgrunnlag.tidligereUtbetalt,
+            korrigertBruttoLønn = this.refusjonsgrunnlag.endretBruttoLønn,
+            fratrekkRefunderbarSum = this.refusjonsgrunnlag.refunderbarBeløp,
+            forrigeRefusjonMinusBeløp = this.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
+            tilskuddFom = this.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
+            sumUtbetaltVarig = this.refusjonsgrunnlag.sumUtbetaltVarig,
+            harFerietrekkForSammeMåned = this.refusjonsgrunnlag.harFerietrekkForSammeMåned
+        )
+    }
     return this
 }
 

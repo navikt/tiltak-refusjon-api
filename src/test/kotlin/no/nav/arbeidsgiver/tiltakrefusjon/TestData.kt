@@ -39,7 +39,7 @@ fun enRefusjon(tilskuddsgrunnlag: Tilskuddsgrunnlag = etTilskuddsgrunnlag()): Re
     )
 }
 
-fun enVarsling(varselType: VarselType = VarselType.KLAR ) : Varsling {
+fun enVarsling(varselType: VarselType = VarselType.KLAR): Varsling {
     val refusjonId = ulid()
     val varselTidspunkt = Now.localDateTime()
     return Varsling(refusjonId, varselType, varselTidspunkt)
@@ -48,7 +48,7 @@ fun enVarsling(varselType: VarselType = VarselType.KLAR ) : Varsling {
 fun refusjonerMedFerietrekk(): List<Refusjon> {
     val deltakerFnrMedMinusOgPlussFerietrekk = "26089638754"
     val bedriftNr = "999999999"
-    val refusjon1 =  Refusjon(
+    val refusjon1 = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
             tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
             deltakerFnr = deltakerFnrMedMinusOgPlussFerietrekk,
@@ -60,7 +60,7 @@ fun refusjonerMedFerietrekk(): List<Refusjon> {
         ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnrMedMinusOgPlussFerietrekk
     )
     val deltakerFnrMedPlussFerietrekk = "23039648083"
-    val refusjon2 =  Refusjon(
+    val refusjon2 = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
             tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
             deltakerFnr = deltakerFnrMedPlussFerietrekk,
@@ -78,7 +78,7 @@ fun refusjonerMedFerietrekk(): List<Refusjon> {
 fun gamleUtbetalteRefusjonerOgEnNy(): List<Refusjon> {
     val deltakerFnrMedMasseUtbetalt = "08098138758"
     val bedriftNr = "999999999"
-    val refusjon1 =  Refusjon(
+    val refusjon1 = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
             tiltakstype = Tiltakstype.VARIG_LONNSTILSKUDD,
             deltakerFnr = deltakerFnrMedMasseUtbetalt,
@@ -96,14 +96,14 @@ fun gamleUtbetalteRefusjonerOgEnNy(): List<Refusjon> {
                 it.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom.month
             ),
 
-        )
+            )
         it.medBedriftKontonummer()
         it.medSvarPåInntekter()
         it.medBeregning()
         it.medSendtKravFraArbeidsgiver()
         it.utbetalingVellykket()
     }
-    val refusjon2 =  Refusjon(
+    val refusjon2 = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
             tiltakstype = Tiltakstype.VARIG_LONNSTILSKUDD,
             deltakerFnr = deltakerFnrMedMasseUtbetalt,
@@ -127,7 +127,7 @@ fun gamleUtbetalteRefusjonerOgEnNy(): List<Refusjon> {
         it.medSendtKravFraArbeidsgiver()
         it.utbetalingVellykket()
     }
-    val refusjon3 =  Refusjon(
+    val refusjon3 = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
             tiltakstype = Tiltakstype.VARIG_LONNSTILSKUDD,
             deltakerFnr = deltakerFnrMedMasseUtbetalt,
@@ -151,7 +151,7 @@ fun gamleUtbetalteRefusjonerOgEnNy(): List<Refusjon> {
         it.medSendtKravFraArbeidsgiver()
         it.utbetalingVellykket()
     }
-    val refusjon4 =  Refusjon(
+    val refusjon4 = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
             tiltakstype = Tiltakstype.VARIG_LONNSTILSKUDD,
             deltakerFnr = deltakerFnrMedMasseUtbetalt,
@@ -175,7 +175,7 @@ fun gamleUtbetalteRefusjonerOgEnNy(): List<Refusjon> {
         it.medSendtKravFraArbeidsgiver()
         it.utbetalingVellykket()
     }
-    val refusjon5 =  Refusjon(
+    val refusjon5 = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
             tiltakstype = Tiltakstype.VARIG_LONNSTILSKUDD,
             deltakerFnr = deltakerFnrMedMasseUtbetalt,
@@ -199,7 +199,7 @@ fun gamleUtbetalteRefusjonerOgEnNy(): List<Refusjon> {
         it.medSendtKravFraArbeidsgiver()
         it.utbetalingVellykket()
     }
-    val refusjon6 =  Refusjon(
+    val refusjon6 = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
             tiltakstype = Tiltakstype.VARIG_LONNSTILSKUDD,
             deltakerFnr = deltakerFnrMedMasseUtbetalt,
@@ -223,7 +223,7 @@ fun gamleUtbetalteRefusjonerOgEnNy(): List<Refusjon> {
         it.medSendtKravFraArbeidsgiver()
         it.utbetalingVellykket()
     }
-    val refusjon7 =  Refusjon(
+    val refusjon7 = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
             tiltakstype = Tiltakstype.VARIG_LONNSTILSKUDD,
             deltakerFnr = deltakerFnrMedMasseUtbetalt,
@@ -247,7 +247,7 @@ fun gamleUtbetalteRefusjonerOgEnNy(): List<Refusjon> {
         it.medSendtKravFraArbeidsgiver()
         it.utbetalingVellykket()
     }
-    val refusjon8 =  Refusjon(
+    val refusjon8 = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
             tiltakstype = Tiltakstype.VARIG_LONNSTILSKUDD,
             deltakerFnr = deltakerFnrMedMasseUtbetalt,
@@ -271,7 +271,7 @@ fun gamleUtbetalteRefusjonerOgEnNy(): List<Refusjon> {
         it.medSendtKravFraArbeidsgiver()
         it.utbetalingVellykket()
     }
-    val refusjon9 =  Refusjon(
+    val refusjon9 = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
             tiltakstype = Tiltakstype.VARIG_LONNSTILSKUDD,
             deltakerFnr = deltakerFnrMedMasseUtbetalt,
@@ -282,7 +282,7 @@ fun gamleUtbetalteRefusjonerOgEnNy(): List<Refusjon> {
             veilederNavIdent = "X123456"
         ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnrMedMasseUtbetalt
     )
-    val refusjon10 =  Refusjon(
+    val refusjon10 = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
             tiltakstype = Tiltakstype.VARIG_LONNSTILSKUDD,
             deltakerFnr = deltakerFnrMedMasseUtbetalt,
@@ -338,7 +338,7 @@ fun refusjoner(): List<Refusjon> {
         it.medSendtKravFraArbeidsgiver()
     }
 
-    val SnorreKorreksjonLønnEtterDødsfallMedIngenInntekt  = `Snorre Sturlason`().let {
+    val SnorreKorreksjonLønnEtterDødsfallMedIngenInntekt = `Snorre Sturlason`().let {
         val tilskuddFom = Now.localDate().withDayOfMonth(1);
         it.copy(
             deltakerFnr = "09078349333",
@@ -348,10 +348,12 @@ fun refusjoner(): List<Refusjon> {
                 tilskuddTom = Now.localDate().minusDays(1)
             )
         )
-            .medInntektsgrunnlag(måned = YearMonth.of(
-                it.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom.year,
-                it.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom.month
-            ))
+            .medInntektsgrunnlag(
+                måned = YearMonth.of(
+                    it.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom.year,
+                    it.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom.month
+                )
+            )
     }
 
     fun `Jon Janson Ferietrekk minus beløp 1`(): Refusjon {
@@ -797,7 +799,8 @@ fun `Vidar Fortidlig`(): Refusjon {
             veilederNavIdent = "X123456",
             avtaleFom = Now.localDate().minusMonths(4).withDayOfMonth(1),
             avtaleTom = Now.localDate().plusYears(2).withDayOfMonth(1),
-        ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr,
+        ),
+        bedriftNr = bedriftNr, deltakerFnr = deltakerFnr,
     )
 
     refusjon.let {
@@ -879,10 +882,10 @@ fun `Vidar Utbetalt`(): Refusjon {
     return refusjon
 }
 
-fun dodsfallUnderTiltakRefusjon():Refusjon{
+fun dodsfallUnderTiltakRefusjon(): Refusjon {
     val deltakerFnrMedMasseUtbetalt = "30038738743"
     val bedriftNr = "999999999"
-    val refusjon =  Refusjon(
+    val refusjon = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
             tiltakstype = Tiltakstype.VARIG_LONNSTILSKUDD,
             deltakerFnr = deltakerFnrMedMasseUtbetalt,

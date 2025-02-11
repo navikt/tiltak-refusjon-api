@@ -21,12 +21,12 @@ class AutomatiskInnsendingService(
 
     @Transactional
     fun utførAutomatiskInnsendingHvisMulig() {
-        refusjonRepository.findAllByStatusAndRefusjonsgrunnlagTilskuddsgrunnlagTiltakstypeIn(
-            RefusjonStatus.FOR_TIDLIG,
+        refusjonRepository.findAllByStatusInAndRefusjonsgrunnlagTilskuddsgrunnlagTiltakstypeIn(
+            listOf(RefusjonStatus.FOR_TIDLIG, RefusjonStatus.KLAR_FOR_INNSENDING),
             tiltakstyperSomKanSendesInnAutomatisk
         )
             .forEach { refusjon ->
-                if (refusjon.settKlarTilInnsendingHvisMulig()) {
+                if (refusjon.status == RefusjonStatus.KLAR_FOR_INNSENDING || refusjon.settKlarTilInnsendingHvisMulig()) {
                     utførAutomatiskInnsendingHvisMulig(refusjon)
                 }
             }

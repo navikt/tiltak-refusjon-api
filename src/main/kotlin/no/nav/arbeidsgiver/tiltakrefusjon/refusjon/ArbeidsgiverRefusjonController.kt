@@ -58,8 +58,8 @@ class ArbeidsgiverRefusjonController(
     }
 
     @GetMapping("/{id}/pdf")
-    fun hentPDF(@PathVariable id:String): HttpEntity<ByteArray>{
-        if(id.trim().isEmpty()) return HttpEntity.EMPTY as HttpEntity<ByteArray>
+    fun hentPDF(@PathVariable id: String): HttpEntity<ByteArray> {
+        if (id.trim().isEmpty()) return HttpEntity.EMPTY as HttpEntity<ByteArray>
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
         val refusjon = arbeidsgiver.finnRefusjon(id)
         val pdfDataAsByteArray: ByteArray = dokgenService.refusjonPdf(refusjon)
@@ -76,6 +76,7 @@ class ArbeidsgiverRefusjonController(
     @GetMapping("/hentliste")
     fun hentListAvBedrifter(queryParametre: HentArbeidsgiverRefusjonerQueryParametre): ResponseEntity<Map<String, Any>> {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
+        logger.info("Utfører hentliste-kall (${queryParametre})")
         val pagableRefusjonlist: Page<Refusjon> = arbeidsgiver.finnAlleForGittArbeidsgiver(
             queryParametre.bedriftNr,
             queryParametre.status,
@@ -84,12 +85,13 @@ class ArbeidsgiverRefusjonController(
             queryParametre.page,
             queryParametre.size
         );
+        logger.info("Henter liste av refusjoner: ${pagableRefusjonlist.map { it.id }}")
         val response = mapOf(
-            Pair("refusjoner", pagableRefusjonlist.content),
-            Pair("size", pagableRefusjonlist.size),
-            Pair("currentPage", pagableRefusjonlist.number),
-            Pair("totalItems", pagableRefusjonlist.totalElements),
-            Pair("totalPages", pagableRefusjonlist.totalPages)
+            "refusjoner" to pagableRefusjonlist.content,
+            "size" to pagableRefusjonlist.size,
+            "currentPage" to pagableRefusjonlist.number,
+            "totalItems" to pagableRefusjonlist.totalElements,
+            "totalPages" to pagableRefusjonlist.totalPages
         )
         return ResponseEntity<Map<String, Any>>(response, HttpStatus.OK)
     }
@@ -125,7 +127,7 @@ class ArbeidsgiverRefusjonController(
     @Transactional
     fun endreBruttolønn(@PathVariable id: String, @RequestBody request: EndreBruttolønnRequest, @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-         arbeidsgiver.endreBruttolønn(
+        arbeidsgiver.endreBruttolønn(
             id,
             request.inntekterKunFraTiltaket,
             request.bruttoLønn,

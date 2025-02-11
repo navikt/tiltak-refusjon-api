@@ -368,7 +368,7 @@ internal class RefusjonTest {
                 godkjentAvBeslutterTidspunkt = Now.localDateTime()
             )
         )
-        val godkjentAvBeslutterTidspunkt = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.godkjentAvBeslutterTidspunkt.toLocalDate()
+        val godkjentAvBeslutterTidspunkt = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.godkjentAvBeslutterTidspunkt!!.toLocalDate()
         val sisteDagDetErMuligÅForlengeTil = antallMånederEtter(godkjentAvBeslutterTidspunkt, 3)
 
         assertFeilkode(Feilkode.FOR_LANG_FORLENGELSE_AV_FRIST) {
@@ -378,7 +378,7 @@ internal class RefusjonTest {
         // Positiv test
         refusjon.forlengFrist(sisteDagDetErMuligÅForlengeTil, "", innloggetArbeidsgiver)
         assertThat(refusjon.fristForGodkjenning).isEqualTo(sisteDagDetErMuligÅForlengeTil)
-        assertThat(refusjon.forrigeFristForGodkjenning).isEqualTo(antallMånederEtter(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.godkjentAvBeslutterTidspunkt.toLocalDate(), 2))
+        assertThat(refusjon.forrigeFristForGodkjenning).isEqualTo(antallMånederEtter(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.godkjentAvBeslutterTidspunkt!!.toLocalDate(), 2))
     }
 
     @Test
@@ -390,7 +390,7 @@ internal class RefusjonTest {
             godkjentAvBeslutterTidspunkt = LocalDateTime.now())
         val refusjon = enRefusjon(tilskuddsgrunnlag)
 
-        val godkjentAvBeslutterTidspunkt = tilskuddsgrunnlag.godkjentAvBeslutterTidspunkt.toLocalDate()
+        val godkjentAvBeslutterTidspunkt = tilskuddsgrunnlag.godkjentAvBeslutterTidspunkt!!.toLocalDate()
         assertThat(refusjon.fristForGodkjenning).isEqualTo(antallMånederEtter(godkjentAvBeslutterTidspunkt, 2))
     }
 

@@ -27,25 +27,8 @@ class AutomatiskInnsendingService(
         )
             .forEach { refusjon ->
                 if (refusjon.settKlarTilInnsendingHvisMulig()) {
-                    utførAutomatiskInnsendingHvisMulig(refusjon)
+                    refusjonService.utførAutomatiskInnsendingHvisMulig(refusjon)
                 }
             }
-    }
-
-    fun utførAutomatiskInnsendingHvisMulig(refusjon: Refusjon) {
-        val refusjonensTiltaktstype = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype
-        if (!refusjonensTiltaktstype.utbetalesAutomatisk()) {
-            throw IllegalStateException("Refusjon ${refusjon.id} kan ikke sendes inn automatisk (tiltakstype ${refusjonensTiltaktstype})")
-        }
-        log.info(
-            "Utfører automatisk innsending av refusjon {}-{} ({})",
-            refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr,
-            refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.løpenummer,
-            refusjon.id
-        )
-        refusjonService.gjørBeregning(refusjon, SYSTEM_BRUKER)
-        refusjonService.gjørBedriftKontonummeroppslag(refusjon)
-        refusjon.godkjennForArbeidsgiver(utførtAv = SYSTEM_BRUKER)
-        refusjonRepository.save(refusjon)
     }
 }

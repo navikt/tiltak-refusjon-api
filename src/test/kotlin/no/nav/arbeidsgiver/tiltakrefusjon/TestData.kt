@@ -803,10 +803,7 @@ fun `Vidar Fortidlig`(): Refusjon {
         bedriftNr = bedriftNr, deltakerFnr = deltakerFnr,
     )
 
-    refusjon.let {
-        it.medBedriftKontonummer()
-        it.status = RefusjonStatus.FOR_TIDLIG
-    }
+    refusjon.status = RefusjonStatus.FOR_TIDLIG
 
     return refusjon
 }

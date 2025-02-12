@@ -44,6 +44,7 @@ class AutomatiskInnsendingService(
             refusjon.id
         )
         refusjonService.gjørBeregning(refusjon, SYSTEM_BRUKER)
+        refusjonService.gjørBedriftKontonummeroppslag(refusjon)
         refusjon.godkjennForArbeidsgiver(utførtAv = SYSTEM_BRUKER)
         refusjonRepository.save(refusjon)
     }

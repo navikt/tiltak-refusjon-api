@@ -509,6 +509,44 @@ class RefusjonServiceTest(
         assertThat(lagretRefusjon.status).isNotEqualTo(RefusjonStatus.ANNULLERT)
     }
 
+    @Test
+    fun `godkjenner etterregistrert VTAO tilskuddsperiode gir refusjon med status sendt`() {
+        val deltakerFnr = "00000000000"
+        val tilskuddMelding = TilskuddsperiodeGodkjentMelding(
+            avtaleId = "1",
+            tilskuddsbeløp = 5000,
+            tiltakstype = Tiltakstype.VTAO,
+            deltakerEtternavn = "Mus",
+            deltakerFornavn = "Mikke",
+            arbeidsgiverFornavn = "Arne",
+            arbeidsgiverEtternavn = "Arbeidsgiver",
+            arbeidsgiverTlf = "41111111",
+            arbeidsgiveravgiftSats = 0.0,
+            avtaleInnholdId = "1",
+            bedriftNavn = "Bedriften AS",
+            bedriftNr = "999999999",
+            deltakerFnr = deltakerFnr,
+            feriepengerSats = 0.0,
+            otpSats = 0.0,
+            tilskuddFom =  Now.localDate().minusWeeks(4),
+            tilskuddTom = Now.localDate().minusDays(1),
+            tilskuddsperiodeId = "1",
+            veilederNavIdent = "X123456",
+            lønnstilskuddsprosent = 0,
+            avtaleNr = 3456,
+            løpenummer = 1,
+            resendingsnummer = null,
+            enhet = "1000",
+            godkjentTidspunkt = LocalDateTime.now()
+        )
+        val refusjon = refusjonService.opprettRefusjon(tilskuddMelding)!!
+
+        val lagretRefusjon = refusjonRepository.findByIdOrNull(refusjon.id)
+        if (lagretRefusjon != null) {
+            assertThat(lagretRefusjon.status).isEqualTo(RefusjonStatus.SENDT_KRAV)
+        }
+    }
+
     fun gjørInntektoppslagForRefusjon(refusjon: Refusjon) {
         // Sett innhentede inntekter til opptjent i periode
         refusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.forEach { it.erOpptjentIPeriode = true }

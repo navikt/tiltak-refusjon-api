@@ -80,6 +80,10 @@ class RefusjonService(
 
         oppdaterRefusjon(refusjon, SYSTEM_BRUKER)
 
+        if (tilskuddsgrunnlag.tiltakstype.utbetalesAutomatisk() && refusjon.status == RefusjonStatus.KLAR_FOR_INNSENDING) {
+            this.utførAutomatiskInnsendingHvisMulig(refusjon)
+        }
+
         return refusjonRepository.save(refusjon)
     }
 
@@ -356,6 +360,22 @@ class RefusjonService(
         refusjon.endreBruttolønn(inntekterKunFraTiltaket, bruttoLønn)
     }
 
+    fun utførAutomatiskInnsendingHvisMulig(refusjon: Refusjon) {
+        val refusjonensTiltaktstype = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype
+        if (!refusjonensTiltaktstype.utbetalesAutomatisk()) {
+            throw IllegalStateException("Refusjon ${refusjon.id} kan ikke sendes inn automatisk (tiltakstype ${refusjonensTiltaktstype})")
+        }
+        log.info(
+            "Utfører automatisk innsending av refusjon {}-{} ({})",
+            refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr,
+            refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.løpenummer,
+            refusjon.id
+        )
+        this.gjørBeregning(refusjon, SYSTEM_BRUKER)
+        this.gjørBedriftKontonummeroppslag(refusjon)
+        refusjon.godkjennForArbeidsgiver(utførtAv = SYSTEM_BRUKER)
+        refusjonRepository.save(refusjon)
+    }
 }
 
 private fun Refusjon.fraSammeÅrSom(refusjon: Refusjon): Boolean = this.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom.year.equals(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom.year)

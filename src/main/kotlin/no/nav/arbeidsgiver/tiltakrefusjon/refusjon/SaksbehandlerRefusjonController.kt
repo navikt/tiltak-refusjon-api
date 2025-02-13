@@ -33,7 +33,6 @@ class SaksbehandlerRefusjonController(
     val innloggetBrukerService: InnloggetBrukerService,
     val hendelsesloggRepository: HendelsesloggRepository,
 ) {
-    @AuditLogging("Oversiktsbilde over refusjoner")
     @GetMapping
     fun hentAlle(queryParametre: HentSaksbehandlerRefusjonerQueryParametre): Map<String, Any> {
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()

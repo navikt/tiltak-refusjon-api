@@ -45,7 +45,6 @@ class ArbeidsgiverRefusjonController(
 ) {
     var logger: Logger = LoggerFactory.getLogger(javaClass)
 
-    @AuditLogging("Oversikt over refusjoner")
     @GetMapping
     fun hentAlle(queryParametre: HentArbeidsgiverRefusjonerQueryParametre): List<Refusjon> {
         if (queryParametre.bedriftNr == null) {
@@ -72,7 +71,6 @@ class ArbeidsgiverRefusjonController(
 
     }
 
-    @AuditLogging("Oversikt over refusjoner")
     @GetMapping("/hentliste")
     fun hentListAvBedrifter(queryParametre: HentArbeidsgiverRefusjonerQueryParametre): ResponseEntity<Map<String, Any>> {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()

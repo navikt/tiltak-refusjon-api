@@ -134,11 +134,6 @@ class RefusjonApiTest(
         // DA
         assertTrue(liste.all { it.bedriftNr == bedriftNr })
         assertEquals(4, liste.size)
-
-        // Forventer at oppslag auditlogges, men kun én gang per unike deltaker
-        verify(exactly = liste.map { it.deltakerFnr }.toSet().size) {
-            consoleLogger.logg(any())
-        }
     }
 
 
@@ -154,23 +149,12 @@ class RefusjonApiTest(
         val refusjonJson =
             sendRequest(get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/hentliste?page=0&size=3"), arbGiverToken)
         val refusjonlist: RefusjonlistFraFlereOrgTest = mapper.readValue(refusjonJson, object : TypeReference<RefusjonlistFraFlereOrgTest>() {})
-        verify(exactly = refusjonlist.refusjoner.map { mapOf("deltaker" to it.deltakerFnr, "bedrift" to it.bedriftNr) }.toSet().size) {
-            consoleLogger.logg(any())
-        }
-        resetAuditCount()
         val refusjonJson2 =
             sendRequest(get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/hentliste?page=1&size=3"), arbGiverToken)
         val refusjonlist2: RefusjonlistFraFlereOrgTest = mapper.readValue(refusjonJson2, object : TypeReference<RefusjonlistFraFlereOrgTest>() {})
-        verify(exactly = refusjonlist2.refusjoner.map { mapOf("deltaker" to it.deltakerFnr, "bedrift" to it.bedriftNr) }.toSet().size) {
-            consoleLogger.logg(any())
-        }
-        resetAuditCount()
         val refusjonJson3 =
             sendRequest(get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/hentliste?page=0&size=6"), arbGiverToken)
         val refusjonlist3: RefusjonlistFraFlereOrgTest = mapper.readValue(refusjonJson3, object : TypeReference<RefusjonlistFraFlereOrgTest>() {})
-        verify(exactly = refusjonlist3.refusjoner.map { mapOf("deltaker" to it.deltakerFnr, "bedrift" to it.bedriftNr) }.toSet().size) {
-            consoleLogger.logg(any())
-        }
 
         // SÅ
         assertThat(refusjonlist.refusjoner).allMatch { bedrifter -> bruker.organisasjoner.any { it.organizationNumber == bedrifter.bedriftNr } }

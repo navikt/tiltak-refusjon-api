@@ -7,6 +7,7 @@ data class AuditEntry(
     val appNavn: String,
     val utførtAv: String, // Nav-ident eller fnr på arbeidsgiver
     val oppslagPå: String, // Fnr på person det gjøres oppslag på, eller organisasjon
+    val entitetId: String,
     val eventType: EventType,
     val forespørselTillatt: Boolean,
     val oppslagUtførtTid: Instant,

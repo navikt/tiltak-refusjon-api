@@ -1,5 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.audit
 
-interface RefusjonMedFnrOgBedrift {
+interface AuditerbarEntitet {
+    val id: String
     fun getFnrOgBedrift(): FnrOgBedrift
 }

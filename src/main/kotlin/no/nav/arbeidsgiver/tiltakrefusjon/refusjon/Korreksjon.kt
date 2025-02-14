@@ -12,7 +12,7 @@ import jakarta.persistence.OneToOne
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.audit.FnrOgBedrift
-import no.nav.arbeidsgiver.tiltakrefusjon.audit.RefusjonMedFnrOgBedrift
+import no.nav.arbeidsgiver.tiltakrefusjon.audit.AuditerbarEntitet
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBruker
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.KorreksjonMerketForOppgjort
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.KorreksjonMerketForTilbakekreving
@@ -33,7 +33,7 @@ class Korreksjon(
     val bedriftNr: String,
     val unntakOmInntekterFremitid: Int?,
     val annenGrunn: String?
-) : AbstractAggregateRoot<Korreksjon>(), RefusjonMedFnrOgBedrift {
+) : AbstractAggregateRoot<Korreksjon>(), AuditerbarEntitet {
     constructor(
         korrigererRefusjonId: String,
         korreksjonsnummer: Int,
@@ -64,7 +64,7 @@ class Korreksjon(
     }
 
     @Id
-    val id: String = ulid()
+    override val id: String = ulid()
 
     @Enumerated(EnumType.STRING)
     @ElementCollection(fetch = FetchType.EAGER)

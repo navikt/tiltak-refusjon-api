@@ -48,7 +48,7 @@ class AuditLoggingAspect(val context: TokenValidationContextHolder, val auditLog
      * Hvis returverdien er en ResponseEntity eller HashMap, så "unboxer" vi disse og kaller funksjonen igjen.
      * I tilfellet hvor objektet er et HashMap prøver vi å hente ut refusjoner fra "refusjoner"-nøkkelen.
      */
-    private fun hentEntiteterSomKanAuditlogges(resultatobjekt: Any?): Set<FnrOgBedrift> {
+    private fun hentEntiteterSomKanAuditlogges(resultatobjekt: Any?): Set<AuditElement> {
         if (resultatobjekt is ResponseEntity<*>) {
             // Rekursivt kall for å "unboxe" ResponseEntity
             return hentEntiteterSomKanAuditlogges(resultatobjekt.body)
@@ -57,10 +57,10 @@ class AuditLoggingAspect(val context: TokenValidationContextHolder, val auditLog
             return hentEntiteterSomKanAuditlogges(resultatobjekt["refusjoner"])
         }
 
-        val entiteter = ArrayList<RefusjonMedFnrOgBedrift>()
+        val entiteter = ArrayList<AuditerbarEntitet>()
         if (resultatobjekt is Collection<*>) {
             resultatobjekt.forEach { refusjon ->
-                if (refusjon is RefusjonMedFnrOgBedrift) {
+                if (refusjon is AuditerbarEntitet) {
                     entiteter.add(refusjon)
                 }
             }
@@ -69,7 +69,7 @@ class AuditLoggingAspect(val context: TokenValidationContextHolder, val auditLog
                     "AuditLoggingAspect fant en respons som ikke inneholdt refusjoner: {}", resultatobjekt.first()?.javaClass?.name ?: "null"
                 )
             }
-        } else if (resultatobjekt is RefusjonMedFnrOgBedrift) {
+        } else if (resultatobjekt is AuditerbarEntitet) {
             // Responsen var en enkelt auditentitet
             entiteter.add(resultatobjekt)
         } else {
@@ -87,13 +87,11 @@ class AuditLoggingAspect(val context: TokenValidationContextHolder, val auditLog
      * Konverterer auditerbare refusjoner til et FnrOgBedrift-sett for å sikre at vi får ut unike
      * oppslag (hvis vi ikke gjør dette vil man feks logge oppslag mot samme deltaker i to refusjoner dobbelt).
      */
-    private fun hentOppslagsdata(result: Collection<RefusjonMedFnrOgBedrift>): Set<FnrOgBedrift> {
-        return result.map {
-            it.getFnrOgBedrift()
-        }.toSet()
+    private fun hentOppslagsdata(result: Collection<AuditerbarEntitet>): Set<AuditElement> {
+        return result.map(AuditElement::of).toSet()
     }
 
-    private fun sendAuditmeldingerTilKafka(request: HttpServletRequest, apiBeskrivelse: String, auditElementer: Set<FnrOgBedrift>) {
+    private fun sendAuditmeldingerTilKafka(request: HttpServletRequest, apiBeskrivelse: String, auditelementer: Set<AuditElement>) {
         try {
             val innloggetBrukerId = context.getClaims(Issuer.TOKEN_X)?.getStringClaim("pid") ?: context.getClaims(Issuer.AZURE)?.getStringClaim("NAVident")
             // Logger kun oppslag dersom en innlogget bruker utførte oppslaget
@@ -102,9 +100,9 @@ class AuditLoggingAspect(val context: TokenValidationContextHolder, val auditLog
                 val utførtTid = Now.instant()
 
                 val innloggetBrukerErPrivatperson = erGyldigFnr(innloggetBrukerId)
-                auditElementer.forEach { fnrOgBedrift ->
+                auditelementer.forEach { auditelement ->
                     // Vi er ikke interessert i oppslag som bruker gjør på seg selv
-                    if (fnrOgBedrift.deltakerFnr.equals(innloggetBrukerId)) {
+                    if (auditelement.deltakerFnr.equals(innloggetBrukerId)) {
                         return
                     }
                     // Traceparent header-format: https://www.w3.org/TR/trace-context/#traceparent-header
@@ -118,15 +116,16 @@ class AuditLoggingAspect(val context: TokenValidationContextHolder, val auditLog
                         AuditEntry(
                             appNavn = "tiltak-refusjon-api",
                             // ArcSight vil ikke ha oppslag som er utført av en privatperson; oppslaget må derfor være "utført av" en bedrift
-                            utførtAv = if (innloggetBrukerErPrivatperson) fnrOgBedrift.bedrift else innloggetBrukerId,
-                            oppslagPå = fnrOgBedrift.deltakerFnr,
+                            utførtAv = if (innloggetBrukerErPrivatperson) auditelement.bedrift else innloggetBrukerId,
+                            oppslagPå = auditelement.deltakerFnr,
                             eventType = EventType.READ,
                             forespørselTillatt = true,
                             oppslagUtførtTid = utførtTid,
                             beskrivelse = apiBeskrivelse,
                             requestUrl = uri,
                             requestMethod = request.method,
-                            correlationId = traceHeader ?: ""
+                            correlationId = traceHeader ?: "",
+                            entitetId = auditelement.id
                         )
                     )
                 }

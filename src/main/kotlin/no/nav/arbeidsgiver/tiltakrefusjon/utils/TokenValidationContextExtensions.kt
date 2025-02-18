@@ -11,3 +11,7 @@ fun TokenValidationContextHolder.erAzureBruker(): Boolean = this.getTokenValidat
 fun TokenValidationContextHolder.erTokenXBruker(): Boolean = this.getTokenValidationContext().hasTokenFor(Issuer.TOKEN_X.iss)
 fun TokenValidationContextHolder.sesjonsId() = this.getTokenValidationContext().anyValidClaims?.get("sid")
     ?: throw Exception("Kunne ikke finne sesjonsid for token. Claims: ${this.getTokenValidationContext().anyValidClaims?.allClaims?.keys ?: emptyList()}")
+fun TokenValidationContextHolder.jwtId() = this.getTokenValidationContext().anyValidClaims?.get("jti")
+    ?: throw Exception("Kunne ikke finne sesjonsid for token. Claims: ${this.getTokenValidationContext().anyValidClaims?.allClaims?.keys ?: emptyList()}")
+fun TokenValidationContextHolder.sub() = this.getTokenValidationContext().anyValidClaims?.get("sub")
+    ?: throw Exception("Kunne ikke finne sesjonsid for token. Claims: ${this.getTokenValidationContext().anyValidClaims?.allClaims?.keys ?: emptyList()}")

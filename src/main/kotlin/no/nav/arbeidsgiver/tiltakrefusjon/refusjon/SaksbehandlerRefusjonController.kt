@@ -6,7 +6,9 @@ import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBrukerService
 import no.nav.arbeidsgiver.tiltakrefusjon.hendelseslogg.HendelsesloggDTO
 import no.nav.arbeidsgiver.tiltakrefusjon.hendelseslogg.HendelsesloggRepository
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.ForlengFristRequest
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.jwtId
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.sesjonsId
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.sub
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import org.slf4j.Logger
@@ -52,6 +54,8 @@ class SaksbehandlerRefusjonController(
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
         try {
             logger.info("Sesjonsid: ${tokenValidationContextHolder.sesjonsId()}")
+            logger.info("Sub: ${tokenValidationContextHolder.sub()}")
+            logger.info("JTI: ${tokenValidationContextHolder.jwtId()}")
         } catch (e: Exception) {
             logger.error("Feilet sesjon", e)
         }

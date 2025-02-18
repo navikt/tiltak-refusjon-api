@@ -4,7 +4,9 @@ import no.nav.arbeidsgiver.tiltakrefusjon.UgyldigRequestException
 import no.nav.arbeidsgiver.tiltakrefusjon.audit.AuditLogging
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBrukerService
 import no.nav.arbeidsgiver.tiltakrefusjon.dokgen.DokgenService
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.jwtId
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.sesjonsId
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.sub
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import org.slf4j.Logger
@@ -99,7 +101,8 @@ class ArbeidsgiverRefusjonController(
     fun hent(@PathVariable id: String): Refusjon? {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
         try {
-            logger.info("Sesjonsid: ${tokenValidationContextHolder.sesjonsId()}")
+            logger.info("Sub: ${tokenValidationContextHolder.sub()}")
+            logger.info("JTI: ${tokenValidationContextHolder.jwtId()}")
         } catch (e: Exception) {
             logger.error("Feilet sesjon", e)
         }

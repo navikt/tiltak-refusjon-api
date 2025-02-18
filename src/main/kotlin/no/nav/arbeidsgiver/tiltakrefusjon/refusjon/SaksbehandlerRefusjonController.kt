@@ -6,7 +6,11 @@ import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBrukerService
 import no.nav.arbeidsgiver.tiltakrefusjon.hendelseslogg.HendelsesloggDTO
 import no.nav.arbeidsgiver.tiltakrefusjon.hendelseslogg.HendelsesloggRepository
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.ForlengFristRequest
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.sesjonsId
 import no.nav.security.token.support.core.api.ProtectedWithClaims
+import no.nav.security.token.support.core.context.TokenValidationContextHolder
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.web.bind.annotation.*
 import java.time.LocalDate
 
@@ -32,7 +36,10 @@ data class MerkForUnntakOmInntekterToMånederFremRequest(val merking: Int)
 class SaksbehandlerRefusjonController(
     val innloggetBrukerService: InnloggetBrukerService,
     val hendelsesloggRepository: HendelsesloggRepository,
+    val tokenValidationContextHolder: TokenValidationContextHolder
 ) {
+    var logger: Logger = LoggerFactory.getLogger(javaClass)
+
     @GetMapping
     fun hentAlle(queryParametre: HentSaksbehandlerRefusjonerQueryParametre): Map<String, Any> {
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
@@ -43,6 +50,11 @@ class SaksbehandlerRefusjonController(
     @GetMapping("/{id}")
     fun hent(@PathVariable id: String): Refusjon? {
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
+        try {
+            logger.info("Sesjonsid: ${tokenValidationContextHolder.sesjonsId()}")
+        } catch (e: Exception) {
+            logger.error("Feilet sesjon", e)
+        }
         return saksbehandler.finnRefusjon(id)
     }
 

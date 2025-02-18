@@ -4,7 +4,9 @@ import no.nav.arbeidsgiver.tiltakrefusjon.UgyldigRequestException
 import no.nav.arbeidsgiver.tiltakrefusjon.audit.AuditLogging
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBrukerService
 import no.nav.arbeidsgiver.tiltakrefusjon.dokgen.DokgenService
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.sesjonsId
 import no.nav.security.token.support.core.api.ProtectedWithClaims
+import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
@@ -23,7 +25,6 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import java.time.Duration
 import java.time.Instant
-import java.time.temporal.ChronoField
 
 const val REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON = "/api/arbeidsgiver/refusjon"
 
@@ -41,7 +42,8 @@ data class HentArbeidsgiverRefusjonerQueryParametre(
 @ProtectedWithClaims(issuer = "tokenx")
 class ArbeidsgiverRefusjonController(
     val innloggetBrukerService: InnloggetBrukerService,
-    val dokgenService: DokgenService
+    val dokgenService: DokgenService,
+    private val tokenValidationContextHolder: TokenValidationContextHolder
 ) {
     var logger: Logger = LoggerFactory.getLogger(javaClass)
 
@@ -57,8 +59,8 @@ class ArbeidsgiverRefusjonController(
     }
 
     @GetMapping("/{id}/pdf")
-    fun hentPDF(@PathVariable id:String): HttpEntity<ByteArray>{
-        if(id.trim().isEmpty()) return HttpEntity.EMPTY as HttpEntity<ByteArray>
+    fun hentPDF(@PathVariable id: String): HttpEntity<ByteArray> {
+        if (id.trim().isEmpty()) return HttpEntity.EMPTY as HttpEntity<ByteArray>
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
         val refusjon = arbeidsgiver.finnRefusjon(id)
         val pdfDataAsByteArray: ByteArray = dokgenService.refusjonPdf(refusjon)
@@ -96,6 +98,11 @@ class ArbeidsgiverRefusjonController(
     @GetMapping("/{id}")
     fun hent(@PathVariable id: String): Refusjon? {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
+        try {
+            logger.info("Sesjonsid: ${tokenValidationContextHolder.sesjonsId()}")
+        } catch (e: Exception) {
+            logger.error("Feilet sesjon", e)
+        }
         return arbeidsgiver.finnRefusjon(id)
     }
 
@@ -123,7 +130,7 @@ class ArbeidsgiverRefusjonController(
     @Transactional
     fun endreBruttolønn(@PathVariable id: String, @RequestBody request: EndreBruttolønnRequest, @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-         arbeidsgiver.endreBruttolønn(
+        arbeidsgiver.endreBruttolønn(
             id,
             request.inntekterKunFraTiltaket,
             request.bruttoLønn,

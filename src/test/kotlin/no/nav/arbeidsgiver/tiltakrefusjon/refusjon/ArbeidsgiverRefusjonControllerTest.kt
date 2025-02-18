@@ -8,6 +8,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetArbeidsgiver
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBrukerService
 import no.nav.arbeidsgiver.tiltakrefusjon.dokgen.DokgenService
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.ulid
+import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -22,9 +23,10 @@ class ArbeidsgiverRefusjonControllerTest{
     var innlogetServiceMock = mockk<InnloggetBrukerService>()
     var dokgenService =    mockk<DokgenService>()
     var innloggetArbeidsgiver =    mockk<InnloggetArbeidsgiver>()
+    var tokenValidationContextHolderMock = mockk<TokenValidationContextHolder>()
     @Before
     fun setup(){
-        controller = ArbeidsgiverRefusjonController(innlogetServiceMock,dokgenService)
+        controller = ArbeidsgiverRefusjonController(innlogetServiceMock,dokgenService, tokenValidationContextHolderMock)
     }
 
     @Test

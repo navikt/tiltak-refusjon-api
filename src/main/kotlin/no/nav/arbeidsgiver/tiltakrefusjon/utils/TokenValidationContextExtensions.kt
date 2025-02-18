@@ -9,3 +9,5 @@ enum class Issuer(public val iss: String) {
 fun TokenValidationContextHolder.getClaims(issuer: Issuer) = if (this.getTokenValidationContext().hasTokenFor(issuer.iss)) this.getTokenValidationContext().getClaims(issuer.iss) else null
 fun TokenValidationContextHolder.erAzureBruker(): Boolean = this.getTokenValidationContext().hasTokenFor(Issuer.AZURE.iss)
 fun TokenValidationContextHolder.erTokenXBruker(): Boolean = this.getTokenValidationContext().hasTokenFor(Issuer.TOKEN_X.iss)
+fun TokenValidationContextHolder.sesjonsId() = this.getTokenValidationContext().anyValidClaims?.get("sid")
+    ?: throw Exception("Kunne ikke finne sesjonsid for token. Claims: ${this.getTokenValidationContext().anyValidClaims?.allClaims?.keys ?: emptyList()}")

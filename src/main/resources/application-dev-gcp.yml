@@ -19,7 +19,7 @@ tiltak-refusjon:
     api-uri: ${UNLEASH_SERVER_API_URL}/api
     api-token: ${UNLEASH_SERVER_API_TOKEN}
   varsling:
-    varsling-klar-cron: "0 */5 * 18 * ?"
+    varsling-klar-cron: "0 */5 * * * ?"
   beslutter-ad-gruppe:
     id: fbfea82d-13da-43ad-a2f2-d7f21cb95f12
 

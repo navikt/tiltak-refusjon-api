@@ -46,7 +46,7 @@ data class InnloggetArbeidsgiver(
             SortingOrder.TILTAKSTYPE_ASC -> return Sort.Order.asc("refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype")
             SortingOrder.TILTAKSTYPE_DESC -> return Sort.Order.desc("refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype")
             SortingOrder.BEDRIFT_ASC -> return Sort.Order.asc("refusjonsgrunnlag.tilskuddsgrunnlag.bedriftNavn")
-            SortingOrder.BEDRIFT_DESC-> return Sort.Order.desc("refusjonsgrunnlag.tilskuddsgrunnlag.bedriftNavn")
+            SortingOrder.BEDRIFT_DESC -> return Sort.Order.desc("refusjonsgrunnlag.tilskuddsgrunnlag.bedriftNavn")
             SortingOrder.DELTAKER_ASC -> return Sort.Order.asc("refusjonsgrunnlag.tilskuddsgrunnlag.deltakerFornavn")
             SortingOrder.DELTAKER_DESC -> return Sort.Order.desc("refusjonsgrunnlag.tilskuddsgrunnlag.deltakerFornavn")
             SortingOrder.PERIODE_ASC -> return Sort.Order.asc("refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom")
@@ -58,24 +58,55 @@ data class InnloggetArbeidsgiver(
         }
     }
 
-    private fun getQueryMethodForFinnAlleForGittArbeidsgiver(bedriftNr: List<String>, status: RefusjonStatus?, tiltakstype: Tiltakstype?, sortingOrder: SortingOrder?, page: Int, size: Int): Page<Refusjon> {
+    private fun getQueryMethodForFinnAlleForGittArbeidsgiver(
+        bedriftNr: List<String>,
+        status: RefusjonStatus?,
+        tiltakstype: Tiltakstype?,
+        sortingOrder: SortingOrder?,
+        page: Int,
+        size: Int
+    ): Page<Refusjon> {
         val paging: Pageable = PageRequest.of(page, size)
-        if(sortingOrder != null && sortingOrder != SortingOrder.STATUS_ASC) {
-            return refusjonRepository.findAllByBedriftNrAndStatusDefinedSort(bedriftNr, status, tiltakstype, PageRequest.of(page, size, Sort.by(getSortingOrderForPageable(sortingOrder), Sort.Order.asc("id"))))
+        if (sortingOrder != null && sortingOrder != SortingOrder.STATUS_ASC) {
+            return refusjonRepository.findAllByBedriftNrAndStatusDefinedSort(
+                bedriftNr,
+                status,
+                tiltakstype,
+                PageRequest.of(page, size, Sort.by(getSortingOrderForPageable(sortingOrder), Sort.Order.asc("id")))
+            )
         }
         return refusjonRepository.findAllByBedriftNrAndStatusDefaultSort(bedriftNr, status, tiltakstype, paging)
     }
 
-    fun finnAlleForGittArbeidsgiver(bedrifter: String?, status: RefusjonStatus?, tiltakstype: Tiltakstype?,  sortingOrder: SortingOrder?, page: Int, size: Int): Page<Refusjon> {
-        if(bedrifter != null) {
+    fun finnAlleForGittArbeidsgiver(
+        bedrifter: String?,
+        status: RefusjonStatus?,
+        tiltakstype: Tiltakstype?,
+        sortingOrder: SortingOrder?,
+        page: Int,
+        size: Int
+    ): Page<Refusjon> {
+        if (bedrifter != null) {
             if (bedrifter != "ALLEBEDRIFTER") {
                 return getQueryMethodForFinnAlleForGittArbeidsgiver(
                     bedrifter.split(",")
-                        .filter { org -> this.organisasjoner.any { it.organizationNumber == org } }, status, tiltakstype, sortingOrder, page, size
+                        .filter { org -> this.organisasjoner.any { it.organizationNumber == org } },
+                    status,
+                    tiltakstype,
+                    sortingOrder,
+                    page,
+                    size
                 )
             }
         }
-        return getQueryMethodForFinnAlleForGittArbeidsgiver(finnAlleUnderenheterTilArbeidsgiver(), status, tiltakstype, sortingOrder, page, size)
+        return getQueryMethodForFinnAlleForGittArbeidsgiver(
+            finnAlleUnderenheterTilArbeidsgiver(),
+            status,
+            tiltakstype,
+            sortingOrder,
+            page,
+            size
+        )
     }
 
     fun godkjenn(refusjonId: String, sistEndret: Instant?) {
@@ -103,15 +134,22 @@ data class InnloggetArbeidsgiver(
     fun settKontonummerOgInntekterPåRefusjon(id: String, sistEndret: Instant?): Refusjon {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
-        if(refusjon.status != RefusjonStatus.KLAR_FOR_INNSENDING) {
+        if (refusjon.status != RefusjonStatus.KLAR_FOR_INNSENDING && !refusjon.tiltakstype().utbetalesAutomatisk()) {
+            throw FeilkodeException(Feilkode.UGYLDIG_STATUS)
+        } else if (refusjon.status != RefusjonStatus.KLAR_FOR_INNSENDING
+            && refusjon.status != RefusjonStatus.FOR_TIDLIG
+            && refusjon.tiltakstype().utbetalesAutomatisk()
+        ) {
             throw FeilkodeException(Feilkode.UGYLDIG_STATUS)
         }
         sjekkSistEndret(refusjon, sistEndret)
-        if(refusjon.åpnetFørsteGang == null) {
+        if (refusjon.åpnetFørsteGang == null) {
             refusjon.åpnetFørsteGang = Now.instant()
         }
         refusjonService.gjørBedriftKontonummeroppslag(refusjon)
-        refusjonService.gjørInntektsoppslag(refusjon, this)
+        if (!refusjon.tiltakstype().harFastUtbetalingssum()) {
+            refusjonService.gjørInntektsoppslag(refusjon, this)
+        }
         refusjonService.oppdaterSistEndret(refusjon)
         return refusjonRepository.save(refusjon)
     }
@@ -139,7 +177,7 @@ data class InnloggetArbeidsgiver(
         refusjonRepository.save(refusjon)
     }
 
-    fun lagreBedriftKID(id: String, bedriftKID: String?, sistEndret: Instant?){
+    fun lagreBedriftKID(id: String, bedriftKID: String?, sistEndret: Instant?) {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
         sjekkSistEndret(refusjon, sistEndret)
@@ -148,7 +186,12 @@ data class InnloggetArbeidsgiver(
         refusjonRepository.save(refusjon)
     }
 
-    fun setInntektslinjeTilOpptjentIPeriode(refusjonId: String, inntekslinjeId: String, erOpptjentIPeriode: Boolean, sistEndret: Instant?) {
+    fun setInntektslinjeTilOpptjentIPeriode(
+        refusjonId: String,
+        inntekslinjeId: String,
+        erOpptjentIPeriode: Boolean,
+        sistEndret: Instant?
+    ) {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(refusjonId) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
         sjekkSistEndret(refusjon, sistEndret)
@@ -158,12 +201,17 @@ data class InnloggetArbeidsgiver(
         refusjonRepository.save(refusjon)
     }
 
-    fun settFratrekkRefunderbarBeløp(id: String, fratrekkRefunderbarBeløp: Boolean, refunderbarBeløp: Int?, sistEndret: Instant?) {
+    fun settFratrekkRefunderbarBeløp(
+        id: String,
+        fratrekkRefunderbarBeløp: Boolean,
+        refunderbarBeløp: Int?,
+        sistEndret: Instant?
+    ) {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
         sjekkSistEndret(refusjon, sistEndret)
         refusjon.settFratrekkRefunderbarBeløp(fratrekkRefunderbarBeløp, refunderbarBeløp)
-        if(fratrekkRefunderbarBeløp) {
+        if (fratrekkRefunderbarBeløp) {
             val tolvMåneder = antallMånederEtter(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom, 12)
             refusjon.forlengFristSykepenger(nyFrist = tolvMåneder, årsak = "Sykepenger", utførtAv = this)
         }

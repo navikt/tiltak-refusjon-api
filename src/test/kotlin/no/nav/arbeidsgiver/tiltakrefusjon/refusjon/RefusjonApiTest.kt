@@ -241,7 +241,6 @@ class RefusjonApiTest(
         val id = refusjonRepository.findAll().find { it.deltakerFnr == "28128521498" }?.id
 
         // Inntektsoppslag ved henting av refusjon
-        hentRefusjon(id)
         oppdaterRefusjonMedKontonrOgInntekter(id!!)
         val refusjonEtterInntektsgrunnlag = hentRefusjon(id)
         assertThat(refusjonEtterInntektsgrunnlag.refusjonsgrunnlag.inntektsgrunnlag).isNotNull()

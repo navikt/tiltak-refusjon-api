@@ -1,30 +1,14 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import jakarta.persistence.CascadeType
-import jakarta.persistence.Entity
-import jakarta.persistence.EnumType
-import jakarta.persistence.Enumerated
-import jakarta.persistence.Id
-import jakarta.persistence.OneToOne
+import jakarta.persistence.*
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.audit.AuditerbarEntitet
 import no.nav.arbeidsgiver.tiltakrefusjon.audit.FnrOgBedrift
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBruker
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.SYSTEM_BRUKER
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.FristForlenget
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.GodkjentAvArbeidsgiver
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.KryssetAvForFravær
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.MerketForInntekterFrem
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonAnnullert
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonEndretStatus
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonForkortet
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonGodkjentMinusBeløp
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonGodkjentNullBeløp
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonOpprettet
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonUtgått
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.SaksbehandlerMerketForInntekterLengerFrem
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.*
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.MidlerFrigjortÅrsak
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.KidValidator
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
@@ -90,7 +74,9 @@ class Refusjon(
         if (refusjonsgrunnlag.tilskuddsgrunnlag.godkjentAvBeslutterTidspunkt == null) {
             return antallMånederEtter(refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom, 2)
         }
-        if (refusjonsgrunnlag.tilskuddsgrunnlag.godkjentAvBeslutterTidspunkt.toLocalDate().isAfter(refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom)) {
+        if (refusjonsgrunnlag.tilskuddsgrunnlag.godkjentAvBeslutterTidspunkt.toLocalDate()
+                .isAfter(refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom)
+        ) {
             return antallMånederEtter(refusjonsgrunnlag.tilskuddsgrunnlag.godkjentAvBeslutterTidspunkt.toLocalDate(), 2)
         } else {
             return antallMånederEtter(refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom, 2)
@@ -249,7 +235,9 @@ class Refusjon(
      * tilskuddsperiode.
      */
     fun settKlarTilInnsendingHvisMulig(): Boolean {
-        if (status == RefusjonStatus.FOR_TIDLIG && Now.localDate().isAfter(refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom)) {
+        if (status == RefusjonStatus.FOR_TIDLIG && Now.localDate()
+                .isAfter(refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom)
+        ) {
             status = RefusjonStatus.KLAR_FOR_INNSENDING
             registerEvent(RefusjonEndretStatus(this))
             return true;
@@ -295,8 +283,18 @@ class Refusjon(
         }
     }
 
-    fun opprettKorreksjonsutkast(korreksjonsgrunner: Set<Korreksjonsgrunn>, unntakOmInntekterFremitid: Int?, annenGrunn: String?): Korreksjon {
-        krevStatus(RefusjonStatus.UTBETALT, RefusjonStatus.SENDT_KRAV, RefusjonStatus.GODKJENT_MINUSBELØP, RefusjonStatus.UTGÅTT, RefusjonStatus.GODKJENT_NULLBELØP)
+    fun opprettKorreksjonsutkast(
+        korreksjonsgrunner: Set<Korreksjonsgrunn>,
+        unntakOmInntekterFremitid: Int?,
+        annenGrunn: String?
+    ): Korreksjon {
+        krevStatus(
+            RefusjonStatus.UTBETALT,
+            RefusjonStatus.SENDT_KRAV,
+            RefusjonStatus.GODKJENT_MINUSBELØP,
+            RefusjonStatus.UTGÅTT,
+            RefusjonStatus.GODKJENT_NULLBELØP
+        )
         if (korreksjonId != null) {
             throw FeilkodeException(Feilkode.HAR_KORREKSJON)
         }
@@ -374,7 +372,10 @@ class Refusjon(
         if (status != RefusjonStatus.KLAR_FOR_INNSENDING) {
             return false
         }
-        if (hentInntekterLengerFrem != null && refusjonsgrunnlag.inntektsgrunnlag?.innhentetTidspunkt?.isBefore(hentInntekterLengerFrem) ?: true) {
+        if (hentInntekterLengerFrem != null && refusjonsgrunnlag.inntektsgrunnlag?.innhentetTidspunkt?.isBefore(
+                hentInntekterLengerFrem
+            ) ?: true
+        ) {
             return true
         }
 
@@ -384,7 +385,7 @@ class Refusjon(
     }
 
     fun skalGjøreKontonummerOppslag(): Boolean {
-        if (status != RefusjonStatus.KLAR_FOR_INNSENDING) return false
+        if (status != RefusjonStatus.KLAR_FOR_INNSENDING && status != RefusjonStatus.FOR_TIDLIG) return false
         val innhentetTidspunkt = refusjonsgrunnlag.bedriftKontonummerInnhentetTidspunkt
         return innhentetTidspunkt == null || innhentetTidspunkt.isBefore(Now.localDateTime().minusMinutes(1))
     }

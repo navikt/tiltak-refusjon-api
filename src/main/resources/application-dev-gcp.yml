@@ -14,6 +14,9 @@ tiltak-refusjon:
     serviceEdition: 1
   abac-tilgangstyring:
     uri: https://tiltak-proxy.dev-fss-pub.nais.io/application/asm-pdp/authorize
+  poao-tilgang:
+    url: http://poao-tilgang.poao
+    scope: api://dev-gcp.poao.poao-tilgang/.default
   unleash:
     enabled: true
     api-uri: ${UNLEASH_SERVER_API_URL}/api

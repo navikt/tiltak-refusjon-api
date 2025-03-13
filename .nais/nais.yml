@@ -41,6 +41,8 @@ spec:
       rules:
         - application: altinn-rettigheter-proxy
         - application: tiltak-dokgen
+        - application: poao-tilgang
+          namespace: poao
   kafka:
     pool: {{kafka-pool}}
   envFrom:

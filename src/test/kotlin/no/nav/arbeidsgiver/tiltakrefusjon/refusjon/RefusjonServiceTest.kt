@@ -510,7 +510,7 @@ class RefusjonServiceTest(
     }
 
     @Test
-    fun `godkjenner etterregistrert VTAO tilskuddsperiode gir refusjon med status sendt`() {
+    fun `godkjenner etterregistrert VTAO tilskuddsperiode gir refusjon med status for tidlig`() {
         val deltakerFnr = "00000000000"
         val tilskuddMelding = TilskuddsperiodeGodkjentMelding(
             avtaleId = "1",
@@ -543,7 +543,7 @@ class RefusjonServiceTest(
 
         val lagretRefusjon = refusjonRepository.findByIdOrNull(refusjon.id)
         if (lagretRefusjon != null) {
-            assertThat(lagretRefusjon.status).isEqualTo(RefusjonStatus.SENDT_KRAV)
+            assertThat(lagretRefusjon.status).isEqualTo(RefusjonStatus.FOR_TIDLIG)
         }
     }
 

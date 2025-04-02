@@ -80,10 +80,6 @@ class RefusjonService(
 
         oppdaterRefusjon(refusjon, SYSTEM_BRUKER)
 
-        if (tilskuddsgrunnlag.tiltakstype.utbetalesAutomatisk() && refusjon.status == RefusjonStatus.KLAR_FOR_INNSENDING) {
-            this.utførAutomatiskInnsendingHvisMulig(refusjon)
-        }
-
         return refusjonRepository.save(refusjon)
     }
 
@@ -361,9 +357,8 @@ class RefusjonService(
     }
 
     fun utførAutomatiskInnsendingHvisMulig(refusjon: Refusjon) {
-        val refusjonensTiltaktstype = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype
-        if (!refusjonensTiltaktstype.utbetalesAutomatisk()) {
-            throw IllegalStateException("Refusjon ${refusjon.id} kan ikke sendes inn automatisk (tiltakstype ${refusjonensTiltaktstype})")
+        if (!refusjon.tiltakstype().utbetalesAutomatisk()) {
+            throw IllegalStateException("Refusjon ${refusjon.id} kan ikke sendes inn automatisk (tiltakstype ${refusjon.tiltakstype()})")
         }
         log.info(
             "Utfører automatisk innsending av refusjon {}-{} ({})",

@@ -1,14 +1,30 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import jakarta.persistence.*
+import jakarta.persistence.CascadeType
+import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
+import jakarta.persistence.Id
+import jakarta.persistence.OneToOne
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.audit.AuditerbarEntitet
 import no.nav.arbeidsgiver.tiltakrefusjon.audit.FnrOgBedrift
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBruker
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.SYSTEM_BRUKER
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.*
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.FristForlenget
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.GodkjentAvArbeidsgiver
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.KryssetAvForFravær
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.MerketForInntekterFrem
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonAnnullert
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonEndretStatus
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonForkortet
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonGodkjentMinusBeløp
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonGodkjentNullBeløp
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonOpprettet
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonUtgått
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.SaksbehandlerMerketForInntekterLengerFrem
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.MidlerFrigjortÅrsak
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.KidValidator
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
@@ -121,6 +137,24 @@ class Refusjon(
         val today = Now.localDate()
         if (today.isAfter(fristForGodkjenning)) {
             status = RefusjonStatus.UTGÅTT
+            return
+        }
+
+        /*
+         * Ved etterregistrering av refusjoner som utbetales automatisk, vil refusjonene være markert som "for tidlig"
+         * helt til den nattlige jobben som sender ut faktura har kjørt. Men uten denne guarden vil refusjonen markeres
+         * som "klar for innsending", som ikke er en gyldig status for tiltakstyper med automatisk utbetaling.
+         *
+         * Etterregistrerte refusjoner sendes ikke umiddelbart til tiltak-okonomi når de ankommer refusjonsløsningen
+         * fordi vi risikerer en "race condition" der bestilling kommer etter faktura.
+         *
+         * oppdaterStatus kalles hele tiden! Når automatisk utbetaling utføres vil vi midlertidig gå inn i status
+         * "klar for innsending", og derfor kan vi ikke bare ukritisk sette status til "for tidlig" her nede.
+         */
+        if (::status.isInitialized && tiltakstype().utbetalesAutomatisk()) {
+            return
+        } else if (tiltakstype().utbetalesAutomatisk()) {
+            status = RefusjonStatus.FOR_TIDLIG
             return
         }
 

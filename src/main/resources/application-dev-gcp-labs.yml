@@ -22,7 +22,16 @@ no.nav.security.jwt:
     tokenx:
       discoveryurl: http://tiltak-fakelogin/metadata?issuer=tokenx
       accepted_audience: aud-tokenx
-  client: null
+  client:
+    registration:
+      dummy:
+        token-endpoint-url: https://nav.no
+        grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
+        scope: https://nav.no
+        authentication:
+          client-id: dummy
+          client-secret: dummy
+          client-auth-method: client_secret_basic
 
 tiltak-refusjon:
   kafka:

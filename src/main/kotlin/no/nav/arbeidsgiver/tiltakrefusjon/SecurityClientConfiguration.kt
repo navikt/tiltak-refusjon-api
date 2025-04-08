@@ -15,7 +15,6 @@ import org.springframework.web.client.RestTemplate
 
 @EnableOAuth2Client(cacheEnabled = true)
 @Configuration
-@Profile("dev-gcp", "prod-gcp")
 class SecurityClientConfiguration(
         val restTemplateBuilder: RestTemplateBuilder,
         val clientConfigurationProperties: ClientConfigurationProperties,
@@ -39,8 +38,8 @@ class SecurityClientConfiguration(
 
 
     private fun restTemplateForRegistration(registration: String): RestTemplate {
-        val clientProperties = clientConfigurationProperties.registration[registration]
-                ?: throw RuntimeException("could not find oauth2 client config for $registration")
+        val clientProperties: ClientProperties = clientConfigurationProperties.registration[registration] ?: return restTemplateBuilder.build()
+
         return restTemplateBuilder
                 .additionalInterceptors(bearerTokenInterceptor(clientProperties, oAuth2AccessTokenService))
                 .build()

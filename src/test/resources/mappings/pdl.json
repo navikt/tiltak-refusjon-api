@@ -1,0 +1,40 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "method": "POST",
+        "urlPath": "/persondata",
+        "headers": {
+          "Content-Type": {
+            "equalTo": "application/json; charset=utf-8",
+            "caseInsensitive": true
+          }
+        },
+        "bodyPatterns": [
+          {
+            "ignoreArrayOrder": true,
+            "equalToJson": {
+              "query": "query($identer: [ID!]!) { hentPersonBolk(identer: $identer) { ident, person { adressebeskyttelse { gradering } }, code } }",
+              "variables": {
+                "identer": [
+                  "28033114267",
+                  "16053900422",
+                  "26067114433",
+                  "08120689976",
+                  "23097010706"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "body": "{ \"data\": { \"hentPersonBolk\": [ { \"ident\": \"28033114267\", \"code\": \"ok\", \"person\": { \"adressebeskyttelse\": [ { \"gradering\": \"STRENGT_FORTROLIG_UTLAND\" } ], \"folkeregisteridentifikator\": [ { \"identifikasjonsnummer\": \"28033114267\", \"status\": \"BOSA\", \"type\": \"FNR\" } ] } }, { \"ident\": \"16053900422\", \"code\": \"ok\", \"person\": { \"adressebeskyttelse\": [ { \"gradering\": \"STRENGT_FORTROLIG\" } ], \"folkeregisteridentifikator\": [ { \"identifikasjonsnummer\": \"16053900422\", \"status\": \"BOSA\", \"type\": \"FNR\" } ] } }, { \"ident\": \"26067114433\", \"code\": \"ok\", \"person\": { \"adressebeskyttelse\": [ { \"gradering\": \"FORTROLIG\" } ], \"folkeregisteridentifikator\": [ { \"identifikasjonsnummer\": \"26067114433\", \"status\": \"BOSA\", \"type\": \"FNR\" } ] } }, { \"ident\": \"08120689976\", \"code\": \"ok\", \"person\": { \"adressebeskyttelse\": [ { \"gradering\": \"UGRADERT\" } ], \"folkeregisteridentifikator\": [ { \"identifikasjonsnummer\": \"08120689976\", \"status\": \"BOSA\", \"type\": \"FNR\" } ] } } ] } }",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    }
+  ]
+}

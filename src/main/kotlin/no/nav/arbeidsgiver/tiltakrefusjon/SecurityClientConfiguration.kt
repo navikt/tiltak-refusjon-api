@@ -4,22 +4,26 @@ import no.nav.security.token.support.client.core.ClientProperties
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService
 import no.nav.security.token.support.client.spring.ClientConfigurationProperties
 import no.nav.security.token.support.client.spring.oauth2.EnableOAuth2Client
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Profile
+import org.springframework.core.env.Environment
 import org.springframework.http.HttpRequest
 import org.springframework.http.client.ClientHttpRequestExecution
 import org.springframework.http.client.ClientHttpRequestInterceptor
 import org.springframework.web.client.RestTemplate
 
-@EnableOAuth2Client(cacheEnabled = true)
+
 @Configuration
+@EnableOAuth2Client(cacheEnabled = true)
 class SecurityClientConfiguration(
         val restTemplateBuilder: RestTemplateBuilder,
         val clientConfigurationProperties: ClientConfigurationProperties,
         val oAuth2AccessTokenService: OAuth2AccessTokenService
 ) {
+    @Autowired
+    private val environment: Environment? = null
 
     @Bean
     fun påVegneAvSaksbehandlerGraphRestTemplate() = restTemplateForRegistration("aad-graph")
@@ -33,12 +37,21 @@ class SecurityClientConfiguration(
     @Bean
     fun anonymProxyRestTemplate() = restTemplateForRegistration("aad-anonym")
 
-    @Bean("sokosRestTemplate")
+    @Bean
     fun sokosRestTemplate() = restTemplateForRegistration("sokos-kontoregister")
 
 
     private fun restTemplateForRegistration(registration: String): RestTemplate {
-        val clientProperties: ClientProperties = clientConfigurationProperties.registration[registration] ?: return restTemplateBuilder.build()
+        val erDevEllerProd = environment?.activeProfiles?.any {
+            env -> env.equals("dev-gcp") || env.equals("prod-gcp")
+        } ?: false
+
+        if (!erDevEllerProd) {
+            return restTemplateBuilder.build()
+        }
+
+        val clientProperties: ClientProperties = clientConfigurationProperties.registration[registration]
+            ?: throw RuntimeException("could not find oauth2 client config for $registration")
 
         return restTemplateBuilder
                 .additionalInterceptors(bearerTokenInterceptor(clientProperties, oAuth2AccessTokenService))

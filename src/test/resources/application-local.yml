@@ -40,7 +40,17 @@ no.nav.security.jwt:
     tokenx:
       discoveryurl: https://tiltak-fakelogin.ekstern.dev.nav.no/metadata?issuer=tokenx
       accepted_audience: aud-tokenx
-  client: null
+  client:
+    registration:
+      dummy:
+        token-endpoint-url: https://nav.no
+        grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
+        scope: https://nav.no
+        authentication:
+          client-id: dummy
+          client-secret: dummy
+          client-auth-method: client_secret_basic
+
 
 logging:
   level:
@@ -77,6 +87,8 @@ tiltak-refusjon:
     id: 1a1d2745-952f-4a0f-839f-9530145b1d4a
   norg:
     fake: true
+  pdl-api:
+    uri: http://localhost:${wiremock.port}/persondata
 server:
   port: 8081
 

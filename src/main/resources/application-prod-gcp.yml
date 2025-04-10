@@ -2,7 +2,6 @@ tiltak-refusjon:
   kontoregister:
     uri: https://sokos-kontoregister.prod-fss-pub.nais.io/kontoregister/api/v1/hent-kontonummer-for-organisasjon
     consumer-id: tiltak-refusjon-api
-    scope: api://prod-fss.okonomi.sokos-kontoregister/.default
   inntektskomponenten:
     uri: https://tiltak-proxy.prod-fss-pub.nais.io/inntektskomponenten-ws/rs/api/v1/hentinntektliste
     filter: KontrollArbeidsmarkedstiltakA-inntekt
@@ -25,8 +24,7 @@ tiltak-refusjon:
   norg:
     uri: https://norg2.prod-fss-pub.nais.io/norg2/api/v1
   pdl-api:
-    uri: https://pdl-api.dev.intern.nav.no/graphql
-    scope: api://prod-fss.pdl.pdl-api/.default
+    uri: https://pdl-api.prod-fss-pub.nais.io/graphql
 
 no.nav.security.jwt:
   issuer:
@@ -66,7 +64,7 @@ no.nav.security.jwt:
       sokos-kontoregister:
         token-endpoint-url: https://login.microsoftonline.com/${AZURE_APP_TENANT_ID}/oauth2/v2.0/token
         grant-type: client_credentials
-        scope: ${tiltak-refusjon.kontoregister.scope}
+        scope: api://prod-fss.okonomi.sokos-kontoregister/.default
         authentication:
           client-id: ${AZURE_APP_CLIENT_ID}
           client-secret: ${AZURE_APP_CLIENT_SECRET}
@@ -82,7 +80,7 @@ no.nav.security.jwt:
       pdl-api:
         token-endpoint-url: https://login.microsoftonline.com/${AZURE_APP_TENANT_ID}/oauth2/v2.0/token
         grant-type: client_credentials
-        scope: ${tiltak-refusjon.pdl-api.scope}
+        scope: api://prod-fss.pdl.pdl-api/.default
         authentication:
           client-id: ${AZURE_APP_CLIENT_ID}
           client-secret: ${AZURE_APP_CLIENT_SECRET}

@@ -4,6 +4,7 @@ host:
   - graph.microsoft.com
   - login.microsoftonline.com
   - team-tiltak-unleash-api.nav.cloud.nais.io
+  - pdl-api.prod-fss-pub.nais.io
 tenant: nav.no
 besluttergruppe: 156f4f79-6909-4be1-8045-323f55590898
 slack_alert_channel: arbeidsgiver-tiltak-alerts

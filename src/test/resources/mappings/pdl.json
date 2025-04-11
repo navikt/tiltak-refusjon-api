@@ -7,7 +7,7 @@
       },
       "response": {
         "status": 200,
-        "body": "{\"data\":{\"hentPerson\":{\"adressebeskyttelse\": [{\"gradering\": \"UGRADERT\"}], \"navn\":[{\"fornavn\":\"Donald\",\"etternavn\":\"Duck\"}]},\"hentGeografiskTilknytning\":{\"gtType\":\"BYDEL\",\"gtKommune\":null,\"gtBydel\":\"030104\",\"gtLand\":null,\"regel\":\"3\"}},\"hentIdenter\": { \"identer\": [{ \"ident\": \"2135315926224\", \"gruppe\": \"AKTORID\", \"historisk\": false }]}}",
+        "body": "{\"data\":{\"hentPerson\":{\"adressebeskyttelse\": [{\"gradering\": \"UGRADERT\"}], \"navn\":[{\"fornavn\":\"Dolly\",\"etternavn\":\"Duck\"}]},\"hentGeografiskTilknytning\":{\"gtType\":\"BYDEL\",\"gtKommune\":null,\"gtBydel\":\"030104\",\"gtLand\":null,\"regel\":\"3\"}},\"hentIdenter\": { \"identer\": [{ \"ident\": \"2135315926224\", \"gruppe\": \"AKTORID\", \"historisk\": false }]}}",
         "headers": {
           "Content-Type": "application/json"
         }
@@ -27,7 +27,7 @@
             "equalToJson": {
               "query": "query($ident: ID!) { hentPerson(ident: $ident) { navn { fornavn mellomnavn etternavn } adressebeskyttelse { gradering } } hentIdenter(ident: $ident, grupper: [AKTORID]) { identer { ident gruppe historisk } } hentGeografiskTilknytning(ident: $ident){ gtType gtKommune gtBydel gtLand regel } }",
               "variables": {
-                "ident": "07098142678"
+                "ident": "16053900422"
               }
             }
           }
@@ -35,7 +35,63 @@
       },
       "response": {
         "status": 200,
-        "body": "{\"data\":{\"hentPerson\":{\"adressebeskyttelse\": [{\"gradering\": \"STRENGT_FORTROLIG\"}], \"navn\":[{\"fornavn\":\"Donald\",\"etternavn\":\"Duck\"}]},\"hentGeografiskTilknytning\":{\"gtType\":\"BYDEL\",\"gtKommune\":null,\"gtBydel\":\"030104\",\"gtLand\":null,\"regel\":\"3\"}},\"hentIdenter\": { \"identer\": [{ \"ident\": \"2135315926224\", \"gruppe\": \"AKTORID\", \"historisk\": false }]}}",
+        "body": "{\"data\":{\"hentPerson\":{\"adressebeskyttelse\": [{\"gradering\": \"STRENGT_FORTROLIG\"}], \"navn\":[{\"fornavn\":\"Fetter\",\"etternavn\":\"Anton\"}]},\"hentGeografiskTilknytning\":{\"gtType\":\"BYDEL\",\"gtKommune\":null,\"gtBydel\":\"030104\",\"gtLand\":null,\"regel\":\"3\"}},\"hentIdenter\": { \"identer\": [{ \"ident\": \"2135315926224\", \"gruppe\": \"AKTORID\", \"historisk\": false }]}}",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "urlPath": "/persondata",
+        "headers": {
+          "Content-Type": {
+            "equalTo": "application/json; charset=UTF-8"
+          }
+        },
+        "bodyPatterns": [
+          {
+            "equalToJson": {
+              "query": "query($ident: ID!) { hentPerson(ident: $ident) { navn { fornavn mellomnavn etternavn } adressebeskyttelse { gradering } } hentIdenter(ident: $ident, grupper: [AKTORID]) { identer { ident gruppe historisk } } hentGeografiskTilknytning(ident: $ident){ gtType gtKommune gtBydel gtLand regel } }",
+              "variables": {
+                "ident": "28033114267"
+              }
+            }
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "body": "{\"data\":{\"hentPerson\":{\"adressebeskyttelse\": [{\"gradering\": \"STRENGT_FORTROLIG_UTLAND\"}], \"navn\":[{\"fornavn\":\"Dan\",\"etternavn\":\"Deltaker\"}]},\"hentGeografiskTilknytning\":{\"gtType\":\"KOMMUNE\",\"gtKommune\":\"123456\",\"gtBydel\":null,\"gtLand\":null,\"regel\":\"3\"}},\"hentIdenter\": { \"identer\": [{ \"ident\": \"2135315926221\", \"gruppe\": \"AKTORID\", \"historisk\": false }]}}",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "urlPath": "/persondata",
+        "headers": {
+          "Content-Type": {
+            "equalTo": "application/json; charset=UTF-8"
+          }
+        },
+        "bodyPatterns": [
+          {
+            "equalToJson": {
+              "query": "query($ident: ID!) { hentPerson(ident: $ident) { navn { fornavn mellomnavn etternavn } adressebeskyttelse { gradering } } hentIdenter(ident: $ident, grupper: [AKTORID]) { identer { ident gruppe historisk } } hentGeografiskTilknytning(ident: $ident){ gtType gtKommune gtBydel gtLand regel } }",
+              "variables": {
+                "ident": "26067114433"
+              }
+            }
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "body": "{\"data\":{\"hentPerson\":{\"adressebeskyttelse\": [{\"gradering\": \"FORTROLIG\"}], \"navn\":[{\"fornavn\":\"James\",\"etternavn\":\"Bond\"}]},\"hentGeografiskTilknytning\":{\"gtType\":\"BYDEL\",\"gtKommune\":null,\"gtBydel\":\"030104\",\"gtLand\":null,\"regel\":\"3\"}},\"hentIdenter\": { \"identer\": [{ \"ident\": \"2135315926225\", \"gruppe\": \"AKTORID\", \"historisk\": false }]}}",
         "headers": {
           "Content-Type": "application/json"
         }
@@ -53,17 +109,10 @@
         },
         "bodyPatterns": [
           {
-            "ignoreArrayOrder": true,
             "equalToJson": {
-              "query": "query($identer: [ID!]!) { hentPersonBolk(identer: $identer) { ident, person { adressebeskyttelse { gradering } }, code } }",
+              "query": "query($ident: ID!) { hentPerson(ident: $ident) { navn { fornavn mellomnavn etternavn } adressebeskyttelse { gradering } } hentIdenter(ident: $ident, grupper: [AKTORID]) { identer { ident gruppe historisk } } hentGeografiskTilknytning(ident: $ident){ gtType gtKommune gtBydel gtLand regel } }",
               "variables": {
-                "identer": [
-                  "28033114267",
-                  "16053900422",
-                  "26067114433",
-                  "08120689976",
-                  "23097010706"
-                ]
+                "ident": "23097010706"
               }
             }
           }
@@ -71,7 +120,60 @@
       },
       "response": {
         "status": 200,
-        "body": "{ \"data\": { \"hentPersonBolk\": [ { \"ident\": \"28033114267\", \"code\": \"ok\", \"person\": { \"adressebeskyttelse\": [ { \"gradering\": \"STRENGT_FORTROLIG_UTLAND\" } ], \"folkeregisteridentifikator\": [ { \"identifikasjonsnummer\": \"28033114267\", \"status\": \"BOSA\", \"type\": \"FNR\" } ] } }, { \"ident\": \"16053900422\", \"code\": \"ok\", \"person\": { \"adressebeskyttelse\": [ { \"gradering\": \"STRENGT_FORTROLIG\" } ], \"folkeregisteridentifikator\": [ { \"identifikasjonsnummer\": \"16053900422\", \"status\": \"BOSA\", \"type\": \"FNR\" } ] } }, { \"ident\": \"26067114433\", \"code\": \"ok\", \"person\": { \"adressebeskyttelse\": [ { \"gradering\": \"FORTROLIG\" } ], \"folkeregisteridentifikator\": [ { \"identifikasjonsnummer\": \"26067114433\", \"status\": \"BOSA\", \"type\": \"FNR\" } ] } }, { \"ident\": \"08120689976\", \"code\": \"ok\", \"person\": { \"adressebeskyttelse\": [ { \"gradering\": \"UGRADERT\" } ], \"folkeregisteridentifikator\": [ { \"identifikasjonsnummer\": \"08120689976\", \"status\": \"BOSA\", \"type\": \"FNR\" } ] } } ] } }",
+        "body": "{\"errors\": [{\"message\": \"Fant ikke person\", \"locations\": [{\"line\": 1, \"column\": 8}], \"path\": [\"hentPerson\"], \"extensions\": {\"code\": \"not_found\", \"classification\": \"ExecutionAborted\"}}]}",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "urlPath": "/persondata",
+        "headers": {
+          "Content-Type": {
+            "equalTo": "application/json; charset=utf-8",
+            "caseInsensitive": true
+          }
+        },
+        "bodyPatterns": [
+          {
+            "equalToJson": {
+              "query": "query($ident: ID!) { hentPerson(ident: $ident) { navn { fornavn mellomnavn etternavn } adressebeskyttelse { gradering } } hentIdenter(ident: $ident, grupper: [AKTORID]) { identer { ident gruppe historisk } } hentGeografiskTilknytning(ident: $ident){ gtType gtKommune gtBydel gtLand regel } }",
+              "variables": {
+                "ident": "00000000000"
+              }
+            }
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "body": "{\"data\":{\"hentPerson\":{\"adressebeskyttelse\": [{\"gradering\": \"UGRADERT\"}], \"navn\":[{\"fornavn\":\"Donald\",\"etternavn\":\"Duck\"}]},\"hentGeografiskTilknytning\":{\"gtType\":\"BYDEL\",\"gtKommune\":null,\"gtBydel\":\"030104\",\"gtLand\":null,\"regel\":\"3\"}},\"hentIdenter\": { \"identer\": [{ \"ident\": \"2135315926224\", \"gruppe\": \"AKTORID\", \"historisk\": false }]}}",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "urlPath": "/persondata",
+        "headers": {
+          "Content-Type": {
+            "equalTo": "application/json; charset=utf-8",
+            "caseInsensitive": true
+          }
+        },
+        "bodyPatterns": [
+          {
+            "contains": "query($identer: [ID!]!) { hentPersonBolk(identer: $identer) { ident, person { adressebeskyttelse { gradering } }, code } }"
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "body": "{ \"data\": { \"hentPersonBolk\": [ { \"ident\": \"16053900422\", \"code\": \"ok\", \"person\": { \"adressebeskyttelse\": [ { \"gradering\": \"STRENGT_FORTROLIG\" } ] } }, { \"ident\": \"28033114267\", \"code\": \"ok\", \"person\": { \"adressebeskyttelse\": [ { \"gradering\": \"STRENGT_FORTROLIG_UTLAND\" } ] } }, { \"ident\": \"26067114433\", \"code\": \"ok\", \"person\": { \"adressebeskyttelse\": [ { \"gradering\": \"FORTROLIG\" } ] } } ] } }",
         "headers": {
           "Content-Type": "application/json"
         }

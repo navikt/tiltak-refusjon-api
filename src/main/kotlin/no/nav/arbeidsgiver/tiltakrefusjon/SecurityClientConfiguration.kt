@@ -40,7 +40,6 @@ class SecurityClientConfiguration(
     @Bean
     fun sokosRestTemplate() = restTemplateForRegistration("sokos-kontoregister")
 
-
     private fun restTemplateForRegistration(registration: String): RestTemplate {
         val erDevEllerProd = environment?.activeProfiles?.any {
             env -> env.equals("dev-gcp") || env.equals("prod-gcp")

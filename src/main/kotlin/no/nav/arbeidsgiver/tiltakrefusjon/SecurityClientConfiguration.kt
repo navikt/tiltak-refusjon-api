@@ -26,12 +26,6 @@ class SecurityClientConfiguration(
     private val environment: Environment? = null
 
     @Bean
-    fun påVegneAvSaksbehandlerGraphRestTemplate() = restTemplateForRegistration("aad-graph")
-
-    @Bean
-    fun påVegneAvSaksbehandlerProxyRestTemplate() = restTemplateForRegistration("aad")
-
-    @Bean
     fun påVegneAvArbeidsgiverAltinnRestTemplate() = restTemplateForRegistration("tokenx-altinn")
 
     @Bean

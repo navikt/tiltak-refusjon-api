@@ -13,8 +13,8 @@ import org.springframework.test.context.ActiveProfiles
 @AutoConfigureWireMock(port = 8091)
 class PersondataServiceTest {
     final val STRENGT_FORTROLIG_UTLAND_FNR = "28033114267"
-    final val STRENGT_FORTROLIG_FNR = "16053900422"
-    final val FORTROLIG_FNR = "26067114433"
+    final val STRENGT_FORTROLIG_FNR = "28128521498"
+    final val FORTROLIG_FNR = "23119409195"
     final val UGRADERT_PERSON_TOM_RESPONSE_FNR = "23097010706"
 
     @Autowired

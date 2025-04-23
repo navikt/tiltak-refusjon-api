@@ -1,10 +1,11 @@
-name: Bygg og deploy
+name: Bygg og deploy - Labs
 
 on:
-  push:
-    branches:
-      - 'master'
   workflow_dispatch:
+  schedule:
+    # Kjør litt tidligere enn tiltaksgjennomforing slik at avtaleløsning
+    # kan pushe refusjoner til refusjonsløsning
+    - cron: '45 4 * * 1-5'
 
 jobs:
   build:
@@ -37,10 +38,50 @@ jobs:
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
 
-  deploy-dev:
-    name: Deploy til dev
+  build-push-wiremock-image:
     runs-on: ubuntu-latest
-    needs: build
+    name: 'Bygg og push Wiremock-image'
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Sjekk ut kode
+        uses: actions/checkout@v4
+
+      - name: Push Docker Image to GAR
+        uses: nais/docker-build-push@v0
+        id: docker-build-push
+        with:
+          image_suffix: wiremock
+          team: arbeidsgiver
+          dockerfile: DockerfileWiremock
+    outputs:
+      image: ${{ steps.docker-build-push.outputs.image }}
+
+  deploy-wiremock:
+    needs: build-push-wiremock-image
+    name: 'Deploy Wiremock to dev-gcp'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Sjekk ut kode
+        uses: actions/checkout@v4
+
+      - name: Deploy til gcp
+        uses: nais/deploy/actions/deploy@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CLUSTER: dev-gcp
+          TEAM: arbeidsgiver
+          RESOURCE: ".nais/wiremock.yml"
+          VAR: image=${{ needs.build-push-wiremock-image.outputs.image }}
+
+  deploy-dev-gcp-labs:
+    name: Deploy til dev-gcp (tidligere labs)
+    runs-on: ubuntu-latest
+    needs: [ build, deploy-wiremock ]
     permissions:
       contents: read
       id-token: write
@@ -52,26 +93,5 @@ jobs:
         uses: nais/deploy/actions/deploy@v2
         env:
           CLUSTER: dev-gcp
-          RESOURCE: .nais/nais.yml,.nais/alertsNy.yml,.nais/alertsTesting.yml,.nais/unleash-apitoken.yml
-          VARS: .nais/dev.yml
-          VAR: image=${{ needs.build.outputs.image }}
-
-  deploy-prod:
-    name: Deploy til prod
-    runs-on: ubuntu-latest
-    needs: build
-    permissions:
-      contents: read
-      id-token: write
-    if: github.ref == 'refs/heads/master'
-    steps:
-      - name: Sjekk ut kode
-        uses: actions/checkout@v4
-
-      - name: Deploy til prod-gcp
-        uses: nais/deploy/actions/deploy@v2
-        env:
-          CLUSTER: prod-gcp
-          RESOURCE: .nais/nais.yml,.nais/alertsNy.yml,.nais/unleash-apitoken.yml
-          VARS: .nais/prod.yml
+          RESOURCE: .nais/dev-gcp-labs.yml
           VAR: image=${{ needs.build.outputs.image }}

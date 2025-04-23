@@ -28,10 +28,15 @@ class KontoregisterServiceImpl(
     val log: Logger = LoggerFactory.getLogger(javaClass)
     override fun hentBankkontonummer(bedriftNr: String): String? {
         val requestEntity = lagRequest()
-        val url = "${properties.uri}/${bedriftNr}"
+        val url = "${properties.uri}/{bedriftNr}"
         try {
             val responseMedKontonummerTilBedrift =
-                restTemplate.exchange<KontoregisterResponse>(url, HttpMethod.GET, requestEntity).body
+                restTemplate.exchange<KontoregisterResponse>(
+                    url,
+                    HttpMethod.GET,
+                    requestEntity,
+                    mapOf("bedriftNr" to bedriftNr)
+                ).body
             return responseMedKontonummerTilBedrift?.kontonr
         } catch (e: RestClientException) {
             log.warn("Kontoregister kall feiler", e)

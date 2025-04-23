@@ -19,8 +19,10 @@ tiltak-refusjon:
     api-token: ${UNLEASH_SERVER_API_TOKEN}
   varsling:
     varsling-klar-cron: "0 0 7 5 * ?"
-  beslutter-ad-gruppe:
-    id: 156f4f79-6909-4be1-8045-323f55590898
+  ad-grupper:
+    beslutter: 156f4f79-6909-4be1-8045-323f55590898
+    fortrolig-adresse: 9ec6487d-f37a-4aad-a027-cd221c1ac32b
+    strengt-fortrolig-adresse: ad7b87a6-9180-467c-affc-20a566b0fec0
   norg:
     uri: https://norg2.prod-fss-pub.nais.io/norg2/api/v1
   pdl-api:

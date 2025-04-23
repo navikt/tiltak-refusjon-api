@@ -54,7 +54,9 @@ spec:
       tenant: {{tenant}}
       claims:
         groups:
-          - id: {{besluttergruppe}}
+          - id: {{beslutter-gruppe}}
+          - id: {{fortrolig-adresse-gruppe}}
+          - id: {{strengt-fortrolig-adresse-gruppe}}
         extra:
           - NAVident
   tokenx:

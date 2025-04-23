@@ -6,7 +6,9 @@ host:
   - team-tiltak-unleash-api.nav.cloud.nais.io
   - pdl-api.dev-fss-pub.nais.io
 tenant: trygdeetaten.no
-besluttergruppe: fbfea82d-13da-43ad-a2f2-d7f21cb95f12
+beslutter-gruppe: fbfea82d-13da-43ad-a2f2-d7f21cb95f12
+fortrolig-adresse-gruppe: ea930b6b-9397-44d9-b9e6-f4cf527a632a
+strengt-fortrolig-adresse-gruppe: 5ef775f2-61f8-4283-bf3d-8d03f428aa14
 slack_alert_channel: arbeidsgiver-notifications-test
 kafka-pool: nav-dev
 env:

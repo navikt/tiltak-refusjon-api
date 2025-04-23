@@ -6,7 +6,9 @@ host:
   - team-tiltak-unleash-api.nav.cloud.nais.io
   - pdl-api.prod-fss-pub.nais.io
 tenant: nav.no
-besluttergruppe: 156f4f79-6909-4be1-8045-323f55590898
+beslutter-gruppe: 156f4f79-6909-4be1-8045-323f55590898
+fortrolig-adresse-gruppe: 9ec6487d-f37a-4aad-a027-cd221c1ac32b
+strengt-fortrolig-adresse-gruppe: ad7b87a6-9180-467c-affc-20a566b0fec0
 slack_alert_channel: arbeidsgiver-tiltak-alerts
 kafka-pool: nav-prod
 env:

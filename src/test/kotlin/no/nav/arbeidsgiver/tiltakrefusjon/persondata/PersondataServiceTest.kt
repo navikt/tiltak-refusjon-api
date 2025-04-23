@@ -1,6 +1,5 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.persondata
 
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Fnr
 import no.nav.team_tiltak.felles.persondata.pdl.domene.Diskresjonskode
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -13,10 +12,10 @@ import org.springframework.test.context.ActiveProfiles
 @ActiveProfiles("local")
 @AutoConfigureWireMock(port = 8091)
 class PersondataServiceTest {
-    final val STRENGT_FORTROLIG_UTLAND_FNR = Fnr("28033114267")
-    final val STRENGT_FORTROLIG_FNR = Fnr("16053900422")
-    final val FORTROLIG_FNR = Fnr("26067114433")
-    final val UGRADERT_PERSON_TOM_RESPONSE_FNR = Fnr("23097010706")
+    final val STRENGT_FORTROLIG_UTLAND_FNR = "28033114267"
+    final val STRENGT_FORTROLIG_FNR = "16053900422"
+    final val FORTROLIG_FNR = "26067114433"
+    final val UGRADERT_PERSON_TOM_RESPONSE_FNR = "23097010706"
 
     @Autowired
     lateinit var persondataService: PersondataService

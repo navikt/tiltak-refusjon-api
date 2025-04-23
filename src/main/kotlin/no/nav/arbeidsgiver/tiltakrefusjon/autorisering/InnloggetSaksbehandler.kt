@@ -5,6 +5,8 @@ import no.nav.arbeidsgiver.tiltakrefusjon.RessursFinnesIkkeException
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
 import no.nav.arbeidsgiver.tiltakrefusjon.norg.NorgService
 import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterService
+import no.nav.arbeidsgiver.tiltakrefusjon.persondata.PersondataService
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.BegrensetRefusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Beregning
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.BrukerRolle
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.HentSaksbehandlerRefusjonerQueryParametre
@@ -18,6 +20,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonStatus
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.beregnRefusjonsbeløp
+import no.nav.team_tiltak.felles.persondata.pdl.domene.Diskresjonskode
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
@@ -27,7 +30,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import java.time.LocalDate
-import java.util.*
+import java.util.UUID
 
 data class InnloggetSaksbehandler(
     override val identifikator: String,
@@ -40,11 +43,13 @@ data class InnloggetSaksbehandler(
     @JsonIgnore val refusjonService: RefusjonService,
     @JsonIgnore val inntektskomponentService: InntektskomponentService,
     @JsonIgnore val kontoregisterService: KontoregisterService,
-    val harKorreksjonTilgang: Boolean,
+    @JsonIgnore val adGruppeTilganger: AdGruppeTilganger,
+    @JsonIgnore val persondataService: PersondataService,
 ) : InnloggetBruker {
     @JsonIgnore
     val log: Logger = LoggerFactory.getLogger(javaClass)
     val internIdentifikatorer = InternIdentifikatorer(identifikator, azureOid)
+    val harKorreksjonTilgang = adGruppeTilganger.korreksjon
     override val rolle: BrukerRolle = BrukerRolle.BESLUTTER
 
     fun finnAlle(queryParametre: HentSaksbehandlerRefusjonerQueryParametre): Map<String, Any> {
@@ -93,15 +98,25 @@ data class InnloggetSaksbehandler(
                 PageImpl(emptyList())
             }
 
-        val refusjonerMedTilgang = liste.content.filter { tilgangskontrollService.harLeseTilgang(internIdentifikatorer, it.deltakerFnr) }
-        val response = mapOf(
+        val diskresjonskoder = hentDiskresjonskoder(liste)
+        val refusjonerMedTilgang = liste.content
+            .filter { tilgangskontrollService.harLeseTilgang(internIdentifikatorer, it.deltakerFnr) }
+            .map { BegrensetRefusjon.fraRefusjon(it, diskresjonskoder[it.deltakerFnr]) }
+
+        return mapOf(
             Pair("refusjoner", refusjonerMedTilgang),
             Pair("size", liste.size),
             Pair("currentPage", liste.number),
             Pair("totalItems", liste.totalElements),
             Pair("totalPages", liste.totalPages)
         )
-        return response
+    }
+
+    fun hentDiskresjonskoder(refusjoner: Page<Refusjon>): Map<String, Diskresjonskode> {
+        if (adGruppeTilganger.fortroligAdresse || adGruppeTilganger.strengtFortroligAdresse) {
+            return persondataService.hentDiskresjonskoder(refusjoner.content.map { it.deltakerFnr }.toSet())
+        }
+        return emptyMap()
     }
 
     fun finnRefusjon(id: String): Refusjon {

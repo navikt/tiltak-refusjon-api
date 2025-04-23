@@ -5,6 +5,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
 import no.nav.arbeidsgiver.tiltakrefusjon.norg.NorgService
 import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterService
+import no.nav.arbeidsgiver.tiltakrefusjon.persondata.PersondataService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Fnr
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.KorreksjonRepository
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonRepository
@@ -29,7 +30,8 @@ class InnloggetBrukerService(
     val inntektskomponentService: InntektskomponentService,
     val kontoregisterService: KontoregisterService,
     val norgService: NorgService,
-    val beslutterRolleConfig: BeslutterRolleConfig,
+    val adGrupperConfig: AdGrupperConfig,
+    val persondataService: PersondataService,
 ) {
     var logger: Logger = LoggerFactory.getLogger(javaClass)
 
@@ -39,15 +41,6 @@ class InnloggetBrukerService(
 
     fun erSaksbehandler(): Boolean {
         return context.getTokenValidationContext().hasTokenFor("aad")
-    }
-
-    fun erBeslutter(): Boolean {
-        val groupClaim = context.getClaims(Issuer.AZURE)?.get("groups") as List<String>
-        return erSaksbehandler() && groupClaim.contains(beslutterRolleConfig.id)
-    }
-
-    fun harKorreksjonsTilgang(): Boolean {
-        return erBeslutter()
     }
 
     fun navIdent(): String {
@@ -97,8 +90,9 @@ class InnloggetBrukerService(
                     refusjonService = refusjonService,
                     inntektskomponentService = inntektskomponentService,
                     kontoregisterService = kontoregisterService,
-                    harKorreksjonTilgang = harKorreksjonsTilgang(),
-                    norgeService = norgService
+                    adGruppeTilganger = AdGruppeTilganger.av(adGrupperConfig, context),
+                    norgeService = norgService,
+                    persondataService = persondataService,
                 )
             }
 

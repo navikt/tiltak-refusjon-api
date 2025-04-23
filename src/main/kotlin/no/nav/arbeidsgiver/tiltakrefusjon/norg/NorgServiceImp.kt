@@ -1,12 +1,11 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.norg
 
-import no.nav.arbeidsgiver.tiltakrefusjon.utils.ConditionalOnPropertyNotEmpty
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.stereotype.Service
-import org.springframework.web.client.RestTemplate
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Profile
+import org.springframework.stereotype.Service
+import org.springframework.web.client.RestTemplate
 
 @Service
 @Profile("dev-gcp", "prod-gcp")
@@ -14,10 +13,14 @@ class NorgServiceImp(@Qualifier("anonymProxyRestTemplate") val restTemplate: Res
     val log: Logger = LoggerFactory.getLogger(javaClass)
 
     override fun hentEnhetNavn(enhet: String): String? {
-        val uri = properties.uri + "/enhet/" + enhet
+        val uri = properties.uri + "/enhet/{enhet}"
         try {
-            val norgResponse = restTemplate.getForEntity(uri, NorgEnhetResponse::class.java)
-            return norgResponse.body?.navn ?: null
+            val norgResponse = restTemplate.getForEntity(
+                uri,
+                NorgEnhetResponse::class.java,
+                mapOf("enhet" to enhet)
+            )
+            return norgResponse.body?.navn
         } catch (e: Exception) {
             log.error("Kall mot Norg feilet", e)
             return null

@@ -10,7 +10,6 @@ import org.springframework.http.HttpMethod
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
-import java.net.URI
 
 @Service
 class AltinnTilgangsstyringService(
@@ -19,6 +18,18 @@ class AltinnTilgangsstyringService(
     val restTemplate: RestTemplate,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
+
+    // URL-strengen har to "uri-variabler": fnr og skip
+    private val altinnUrlString: String = UriComponentsBuilder.fromUri(altinnTilgangsstyringProperties.uri)
+        .queryParam("ForceEIAuthentication")
+        .queryParam("subject", "{fnr}")
+        .queryParam("serviceCode", altinnTilgangsstyringProperties.serviceCode)
+        .queryParam("serviceEdition", altinnTilgangsstyringProperties.serviceEdition)
+        .queryParam("\$top", altinnTilgangsstyringProperties.antall)
+        .queryParam("\$skip", "{skip}")
+        .queryParam("\$filter", "Type+ne+'Person'+and+Status+eq+'Active'")
+        .build()
+        .toUriString()
 
     fun hentTilganger(fnr: String): Set<Organisasjon> {
         val organisasjoner = HashSet<Organisasjon>()
@@ -36,28 +47,17 @@ class AltinnTilgangsstyringService(
     private fun hentFraAltinn(fnr: String, skip: Int): Set<Organisasjon> {
         try {
             return restTemplate.exchange(
-                lagAltinnUrl(fnr, skip),
+                altinnUrlString,
                 HttpMethod.GET,
                 getAuthHeadersForAltinn(),
-                Array<Organisasjon>::class.java).body?.toSet()
+                Array<Organisasjon>::class.java,
+                mapOf("fnr" to fnr, "skip" to skip)
+            ).body?.toSet()
                 ?: return emptySet()
         } catch (exception: RuntimeException) {
             logger.error("Feil med Altinn", exception)
             throw FeilkodeException(Feilkode.ALTINN)
         }
-    }
-
-    private fun lagAltinnUrl(fnr: String, skip: Int): URI {
-        return UriComponentsBuilder.fromUri(altinnTilgangsstyringProperties.uri)
-            .queryParam("ForceEIAuthentication")
-            .queryParam("subject", fnr)
-            .queryParam("serviceCode", altinnTilgangsstyringProperties.serviceCode)
-            .queryParam("serviceEdition", altinnTilgangsstyringProperties.serviceEdition)
-            .queryParam("\$top", altinnTilgangsstyringProperties.antall)
-            .queryParam("\$skip", skip)
-            .queryParam("\$filter", "Type+ne+'Person'+and+Status+eq+'Active'")
-            .build()
-            .toUri()
     }
 
     private fun getAuthHeadersForAltinn(): HttpEntity<HttpHeaders?> {

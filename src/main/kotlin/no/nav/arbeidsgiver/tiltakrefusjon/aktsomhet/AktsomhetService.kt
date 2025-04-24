@@ -2,7 +2,6 @@ package no.nav.arbeidsgiver.tiltakrefusjon.aktsomhet
 
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBrukerService
 import no.nav.arbeidsgiver.tiltakrefusjon.persondata.PersondataService
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Fnr
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -18,7 +17,7 @@ class AktsomhetService(
     fun kreverAktsomhet(id: String): Aktsomhet {
         try {
             val (refusjon, isArbeidsgiver) = hentRefusjon(id)
-            val diskresjonskode = persondataService.hentDiskresjonskode(Fnr(refusjon.deltakerFnr))
+            val diskresjonskode = persondataService.hentDiskresjonskode(refusjon.deltakerFnr)
             return Aktsomhet.av(diskresjonskode, isArbeidsgiver)
         } catch (e: Exception) {
             log.error("Feil ved henting av Aktsomhet på refusjon med id $id", e)

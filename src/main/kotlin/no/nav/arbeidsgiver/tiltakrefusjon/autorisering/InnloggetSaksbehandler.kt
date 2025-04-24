@@ -30,7 +30,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import java.time.LocalDate
-import java.util.UUID
+import java.util.*
 
 data class InnloggetSaksbehandler(
     override val identifikator: String,
@@ -58,7 +58,7 @@ data class InnloggetSaksbehandler(
         val statuser = if (queryParametre.status != null) listOf(queryParametre.status) else RefusjonStatus.values().toList()
         val tiltakstyper = if (queryParametre.tiltakstype != null) listOf(queryParametre.tiltakstype) else Tiltakstype.values().toList()
 
-        val liste: Page<Refusjon> =
+        val reusjonPage: Page<Refusjon> =
             if (!queryParametre.veilederNavIdent.isNullOrBlank()) {
                 refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_VeilederNavIdentAndStatusInAndRefusjonsgrunnlag_Tilskuddsgrunnlag_TiltakstypeIn(
                     queryParametre.veilederNavIdent,
@@ -98,23 +98,23 @@ data class InnloggetSaksbehandler(
                 PageImpl(emptyList())
             }
 
-        val diskresjonskoder = hentDiskresjonskoder(liste)
-        val refusjonerMedTilgang = liste.content
+        val diskresjonskoder = hentDiskresjonskoder(reusjonPage.content)
+        val refusjonerMedTilgang = reusjonPage.content
             .filter { tilgangskontrollService.harLeseTilgang(internIdentifikatorer, it.deltakerFnr) }
             .map { BegrensetRefusjon.fraRefusjon(it, diskresjonskoder[it.deltakerFnr]) }
 
         return mapOf(
             Pair("refusjoner", refusjonerMedTilgang),
-            Pair("size", liste.size),
-            Pair("currentPage", liste.number),
-            Pair("totalItems", liste.totalElements),
-            Pair("totalPages", liste.totalPages)
+            Pair("size", reusjonPage.size),
+            Pair("currentPage", reusjonPage.number),
+            Pair("totalItems", reusjonPage.totalElements),
+            Pair("totalPages", reusjonPage.totalPages)
         )
     }
 
-    fun hentDiskresjonskoder(refusjoner: Page<Refusjon>): Map<String, Diskresjonskode> {
+    fun hentDiskresjonskoder(refusjoner: List<Refusjon>): Map<String, Diskresjonskode> {
         if (adGruppeTilganger.fortroligAdresse || adGruppeTilganger.strengtFortroligAdresse) {
-            return persondataService.hentDiskresjonskoder(refusjoner.content.map { it.deltakerFnr }.toSet())
+            return persondataService.hentDiskresjonskoder(refusjoner.map { it.deltakerFnr }.toSet())
         }
         return emptyMap()
     }

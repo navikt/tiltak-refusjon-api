@@ -22,10 +22,7 @@ class PersondataService(
     }
 
     fun hentDiskresjonskoder(fnrSet: Set<String>): Map<String, Diskresjonskode> {
-        return persondataClient.hentDiskresjonskoderEllerDefault(
-            fnrSet.map { it }.toSet(),
-            Diskresjonskode.UGRADERT
-        )
+        return persondataClient.hentDiskresjonskoderEllerDefault(fnrSet, Diskresjonskode.UGRADERT)
     }
 
 }

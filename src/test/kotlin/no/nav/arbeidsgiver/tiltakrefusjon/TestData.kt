@@ -459,6 +459,7 @@ fun refusjoner(): List<Refusjon> {
         `Nils Nilsen`(),
         `Inger Hagerup`(),
         `Amalie Skram`(),
+        `Amanda Skram`(),
         `Suzanna Hansen`(),
         `Siri Hansen`(),
         `Vidar Fortidlig`(),
@@ -711,6 +712,23 @@ fun `Amalie Skram`(): Refusjon {
     return Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
             deltakerFornavn = "Amalie",
+            deltakerEtternavn = "Skram",
+            deltakerFnr = deltakerFnr,
+            bedriftNr = bedriftNr,
+            tilskuddsbeløp = 10579,
+            veilederNavIdent = "X123456",
+            tilskuddFom = Now.localDate().minusMonths(3).withDayOfMonth(2),
+            tilskuddTom = Now.localDate().minusMonths(1).withDayOfMonth(21),
+        ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
+    )
+}
+
+fun `Amanda Skram`(): Refusjon {
+    val deltakerFnr = "23119409195"
+    val bedriftNr = "910712306"
+    return Refusjon(
+        tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
+            deltakerFornavn = "Amanda",
             deltakerEtternavn = "Skram",
             deltakerFnr = deltakerFnr,
             bedriftNr = bedriftNr,

@@ -23,35 +23,60 @@ class AltinnTilgangsstyringService(
     private val altinnUrlString: String = UriComponentsBuilder.fromUri(altinnTilgangsstyringProperties.uri)
         .queryParam("ForceEIAuthentication")
         .queryParam("subject", "{fnr}")
-        .queryParam("serviceCode", altinnTilgangsstyringProperties.serviceCode)
-        .queryParam("serviceEdition", altinnTilgangsstyringProperties.serviceEdition)
+        .queryParam("serviceCode", "{serviceCode}") //altinnTilgangsstyringProperties.serviceCode
+        .queryParam("serviceEdition", "{serviceEdition}")     //altinnTilgangsstyringProperties.serviceEdition
         .queryParam("\$top", altinnTilgangsstyringProperties.antall)
         .queryParam("\$skip", "{skip}")
         .queryParam("\$filter", "Type+ne+'Person'+and+Status+eq+'Active'")
         .build()
         .toUriString()
 
-    fun hentTilganger(fnr: String): Set<Organisasjon> {
+    fun hentTilganger(
+        fnr: String,
+        serviceCode: Int = altinnTilgangsstyringProperties.serviceCode,
+        serviceEdition: Int = altinnTilgangsstyringProperties.serviceEdition
+    ): Set<Organisasjon> {
         val organisasjoner = HashSet<Organisasjon>()
         var merÅHente = true
         var i = 0;
         while (merÅHente) {
             val skip = altinnTilgangsstyringProperties.antall * i++
-            val nyeOrg = hentFraAltinn(fnr, skip)
+            val nyeOrg = hentFraAltinn(fnr, skip, serviceCode, serviceEdition)
             organisasjoner.addAll(nyeOrg)
             merÅHente = nyeOrg.size >= altinnTilgangsstyringProperties.antall
         }
         return organisasjoner
     }
 
-    private fun hentFraAltinn(fnr: String, skip: Int): Set<Organisasjon> {
+    fun hentAdressesperreTilganger(fnr: String): Set<Organisasjon> {
+        val organisasjoner = hentTilganger(
+            fnr,
+            serviceCode = altinnTilgangsstyringProperties.adressesperreServiceCode,
+            serviceEdition = altinnTilgangsstyringProperties.adressesperreServiceEdition
+        )
+        logger.info("Fant ${organisasjoner.size} organisasjoner med adressesperre for fnr $fnr")
+        logger.info("Organisasjoner med adressesperre: $organisasjoner")
+        return organisasjoner
+    }
+
+    private fun hentFraAltinn(
+            fnr: String,
+            skip: Int,
+            serviceCode: Int,
+            serviceEdition: Int
+        ): Set<Organisasjon> {
         try {
             return restTemplate.exchange(
                 altinnUrlString,
                 HttpMethod.GET,
                 getAuthHeadersForAltinn(),
                 Array<Organisasjon>::class.java,
-                mapOf("fnr" to fnr, "skip" to skip)
+                mapOf(
+                    "fnr" to fnr,
+                    "skip" to skip,
+                    "serviceCode" to serviceCode,
+                    "serviceEdition" to serviceEdition
+                )
             ).body?.toSet()
                 ?: return emptySet()
         } catch (exception: RuntimeException) {

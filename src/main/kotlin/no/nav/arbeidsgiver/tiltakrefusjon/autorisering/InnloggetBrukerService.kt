@@ -68,7 +68,14 @@ class InnloggetBrukerService(
                     context.getClaims(Issuer.TOKEN_X)?.getStringClaim("pid")
                         ?: throw IllegalArgumentException("Forsøker å hente pid for bruker som ikke er arbeidsgiver")
                 )
-                InnloggetArbeidsgiver(fnr.verdi, altinnTilgangsstyringService, refusjonRepository, korreksjonRepository, refusjonService)
+                InnloggetArbeidsgiver(
+                    fnr.verdi,
+                    altinnTilgangsstyringService,
+                    refusjonRepository,
+                    korreksjonRepository,
+                    refusjonService,
+                    persondataService
+                )
             }
 
             else -> {

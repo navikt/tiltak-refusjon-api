@@ -12,5 +12,7 @@ data class AltinnTilgangsstyringProperties(
         var beOmRettighetBaseUrl: String = "",
         var serviceCode: Int = 0,
         var serviceEdition: Int = 0,
-        var antall: Int = 500
+        var antall: Int = 500,
+        var adressesperreServiceCode: Int = 0,
+        var adressesperreServiceEdition: Int = 0,
 )

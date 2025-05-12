@@ -23,8 +23,8 @@ class AltinnTilgangsstyringService(
     private val altinnUrlString: String = UriComponentsBuilder.fromUri(altinnTilgangsstyringProperties.uri)
         .queryParam("ForceEIAuthentication")
         .queryParam("subject", "{fnr}")
-        .queryParam("serviceCode", "{serviceCode}") //altinnTilgangsstyringProperties.serviceCode
-        .queryParam("serviceEdition", "{serviceEdition}")     //altinnTilgangsstyringProperties.serviceEdition
+        .queryParam("serviceCode", "{serviceCode}")
+        .queryParam("serviceEdition", "{serviceEdition}")
         .queryParam("\$top", altinnTilgangsstyringProperties.antall)
         .queryParam("\$skip", "{skip}")
         .queryParam("\$filter", "Type+ne+'Person'+and+Status+eq+'Active'")
@@ -54,8 +54,6 @@ class AltinnTilgangsstyringService(
             serviceCode = altinnTilgangsstyringProperties.adressesperreServiceCode,
             serviceEdition = altinnTilgangsstyringProperties.adressesperreServiceEdition
         )
-        logger.info("Fant ${organisasjoner.size} organisasjoner med adressesperre for fnr $fnr")
-        logger.info("Organisasjoner med adressesperre: $organisasjoner")
         return organisasjoner
     }
 

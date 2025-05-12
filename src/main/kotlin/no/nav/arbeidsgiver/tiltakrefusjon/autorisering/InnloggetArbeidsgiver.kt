@@ -103,7 +103,6 @@ data class InnloggetArbeidsgiver(
         size: Int
     ): Page<Refusjon> {
         return if (bedrifter != null && bedrifter != "ALLEBEDRIFTER") {
-            log.info("Finn alle refusjoner for arbeidsgiver med bedriftsnummer: $bedrifter")
             getQueryMethodForFinnAlleForGittArbeidsgiver(
                 bedrifter.split(",")
                     .filter { org -> organisasjoner.any { it.organizationNumber == org } },
@@ -114,7 +113,6 @@ data class InnloggetArbeidsgiver(
                 size
             )
         } else {
-            log.info("Finn alle refusjoner for arbeidsgiver med bedriftsnummer underenheter: ${finnAlleUnderenheterTilArbeidsgiver()}")
             getQueryMethodForFinnAlleForGittArbeidsgiver(
                 finnAlleUnderenheterTilArbeidsgiver(),
                 status,

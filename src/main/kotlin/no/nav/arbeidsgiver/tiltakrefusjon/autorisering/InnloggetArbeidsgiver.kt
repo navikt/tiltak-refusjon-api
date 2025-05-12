@@ -71,8 +71,7 @@ data class InnloggetArbeidsgiver(
         sortingOrder: SortingOrder?,
         page: Int,
         size: Int
-    ):Page<BegrensetRefusjon> {
-
+    ):Page<Refusjon> {
         val paging: Pageable = PageRequest.of(page, size)
         val refusjonPage: Page<Refusjon> =
             if (sortingOrder != null && sortingOrder != SortingOrder.STATUS_ASC) {
@@ -90,25 +89,9 @@ data class InnloggetArbeidsgiver(
                     paging
                 )
             }
-
-        val diskresjonskoder = hentDiskresjonskoder(refusjonPage.content)
-
-        val refusjonerMedTilgang = refusjonPage.content
-            .filter { r ->
-                try {
-                    sjekkHarTilgangTilRefusjonerForBedrift(r.bedriftNr, r.deltakerFnr)
-                    true
-                } catch (_: TilgangskontrollException) {
-                    false
-                }
-            }.map { BegrensetRefusjon.fraRefusjon(it, diskresjonskoder[it.deltakerFnr]) }
-
+        val refusjonerMedTilgang = refusjonPage.content.filter { sjekkHarTilgangTilRefusjonerForBedrift(it.bedriftNr, it.deltakerFnr) }
 
         return PageImpl(refusjonerMedTilgang, refusjonPage.pageable, refusjonPage.totalElements)
-    }
-
-    fun hentDiskresjonskoder(refusjoner: List<Refusjon>): Map<String, Diskresjonskode> {
-        return persondataService.hentDiskresjonskoder(refusjoner.map { it.deltakerFnr }.toSet())
     }
 
     fun finnAlleForGittArbeidsgiver(
@@ -118,7 +101,7 @@ data class InnloggetArbeidsgiver(
         sortingOrder: SortingOrder?,
         page: Int,
         size: Int
-    ): Page<BegrensetRefusjon> {
+    ): Page<Refusjon> {
         return if (bedrifter != null && bedrifter != "ALLEBEDRIFTER") {
             log.info("Finn alle refusjoner for arbeidsgiver med bedriftsnummer: $bedrifter")
             getQueryMethodForFinnAlleForGittArbeidsgiver(

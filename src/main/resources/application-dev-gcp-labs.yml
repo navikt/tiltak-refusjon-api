@@ -46,6 +46,8 @@ tiltak-refusjon:
     beOmRettighetBaseUrl: https://arbeidsgiver-q.nav.no/min-side-arbeidsgiver/?fragment=be-om-tilgang
     serviceCode: 4936
     serviceEdition: 1
+    adressesperreServiceCode: 5516
+    adressesperreServiceEdition: 7
   abac-tilgangstyring:
     uri: http://tiltak-refusjon-api-wiremock/abac-tilgangstyring
     username: TODO

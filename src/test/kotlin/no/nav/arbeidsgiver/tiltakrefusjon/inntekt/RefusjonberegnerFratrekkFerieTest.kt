@@ -12,6 +12,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.ulid
+import no.nav.team_tiltak.felles.persondata.pdl.domene.Diskresjonskode
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -48,6 +49,7 @@ class RefusjonberegnerFratrekkFerieTest(
 
     val WIREMOCK_IDENT: String = "08098613316"
     val WIREMOCK_VIRKSOMHET_IDENTIFIKATOR: String = "972674818"
+    private val defaultOrg = Organisasjon("Bedrift AS", "Bedrift type", WIREMOCK_VIRKSOMHET_IDENTIFIKATOR, "Org form", "Status")
 
     fun lagEnTilskuddsperiodeGodkjentMelding(
         tilskuddFom: LocalDate,
@@ -251,7 +253,11 @@ class RefusjonberegnerFratrekkFerieTest(
 
     @Test
     fun `trekk i lønn for ferie skal ikke trekkes på 2 refusjoner for samme måned`() {
-        every { altinnTilgangsstyringService.hentTilganger(any()) } returns setOf<Organisasjon>(Organisasjon("Bedrift AS", "Bedrift type", WIREMOCK_VIRKSOMHET_IDENTIFIKATOR,"Org form","Status"))
+        every { altinnTilgangsstyringService.altinnTilgangsstyringProperties.serviceCode } returns 4936
+        every { altinnTilgangsstyringService.altinnTilgangsstyringProperties.serviceEdition } returns 1
+        every { altinnTilgangsstyringService.hentTilganger(any(), any(), any()) } returns setOf<Organisasjon>(defaultOrg)
+        every { altinnTilgangsstyringService.hentAdressesperreTilganger(any()) } returns setOf<Organisasjon>(defaultOrg)
+        every { persondataService.hentDiskresjonskode(any()) } returns Diskresjonskode.UGRADERT
         val innloggetArbeidsgiver = InnloggetArbeidsgiver("12345678901",altinnTilgangsstyringService,refusjonRepository,korreksjonRepository,refusjonService, persondataService)
 
         // Det kan oppstå 2 refusjoner innenfor samme måned ved f.eks. forlengelse. (eks. 01-15 og 16-30)
@@ -276,6 +282,8 @@ class RefusjonberegnerFratrekkFerieTest(
             deltakerFnr = fnrMedFerieTrekkIWireMock,
             bedriftNr = WIREMOCK_VIRKSOMHET_IDENTIFIKATOR,
         )
+
+
         val refusjon = opprettRefusjonOgGjørInntektoppslag(tilskuddsperiodeGodkjentMelding1)
         // Send inn
         refusjonService.godkjennForArbeidsgiver(refusjon, innloggetArbeidsgiver)
@@ -296,7 +304,10 @@ class RefusjonberegnerFratrekkFerieTest(
 
     @Test
     fun `feil med feriepenger_FAGSYSTEM-339222`(){
-        every { altinnTilgangsstyringService.hentTilganger(any()) } returns setOf<Organisasjon>(Organisasjon("Bedrift AS", "Bedrift type", WIREMOCK_VIRKSOMHET_IDENTIFIKATOR,"Org form","Status"))
+        every { altinnTilgangsstyringService.altinnTilgangsstyringProperties.serviceCode } returns 4936
+        every { altinnTilgangsstyringService.altinnTilgangsstyringProperties.serviceEdition } returns 1
+        every { altinnTilgangsstyringService.hentTilganger(any(), any(), any()) } returns setOf<Organisasjon>(defaultOrg)
+        every { altinnTilgangsstyringService.hentAdressesperreTilganger(any()) } returns setOf<Organisasjon>(defaultOrg)
         val innloggetArbeidsgiver = InnloggetArbeidsgiver("12345678901",altinnTilgangsstyringService,refusjonRepository,korreksjonRepository,refusjonService, persondataService)
 
         Now.fixedDateTime(LocalDateTime.of(2024, 7, 1, 0, 0, 0))

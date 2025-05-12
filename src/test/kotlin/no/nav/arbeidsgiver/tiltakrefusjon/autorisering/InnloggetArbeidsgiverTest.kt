@@ -21,6 +21,9 @@ import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock
 import org.springframework.test.context.ActiveProfiles
 import java.time.LocalDateTime
 import java.time.temporal.TemporalAdjusters
+import no.nav.team_tiltak.felles.persondata.pdl.domene.Diskresjonskode
+import org.junit.jupiter.api.assertThrows
+
 
 @SpringBootTest(properties = ["NAIS_APP_IMAGE=test"])
 @ActiveProfiles("local")
@@ -34,23 +37,38 @@ internal class InnloggetArbeidsgiverTest(
     val varslingRepository: VarslingRepository,
     @Autowired
     val minusbelopRepository: MinusbelopRepository,
-    @Autowired
-    val persondataService: PersondataService
 ) {
     val innloggetArbeidsgiverBruker = innloggetBruker(
-        "12345678901",
+        "16120102137",
         BrukerRolle.ARBEIDSGIVER
     )
 
     @SpykBean
     lateinit var inntektskomponentService: InntektskomponentService
     @MockkBean lateinit var altinnTilgangsstyringService: AltinnTilgangsstyringService
+    @MockkBean lateinit var persondataService: PersondataService
     @MockkBean lateinit var korreksjonRepository: KorreksjonRepository
     @BeforeEach
     fun setup() {
         varslingRepository.deleteAll()
         refusjonRepository.deleteAll()
         minusbelopRepository.deleteAll()
+        val organisasjon: Organisasjon = Organisasjon(
+            "Bedrift AS",
+            "Bedrift type",
+            "999999999",
+            "Org form",
+            "Status"
+        )
+        every { altinnTilgangsstyringService.altinnTilgangsstyringProperties.serviceCode } returns 4936
+        every { altinnTilgangsstyringService.altinnTilgangsstyringProperties.serviceEdition } returns 1
+        every { persondataService.hentDiskresjonskode(any()) } returns Diskresjonskode.UGRADERT
+        every { altinnTilgangsstyringService.hentAdressesperreTilganger(any())} returns setOf<Organisasjon>(
+            organisasjon
+        )
+        every { altinnTilgangsstyringService.hentTilganger(any(), any(), any())  } returns setOf<Organisasjon>(
+            organisasjon
+        )
     }
     @Test
     fun finnRefusjon() {
@@ -113,8 +131,7 @@ internal class InnloggetArbeidsgiverTest(
         val refusjon1 = refusjonService.opprettRefusjon(tilskuddMelding)!!
         val refusjon2 = refusjonService.opprettRefusjon(tilskuddMelding2LittEldreMedLøpenummer2)!!
 
-        every { altinnTilgangsstyringService.hentTilganger(any()) } returns setOf<Organisasjon>(Organisasjon("Bedrift AS", "Bedrift type", "999999999","Org form","Status"))
-        val innloggetArbeidsgiver = InnloggetArbeidsgiver("12345678901",altinnTilgangsstyringService,refusjonRepository,korreksjonRepository,refusjonService, persondataService)
+        val innloggetArbeidsgiver = InnloggetArbeidsgiver("16120102137",altinnTilgangsstyringService,refusjonRepository,korreksjonRepository,refusjonService, persondataService)
         val refusjonFunnet = innloggetArbeidsgiver.finnRefusjon(refusjon1.id)
         assertThat(refusjonFunnet).isEqualTo(refusjon1)
 
@@ -127,17 +144,8 @@ internal class InnloggetArbeidsgiverTest(
         val deltakerFnr = "08098613316"
         val periode2start = Now.localDate().minusMonths(3).with(TemporalAdjusters.firstDayOfMonth());
         val periode2slutt = Now.localDate().minusMonths(3).with(TemporalAdjusters.lastDayOfMonth());
-        every { altinnTilgangsstyringService.hentTilganger(any()) } returns setOf<Organisasjon>(
-            Organisasjon(
-                "Bedrift AS",
-                "Bedrift type",
-                "999999999",
-                "Org form",
-                "Status"
-            )
-        )
         val innloggetArbeidsgiver = InnloggetArbeidsgiver(
-            "12345678901",
+            "16120102137",
             altinnTilgangsstyringService,
             refusjonRepository,
             korreksjonRepository,
@@ -308,8 +316,7 @@ internal class InnloggetArbeidsgiverTest(
             godkjentTidspunkt = LocalDateTime.now()
         )
 
-        every { altinnTilgangsstyringService.hentTilganger(any()) } returns setOf<Organisasjon>(Organisasjon("Bedrift AS", "Bedrift type", "999999999","Org form","Status"))
-        val innloggetArbeidsgiver = InnloggetArbeidsgiver("12345678901",altinnTilgangsstyringService,refusjonRepository,korreksjonRepository,refusjonService, persondataService)
+        val innloggetArbeidsgiver = InnloggetArbeidsgiver("16120102137",altinnTilgangsstyringService,refusjonRepository,korreksjonRepository,refusjonService, persondataService)
 
         // Tre refusjoner med samme avtalenr.
         val refusjon1 = opprettRefusjonOgGjørInntektoppslag(tilskuddMelding)
@@ -472,8 +479,7 @@ internal class InnloggetArbeidsgiverTest(
             godkjentTidspunkt = LocalDateTime.now()
         )
 
-        every { altinnTilgangsstyringService.hentTilganger(any()) } returns setOf<Organisasjon>(Organisasjon("Bedrift AS", "Bedrift type", "999999999","Org form","Status"))
-        val innloggetArbeidsgiver = InnloggetArbeidsgiver("12345678901",altinnTilgangsstyringService,refusjonRepository,korreksjonRepository,refusjonService, persondataService)
+        val innloggetArbeidsgiver = InnloggetArbeidsgiver("16120102137",altinnTilgangsstyringService,refusjonRepository,korreksjonRepository,refusjonService, persondataService)
 
         // Tre refusjoner med ulik avtalenr
         val refusjon1 = opprettRefusjonOgGjørInntektoppslag(tilskuddMelding)!!
@@ -536,8 +542,7 @@ internal class InnloggetArbeidsgiverTest(
         refusjonService.godkjennForArbeidsgiver(refusjon1, innloggetArbeidsgiverBruker)
 
 
-        every { altinnTilgangsstyringService.hentTilganger(any()) } returns setOf<Organisasjon>(Organisasjon("Bedrift AS", "Bedrift type", "999999999","Org form","Status"))
-        val innloggetArbeidsgiver = InnloggetArbeidsgiver("12345678901",altinnTilgangsstyringService,refusjonRepository,korreksjonRepository,refusjonService, persondataService)
+        val innloggetArbeidsgiver = InnloggetArbeidsgiver("16120102137",altinnTilgangsstyringService,refusjonRepository,korreksjonRepository,refusjonService, persondataService)
 
         val refusjon1FunnetViaFinnRefusjon = innloggetArbeidsgiver.finnRefusjon(refusjon1.id)
 
@@ -590,8 +595,7 @@ internal class InnloggetArbeidsgiverTest(
             løpenummer = 3
         )
 
-        every { altinnTilgangsstyringService.hentTilganger(any()) } returns setOf<Organisasjon>(Organisasjon("Bedrift AS", "Bedrift type", "999999999","Org form","Status"))
-        val innloggetArbeidsgiver = InnloggetArbeidsgiver("12345678901",altinnTilgangsstyringService,refusjonRepository,korreksjonRepository,refusjonService, persondataService)
+        val innloggetArbeidsgiver = InnloggetArbeidsgiver("16120102137",altinnTilgangsstyringService,refusjonRepository,korreksjonRepository,refusjonService, persondataService)
 
         val refusjon2 = opprettRefusjonOgGjørInntektoppslag(tilskuddMelding2LittEldreMedLøpenummer2)
         val refusjon3 = opprettRefusjonOgGjørInntektoppslag(tilskuddMelding3LittEldreMedLøpenummer3)
@@ -639,6 +643,109 @@ internal class InnloggetArbeidsgiverTest(
 
         refusjonRepository.save(refusjon)
         return refusjon;
+    }
+
+    @Test
+    fun `finnRefusjon feiler når strengt fortrolig og ingen adressesperre tilgang`() {
+        // Arrange
+        val bedriftNr = "999999999"
+        val deltakerFnr = "08098613316"
+        val melding = TilskuddsperiodeGodkjentMelding(
+            avtaleId = "1",
+            tilskuddsbeløp = 1000,
+            tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
+            deltakerEtternavn = "Etternavn",
+            deltakerFornavn = "Fornavn",
+            arbeidsgiverFornavn = "Test",
+            arbeidsgiverEtternavn = "Arbeidsgiver",
+            arbeidsgiverTlf = "12345678",
+            arbeidsgiveravgiftSats = 0.141,
+            avtaleInnholdId = "1",
+            bedriftNavn = "Bedrift AS",
+            bedriftNr = bedriftNr,
+            deltakerFnr = deltakerFnr,
+            feriepengerSats = 0.125,
+            otpSats = 0.03,
+            tilskuddFom = Now.localDate().minusWeeks(4),
+            tilskuddTom = Now.localDate().minusDays(1),
+            tilskuddsperiodeId = "p1",
+            veilederNavIdent = "X123",
+            lønnstilskuddsprosent = 50,
+            avtaleNr = 1,
+            løpenummer = 1,
+            resendingsnummer = null,
+            enhet = "1000",
+            godkjentTidspunkt = LocalDateTime.now()
+        )
+        val refusjon = refusjonService.opprettRefusjon(melding)!!
+
+        every { altinnTilgangsstyringService.hentTilganger(any(), any(), any()) } returns setOf(
+            Organisasjon("","", bedriftNr, "","")
+        )
+        every { altinnTilgangsstyringService.hentAdressesperreTilganger(any()) } returns emptySet()
+        every { persondataService.hentDiskresjonskode(deltakerFnr) } returns Diskresjonskode.STRENGT_FORTROLIG
+
+        val innlogget = InnloggetArbeidsgiver(
+            identifikator = "16120102137",
+            altinnTilgangsstyringService = altinnTilgangsstyringService,
+            refusjonRepository = refusjonRepository,
+            korreksjonRepository = korreksjonRepository,
+            refusjonService = refusjonService,
+            persondataService = persondataService
+        )
+        assertThrows<TilgangskontrollException> { innlogget.finnRefusjon(refusjon.id) }
+    }
+
+    @Test
+    fun `finnRefusjon lykkes når strengt fortrolig og har adressesperre tilgang`() {
+        val deltakerFnr = "08098613316"
+        val periode1start = Now.localDate().minusMonths(4).with(TemporalAdjusters.firstDayOfMonth());
+        val periode1slutt = Now.localDate().minusMonths(4).with(TemporalAdjusters.lastDayOfMonth());
+
+        every { altinnTilgangsstyringService.hentAdressesperreTilganger(any()) } returns setOf(
+            Organisasjon("","", "999999999", "","")
+        )
+        every { persondataService.hentDiskresjonskode(deltakerFnr) } returns Diskresjonskode.FORTROLIG
+
+        val tilskuddMelding = TilskuddsperiodeGodkjentMelding(
+            avtaleId = "1",
+            tilskuddsbeløp = 1000,
+            tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
+            deltakerEtternavn = "Mus",
+            deltakerFornavn = "Mikke",
+            arbeidsgiverFornavn = "Arne",
+            arbeidsgiverEtternavn = "Arbeidsgiver",
+            arbeidsgiverTlf = "41111111",
+            arbeidsgiveravgiftSats = 0.141,
+            avtaleInnholdId = "1",
+            bedriftNavn = "Bedriften AS",
+            bedriftNr = "999999999",
+            deltakerFnr = deltakerFnr,
+            feriepengerSats = 0.125,
+            otpSats = 0.03,
+            tilskuddFom = periode1start,
+            tilskuddTom = periode1slutt,
+            tilskuddsperiodeId = "1",
+            veilederNavIdent = "X123456",
+            lønnstilskuddsprosent = 60,
+            avtaleNr = 3456,
+            løpenummer = 1,
+            resendingsnummer = null,
+            enhet = "1000",
+            godkjentTidspunkt = LocalDateTime.now()
+        )
+        // Act (skal ikke kaste)
+        val innlogget = InnloggetArbeidsgiver(
+            identifikator = "16120102137",
+            altinnTilgangsstyringService = altinnTilgangsstyringService,
+            refusjonRepository = refusjonRepository,
+            korreksjonRepository = korreksjonRepository,
+            refusjonService = refusjonService,
+            persondataService = persondataService
+        )
+        innlogget.finnRefusjon(refusjonService.opprettRefusjon(
+            tilskuddMelding
+        )!!.id)
     }
 
 }

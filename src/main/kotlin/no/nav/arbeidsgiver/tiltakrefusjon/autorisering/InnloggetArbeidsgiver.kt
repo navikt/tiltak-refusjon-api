@@ -9,7 +9,6 @@ import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.antallMånederEtter
-import no.nav.team_tiltak.felles.persondata.pdl.domene.Diskresjonskode
 import no.nav.arbeidsgiver.tiltakrefusjon.persondata.PersondataService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -28,7 +27,7 @@ data class InnloggetArbeidsgiver(
     @JsonIgnore val korreksjonRepository: KorreksjonRepository,
     @JsonIgnore val refusjonService: RefusjonService,
     @JsonIgnore val persondataService: PersondataService
-    ) : InnloggetBruker {
+) : InnloggetBruker {
 
     @JsonIgnore
     val log: Logger = LoggerFactory.getLogger(javaClass)
@@ -38,9 +37,7 @@ data class InnloggetArbeidsgiver(
     val adresseSperretilganger: Set<Organisasjon>  = altinnTilgangsstyringService.hentAdressesperreTilganger(identifikator)
 
     fun finnAlleMedBedriftnummer(bedriftnummer: String): List<Refusjon> {
-        return refusjonRepository.findAllByBedriftNr(bedriftnummer).filter{
-            sjekkHarTilgangTilRefusjonerForBedrift(it.bedriftNr, it.deltakerFnr)
-        }
+        return filtrerRefusjonerMedTilgang(refusjonRepository.findAllByBedriftNr(bedriftnummer))
     }
 
     fun finnAlleUnderenheterTilArbeidsgiver() = this.organisasjoner
@@ -72,6 +69,7 @@ data class InnloggetArbeidsgiver(
         page: Int,
         size: Int
     ):Page<Refusjon> {
+
         val paging: Pageable = PageRequest.of(page, size)
         val refusjonPage: Page<Refusjon> =
             if (sortingOrder != null && sortingOrder != SortingOrder.STATUS_ASC) {
@@ -89,7 +87,9 @@ data class InnloggetArbeidsgiver(
                     paging
                 )
             }
-        val refusjonerMedTilgang = refusjonPage.content.filter { sjekkHarTilgangTilRefusjonerForBedrift(it.bedriftNr, it.deltakerFnr) }
+
+
+        val refusjonerMedTilgang = filtrerRefusjonerMedTilgang(refusjonPage.content)
 
         return PageImpl(refusjonerMedTilgang, refusjonPage.pageable, refusjonPage.totalElements)
     }
@@ -247,7 +247,7 @@ data class InnloggetArbeidsgiver(
         }
     }
 
-    private fun sjekkHarTilgangTilRefusjonerForBedrift(bedriftNr: String, deltakerFnr: String): Boolean {
+    private fun sjekkHarTilgangTilRefusjonerForBedrift(bedriftNr: String, deltakerFnr: String) {
         if (organisasjoner.none { it.organizationNumber == bedriftNr }) {
             throw TilgangskontrollException()
         }
@@ -258,6 +258,12 @@ data class InnloggetArbeidsgiver(
         ) {
             throw TilgangskontrollException()
         }
-        return true
     }
+
+    private fun filtrerRefusjonerMedTilgang(refusjoner: List<Refusjon>): List<Refusjon> =
+        refusjoner.filter {
+            runCatching {
+                sjekkHarTilgangTilRefusjonerForBedrift(it.bedriftNr, it.deltakerFnr)
+            }.isSuccess
+        }
 }

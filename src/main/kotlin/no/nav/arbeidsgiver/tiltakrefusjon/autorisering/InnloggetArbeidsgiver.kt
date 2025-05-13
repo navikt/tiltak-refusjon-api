@@ -6,17 +6,13 @@ import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.RessursFinnesIkkeException
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
+import no.nav.arbeidsgiver.tiltakrefusjon.persondata.PersondataService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.antallMånederEtter
-import no.nav.arbeidsgiver.tiltakrefusjon.persondata.PersondataService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.data.domain.Page
-import org.springframework.data.domain.PageImpl
-import org.springframework.data.domain.PageRequest
-import org.springframework.data.domain.Pageable
-import org.springframework.data.domain.Sort
+import org.springframework.data.domain.*
 import org.springframework.data.repository.findByIdOrNull
 import java.time.Instant
 
@@ -34,7 +30,8 @@ data class InnloggetArbeidsgiver(
     override val rolle: BrukerRolle = BrukerRolle.ARBEIDSGIVER
 
     val organisasjoner: Set<Organisasjon> = altinnTilgangsstyringService.hentTilganger(identifikator)
-    val adresseSperretilganger: Set<Organisasjon>  = altinnTilgangsstyringService.hentAdressesperreTilganger(identifikator)
+    val adresseSperretilganger: Set<Organisasjon> =
+        altinnTilgangsstyringService.hentAdressesperreTilganger(identifikator)
 
     fun finnAlleMedBedriftnummer(bedriftnummer: String): List<Refusjon> {
         return filtrerRefusjonerMedTilgang(refusjonRepository.findAllByBedriftNr(bedriftnummer))
@@ -68,7 +65,7 @@ data class InnloggetArbeidsgiver(
         sortingOrder: SortingOrder?,
         page: Int,
         size: Int
-    ):Page<Refusjon> {
+    ): Page<Refusjon> {
 
         val paging: Pageable = PageRequest.of(page, size)
         val refusjonPage: Page<Refusjon> =

@@ -45,9 +45,13 @@ internal class InnloggetArbeidsgiverTest(
 
     @SpykBean
     lateinit var inntektskomponentService: InntektskomponentService
-    @MockkBean lateinit var altinnTilgangsstyringService: AltinnTilgangsstyringService
-    @MockkBean lateinit var persondataService: PersondataService
-    @MockkBean lateinit var korreksjonRepository: KorreksjonRepository
+    @MockkBean
+    lateinit var altinnTilgangsstyringService: AltinnTilgangsstyringService
+    @MockkBean
+    lateinit var persondataService: PersondataService
+    @MockkBean
+    lateinit var korreksjonRepository: KorreksjonRepository
+
     @BeforeEach
     fun setup() {
         varslingRepository.deleteAll()
@@ -63,13 +67,14 @@ internal class InnloggetArbeidsgiverTest(
         every { altinnTilgangsstyringService.altinnTilgangsstyringProperties.serviceCode } returns 4936
         every { altinnTilgangsstyringService.altinnTilgangsstyringProperties.serviceEdition } returns 1
         every { persondataService.hentDiskresjonskode(any()) } returns Diskresjonskode.UGRADERT
-        every { altinnTilgangsstyringService.hentAdressesperreTilganger(any())} returns setOf<Organisasjon>(
+        every { altinnTilgangsstyringService.hentAdressesperreTilganger(any()) } returns setOf<Organisasjon>(
             organisasjon
         )
-        every { altinnTilgangsstyringService.hentTilganger(any(), any(), any())  } returns setOf<Organisasjon>(
+        every { altinnTilgangsstyringService.hentTilganger(any(), any(), any()) } returns setOf<Organisasjon>(
             organisasjon
         )
     }
+
     @Test
     fun finnRefusjon() {
         val deltakerFnr = "00000000000"
@@ -89,7 +94,7 @@ internal class InnloggetArbeidsgiverTest(
             deltakerFnr = deltakerFnr,
             feriepengerSats = 0.125,
             otpSats = 0.03,
-            tilskuddFom =  Now.localDate().minusWeeks(4),
+            tilskuddFom = Now.localDate().minusWeeks(4),
             tilskuddTom = Now.localDate().minusDays(1),
             tilskuddsperiodeId = "1",
             veilederNavIdent = "X123456",
@@ -131,7 +136,14 @@ internal class InnloggetArbeidsgiverTest(
         val refusjon1 = refusjonService.opprettRefusjon(tilskuddMelding)!!
         val refusjon2 = refusjonService.opprettRefusjon(tilskuddMelding2LittEldreMedLøpenummer2)!!
 
-        val innloggetArbeidsgiver = InnloggetArbeidsgiver("16120102137",altinnTilgangsstyringService,refusjonRepository,korreksjonRepository,refusjonService, persondataService)
+        val innloggetArbeidsgiver = InnloggetArbeidsgiver(
+            "16120102137",
+            altinnTilgangsstyringService,
+            refusjonRepository,
+            korreksjonRepository,
+            refusjonService,
+            persondataService
+        )
         val refusjonFunnet = innloggetArbeidsgiver.finnRefusjon(refusjon1.id)
         assertThat(refusjonFunnet).isEqualTo(refusjon1)
 
@@ -192,7 +204,7 @@ internal class InnloggetArbeidsgiverTest(
     }
 
     @Test
-    fun finnRefusjonMedMinusBeløpFraTidligereRefusjon(){
+    fun finnRefusjonMedMinusBeløpFraTidligereRefusjon() {
         val deltakerFnr = "08098613316"
 
         val periode1start = Now.localDate().minusMonths(4).with(TemporalAdjusters.firstDayOfMonth());
@@ -316,7 +328,14 @@ internal class InnloggetArbeidsgiverTest(
             godkjentTidspunkt = LocalDateTime.now()
         )
 
-        val innloggetArbeidsgiver = InnloggetArbeidsgiver("16120102137",altinnTilgangsstyringService,refusjonRepository,korreksjonRepository,refusjonService, persondataService)
+        val innloggetArbeidsgiver = InnloggetArbeidsgiver(
+            "16120102137",
+            altinnTilgangsstyringService,
+            refusjonRepository,
+            korreksjonRepository,
+            refusjonService,
+            persondataService
+        )
 
         // Tre refusjoner med samme avtalenr.
         val refusjon1 = opprettRefusjonOgGjørInntektoppslag(tilskuddMelding)
@@ -328,7 +347,8 @@ internal class InnloggetArbeidsgiverTest(
         val refusjon1FunnetViaFinnRefusjon = innloggetArbeidsgiver.finnRefusjon(refusjon1.id)
         assertThat(refusjon1).isEqualTo(refusjon1FunnetViaFinnRefusjon)
         // Sett innhentede inntekter til opptjent i periode
-        refusjon1FunnetViaFinnRefusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.forEach { it.erOpptjentIPeriode = true }
+        refusjon1FunnetViaFinnRefusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }
+            ?.forEach { it.erOpptjentIPeriode = true }
         assertThat(refusjon1FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(0)
         refusjonService.godkjennForArbeidsgiver(refusjon1FunnetViaFinnRefusjon, innloggetArbeidsgiver)
 
@@ -340,21 +360,23 @@ internal class InnloggetArbeidsgiverTest(
 
         // Skal finne gammel minus, men ikke minus fra inntekt
         val refusjon3FunnetViaFinnRefusjon = innloggetArbeidsgiver.finnRefusjon(refusjon3.id)
-        refusjon3FunnetViaFinnRefusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.forEach { it.erOpptjentIPeriode = true }
+        refusjon3FunnetViaFinnRefusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }
+            ?.forEach { it.erOpptjentIPeriode = true }
         assertThat(refusjon3FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(-3966)
         assertThat(refusjon3FunnetViaFinnRefusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp).isPositive()
         refusjonService.godkjennForArbeidsgiver(refusjon3FunnetViaFinnRefusjon, innloggetArbeidsgiver)
 
         // Minus skal nå være nullstillt
         val refusjon4FunnetViaFinnRefusjon = innloggetArbeidsgiver.finnRefusjon(refusjon4.id)
-        refusjon4FunnetViaFinnRefusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.forEach { it.erOpptjentIPeriode = true }
+        refusjon4FunnetViaFinnRefusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }
+            ?.forEach { it.erOpptjentIPeriode = true }
         assertThat(refusjon4FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(0)
         assertThat(refusjon4FunnetViaFinnRefusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp).isPositive()
         refusjonService.godkjennForArbeidsgiver(refusjon4FunnetViaFinnRefusjon, innloggetArbeidsgiver)
     }
 
     @Test
-    fun finnRefusjonMedMinusBeløpFraForrigeRefusjonSidenDetErUlikAvtaleNrSkalMinusBeløpetIkkeTasMedIAndreRefusjoner(){
+    fun finnRefusjonMedMinusBeløpFraForrigeRefusjonSidenDetErUlikAvtaleNrSkalMinusBeløpetIkkeTasMedIAndreRefusjoner() {
         val deltakerFnr = "08098613316"
 
         val periode1start = Now.localDate().minusMonths(4).with(TemporalAdjusters.firstDayOfMonth());
@@ -479,7 +501,14 @@ internal class InnloggetArbeidsgiverTest(
             godkjentTidspunkt = LocalDateTime.now()
         )
 
-        val innloggetArbeidsgiver = InnloggetArbeidsgiver("16120102137",altinnTilgangsstyringService,refusjonRepository,korreksjonRepository,refusjonService, persondataService)
+        val innloggetArbeidsgiver = InnloggetArbeidsgiver(
+            "16120102137",
+            altinnTilgangsstyringService,
+            refusjonRepository,
+            korreksjonRepository,
+            refusjonService,
+            persondataService
+        )
 
         // Tre refusjoner med ulik avtalenr
         val refusjon1 = opprettRefusjonOgGjørInntektoppslag(tilskuddMelding)!!
@@ -508,7 +537,7 @@ internal class InnloggetArbeidsgiverTest(
     }
 
     @Test
-    fun finnRefusjonUtenMinusBeløpSidenDetErBareEnRefusjonMedLøpenummer1(){
+    fun finnRefusjonUtenMinusBeløpSidenDetErBareEnRefusjonMedLøpenummer1() {
         val tilskuddMeldingUtenFerieTrekk = TilskuddsperiodeGodkjentMelding(
             avtaleId = "1",
             tilskuddsbeløp = 1000,
@@ -525,7 +554,7 @@ internal class InnloggetArbeidsgiverTest(
             deltakerFnr = "01092211111",
             feriepengerSats = 0.125,
             otpSats = 0.03,
-            tilskuddFom =  Now.localDate().minusWeeks(4),
+            tilskuddFom = Now.localDate().minusWeeks(4),
             tilskuddTom = Now.localDate().minusDays(1),
             tilskuddsperiodeId = "1",
             veilederNavIdent = "X123456",
@@ -542,7 +571,14 @@ internal class InnloggetArbeidsgiverTest(
         refusjonService.godkjennForArbeidsgiver(refusjon1, innloggetArbeidsgiverBruker)
 
 
-        val innloggetArbeidsgiver = InnloggetArbeidsgiver("16120102137",altinnTilgangsstyringService,refusjonRepository,korreksjonRepository,refusjonService, persondataService)
+        val innloggetArbeidsgiver = InnloggetArbeidsgiver(
+            "16120102137",
+            altinnTilgangsstyringService,
+            refusjonRepository,
+            korreksjonRepository,
+            refusjonService,
+            persondataService
+        )
 
         val refusjon1FunnetViaFinnRefusjon = innloggetArbeidsgiver.finnRefusjon(refusjon1.id)
 
@@ -595,7 +631,14 @@ internal class InnloggetArbeidsgiverTest(
             løpenummer = 3
         )
 
-        val innloggetArbeidsgiver = InnloggetArbeidsgiver("16120102137",altinnTilgangsstyringService,refusjonRepository,korreksjonRepository,refusjonService, persondataService)
+        val innloggetArbeidsgiver = InnloggetArbeidsgiver(
+            "16120102137",
+            altinnTilgangsstyringService,
+            refusjonRepository,
+            korreksjonRepository,
+            refusjonService,
+            persondataService
+        )
 
         val refusjon2 = opprettRefusjonOgGjørInntektoppslag(tilskuddMelding2LittEldreMedLøpenummer2)
         val refusjon3 = opprettRefusjonOgGjørInntektoppslag(tilskuddMelding3LittEldreMedLøpenummer3)
@@ -615,7 +658,8 @@ internal class InnloggetArbeidsgiverTest(
 
         // Skal finne gammel minus, men ikke minus fra inntekt
         val refusjon3FunnetViaFinnRefusjon = innloggetArbeidsgiver.finnRefusjon(refusjon3.id)
-        refusjon3FunnetViaFinnRefusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.forEach { it.erOpptjentIPeriode = true }
+        refusjon3FunnetViaFinnRefusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }
+            ?.forEach { it.erOpptjentIPeriode = true }
         assertThat(refusjon3FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(-3966)
         assertThat(refusjon3FunnetViaFinnRefusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp).isPositive()
         refusjonService.godkjennForArbeidsgiver(refusjon3FunnetViaFinnRefusjon, innloggetArbeidsgiver)
@@ -636,7 +680,8 @@ internal class InnloggetArbeidsgiverTest(
         refusjonService.gjørBedriftKontonummeroppslag(refusjon)
         refusjonService.gjørInntektsoppslag(refusjon, innloggetArbeidsgiverBruker)
         // Sett innhentede inntekter til opptjent i periode
-        refusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.forEach { it.erOpptjentIPeriode = true }
+        refusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }
+            ?.forEach { it.erOpptjentIPeriode = true }
         // Bekreft at alle inntektene kun er fra tiltaket
         refusjonService.endreBruttolønn(refusjon, true, null)
         refusjonService.gjørBeregning(refusjon, innloggetArbeidsgiverBruker)
@@ -647,7 +692,6 @@ internal class InnloggetArbeidsgiverTest(
 
     @Test
     fun `finnRefusjon feiler når strengt fortrolig og ingen adressesperre tilgang`() {
-        // Arrange
         val bedriftNr = "999999999"
         val deltakerFnr = "08098613316"
         val melding = TilskuddsperiodeGodkjentMelding(
@@ -680,7 +724,7 @@ internal class InnloggetArbeidsgiverTest(
         val refusjon = refusjonService.opprettRefusjon(melding)!!
 
         every { altinnTilgangsstyringService.hentTilganger(any(), any(), any()) } returns setOf(
-            Organisasjon("","", bedriftNr, "","")
+            Organisasjon("", "", bedriftNr, "", "")
         )
         every { altinnTilgangsstyringService.hentAdressesperreTilganger(any()) } returns emptySet()
         every { persondataService.hentDiskresjonskode(deltakerFnr) } returns Diskresjonskode.STRENGT_FORTROLIG
@@ -703,7 +747,7 @@ internal class InnloggetArbeidsgiverTest(
         val periode1slutt = Now.localDate().minusMonths(4).with(TemporalAdjusters.lastDayOfMonth());
 
         every { altinnTilgangsstyringService.hentAdressesperreTilganger(any()) } returns setOf(
-            Organisasjon("","", "999999999", "","")
+            Organisasjon("", "", "999999999", "", "")
         )
         every { persondataService.hentDiskresjonskode(deltakerFnr) } returns Diskresjonskode.FORTROLIG
 
@@ -734,7 +778,6 @@ internal class InnloggetArbeidsgiverTest(
             enhet = "1000",
             godkjentTidspunkt = LocalDateTime.now()
         )
-        // Act (skal ikke kaste)
         val innlogget = InnloggetArbeidsgiver(
             identifikator = "16120102137",
             altinnTilgangsstyringService = altinnTilgangsstyringService,
@@ -743,9 +786,11 @@ internal class InnloggetArbeidsgiverTest(
             refusjonService = refusjonService,
             persondataService = persondataService
         )
-        innlogget.finnRefusjon(refusjonService.opprettRefusjon(
-            tilskuddMelding
-        )!!.id)
+        innlogget.finnRefusjon(
+            refusjonService.opprettRefusjon(
+                tilskuddMelding
+            )!!.id
+        )
     }
 
 }

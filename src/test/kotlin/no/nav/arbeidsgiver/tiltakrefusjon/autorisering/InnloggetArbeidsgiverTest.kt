@@ -793,11 +793,13 @@ internal class InnloggetArbeidsgiverTest(
             refusjonService = refusjonService,
             persondataService = persondataService
         )
-        innlogget.finnRefusjon(
-            refusjonService.opprettRefusjon(
-                tilskuddMelding
-            )!!.id
-        )
+        assertThat(
+            innlogget.finnRefusjon(
+                refusjonService.opprettRefusjon(
+                    tilskuddMelding
+                )!!.id
+            ).deltakerFnr
+        ).isEqualTo(deltakerFnr)
     }
 
 }

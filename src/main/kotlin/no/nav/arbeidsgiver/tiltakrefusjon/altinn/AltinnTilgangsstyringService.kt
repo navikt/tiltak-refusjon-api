@@ -23,35 +23,68 @@ class AltinnTilgangsstyringService(
     private val altinnUrlString: String = UriComponentsBuilder.fromUri(altinnTilgangsstyringProperties.uri)
         .queryParam("ForceEIAuthentication")
         .queryParam("subject", "{fnr}")
-        .queryParam("serviceCode", altinnTilgangsstyringProperties.serviceCode)
-        .queryParam("serviceEdition", altinnTilgangsstyringProperties.serviceEdition)
+        .queryParam("serviceCode", "{serviceCode}")
+        .queryParam("serviceEdition", "{serviceEdition}")
         .queryParam("\$top", altinnTilgangsstyringProperties.antall)
         .queryParam("\$skip", "{skip}")
         .queryParam("\$filter", "Type+ne+'Person'+and+Status+eq+'Active'")
         .build()
         .toUriString()
 
-    fun hentTilganger(fnr: String): Set<Organisasjon> {
+    private fun hentTilganger(
+        fnr: String,
+        serviceCode: Int,
+        serviceEdition: Int
+    ): Set<Organisasjon> {
         val organisasjoner = HashSet<Organisasjon>()
         var merÅHente = true
         var i = 0;
         while (merÅHente) {
             val skip = altinnTilgangsstyringProperties.antall * i++
-            val nyeOrg = hentFraAltinn(fnr, skip)
+            val nyeOrg = hentFraAltinn(fnr, skip, serviceCode, serviceEdition)
             organisasjoner.addAll(nyeOrg)
             merÅHente = nyeOrg.size >= altinnTilgangsstyringProperties.antall
         }
         return organisasjoner
     }
 
-    private fun hentFraAltinn(fnr: String, skip: Int): Set<Organisasjon> {
+    fun hentInntektsmeldingTilganger(fnr: String): Set<Organisasjon> {
+        val organisasjoner = hentTilganger(
+            fnr,
+            serviceCode = altinnTilgangsstyringProperties.inntektsmeldingServiceCode,
+            serviceEdition = altinnTilgangsstyringProperties.inntektsmeldingServiceEdition
+        )
+        return organisasjoner
+    }
+
+
+    fun hentAdressesperreTilganger(fnr: String): Set<Organisasjon> {
+        val organisasjoner = hentTilganger(
+            fnr,
+            serviceCode = altinnTilgangsstyringProperties.adressesperreServiceCode,
+            serviceEdition = altinnTilgangsstyringProperties.adressesperreServiceEdition
+        )
+        return organisasjoner
+    }
+
+    private fun hentFraAltinn(
+        fnr: String,
+        skip: Int,
+        serviceCode: Int,
+        serviceEdition: Int
+    ): Set<Organisasjon> {
         try {
             return restTemplate.exchange(
                 altinnUrlString,
                 HttpMethod.GET,
                 getAuthHeadersForAltinn(),
                 Array<Organisasjon>::class.java,
-                mapOf("fnr" to fnr, "skip" to skip)
+                mapOf(
+                    "fnr" to fnr,
+                    "skip" to skip,
+                    "serviceCode" to serviceCode,
+                    "serviceEdition" to serviceEdition
+                )
             ).body?.toSet()
                 ?: return emptySet()
         } catch (exception: RuntimeException) {

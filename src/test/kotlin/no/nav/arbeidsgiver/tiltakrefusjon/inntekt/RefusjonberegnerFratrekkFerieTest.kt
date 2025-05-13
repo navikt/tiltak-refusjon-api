@@ -7,10 +7,12 @@ import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetArbeidsgiver
 import no.nav.arbeidsgiver.tiltakrefusjon.etInntektsgrunnlag
 import no.nav.arbeidsgiver.tiltakrefusjon.innloggetBruker
+import no.nav.arbeidsgiver.tiltakrefusjon.persondata.PersondataService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.ulid
+import no.nav.team_tiltak.felles.persondata.pdl.domene.Diskresjonskode
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -40,11 +42,17 @@ class RefusjonberegnerFratrekkFerieTest(
 
     @MockkBean
     lateinit var altinnTilgangsstyringService: AltinnTilgangsstyringService
+
     @MockkBean
     lateinit var korreksjonRepository: KorreksjonRepository
 
+    @MockkBean
+    lateinit var persondataService: PersondataService
+
     val WIREMOCK_IDENT: String = "08098613316"
     val WIREMOCK_VIRKSOMHET_IDENTIFIKATOR: String = "972674818"
+    private val defaultOrg =
+        Organisasjon("Bedrift AS", "Bedrift type", WIREMOCK_VIRKSOMHET_IDENTIFIKATOR, "Org form", "Status")
 
     fun lagEnTilskuddsperiodeGodkjentMelding(
         tilskuddFom: LocalDate,
@@ -79,7 +87,7 @@ class RefusjonberegnerFratrekkFerieTest(
             løpenummer = 9,
             resendingsnummer = null,
             enhet = "1104",
-            godkjentTidspunkt = LocalDateTime.of(tilskuddTom.year, tilskuddTom.month, tilskuddTom.dayOfMonth, 0, 0 )
+            godkjentTidspunkt = LocalDateTime.of(tilskuddTom.year, tilskuddTom.month, tilskuddTom.dayOfMonth, 0, 0)
         )
         return tilskuddsperiodeGodkjentMelding
     }
@@ -92,7 +100,8 @@ class RefusjonberegnerFratrekkFerieTest(
         refusjonService.gjørBedriftKontonummeroppslag(refusjon)
         refusjonService.gjørInntektsoppslag(refusjon, innloggetArbeidsgiver)
         // Sett innhentede inntekter til opptjent i periode
-        refusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.forEach { it.erOpptjentIPeriode = true }
+        refusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }
+            ?.forEach { it.erOpptjentIPeriode = true }
         // Bekreft at alle inntektene kun er fra tiltaket
         //refusjonService.oppdaterRefusjon(refusjon)
         refusjonService.endreBruttolønn(refusjon, true, null)
@@ -103,13 +112,14 @@ class RefusjonberegnerFratrekkFerieTest(
 
     fun `vis utregning med feriefratrekk`(refusjon: Refusjon, TREKKFORFERIEGRUNNLAG: Int): Int {
         val beregning: Beregning = refusjon.refusjonsgrunnlag.beregning ?: throw Exception()
-        val (lønn, _, feriepenger,tjenestepensjon, arbeidsgiveravgift) = beregning
-        val resultatForAssert = ((lønn + TREKKFORFERIEGRUNNLAG + feriepenger + tjenestepensjon + arbeidsgiveravgift) * 0.40).toInt()
+        val (lønn, _, feriepenger, tjenestepensjon, arbeidsgiveravgift) = beregning
+        val resultatForAssert =
+            ((lønn + TREKKFORFERIEGRUNNLAG + feriepenger + tjenestepensjon + arbeidsgiveravgift) * 0.40).toInt()
         return resultatForAssert
     }
 
     @BeforeEach
-    fun slettAlt(){
+    fun slettAlt() {
         refusjonRepository.deleteAll()
     }
 
@@ -127,7 +137,12 @@ class RefusjonberegnerFratrekkFerieTest(
         )
         val refusjon = opprettRefusjonOgGjørInntektoppslag(tilskuddsperiodeGodkjentMelding)
 
-        assert(refusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp == `vis utregning med feriefratrekk`(refusjon, TREKKFORFERIEGRUNNLAG))
+        assert(
+            refusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp == `vis utregning med feriefratrekk`(
+                refusjon,
+                TREKKFORFERIEGRUNNLAG
+            )
+        )
         assert(refusjon.refusjonsgrunnlag.beregning!!.fratrekkLønnFerie == TREKKFORFERIEGRUNNLAG)
     }
 
@@ -146,7 +161,12 @@ class RefusjonberegnerFratrekkFerieTest(
         )
         val refusjon = opprettRefusjonOgGjørInntektoppslag(tilskuddsperiodeGodkjentMelding)
 
-        assert(refusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp == `vis utregning med feriefratrekk`(refusjon, TREKKFORFERIEGRUNNLAG))
+        assert(
+            refusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp == `vis utregning med feriefratrekk`(
+                refusjon,
+                TREKKFORFERIEGRUNNLAG
+            )
+        )
         assert(refusjon.refusjonsgrunnlag.beregning!!.fratrekkLønnFerie == TREKKFORFERIEGRUNNLAG)
     }
 
@@ -164,7 +184,12 @@ class RefusjonberegnerFratrekkFerieTest(
         )
         val refusjon = opprettRefusjonOgGjørInntektoppslag(tilskuddsperiodeGodkjentMelding)
 
-        assert(refusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp == `vis utregning med feriefratrekk`(refusjon, TREKKFORFERIEGRUNNLAG))
+        assert(
+            refusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp == `vis utregning med feriefratrekk`(
+                refusjon,
+                TREKKFORFERIEGRUNNLAG
+            )
+        )
         assert(refusjon.refusjonsgrunnlag.beregning!!.fratrekkLønnFerie == TREKKFORFERIEGRUNNLAG)
     }
 
@@ -182,7 +207,12 @@ class RefusjonberegnerFratrekkFerieTest(
         )
         val refusjon = opprettRefusjonOgGjørInntektoppslag(tilskuddsperiodeGodkjentMelding)
 
-        assert(refusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp == `vis utregning med feriefratrekk`(refusjon, TREKKFORFERIEGRUNNLAG))
+        assert(
+            refusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp == `vis utregning med feriefratrekk`(
+                refusjon,
+                TREKKFORFERIEGRUNNLAG
+            )
+        )
         assert(refusjon.refusjonsgrunnlag.beregning!!.fratrekkLønnFerie == TREKKFORFERIEGRUNNLAG)
     }
 
@@ -204,7 +234,10 @@ class RefusjonberegnerFratrekkFerieTest(
         val refusjon = opprettRefusjonOgGjørInntektoppslag(tilskuddsperiodeGodkjentMelding)
 
         val trekkLagtSammen = TREKKFORFERIEGRUNNLAG1 + TREKKFORFERIEGRUNNLAG2
-        Assertions.assertEquals(`vis utregning med feriefratrekk`(refusjon, trekkLagtSammen), refusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp)
+        Assertions.assertEquals(
+            `vis utregning med feriefratrekk`(refusjon, trekkLagtSammen),
+            refusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp
+        )
         Assertions.assertEquals(trekkLagtSammen, refusjon.refusjonsgrunnlag.beregning!!.fratrekkLønnFerie)
         Now.resetClock()
     }
@@ -229,7 +262,12 @@ class RefusjonberegnerFratrekkFerieTest(
         val trekkiLoennForFerieWiremock = 5000
         assertThat(refusjon.refusjonsgrunnlag.beregning!!.lønn).isEqualTo(lønnFraWiremock)
         assertThat(refusjon.refusjonsgrunnlag.beregning!!.lønnFratrukketFerie).isEqualTo(lønnFraWiremock + trekkiLoennForFerieWiremock)
-        assert(refusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp == `vis utregning med feriefratrekk`(refusjon, TREKKFORFERIEGRUNNLAG))
+        assert(
+            refusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp == `vis utregning med feriefratrekk`(
+                refusjon,
+                TREKKFORFERIEGRUNNLAG
+            )
+        )
         assert(refusjon.refusjonsgrunnlag.beregning!!.fratrekkLønnFerie == TREKKFORFERIEGRUNNLAG)
         Now.resetClock()
     }
@@ -239,7 +277,7 @@ class RefusjonberegnerFratrekkFerieTest(
         val etInntektsgrunnlag = etInntektsgrunnlag()
         val leggSammenTrekkGrunnlag: Double = leggSammenTrekkGrunnlag(
             etInntektsgrunnlag.inntekter.toList(),
-            tilskuddFom = LocalDate.of(2021,6,1)
+            tilskuddFom = LocalDate.of(2021, 6, 1)
         )
 
         assertThat(leggSammenTrekkGrunnlag).isNotNull
@@ -248,8 +286,23 @@ class RefusjonberegnerFratrekkFerieTest(
 
     @Test
     fun `trekk i lønn for ferie skal ikke trekkes på 2 refusjoner for samme måned`() {
-        every { altinnTilgangsstyringService.hentTilganger(any()) } returns setOf<Organisasjon>(Organisasjon("Bedrift AS", "Bedrift type", WIREMOCK_VIRKSOMHET_IDENTIFIKATOR,"Org form","Status"))
-        val innloggetArbeidsgiver = InnloggetArbeidsgiver("12345678901",altinnTilgangsstyringService,refusjonRepository,korreksjonRepository,refusjonService)
+        every { altinnTilgangsstyringService.altinnTilgangsstyringProperties.inntektsmeldingServiceCode } returns 4936
+        every { altinnTilgangsstyringService.altinnTilgangsstyringProperties.inntektsmeldingServiceEdition } returns 1
+        every {
+            altinnTilgangsstyringService.hentInntektsmeldingTilganger(
+                any()
+            )
+        } returns setOf<Organisasjon>(defaultOrg)
+        every { altinnTilgangsstyringService.hentAdressesperreTilganger(any()) } returns setOf<Organisasjon>(defaultOrg)
+        every { persondataService.hentDiskresjonskode(any()) } returns Diskresjonskode.UGRADERT
+        val innloggetArbeidsgiver = InnloggetArbeidsgiver(
+            "12345678901",
+            altinnTilgangsstyringService,
+            refusjonRepository,
+            korreksjonRepository,
+            refusjonService,
+            persondataService
+        )
 
         // Det kan oppstå 2 refusjoner innenfor samme måned ved f.eks. forlengelse. (eks. 01-15 og 16-30)
         //Now.fixedDate(LocalDate.of(2023, 7, 1))
@@ -273,6 +326,7 @@ class RefusjonberegnerFratrekkFerieTest(
             deltakerFnr = fnrMedFerieTrekkIWireMock,
             bedriftNr = WIREMOCK_VIRKSOMHET_IDENTIFIKATOR,
         )
+
         val refusjon = opprettRefusjonOgGjørInntektoppslag(tilskuddsperiodeGodkjentMelding1)
         // Send inn
         refusjonService.godkjennForArbeidsgiver(refusjon, innloggetArbeidsgiver)
@@ -292,9 +346,23 @@ class RefusjonberegnerFratrekkFerieTest(
     }
 
     @Test
-    fun `feil med feriepenger_FAGSYSTEM-339222`(){
-        every { altinnTilgangsstyringService.hentTilganger(any()) } returns setOf<Organisasjon>(Organisasjon("Bedrift AS", "Bedrift type", WIREMOCK_VIRKSOMHET_IDENTIFIKATOR,"Org form","Status"))
-        val innloggetArbeidsgiver = InnloggetArbeidsgiver("12345678901",altinnTilgangsstyringService,refusjonRepository,korreksjonRepository,refusjonService)
+    fun `feil med feriepenger_FAGSYSTEM-339222`() {
+        every { altinnTilgangsstyringService.altinnTilgangsstyringProperties.inntektsmeldingServiceCode } returns 4936
+        every { altinnTilgangsstyringService.altinnTilgangsstyringProperties.inntektsmeldingServiceEdition } returns 1
+        every {
+            altinnTilgangsstyringService.hentInntektsmeldingTilganger(
+                any()
+            )
+        } returns setOf<Organisasjon>(defaultOrg)
+        every { altinnTilgangsstyringService.hentAdressesperreTilganger(any()) } returns setOf(defaultOrg)
+        val innloggetArbeidsgiver = InnloggetArbeidsgiver(
+            "12345678901",
+            altinnTilgangsstyringService,
+            refusjonRepository,
+            korreksjonRepository,
+            refusjonService,
+            persondataService
+        )
 
         Now.fixedDateTime(LocalDateTime.of(2024, 7, 1, 0, 0, 0))
         val fnrMedFerieTrekkIWireMock = "29047497068"
@@ -318,9 +386,9 @@ class RefusjonberegnerFratrekkFerieTest(
         val refusjon = opprettRefusjonOgGjørInntektoppslag(tilskuddsperiodeGodkjentMelding1)
         // Send inn
         refusjonService.godkjennForArbeidsgiver(refusjon, innloggetArbeidsgiver)
-        assertEquals(-52700,refusjon.refusjonsgrunnlag.beregning!!.fratrekkLønnFerie)
-        assertEquals(45863,refusjon.refusjonsgrunnlag.beregning!!.lønn)
-        assertEquals(-3565,refusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp)
+        assertEquals(-52700, refusjon.refusjonsgrunnlag.beregning!!.fratrekkLønnFerie)
+        assertEquals(45863, refusjon.refusjonsgrunnlag.beregning!!.lønn)
+        assertEquals(-3565, refusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp)
         Now.resetClock()
     }
 }

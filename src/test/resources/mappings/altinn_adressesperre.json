@@ -1,0 +1,79 @@
+{
+  "mappings": [
+    {
+      "priority": 1,
+      "request": {
+        "method": "GET",
+        "urlPath": "/altinn-tilgangsstyring",
+        "queryParameters": {
+          "subject": {
+            "equalTo": "15000000000"
+          },
+          "serviceCode": {
+            "equalTo": "5516"
+          },
+          "serviceEdition": {
+            "matches": "1|2|3|4|5|6"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": [
+          {
+            "Name": "Bedrift du ikke har tilgang til adressesperre i ❌",
+            "Type": "Business",
+            "OrganizationNumber": "910825585",
+            "OrganizationForm": "BEDR",
+            "Status": "Active",
+            "ParentOrganizationNumber": "212381632"
+          },
+          {
+            "Name": "Adressesperre Lukket ❌",
+            "Type": "Enterprise",
+            "OrganizationNumber": "212381632",
+            "OrganizationForm": "AS",
+            "Status": "Active"
+          }
+        ],
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "priority": 1,
+      "request": {
+        "method": "GET",
+        "urlPath": "/altinn-tilgangsstyring",
+        "queryParameters": {
+          "subject": {
+            "equalTo": "15000000000"
+          },
+          "serviceCode": {
+            "equalTo": "5516"
+          },
+          "serviceEdition": {
+            "matches": "3|4|5|6|7"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": [
+          {
+            "Name": "Saltrød og Høneby",
+            "Type": "Business",
+            "OrganizationNumber": "999999999",
+            "OrganizationForm": "BEDR",
+            "Status": "Active",
+            "ParentOrganizationNumber": "998877665"
+          }
+        ],
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    }
+  ]
+}

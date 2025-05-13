@@ -6,12 +6,22 @@ import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.RessursFinnesIkkeException
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
+import no.nav.arbeidsgiver.tiltakrefusjon.persondata.PersondataService
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.BrukerRolle
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Korreksjon
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.KorreksjonRepository
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonRepository
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonService
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonStatus
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.SortingOrder
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.antallMånederEtter
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
@@ -24,22 +34,24 @@ data class InnloggetArbeidsgiver(
     @JsonIgnore val refusjonRepository: RefusjonRepository,
     @JsonIgnore val korreksjonRepository: KorreksjonRepository,
     @JsonIgnore val refusjonService: RefusjonService,
+    @JsonIgnore val persondataService: PersondataService
 ) : InnloggetBruker {
 
     @JsonIgnore
     val log: Logger = LoggerFactory.getLogger(javaClass)
     override val rolle: BrukerRolle = BrukerRolle.ARBEIDSGIVER
 
-    val organisasjoner: Set<Organisasjon> = altinnTilgangsstyringService.hentTilganger(identifikator)
+    val organisasjoner: Set<Organisasjon> = altinnTilgangsstyringService.hentInntektsmeldingTilganger(identifikator)
+    val adresseSperretilganger: Set<Organisasjon> =
+        altinnTilgangsstyringService.hentAdressesperreTilganger(identifikator)
 
     fun finnAlleMedBedriftnummer(bedriftnummer: String): List<Refusjon> {
-        sjekkHarTilgangTilRefusjonerForBedrift(bedriftnummer)
-        return refusjonRepository.findAllByBedriftNr(bedriftnummer)
+        return filtrerRefusjonerMedTilgang(refusjonRepository.findAllByBedriftNr(bedriftnummer))
     }
 
-    fun finnAlleUnderenheterTilArbeidsgiver() = this.organisasjoner
-        .filter { org -> org.type != "Enterprise" && org.organizationForm != "FLI" && org.organizationForm != "AS" }
-        .map { organisasjon -> organisasjon.organizationNumber }
+    fun finnAlleUnderenheterTilArbeidsgiver() =
+        this.organisasjoner.filter { org -> org.type != "Enterprise" && org.organizationForm != "FLI" && org.organizationForm != "AS" }
+            .map { organisasjon -> organisasjon.organizationNumber }
 
     fun getSortingOrderForPageable(sortingOrder: SortingOrder): Sort.Order {
         when (sortingOrder) {
@@ -66,16 +78,23 @@ data class InnloggetArbeidsgiver(
         page: Int,
         size: Int
     ): Page<Refusjon> {
+
         val paging: Pageable = PageRequest.of(page, size)
-        if (sortingOrder != null && sortingOrder != SortingOrder.STATUS_ASC) {
-            return refusjonRepository.findAllByBedriftNrAndStatusDefinedSort(
+        val refusjonPage: Page<Refusjon> = if (sortingOrder != null && sortingOrder != SortingOrder.STATUS_ASC) {
+            refusjonRepository.findAllByBedriftNrAndStatusDefinedSort(
                 bedriftNr,
                 status,
                 tiltakstype,
                 PageRequest.of(page, size, Sort.by(getSortingOrderForPageable(sortingOrder), Sort.Order.asc("id")))
             )
+        } else {
+            refusjonRepository.findAllByBedriftNrAndStatusDefaultSort(
+                bedriftNr, status, tiltakstype, paging
+            )
         }
-        return refusjonRepository.findAllByBedriftNrAndStatusDefaultSort(bedriftNr, status, tiltakstype, paging)
+        val refusjonerMedTilgang = filtrerRefusjonerMedTilgang(refusjonPage.content)
+
+        return PageImpl(refusjonerMedTilgang, refusjonPage.pageable, refusjonPage.totalElements)
     }
 
     fun finnAlleForGittArbeidsgiver(
@@ -86,32 +105,25 @@ data class InnloggetArbeidsgiver(
         page: Int,
         size: Int
     ): Page<Refusjon> {
-        if (bedrifter != null) {
-            if (bedrifter != "ALLEBEDRIFTER") {
-                return getQueryMethodForFinnAlleForGittArbeidsgiver(
-                    bedrifter.split(",")
-                        .filter { org -> this.organisasjoner.any { it.organizationNumber == org } },
-                    status,
-                    tiltakstype,
-                    sortingOrder,
-                    page,
-                    size
-                )
-            }
+        return if (bedrifter != null && bedrifter != "ALLEBEDRIFTER") {
+            getQueryMethodForFinnAlleForGittArbeidsgiver(
+                bedrifter.split(",").filter { org -> organisasjoner.any { it.organizationNumber == org } },
+                status,
+                tiltakstype,
+                sortingOrder,
+                page,
+                size
+            )
+        } else {
+            getQueryMethodForFinnAlleForGittArbeidsgiver(
+                finnAlleUnderenheterTilArbeidsgiver(), status, tiltakstype, sortingOrder, page, size
+            )
         }
-        return getQueryMethodForFinnAlleForGittArbeidsgiver(
-            finnAlleUnderenheterTilArbeidsgiver(),
-            status,
-            tiltakstype,
-            sortingOrder,
-            page,
-            size
-        )
     }
 
     fun godkjenn(refusjonId: String, sistEndret: Instant?) {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(refusjonId) ?: throw RessursFinnesIkkeException()
-        sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
+        sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr, refusjon.deltakerFnr)
         sjekkSistEndret(refusjon, sistEndret)
         refusjonService.godkjennForArbeidsgiver(refusjon, this)
 
@@ -119,7 +131,7 @@ data class InnloggetArbeidsgiver(
 
     fun godkjennNullbeløp(refusjonId: String, sistEndret: Instant?) {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(refusjonId) ?: throw RessursFinnesIkkeException()
-        sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
+        sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr, refusjon.deltakerFnr)
         sjekkSistEndret(refusjon, sistEndret)
         refusjonService.godkjennNullbeløpForArbeidsgiver(refusjon, this)
 
@@ -127,18 +139,17 @@ data class InnloggetArbeidsgiver(
 
     fun finnRefusjon(id: String): Refusjon {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
-        sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
+        sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr, refusjon.deltakerFnr)
         return refusjon
     }
 
     fun settKontonummerOgInntekterPåRefusjon(id: String, sistEndret: Instant?): Refusjon {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
-        sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
+        sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr, refusjon.deltakerFnr)
         if (refusjon.status != RefusjonStatus.KLAR_FOR_INNSENDING && !refusjon.tiltakstype().utbetalesAutomatisk()) {
             throw FeilkodeException(Feilkode.UGYLDIG_STATUS)
-        } else if (refusjon.status != RefusjonStatus.KLAR_FOR_INNSENDING
-            && refusjon.status != RefusjonStatus.FOR_TIDLIG
-            && refusjon.tiltakstype().utbetalesAutomatisk()
+        } else if (refusjon.status != RefusjonStatus.KLAR_FOR_INNSENDING && refusjon.status != RefusjonStatus.FOR_TIDLIG && refusjon.tiltakstype()
+                .utbetalesAutomatisk()
         ) {
             throw FeilkodeException(Feilkode.UGYLDIG_STATUS)
         }
@@ -156,20 +167,13 @@ data class InnloggetArbeidsgiver(
 
     fun finnKorreksjon(id: String): Korreksjon {
         val korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
-        sjekkHarTilgangTilRefusjonerForBedrift(korreksjon.bedriftNr)
+        sjekkHarTilgangTilRefusjonerForBedrift(korreksjon.bedriftNr, korreksjon.deltakerFnr)
         return korreksjon
-    }
-
-    private fun sjekkHarTilgangTilRefusjonerForBedrift(bedriftsnummer: String): Boolean {
-        if (organisasjoner.none { it.organizationNumber == bedriftsnummer }) {
-            throw TilgangskontrollException()
-        }
-        return true
     }
 
     fun endreBruttolønn(id: String, inntekterKunFraTiltaket: Boolean?, bruttoLønn: Int?, sistEndret: Instant?) {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
-        sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
+        sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr, refusjon.deltakerFnr)
         sjekkSistEndret(refusjon, sistEndret)
         refusjonService.endreBruttolønn(refusjon, inntekterKunFraTiltaket, bruttoLønn)
         refusjonService.gjørBeregning(refusjon, this)
@@ -179,7 +183,7 @@ data class InnloggetArbeidsgiver(
 
     fun lagreBedriftKID(id: String, bedriftKID: String?, sistEndret: Instant?) {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
-        sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
+        sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr, refusjon.deltakerFnr)
         sjekkSistEndret(refusjon, sistEndret)
         refusjon.endreBedriftKID(bedriftKID)
         refusjonService.oppdaterSistEndret(refusjon)
@@ -187,13 +191,10 @@ data class InnloggetArbeidsgiver(
     }
 
     fun setInntektslinjeTilOpptjentIPeriode(
-        refusjonId: String,
-        inntekslinjeId: String,
-        erOpptjentIPeriode: Boolean,
-        sistEndret: Instant?
+        refusjonId: String, inntekslinjeId: String, erOpptjentIPeriode: Boolean, sistEndret: Instant?
     ) {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(refusjonId) ?: throw RessursFinnesIkkeException()
-        sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
+        sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr, refusjon.deltakerFnr)
         sjekkSistEndret(refusjon, sistEndret)
         refusjon.setInntektslinjeTilOpptjentIPeriode(inntekslinjeId, erOpptjentIPeriode)
         refusjonService.gjørBeregning(refusjon, this)
@@ -202,13 +203,10 @@ data class InnloggetArbeidsgiver(
     }
 
     fun settFratrekkRefunderbarBeløp(
-        id: String,
-        fratrekkRefunderbarBeløp: Boolean,
-        refunderbarBeløp: Int?,
-        sistEndret: Instant?
+        id: String, fratrekkRefunderbarBeløp: Boolean, refunderbarBeløp: Int?, sistEndret: Instant?
     ) {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
-        sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
+        sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr, refusjon.deltakerFnr)
         sjekkSistEndret(refusjon, sistEndret)
         refusjon.settFratrekkRefunderbarBeløp(fratrekkRefunderbarBeløp, refunderbarBeløp)
         if (fratrekkRefunderbarBeløp) {
@@ -222,7 +220,7 @@ data class InnloggetArbeidsgiver(
 
     fun merkForHentInntekterFrem(id: String, merking: Boolean, sistEndret: Instant?) {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
-        sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr)
+        sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr, refusjon.deltakerFnr)
         sjekkSistEndret(refusjon, sistEndret)
         refusjon.merkForHentInntekterFrem(merking, this)
         refusjonService.oppdaterSistEndret(refusjon)
@@ -239,4 +237,26 @@ data class InnloggetArbeidsgiver(
         }
     }
 
+    private fun sjekkHarTilgangTilRefusjonerForBedrift(bedriftNr: String, deltakerFnr: String) {
+        if (organisasjoner.none { it.organizationNumber == bedriftNr }) {
+            throw TilgangskontrollException()
+        }
+
+        val diskresjonskode = persondataService.hentDiskresjonskode(deltakerFnr)
+        if (diskresjonskode.erKode6Eller7() && adresseSperretilganger.none { it.organizationNumber == bedriftNr }) {
+            throw TilgangskontrollException()
+        }
+    }
+
+    private fun filtrerRefusjonerMedTilgang(refusjoner: List<Refusjon>): List<Refusjon> = refusjoner.filter {
+        try {
+            sjekkHarTilgangTilRefusjonerForBedrift(it.bedriftNr, it.deltakerFnr)
+            true
+        } catch (e: TilgangskontrollException) {
+            false
+        } catch (e: Exception) {
+            log.warn("Access check failed for refusjon ${it.id}")
+            false
+        }
+    }
 }

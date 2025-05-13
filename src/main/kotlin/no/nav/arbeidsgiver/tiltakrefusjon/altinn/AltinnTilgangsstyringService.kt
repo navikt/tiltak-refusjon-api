@@ -31,10 +31,10 @@ class AltinnTilgangsstyringService(
         .build()
         .toUriString()
 
-    fun hentTilganger(
+    private fun hentTilganger(
         fnr: String,
-        serviceCode: Int = altinnTilgangsstyringProperties.serviceCode,
-        serviceEdition: Int = altinnTilgangsstyringProperties.serviceEdition
+        serviceCode: Int,
+        serviceEdition: Int
     ): Set<Organisasjon> {
         val organisasjoner = HashSet<Organisasjon>()
         var merÅHente = true
@@ -48,6 +48,16 @@ class AltinnTilgangsstyringService(
         return organisasjoner
     }
 
+    fun hentInntektsmeldingTilganger(fnr: String): Set<Organisasjon> {
+        val organisasjoner = hentTilganger(
+            fnr,
+            serviceCode = altinnTilgangsstyringProperties.inntektsmeldingServiceCode,
+            serviceEdition = altinnTilgangsstyringProperties.inntektsmeldingServiceEdition
+        )
+        return organisasjoner
+    }
+
+
     fun hentAdressesperreTilganger(fnr: String): Set<Organisasjon> {
         val organisasjoner = hentTilganger(
             fnr,
@@ -58,11 +68,11 @@ class AltinnTilgangsstyringService(
     }
 
     private fun hentFraAltinn(
-            fnr: String,
-            skip: Int,
-            serviceCode: Int,
-            serviceEdition: Int
-        ): Set<Organisasjon> {
+        fnr: String,
+        skip: Int,
+        serviceCode: Int,
+        serviceEdition: Int
+    ): Set<Organisasjon> {
         try {
             return restTemplate.exchange(
                 altinnUrlString,

@@ -44,8 +44,8 @@ tiltak-refusjon:
   altinn-tilgangstyring:
     uri: http://tiltak-refusjon-api-wiremock/altinn-tilgangsstyring
     beOmRettighetBaseUrl: https://arbeidsgiver-q.nav.no/min-side-arbeidsgiver/?fragment=be-om-tilgang
-    serviceCode: 4936
-    serviceEdition: 1
+    inntektsmeldingServiceCode: 4936
+    inntektsmeldingServiceEdition: 1
     adressesperreServiceCode: 5516
     adressesperreServiceEdition: 7
   abac-tilgangstyring:

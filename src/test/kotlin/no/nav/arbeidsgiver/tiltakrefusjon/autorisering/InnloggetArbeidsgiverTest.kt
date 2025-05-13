@@ -12,17 +12,17 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.varsling.VarslingRepository
+import no.nav.team_tiltak.felles.persondata.pdl.domene.Diskresjonskode
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock
 import org.springframework.test.context.ActiveProfiles
 import java.time.LocalDateTime
 import java.time.temporal.TemporalAdjusters
-import no.nav.team_tiltak.felles.persondata.pdl.domene.Diskresjonskode
-import org.junit.jupiter.api.assertThrows
 
 
 @SpringBootTest(properties = ["NAIS_APP_IMAGE=test"])
@@ -45,10 +45,13 @@ internal class InnloggetArbeidsgiverTest(
 
     @SpykBean
     lateinit var inntektskomponentService: InntektskomponentService
+
     @MockkBean
     lateinit var altinnTilgangsstyringService: AltinnTilgangsstyringService
+
     @MockkBean
     lateinit var persondataService: PersondataService
+
     @MockkBean
     lateinit var korreksjonRepository: KorreksjonRepository
 
@@ -64,13 +67,17 @@ internal class InnloggetArbeidsgiverTest(
             "Org form",
             "Status"
         )
-        every { altinnTilgangsstyringService.altinnTilgangsstyringProperties.serviceCode } returns 4936
-        every { altinnTilgangsstyringService.altinnTilgangsstyringProperties.serviceEdition } returns 1
+        every { altinnTilgangsstyringService.altinnTilgangsstyringProperties.inntektsmeldingServiceCode } returns 4936
+        every { altinnTilgangsstyringService.altinnTilgangsstyringProperties.inntektsmeldingServiceEdition } returns 1
         every { persondataService.hentDiskresjonskode(any()) } returns Diskresjonskode.UGRADERT
         every { altinnTilgangsstyringService.hentAdressesperreTilganger(any()) } returns setOf<Organisasjon>(
             organisasjon
         )
-        every { altinnTilgangsstyringService.hentTilganger(any(), any(), any()) } returns setOf<Organisasjon>(
+        every {
+            altinnTilgangsstyringService.hentInntektsmeldingTilganger(
+                any()
+            )
+        } returns setOf<Organisasjon>(
             organisasjon
         )
     }
@@ -723,7 +730,7 @@ internal class InnloggetArbeidsgiverTest(
         )
         val refusjon = refusjonService.opprettRefusjon(melding)!!
 
-        every { altinnTilgangsstyringService.hentTilganger(any(), any(), any()) } returns setOf(
+        every { altinnTilgangsstyringService.hentInntektsmeldingTilganger(any()) } returns setOf(
             Organisasjon("", "", bedriftNr, "", "")
         )
         every { altinnTilgangsstyringService.hentAdressesperreTilganger(any()) } returns emptySet()

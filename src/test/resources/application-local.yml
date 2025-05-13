@@ -66,8 +66,8 @@ tiltak-refusjon:
   kontoregister:
     fake: true
   dokgen:
-      uri: http://localhost:5913/template/tiltak-refusjon/create-pdf
-      #uri: http://tiltak-dokgen.arbeidsgiver.svc.nais.local/template/tiltak-refusjon/create-pdf
+    uri: http://localhost:5913/template/tiltak-refusjon/create-pdf
+    #uri: http://tiltak-dokgen.arbeidsgiver.svc.nais.local/template/tiltak-refusjon/create-pdf
   inntektskomponenten:
     fake: true
     uri: http://localhost:${wiremock.port}/inntektskomponenten-ws/rs/api/v1/hentinntektliste
@@ -75,8 +75,8 @@ tiltak-refusjon:
     uri: http://localhost:${wiremock.port}/altinn-tilgangsstyring
     proxyUri: http://localhost:9090/altinn-rettigheter-proxy/ekstern/altinn/api/serviceowner/reportees
     beOmRettighetBaseUrl: https://arbeidsgiver-q.nav.no/min-side-arbeidsgiver/?fragment=be-om-tilgang
-    serviceCode: 4936
-    serviceEdition: 1
+    inntektsmeldingServiceCode: 4936
+    inntektsmeldingServiceEdition: 1
     adressesperreServiceCode: 5516
     adressesperreServiceEdition: 7
   abac-tilgangstyring:

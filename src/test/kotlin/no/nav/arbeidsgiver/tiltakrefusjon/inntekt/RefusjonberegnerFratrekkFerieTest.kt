@@ -327,7 +327,6 @@ class RefusjonberegnerFratrekkFerieTest(
             bedriftNr = WIREMOCK_VIRKSOMHET_IDENTIFIKATOR,
         )
 
-
         val refusjon = opprettRefusjonOgGjørInntektoppslag(tilskuddsperiodeGodkjentMelding1)
         // Send inn
         refusjonService.godkjennForArbeidsgiver(refusjon, innloggetArbeidsgiver)

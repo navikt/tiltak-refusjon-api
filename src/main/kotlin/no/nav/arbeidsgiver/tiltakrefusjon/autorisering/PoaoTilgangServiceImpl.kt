@@ -50,14 +50,6 @@ class PoaoTilgangServiceImpl(
         }
     }
 
-    override fun hentTilgangsattributter(fnr: Fnr): Tilgangsattributter? = hentTilgangsattributter(fnr.verdi)?.let {
-        Tilgangsattributter(
-            it.kontor,
-            it.skjermet,
-            it.diskresjonskode?.let { diskresjonskode -> Diskresjonskode.parse(diskresjonskode.name) }
-        )
-    }
-
     private fun hentSkrivetilganger(beslutterAzureUUID: UUID, fnrSet: Set<Fnr>): Map<Fnr, Decision> {
         val requestIdOgIdent: MutableMap<UUID, Fnr> = HashMap<UUID, Fnr>()
 

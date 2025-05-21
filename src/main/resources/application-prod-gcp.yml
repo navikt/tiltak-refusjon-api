@@ -17,7 +17,6 @@ tiltak-refusjon:
     uri: https://tiltak-proxy.prod-fss-pub.nais.io/application/asm-pdp/authorize
   poao-tilgang:
     url: http://poao-tilgang.poao
-    scope: api://prod-gcp.poao.poao-tilgang/.default
   unleash:
     enabled: true
     api-uri: ${UNLEASH_SERVER_API_URL}/api
@@ -79,7 +78,7 @@ no.nav.security.jwt:
       poao-tilgang:
         token-endpoint-url: https://login.microsoftonline.com/${AZURE_APP_TENANT_ID}/oauth2/v2.0/token
         grant-type: client_credentials
-        scope: api://${PROXY_CLIENT_ID}/.default
+        scope: api://prod-gcp.poao.poao-tilgang/.default
         authentication:
           client-id: ${AZURE_APP_CLIENT_ID}
           client-secret: ${AZURE_APP_CLIENT_SECRET}

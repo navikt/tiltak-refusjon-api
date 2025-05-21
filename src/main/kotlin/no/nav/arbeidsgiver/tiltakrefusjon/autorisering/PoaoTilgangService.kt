@@ -7,5 +7,4 @@ interface PoaoTilgangService {
     fun harSkrivetilgang(beslutterAzureUUID: UUID, fnr: Fnr): Boolean
     fun harSkrivetilgang(beslutterAzureUUID: UUID, fnrSet: Set<Fnr>): Map<Fnr, Boolean>
     fun hentGrunn(beslutterAzureUUID: UUID, fnr: Fnr): String?
-    fun hentTilgangsattributter(fnr: Fnr): Tilgangsattributter?
 }

@@ -8,13 +8,15 @@ import java.util.*
 @Service
 @Profile(value = ["local", "test", "dockercompose", "dev-gcp-labs"])
 class PoaoTilgangServiceFake : PoaoTilgangService {
-    override fun harSkrivetilgang(beslutterAzureUUID: UUID, fnr: Fnr) = true
+    val deny = listOf(
+        Fnr("07098142678")
+    )
+
+    override fun harSkrivetilgang(beslutterAzureUUID: UUID, fnr: Fnr) = !deny.contains(fnr)
 
     override fun harSkrivetilgang(beslutterAzureUUID: UUID, fnrSet: Set<Fnr>) =
         fnrSet.associateWith { true }
 
     override fun hentGrunn(beslutterAzureUUID: UUID, fnr: Fnr): String? = null
 
-
-    override fun hentTilgangsattributter(fnr: Fnr): Tilgangsattributter? = null
 }

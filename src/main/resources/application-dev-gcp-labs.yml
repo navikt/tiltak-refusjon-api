@@ -48,10 +48,6 @@ tiltak-refusjon:
     inntektsmeldingServiceEdition: 1
     adressesperreServiceCode: 5516
     adressesperreServiceEdition: 7
-  abac-tilgangstyring:
-    uri: http://tiltak-refusjon-api-wiremock/abac-tilgangstyring
-    username: TODO
-    password: TODO
   unleash:
     mock: true
   norg:

@@ -1,7 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
-import no.nav.arbeidsgiver.tiltakrefusjon.utils.gjenståendeEtterMaks5G
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.erMånedIPeriode
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.gjenståendeEtterMaks5G
 import java.time.LocalDate
 import kotlin.math.roundToInt
 
@@ -92,13 +92,15 @@ fun beregnRefusjonsbeløp(
         beregnetBeløp = beregnetBeløpUtenFratrukketRefundertBeløp
     }
 
-    val overTilskuddsbeløp = beregnetBeløp > tilskuddsgrunnlag.tilskuddsbeløp
-    var refusjonsbeløp =
-        (if (overTilskuddsbeløp) tilskuddsgrunnlag.tilskuddsbeløp.toDouble() else beregnetBeløp) - tidligereUtbetalt + forrigeRefusjonMinusBeløp
+    val avrundetBeregnetBeløp: Int = beregnetBeløp.roundToInt()
+
+    val overTilskuddsbeløp = avrundetBeregnetBeløp > tilskuddsgrunnlag.tilskuddsbeløp
+    var refusjonsbeløp: Int =
+        (if (overTilskuddsbeløp) tilskuddsgrunnlag.tilskuddsbeløp else avrundetBeregnetBeløp) - tidligereUtbetalt + forrigeRefusjonMinusBeløp
     var overFemGrunnbeløp = false
     if (tilskuddsgrunnlag.tiltakstype == Tiltakstype.VARIG_LONNSTILSKUDD) {
-        if (refusjonsbeløp > gjenståendeEtterMaks5G(sumUtbetaltVarig.toDouble(), tilskuddFom)) {
-            refusjonsbeløp = gjenståendeEtterMaks5G(sumUtbetaltVarig.toDouble(), tilskuddFom)
+        if (refusjonsbeløp > gjenståendeEtterMaks5G(sumUtbetaltVarig, tilskuddFom)) {
+            refusjonsbeløp = gjenståendeEtterMaks5G(sumUtbetaltVarig, tilskuddFom)
             overFemGrunnbeløp = true
         }
     }
@@ -110,8 +112,8 @@ fun beregnRefusjonsbeløp(
         tjenestepensjon = tjenestepensjon.roundToInt(),
         arbeidsgiveravgift = arbeidsgiveravgift.roundToInt(),
         sumUtgifter = sumUtgifter.roundToInt(),
-        beregnetBeløp = beregnetBeløp.roundToInt(),
-        refusjonsbeløp = refusjonsbeløp.roundToInt(),
+        beregnetBeløp = avrundetBeregnetBeløp,
+        refusjonsbeløp = refusjonsbeløp,
         overTilskuddsbeløp = overTilskuddsbeløp,
         tidligereUtbetalt = tidligereUtbetalt,
         fratrekkLønnFerie = trekkgrunnlagFerie,

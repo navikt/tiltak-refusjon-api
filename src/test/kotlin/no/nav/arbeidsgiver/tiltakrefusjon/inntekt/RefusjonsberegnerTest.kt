@@ -206,4 +206,34 @@ class RefusjonsberegnerTest {
         assertThat(beregning.sumUtgifter).isEqualTo(21375)
 
     }
+
+    @Test
+    fun `desimaler fører ikke til at beregning er overTilskuddsbeløp`(){
+        val tilskuddsgrunnlagLønnstilskudd = lagEtTilskuddsgrunnlag(
+            LocalDate.of(2023, 9, 1),
+            LocalDate.of(2023, 9, 30),
+            Tiltakstype.VARIG_LONNSTILSKUDD,
+            10000
+        )
+
+        val inntektslinje = lagEnInntektslinje(19493.00, YearMonth.of(2023, 9), LocalDate.of(2023, 9, 1), LocalDate.of(2023, 9, 30))
+
+        val beregning = beregnRefusjonsbeløp(
+            listOf(inntektslinje),
+            tilskuddsgrunnlagLønnstilskudd,
+            0,
+            null,
+            tilskuddFom = LocalDate.of(2023,9,1),
+            sumUtbetaltVarig = 16666,
+            harFerietrekkForSammeMåned = false
+        )
+
+        assertThat(beregning.refusjonsbeløp)
+            .isEqualTo(tilskuddsgrunnlagLønnstilskudd.tilskuddsbeløp)
+            .describedAs("Refusjonsbeløp og tilskuddsbeløp er like")
+        assertThat(beregning.overTilskuddsbeløp)
+            .isEqualTo(false)
+            .describedAs("Hvis beløpene er like, kan ikke overTilskuddsbeløp være sann. Vil isåfall bety at vi inkluderer desimaler i beregningen")
+
+    }
 }

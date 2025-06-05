@@ -13,7 +13,6 @@ import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.response.ArbeidsInntektMaaned
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.response.InntektListe
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.response.InntektResponse
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Inntektslinje
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
@@ -31,7 +30,7 @@ import java.util.*
 @ConditionalOnProperty("tiltak-refusjon.inntektskomponenten.fake", havingValue = "false")
 class InntektskomponentServiceImpl(
     val inntektskomponentProperties: InntektskomponentProperties,
-    @Qualifier("anonymProxyRestTemplate") val restTemplate: RestTemplate,
+    val ikompRestTemplate: RestTemplate,
 ) : InntektskomponentService {
 
     private val objectMapper = run {
@@ -51,8 +50,8 @@ class InntektskomponentServiceImpl(
     ): Pair<List<Inntektslinje>, String> {
         val requestEntity = lagRequest(fnr, YearMonth.from(datoFra), YearMonth.from(datoTil))
         val responseMedInntekterForDeltaker =
-            restTemplate.exchange<String>(
-                inntektskomponentProperties.uri,
+            ikompRestTemplate.exchange<String>(
+                "${inntektskomponentProperties.uri}/rs/api/v1/hentinntektliste",
                 HttpMethod.POST,
                 requestEntity
             ).body

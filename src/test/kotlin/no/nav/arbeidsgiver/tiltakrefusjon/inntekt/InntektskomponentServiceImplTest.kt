@@ -13,7 +13,7 @@ import java.time.LocalDate
 
 @SpringBootTest(
     properties = [
-        "tiltak-refusjon.inntektskomponenten.uri=http://localhost:8090/inntektskomponenten-ws/rs/api/v1/hentinntektliste",
+        "tiltak-refusjon.inntektskomponenten.uri=http://localhost:8090/inntektskomponenten",
         "tiltak-refusjon.inntektskomponenten.fake=false"
     ]
 )

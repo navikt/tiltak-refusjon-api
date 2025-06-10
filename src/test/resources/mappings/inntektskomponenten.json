@@ -4,7 +4,7 @@
       "priority": 1,
       "request": {
         "method": "POST",
-        "urlPath": "/inntektskomponenten-ws/rs/api/v1/hentinntektliste",
+        "urlPath": "/inntektskomponenten/rs/api/v1/hentinntektliste",
         "bodyPatterns": [
           {
             "equalToJson": {
@@ -39,7 +39,7 @@
       "priority": 2,
       "request": {
         "method": "POST",
-        "urlPath": "/inntektskomponenten-ws/rs/api/v1/hentinntektliste",
+        "urlPath": "/inntektskomponenten/rs/api/v1/hentinntektliste",
         "bodyPatterns": [
           {
             "equalToJson": {
@@ -191,7 +191,7 @@
       "priority": 1,
       "request": {
         "method": "POST",
-        "urlPath": "/inntektskomponenten-ws/rs/api/v1/hentinntektliste",
+        "urlPath": "/inntektskomponenten/rs/api/v1/hentinntektliste",
         "bodyPatterns": [
           {
             "equalToJson": {
@@ -227,7 +227,7 @@
       "priority": 1,
       "request": {
         "method": "POST",
-        "urlPath": "/inntektskomponenten-ws/rs/api/v1/hentinntektliste",
+        "urlPath": "/inntektskomponenten/rs/api/v1/hentinntektliste",
         "bodyPatterns": [
           {
             "equalToJson": {
@@ -268,7 +268,7 @@
       "priority": 2,
       "request": {
         "method": "POST",
-        "urlPath": "/inntektskomponenten-ws/rs/api/v1/hentinntektliste",
+        "urlPath": "/inntektskomponenten/rs/api/v1/hentinntektliste",
         "bodyPatterns": [
           {
             "equalToJson": {
@@ -345,7 +345,7 @@
       "priority": 2,
       "request": {
         "method": "POST",
-        "urlPath": "/inntektskomponenten-ws/rs/api/v1/hentinntektliste",
+        "urlPath": "/inntektskomponenten/rs/api/v1/hentinntektliste",
         "bodyPatterns": [
           {
             "equalToJson": {
@@ -452,7 +452,7 @@
       "priority": 2,
       "request": {
         "method": "POST",
-        "urlPath": "/inntektskomponenten-ws/rs/api/v1/hentinntektliste",
+        "urlPath": "/inntektskomponenten/rs/api/v1/hentinntektliste",
         "bodyPatterns": [
           {
             "equalToJson": {
@@ -559,7 +559,7 @@
       "priority": 2,
       "request": {
         "method": "POST",
-        "urlPath": "/inntektskomponenten-ws/rs/api/v1/hentinntektliste",
+        "urlPath": "/inntektskomponenten/rs/api/v1/hentinntektliste",
         "bodyPatterns": [
           {
             "equalToJson": {
@@ -666,7 +666,7 @@
       "priority": 2,
       "request": {
         "method": "POST",
-        "urlPath": "/inntektskomponenten-ws/rs/api/v1/hentinntektliste",
+        "urlPath": "/inntektskomponenten/rs/api/v1/hentinntektliste",
         "bodyPatterns": [
           {
             "equalToJson": {
@@ -773,7 +773,7 @@
       "priority": 1,
       "request": {
         "method": "POST",
-        "urlPath": "/inntektskomponenten-ws/rs/api/v1/hentinntektliste",
+        "urlPath": "/inntektskomponenten/rs/api/v1/hentinntektliste",
         "bodyPatterns": [
           {
             "equalToJson": {

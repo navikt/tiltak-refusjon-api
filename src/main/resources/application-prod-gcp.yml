@@ -3,7 +3,7 @@ tiltak-refusjon:
     uri: https://sokos-kontoregister.prod-fss-pub.nais.io/kontoregister/api/v1/hent-kontonummer-for-organisasjon
     consumer-id: tiltak-refusjon-api
   inntektskomponenten:
-    uri: https://tiltak-proxy.prod-fss-pub.nais.io/inntektskomponenten-ws/rs/api/v1/hentinntektliste
+    uri: https://ikomp.prod-fss-pub.nais.io
     filter: KontrollArbeidsmarkedstiltakA-inntekt
     consumer-id: tiltak-refusjon-api
   altinn-tilgangstyring:
@@ -79,6 +79,14 @@ no.nav.security.jwt:
         token-endpoint-url: https://login.microsoftonline.com/${AZURE_APP_TENANT_ID}/oauth2/v2.0/token
         grant-type: client_credentials
         scope: api://prod-gcp.poao.poao-tilgang/.default
+        authentication:
+          client-id: ${AZURE_APP_CLIENT_ID}
+          client-secret: ${AZURE_APP_CLIENT_SECRET}
+          client-auth-method: client_secret_basic
+      ikomp:
+        token-endpoint-url: https://login.microsoftonline.com/${AZURE_APP_TENANT_ID}/oauth2/v2.0/token
+        grant-type: client_credentials
+        scope: api://prod-fss.team-inntekt.ikomp/.default
         authentication:
           client-id: ${AZURE_APP_CLIENT_ID}
           client-secret: ${AZURE_APP_CLIENT_SECRET}

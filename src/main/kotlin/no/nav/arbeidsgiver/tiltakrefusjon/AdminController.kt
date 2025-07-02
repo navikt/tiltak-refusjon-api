@@ -4,6 +4,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.automatisk_utbetaling.AutomatiskInnsen
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.ADMIN_BRUKER
 import no.nav.arbeidsgiver.tiltakrefusjon.leader.LeaderPodCheck
 import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterServiceImpl
+import no.nav.arbeidsgiver.tiltakrefusjon.rapport.UbetaltRefusjonRapport
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Beregning
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Korreksjonsgrunn
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
@@ -41,7 +42,8 @@ class AdminController(
     val leaderPodCheck: LeaderPodCheck,
     val refusjonKafkaProducer: RefusjonKafkaProducer?,
     val kontoregisterService: KontoregisterServiceImpl?,
-    val automatiskInnsendingService: AutomatiskInnsendingService
+    val automatiskInnsendingService: AutomatiskInnsendingService,
+    private val ubetaltRefusjonRapport: UbetaltRefusjonRapport
 ) {
     val logger = LoggerFactory.getLogger(javaClass)
 
@@ -312,6 +314,13 @@ class AdminController(
     @Transactional
     fun manuellAutomatiskUtbetaling() {
         automatiskInnsendingService.utførAutomatiskInnsendingHvisMulig()
+    }
+
+    @Unprotected
+    @PostMapping("rapport-om-ubetalte-refusjoner")
+    @Transactional
+    fun rapportOmUbetalteRefusjoner() {
+        ubetaltRefusjonRapport.loggUbetalteRefusjoner()
     }
 }
 

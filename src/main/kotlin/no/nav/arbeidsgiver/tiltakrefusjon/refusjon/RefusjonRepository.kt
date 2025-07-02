@@ -79,4 +79,10 @@ interface RefusjonRepository : JpaRepository<Refusjon, String> {
 
     fun findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_AvtaleNrAndStatusIn(avtaleNr: Int, status: List<RefusjonStatus>): List<Refusjon>
 
+    @Query("""
+        select r from Refusjon r
+        where r.godkjentAvArbeidsgiver between (current_date - 1 year) and (current_date - 7 day) and r.status = 'SENDT_KRAV'
+    """)
+    fun hentRefusjonerSomIkkeErBetalt(): List<Refusjon>
+
 }

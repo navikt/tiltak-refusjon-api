@@ -9,6 +9,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
+import org.springframework.web.client.postForObject
 import org.springframework.web.util.UriComponentsBuilder
 
 @Service
@@ -31,11 +32,7 @@ class AltinnTilgangsstyringService(
         .build()
         .toUriString()
 
-    private fun hentTilganger(
-        fnr: String,
-        serviceCode: Int,
-        serviceEdition: Int
-    ): Set<Organisasjon> {
+    private fun hentTilganger(fnr: String, serviceCode: Int, serviceEdition: Int): Set<Organisasjon> {
         val organisasjoner = HashSet<Organisasjon>()
         var merÅHente = true
         var i = 0;
@@ -46,6 +43,27 @@ class AltinnTilgangsstyringService(
             merÅHente = nyeOrg.size >= altinnTilgangsstyringProperties.antall
         }
         return organisasjoner
+    }
+
+    fun hentInntektsmeldingEllerRefusjonTilganger(fnr: String): List<AltinnTilgang> {
+        val altinnTilgangerRequest = AltinnTilgangerRequest(
+            filter = Filter(
+                altinn2Tilganger = setOf(altinnTilgangsstyringProperties.inntektsmeldingServiceCode.toString()),
+                altinn3Tilganger = setOf("nav_tiltak_tiltaksrefusjon"),
+                inkluderSlettede = false
+            )
+        )
+
+        return try {
+            restTemplate.postForObject<AltinnTilgangerResponse>(
+                altinnTilgangsstyringProperties.arbeidsgiverAltinnTilgangerUri,
+                altinnTilgangerRequest
+            ).hierarki
+        } catch (exception: RuntimeException) {
+            logger.error("Feil ved henting av Altinn-tilganger", exception)
+            throw FeilkodeException(Feilkode.ALTINN)
+        }
+
     }
 
     fun hentInntektsmeldingTilganger(fnr: String): Set<Organisasjon> {
@@ -67,12 +85,7 @@ class AltinnTilgangsstyringService(
         return organisasjoner
     }
 
-    private fun hentFraAltinn(
-        fnr: String,
-        skip: Int,
-        serviceCode: Int,
-        serviceEdition: Int
-    ): Set<Organisasjon> {
+    private fun hentFraAltinn(fnr: String, skip: Int, serviceCode: Int, serviceEdition: Int): Set<Organisasjon> {
         try {
             return restTemplate.exchange(
                 altinnUrlString,

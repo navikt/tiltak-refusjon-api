@@ -3,6 +3,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon.autorisering
 import com.ninjasquad.springmockk.MockkBean
 import com.ninjasquad.springmockk.SpykBean
 import io.mockk.every
+import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgang
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
 import no.nav.arbeidsgiver.tiltakrefusjon.innloggetBruker
@@ -67,6 +68,14 @@ internal class InnloggetArbeidsgiverTest(
             "Org form",
             "Status"
         )
+        val altinnTilgang: AltinnTilgang = AltinnTilgang(
+            organisasjon.organizationNumber,
+            setOf(),
+            setOf(),
+            listOf(),
+            organisasjon.name,
+            organisasjon.organizationForm,
+        )
         every { altinnTilgangsstyringService.altinnTilgangsstyringProperties.inntektsmeldingServiceCode } returns 4936
         every { altinnTilgangsstyringService.altinnTilgangsstyringProperties.inntektsmeldingServiceEdition } returns 1
         every { persondataService.hentDiskresjonskode(any()) } returns Diskresjonskode.UGRADERT
@@ -80,6 +89,7 @@ internal class InnloggetArbeidsgiverTest(
         } returns setOf<Organisasjon>(
             organisasjon
         )
+        every { altinnTilgangsstyringService.hentInntektsmeldingEllerRefusjonTilganger(any()) } returns listOf(altinnTilgang)
     }
 
     @Test

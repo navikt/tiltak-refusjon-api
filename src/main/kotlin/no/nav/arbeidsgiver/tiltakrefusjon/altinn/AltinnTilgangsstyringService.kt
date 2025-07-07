@@ -60,7 +60,7 @@ class AltinnTilgangsstyringService(
                 altinnTilgangerRequest
             ).hierarki
         } catch (exception: RuntimeException) {
-            logger.error("Feil ved henting av Altinn-tilganger", exception)
+            logger.error("Feil ved henting av Altinn-tilganger fra arbeidsgiver-altinn-tilganger", exception)
             throw FeilkodeException(Feilkode.ALTINN)
         }
 

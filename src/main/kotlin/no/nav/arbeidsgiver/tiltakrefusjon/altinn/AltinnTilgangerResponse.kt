@@ -1,4 +1,5 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.altinn
+// https://arbeidsgiver-altinn-tilganger.intern.dev.nav.no/swagger-ui
 
 data class AltinnTilgangerResponse(
     val isError: Boolean,

@@ -2,6 +2,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon.inntekt
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
+import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgang
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetArbeidsgiver
@@ -295,6 +296,14 @@ class RefusjonberegnerFratrekkFerieTest(
         } returns setOf<Organisasjon>(defaultOrg)
         every { altinnTilgangsstyringService.hentAdressesperreTilganger(any()) } returns setOf<Organisasjon>(defaultOrg)
         every { persondataService.hentDiskresjonskode(any()) } returns Diskresjonskode.UGRADERT
+        every { altinnTilgangsstyringService.hentInntektsmeldingEllerRefusjonTilganger(any()) } returns listOf(AltinnTilgang(
+            defaultOrg.organizationNumber,
+            setOf(),
+            setOf(),
+            listOf(),
+            defaultOrg.name,
+            defaultOrg.organizationForm
+        ))
         val innloggetArbeidsgiver = InnloggetArbeidsgiver(
             "12345678901",
             altinnTilgangsstyringService,
@@ -355,6 +364,14 @@ class RefusjonberegnerFratrekkFerieTest(
             )
         } returns setOf<Organisasjon>(defaultOrg)
         every { altinnTilgangsstyringService.hentAdressesperreTilganger(any()) } returns setOf(defaultOrg)
+        every { altinnTilgangsstyringService.hentInntektsmeldingEllerRefusjonTilganger(any()) } returns listOf(AltinnTilgang(
+            defaultOrg.organizationNumber,
+            setOf(),
+            setOf(),
+            listOf(),
+            defaultOrg.name,
+            defaultOrg.organizationForm
+        ))
         val innloggetArbeidsgiver = InnloggetArbeidsgiver(
             "12345678901",
             altinnTilgangsstyringService,

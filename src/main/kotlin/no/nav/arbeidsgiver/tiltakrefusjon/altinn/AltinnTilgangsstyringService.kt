@@ -17,6 +17,8 @@ class AltinnTilgangsstyringService(
     val altinnTilgangsstyringProperties: AltinnTilgangsstyringProperties,
     @Qualifier("påVegneAvArbeidsgiverAltinnRestTemplate")
     val restTemplate: RestTemplate,
+    @Qualifier("påVegneAvArbeidsgiverAltinn3RestTemplate")
+    val restgTemplateAltinn3: RestTemplate
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -55,7 +57,7 @@ class AltinnTilgangsstyringService(
         )
 
         return try {
-            restTemplate.postForObject<AltinnTilgangerResponse>(
+            restgTemplateAltinn3.postForObject<AltinnTilgangerResponse>(
                 altinnTilgangsstyringProperties.arbeidsgiverAltinnTilgangerUri,
                 altinnTilgangerRequest
             ).hierarki

@@ -50,7 +50,7 @@ class AltinnTilgangsstyringService(
     fun hentInntektsmeldingEllerRefusjonTilganger(fnr: String): List<AltinnTilgang> {
         val altinnTilgangerRequest = AltinnTilgangerRequest(
             filter = Filter(
-                altinn2Tilganger = setOf(altinnTilgangsstyringProperties.inntektsmeldingServiceCode.toString()),
+                altinn2Tilganger = setOf(altinnTilgangsstyringProperties.inntektsmeldingServiceCode.toString() + ":" + altinnTilgangsstyringProperties.inntektsmeldingServiceEdition.toString()),
                 altinn3Tilganger = setOf("nav_tiltak_tiltaksrefusjon"),
                 inkluderSlettede = false
             )

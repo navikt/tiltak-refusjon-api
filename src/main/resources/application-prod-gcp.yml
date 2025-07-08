@@ -8,7 +8,7 @@ tiltak-refusjon:
     consumer-id: tiltak-refusjon-api
   altinn-tilgangstyring:
     uri: http://altinn-rettigheter-proxy/altinn-rettigheter-proxy/ekstern/altinn/api/serviceowner/reportees
-    arbeidsgiverAltinnTilgangerUri: http://arbeidsgiver-altinn-tilganger.fager/
+    arbeidsgiverAltinnTilgangerUri: http://arbeidsgiver-altinn-tilganger.fager/altinn-tilganger
     beOmRettighetBaseUrl: https://arbeidsgiver.nav.no/min-side-arbeidsgiver/?fragment=be-om-tilgang
     inntektsmeldingServiceCode: 4936
     inntektsmeldingServiceEdition: 1

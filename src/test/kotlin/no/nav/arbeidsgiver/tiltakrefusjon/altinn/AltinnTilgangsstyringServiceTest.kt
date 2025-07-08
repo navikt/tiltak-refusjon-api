@@ -55,7 +55,7 @@ class AltinnTilgangsstyringServiceTest {
     fun `skal returnere en tom liste med organisasjoner om personen ikke har tilgang`(@Autowired altinnTilgangsstyringProperties: AltinnTilgangsstyringProperties) {
         // GITT
         altinnTilgangsstyringProperties.inntektsmeldingServiceCode = 5516
-        altinnTilgangsstyringService = AltinnTilgangsstyringService(altinnTilgangsstyringProperties, RestTemplate())
+        altinnTilgangsstyringService = AltinnTilgangsstyringService(altinnTilgangsstyringProperties, RestTemplate(), RestTemplate())
         val fnr = Fnr("21234567890")
         every { context.getTokenValidationContext().getClaims(any()).getStringClaim("pid") } returns fnr.verdi
 
@@ -70,7 +70,7 @@ class AltinnTilgangsstyringServiceTest {
     fun `skal kasten en exception om feil serviceCode er gitt`(@Autowired altinnTilgangsstyringProperties: AltinnTilgangsstyringProperties) {
         // GITT
         altinnTilgangsstyringProperties.inntektsmeldingServiceCode = 0
-        altinnTilgangsstyringService = AltinnTilgangsstyringService(altinnTilgangsstyringProperties, RestTemplate())
+        altinnTilgangsstyringService = AltinnTilgangsstyringService(altinnTilgangsstyringProperties, RestTemplate(), RestTemplate())
         val fnr = Fnr("21234567890")
         every { context.getTokenValidationContext().getClaims(any()).getStringClaim("pid") } returns fnr.verdi
 

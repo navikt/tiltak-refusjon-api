@@ -186,7 +186,7 @@ class Refusjon(
 
     fun endreBedriftKID(bedriftKID: String?) {
         oppdaterStatus()
-        krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
+        krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING, RefusjonStatus.FOR_TIDLIG)
         refusjonsgrunnlag.bedriftKid = bedriftKID
     }
 

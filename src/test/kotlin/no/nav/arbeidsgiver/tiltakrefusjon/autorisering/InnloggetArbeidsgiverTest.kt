@@ -8,7 +8,14 @@ import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
 import no.nav.arbeidsgiver.tiltakrefusjon.innloggetBruker
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
 import no.nav.arbeidsgiver.tiltakrefusjon.persondata.PersondataService
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.BrukerRolle
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.KorreksjonRepository
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.MinusbelopRepository
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonRepository
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonService
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonStatus
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.varsling.VarslingRepository
@@ -110,7 +117,9 @@ internal class InnloggetArbeidsgiverTest(
             løpenummer = 1,
             resendingsnummer = null,
             enhet = "1000",
-            godkjentTidspunkt = LocalDateTime.now()
+            godkjentTidspunkt = LocalDateTime.now(),
+            arbeidsgiverKontonummer = "12345678908",
+            arbeidsgiverKid = null,
         )
         val tilskuddMelding2LittEldreMedLøpenummer2 = TilskuddsperiodeGodkjentMelding(
             avtaleId = "1",
@@ -137,7 +146,9 @@ internal class InnloggetArbeidsgiverTest(
             løpenummer = 2,
             resendingsnummer = null,
             enhet = "1000",
-            godkjentTidspunkt = LocalDateTime.now()
+            godkjentTidspunkt = LocalDateTime.now(),
+            arbeidsgiverKontonummer = "12345678908",
+            arbeidsgiverKid = null,
         )
 
         val refusjon1 = refusjonService.opprettRefusjon(tilskuddMelding)!!
@@ -197,7 +208,9 @@ internal class InnloggetArbeidsgiverTest(
             løpenummer = 2,
             resendingsnummer = null,
             enhet = "1000",
-            godkjentTidspunkt = LocalDateTime.now()
+            godkjentTidspunkt = LocalDateTime.now(),
+            arbeidsgiverKontonummer = "12345678908",
+            arbeidsgiverKid = null,
         )
 
         val refusjon2 = opprettRefusjonOgGjørInntektoppslag(tilskuddMelding2LittEldreMedLøpenummer2)
@@ -248,7 +261,9 @@ internal class InnloggetArbeidsgiverTest(
             løpenummer = 1,
             resendingsnummer = null,
             enhet = "1000",
-            godkjentTidspunkt = LocalDateTime.now()
+            godkjentTidspunkt = LocalDateTime.now(),
+            arbeidsgiverKontonummer = "12345678908",
+            arbeidsgiverKid = null,
         )
         val tilskuddMelding2LittEldreMedLøpenummer2 = TilskuddsperiodeGodkjentMelding(
             avtaleId = "1",
@@ -275,7 +290,9 @@ internal class InnloggetArbeidsgiverTest(
             løpenummer = 2,
             resendingsnummer = null,
             enhet = "1000",
-            godkjentTidspunkt = LocalDateTime.now()
+            godkjentTidspunkt = LocalDateTime.now(),
+            arbeidsgiverKontonummer = "12345678908",
+            arbeidsgiverKid = null,
         )
 
         // Stort nok tilskuddsbeløp for å "nullstille" siste minusbeløp
@@ -304,7 +321,9 @@ internal class InnloggetArbeidsgiverTest(
             løpenummer = 3,
             resendingsnummer = null,
             enhet = "1000",
-            godkjentTidspunkt = LocalDateTime.now()
+            godkjentTidspunkt = LocalDateTime.now(),
+            arbeidsgiverKontonummer = "12345678908",
+            arbeidsgiverKid = null,
         )
 
         val tilskuddMelding4LittEldreMedLøpenummer4 = TilskuddsperiodeGodkjentMelding(
@@ -332,7 +351,9 @@ internal class InnloggetArbeidsgiverTest(
             løpenummer = 4,
             resendingsnummer = null,
             enhet = "1000",
-            godkjentTidspunkt = LocalDateTime.now()
+            godkjentTidspunkt = LocalDateTime.now(),
+            arbeidsgiverKontonummer = "12345678908",
+            arbeidsgiverKid = null,
         )
 
         val innloggetArbeidsgiver = InnloggetArbeidsgiver(
@@ -420,7 +441,9 @@ internal class InnloggetArbeidsgiverTest(
             løpenummer = 1,
             resendingsnummer = null,
             enhet = "1000",
-            godkjentTidspunkt = LocalDateTime.now()
+            godkjentTidspunkt = LocalDateTime.now(),
+            arbeidsgiverKontonummer = "12345678908",
+            arbeidsgiverKid = null,
         )
         val tilskuddMelding2LittEldreMedLøpenummer2 = TilskuddsperiodeGodkjentMelding(
             avtaleId = "2",
@@ -447,7 +470,9 @@ internal class InnloggetArbeidsgiverTest(
             løpenummer = 2,
             resendingsnummer = null,
             enhet = "1000",
-            godkjentTidspunkt = LocalDateTime.now()
+            godkjentTidspunkt = LocalDateTime.now(),
+            arbeidsgiverKontonummer = "12345678908",
+            arbeidsgiverKid = null,
         )
 
         // Stort nok tilskuddsbeløp for å "nullstille" siste minusbeløp
@@ -476,7 +501,9 @@ internal class InnloggetArbeidsgiverTest(
             løpenummer = 3,
             resendingsnummer = null,
             enhet = "1000",
-            godkjentTidspunkt = LocalDateTime.now()
+            godkjentTidspunkt = LocalDateTime.now(),
+            arbeidsgiverKontonummer = "12345678908",
+            arbeidsgiverKid = null,
         )
 
         // Stort nok tilskuddsbeløp for å "nullstille" siste minusbeløp
@@ -505,7 +532,9 @@ internal class InnloggetArbeidsgiverTest(
             løpenummer = 3,
             resendingsnummer = null,
             enhet = "1000",
-            godkjentTidspunkt = LocalDateTime.now()
+            godkjentTidspunkt = LocalDateTime.now(),
+            arbeidsgiverKontonummer = "12345678908",
+            arbeidsgiverKid = null,
         )
 
         val innloggetArbeidsgiver = InnloggetArbeidsgiver(
@@ -570,7 +599,9 @@ internal class InnloggetArbeidsgiverTest(
             løpenummer = 1,
             resendingsnummer = null,
             enhet = "1000",
-            godkjentTidspunkt = LocalDateTime.now()
+            godkjentTidspunkt = LocalDateTime.now(),
+            arbeidsgiverKontonummer = "12345678908",
+            arbeidsgiverKid = null,
         )
 
 
@@ -626,7 +657,9 @@ internal class InnloggetArbeidsgiverTest(
             løpenummer = 2,
             resendingsnummer = null,
             enhet = "1000",
-            godkjentTidspunkt = LocalDateTime.now()
+            godkjentTidspunkt = LocalDateTime.now(),
+            arbeidsgiverKontonummer = "12345678908",
+            arbeidsgiverKid = null,
         )
 
         // Stort nok tilskuddsbeløp for å "nullstille" siste minusbeløp
@@ -726,7 +759,9 @@ internal class InnloggetArbeidsgiverTest(
             løpenummer = 1,
             resendingsnummer = null,
             enhet = "1000",
-            godkjentTidspunkt = LocalDateTime.now()
+            godkjentTidspunkt = LocalDateTime.now(),
+            arbeidsgiverKontonummer = "12345678908",
+            arbeidsgiverKid = null,
         )
         val refusjon = refusjonService.opprettRefusjon(melding)!!
 
@@ -783,7 +818,9 @@ internal class InnloggetArbeidsgiverTest(
             løpenummer = 1,
             resendingsnummer = null,
             enhet = "1000",
-            godkjentTidspunkt = LocalDateTime.now()
+            godkjentTidspunkt = LocalDateTime.now(),
+            arbeidsgiverKontonummer = "12345678908",
+            arbeidsgiverKid = null,
         )
         val innlogget = InnloggetArbeidsgiver(
             identifikator = "16120102137",

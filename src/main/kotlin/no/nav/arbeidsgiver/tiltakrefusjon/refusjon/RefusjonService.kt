@@ -78,6 +78,8 @@ class RefusjonService(
             bedriftNr = tilskuddsperiodeGodkjentMelding.bedriftNr
         )
 
+        refusjon.refusjonsgrunnlag.bedriftKid = tilskuddsperiodeGodkjentMelding.arbeidsgiverKid
+
         oppdaterRefusjon(refusjon, SYSTEM_BRUKER)
 
         return refusjonRepository.save(refusjon)

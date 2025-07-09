@@ -34,7 +34,11 @@ class AltinnTilgangsstyringService(
         .build()
         .toUriString()
 
-    private fun hentTilganger(fnr: String, serviceCode: Int, serviceEdition: Int): Set<Organisasjon> {
+    private fun hentTilganger(
+        fnr: String,
+        serviceCode: Int,
+        serviceEdition: Int
+    ): Set<Organisasjon> {
         val organisasjoner = HashSet<Organisasjon>()
         var merÅHente = true
         var i = 0;
@@ -47,16 +51,16 @@ class AltinnTilgangsstyringService(
         return organisasjoner
     }
 
-    fun hentInntektsmeldingEllerRefusjonTilganger(fnr: String): List<AltinnTilgang> {
+    fun hentInntektsmeldingEllerRefusjonTilganger(fnr: String): Set<Organisasjon> {
         val altinnTilgangerRequest = AltinnTilgangerRequest(
             filter = Filter(
-                altinn2Tilganger = setOf(altinnTilgangsstyringProperties.inntektsmeldingServiceCode.toString() + ":" + altinnTilgangsstyringProperties.inntektsmeldingServiceEdition.toString()),
+                altinn2Tilganger = setOf(altinnTilgangsstyringProperties.inntektsmeldingsKodeAltinn2()),
                 altinn3Tilganger = setOf("nav_tiltak_tiltaksrefusjon"),
                 inkluderSlettede = false
             )
         )
 
-        return try {
+        val response =  try {
             restTemplateAltinn3.postForObject<AltinnTilgangerResponse>(
                 altinnTilgangsstyringProperties.arbeidsgiverAltinnTilgangerUri,
                 altinnTilgangerRequest
@@ -66,6 +70,34 @@ class AltinnTilgangsstyringService(
             throw FeilkodeException(Feilkode.ALTINN)
         }
 
+
+        val organisasjonerPåGammeltFormat = response.flatMap { org ->
+            val hovedenhet = Organisasjon(
+                organizationNumber = org.orgnr,
+                name = org.navn,
+                organizationForm = org.organisasjonsform,
+                type = if (org.organisasjonsform == "BEDR") "Business" else "Enterprise", // TODO: Verifiser dette med fager.
+                status = "Active", // Assuming all organizations are active TODO: Verifiser dette med fager.
+                parentOrganizationNumber = response.find { parentOrg ->
+                    parentOrg.underenheter?.any { underenhet -> underenhet.orgnr == org.orgnr } == true
+                }?.orgnr ?: ""
+            )
+
+            val underenheter = org.underenheter.map { underenhet ->
+                Organisasjon(
+                    organizationNumber = underenhet.orgnr,
+                    name = underenhet.navn,
+                    organizationForm = underenhet.organisasjonsform,
+                    type = if (underenhet.organisasjonsform == "BEDR") "Business" else "Enterprise", // TODO: Verifiser dette med fager.
+                    status = "Active", // Assuming all organizations are active TODO: Verifiser dette med fager.
+                    parentOrganizationNumber = org.orgnr
+                )
+            }
+
+            listOf(hovedenhet) + underenheter
+        }.toSet()
+
+        return organisasjonerPåGammeltFormat
     }
 
     fun hentInntektsmeldingTilganger(fnr: String): Set<Organisasjon> {
@@ -87,7 +119,12 @@ class AltinnTilgangsstyringService(
         return organisasjoner
     }
 
-    private fun hentFraAltinn(fnr: String, skip: Int, serviceCode: Int, serviceEdition: Int): Set<Organisasjon> {
+    private fun hentFraAltinn(
+        fnr: String,
+        skip: Int,
+        serviceCode: Int,
+        serviceEdition: Int
+    ): Set<Organisasjon> {
         try {
             return restTemplate.exchange(
                 altinnUrlString,

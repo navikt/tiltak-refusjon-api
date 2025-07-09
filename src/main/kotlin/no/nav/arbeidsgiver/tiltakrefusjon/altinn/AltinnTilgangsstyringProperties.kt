@@ -20,3 +20,7 @@ data class AltinnTilgangsstyringProperties(
     var adressesperreServiceCode: Int = 0,
     var adressesperreServiceEdition: Int = 0,
 )
+
+fun AltinnTilgangsstyringProperties.inntektsmeldingsKodeAltinn2(): String {
+    return "$inntektsmeldingServiceCode:$inntektsmeldingServiceEdition"
+}

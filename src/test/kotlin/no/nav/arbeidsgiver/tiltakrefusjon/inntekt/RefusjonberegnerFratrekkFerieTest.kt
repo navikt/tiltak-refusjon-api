@@ -296,14 +296,7 @@ class RefusjonberegnerFratrekkFerieTest(
         } returns setOf<Organisasjon>(defaultOrg)
         every { altinnTilgangsstyringService.hentAdressesperreTilganger(any()) } returns setOf<Organisasjon>(defaultOrg)
         every { persondataService.hentDiskresjonskode(any()) } returns Diskresjonskode.UGRADERT
-        every { altinnTilgangsstyringService.hentInntektsmeldingEllerRefusjonTilganger(any()) } returns listOf(AltinnTilgang(
-            defaultOrg.organizationNumber,
-            setOf(),
-            setOf(),
-            listOf(),
-            defaultOrg.name,
-            defaultOrg.organizationForm
-        ))
+        every { altinnTilgangsstyringService.hentInntektsmeldingEllerRefusjonTilganger(any()) } returns setOf<Organisasjon>(defaultOrg)
         val innloggetArbeidsgiver = InnloggetArbeidsgiver(
             "12345678901",
             altinnTilgangsstyringService,
@@ -364,14 +357,7 @@ class RefusjonberegnerFratrekkFerieTest(
             )
         } returns setOf<Organisasjon>(defaultOrg)
         every { altinnTilgangsstyringService.hentAdressesperreTilganger(any()) } returns setOf(defaultOrg)
-        every { altinnTilgangsstyringService.hentInntektsmeldingEllerRefusjonTilganger(any()) } returns listOf(AltinnTilgang(
-            defaultOrg.organizationNumber,
-            setOf(),
-            setOf(),
-            listOf(),
-            defaultOrg.name,
-            defaultOrg.organizationForm
-        ))
+        every { altinnTilgangsstyringService.hentInntektsmeldingEllerRefusjonTilganger(any()) } returns setOf<Organisasjon>(defaultOrg)
         val innloggetArbeidsgiver = InnloggetArbeidsgiver(
             "12345678901",
             altinnTilgangsstyringService,

@@ -31,5 +31,7 @@ data class TilskuddsperiodeGodkjentMelding(
         val løpenummer: Int,
         val resendingsnummer: Int? = null,
         val enhet: String?,
-        val godkjentTidspunkt: LocalDateTime
+        val godkjentTidspunkt: LocalDateTime,
+        val arbeidsgiverKontonummer: String?,
+        val arbeidsgiverKid: String?,
 )

@@ -51,7 +51,7 @@ class AltinnTilgangsstyringService(
         return organisasjoner
     }
 
-    fun hentInntektsmeldingEllerRefusjonTilganger(fnr: String): Set<Organisasjon> {
+    fun hentInntektsmeldingEllerRefusjonTilganger(): Set<Organisasjon> {
         val altinnTilgangerRequest = AltinnTilgangerRequest(
             filter = Filter(
                 altinn2Tilganger = setOf(altinnTilgangsstyringProperties.inntektsmeldingsKodeAltinn2()),

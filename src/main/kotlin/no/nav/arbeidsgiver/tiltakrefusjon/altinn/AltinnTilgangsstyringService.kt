@@ -80,7 +80,7 @@ class AltinnTilgangsstyringService(
                 status = "Active", // Assuming all organizations are active TODO: Verifiser dette med fager.
                 parentOrganizationNumber = response.find { parentOrg ->
                     parentOrg.underenheter?.any { underenhet -> underenhet.orgnr == org.orgnr } == true
-                }?.orgnr ?: ""
+                }?.orgnr
             )
 
             val underenheter = org.underenheter.map { underenhet ->

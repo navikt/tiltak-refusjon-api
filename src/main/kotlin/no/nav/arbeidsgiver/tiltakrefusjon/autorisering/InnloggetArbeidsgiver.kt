@@ -41,18 +41,8 @@ data class InnloggetArbeidsgiver(
     val log: Logger = LoggerFactory.getLogger(javaClass)
     override val rolle: BrukerRolle = BrukerRolle.ARBEIDSGIVER
 
-    val organisasjoner: Set<Organisasjon> = altinnTilgangsstyringService.hentInntektsmeldingTilganger(identifikator)
-    @JsonIgnore
-    val organisasjonerFraAltinn3: Set<Organisasjon> = altinnTilgangsstyringService.hentInntektsmeldingEllerRefusjonTilganger()
+    val organisasjoner: Set<Organisasjon> = altinnTilgangsstyringService.hentInntektsmeldingEllerRefusjonTilganger()
     val adresseSperretilganger: Set<Organisasjon> = altinnTilgangsstyringService.hentAdressesperreTilganger(identifikator)
-
-    init {
-        if (organisasjonerFraAltinn3 != organisasjoner) {
-            log.warn("Obs!! InnloggetArbeidsgiver initialisert med ulike organisasjoner: $organisasjoner fra Altinn 2 og Altinn 3: $organisasjonerFraAltinn3")
-        } else {
-            log.info("InnloggetArbeidsgiver initialisert med like organisasjoner: $organisasjoner fra Altinn 2 og Altinn 3: $organisasjonerFraAltinn3")
-        }
-    }
 
     fun finnAlleMedBedriftnummer(bedriftnummer: String): List<Refusjon> {
         return filtrerRefusjonerMedTilgang(refusjonRepository.findAllByBedriftNr(bedriftnummer))

@@ -42,11 +42,12 @@ data class InnloggetArbeidsgiver(
     override val rolle: BrukerRolle = BrukerRolle.ARBEIDSGIVER
 
     val organisasjoner: Set<Organisasjon> = altinnTilgangsstyringService.hentInntektsmeldingTilganger(identifikator)
+    @JsonIgnore
     val organisasjonerFraAltinn3: Set<Organisasjon> = altinnTilgangsstyringService.hentInntektsmeldingEllerRefusjonTilganger()
     val adresseSperretilganger: Set<Organisasjon> = altinnTilgangsstyringService.hentAdressesperreTilganger(identifikator)
 
     init {
-        if (organisasjonerFraAltinn3.toSet() != organisasjoner.toSet()) {
+        if (organisasjonerFraAltinn3 != organisasjoner) {
             log.warn("Obs!! InnloggetArbeidsgiver initialisert med ulike organisasjoner: $organisasjoner fra Altinn 2 og Altinn 3: $organisasjonerFraAltinn3")
         } else {
             log.info("InnloggetArbeidsgiver initialisert med like organisasjoner: $organisasjoner fra Altinn 2 og Altinn 3: $organisasjonerFraAltinn3")
@@ -248,10 +249,6 @@ data class InnloggetArbeidsgiver(
 
     private fun sjekkHarTilgangTilRefusjonerForBedrift(bedriftNr: String, deltakerFnr: String) {
         if (organisasjoner.none { it.organizationNumber == bedriftNr }) {
-            if (!organisasjonerFraAltinn3.none { it.organizationNumber == bedriftNr }) {
-                // sjekk at man ikke får tilgang til flere bedrifter enn det man fikk før med altin 2
-                log.warn("Bedriftnummer som  orga feilet for refusjon med bedriftNr: $bedriftNr og deltakerFnr: $deltakerFnr")
-            }
             throw TilgangskontrollException()
         }
 

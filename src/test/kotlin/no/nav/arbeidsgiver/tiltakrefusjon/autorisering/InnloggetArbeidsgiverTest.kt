@@ -89,7 +89,7 @@ internal class InnloggetArbeidsgiverTest(
         } returns setOf<Organisasjon>(
             organisasjon
         )
-        every { altinnTilgangsstyringService.hentInntektsmeldingEllerRefusjonTilganger(any()) } returns setOf<Organisasjon>(
+        every { altinnTilgangsstyringService.hentInntektsmeldingEllerRefusjonTilganger() } returns setOf<Organisasjon>(
             organisasjon
         )
     }

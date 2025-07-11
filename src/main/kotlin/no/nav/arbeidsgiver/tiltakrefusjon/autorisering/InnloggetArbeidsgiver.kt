@@ -45,21 +45,22 @@ data class InnloggetArbeidsgiver(
     val organisasjonerFraAltinn3: Set<Organisasjon> = altinnTilgangsstyringService.hentInntektsmeldingEllerRefusjonTilganger()
     val adresseSperretilganger: Set<Organisasjon> = altinnTilgangsstyringService.hentAdressesperreTilganger(identifikator)
 
+    init {
+        if (organisasjonerFraAltinn3.toSet() != organisasjoner.toSet()) {
+            log.warn("Obs!! InnloggetArbeidsgiver initialisert med ulike organisasjoner: $organisasjoner fra Altinn 2 og Altinn 3: $organisasjonerFraAltinn3")
+        } else {
+            log.info("InnloggetArbeidsgiver initialisert med like organisasjoner: $organisasjoner fra Altinn 2 og Altinn 3: $organisasjonerFraAltinn3")
+        }
+    }
+
     fun finnAlleMedBedriftnummer(bedriftnummer: String): List<Refusjon> {
         return filtrerRefusjonerMedTilgang(refusjonRepository.findAllByBedriftNr(bedriftnummer))
     }
 
     /** Funksjon for å utlede alle underenheter til arbeidsgiver. Brukes i de tilfellene der man velger "ALLEBEDRIFTER", da sendes det ikke med noe konkret bedriftnr. */
-    fun finnAlleUnderenheterTilArbeidsgiver(): List<String> {
-        val alleUnderenheter = this.organisasjoner.filter { org -> org.type != "Enterprise" && org.organizationForm != "FLI" && org.organizationForm != "AS" }
+    fun finnAlleUnderenheterTilArbeidsgiver() =
+        this.organisasjoner.filter { org -> org.type != "Enterprise" && org.organizationForm != "FLI" && org.organizationForm != "AS" }
             .map { organisasjon -> organisasjon.organizationNumber }
-        val alleAltinn3Underenheter = this.organisasjonerFraAltinn3.filter { org -> org.type != "Enterprise" && org.organizationForm != "FLI" && org.organizationForm != "AS" }
-            .map { organisasjon -> organisasjon.organizationNumber }
-        if (alleAltinn3Underenheter.toSet() != alleUnderenheter.toSet()) {
-            log.warn("Underenheter fra gammel Altinn og Altinn 3 er ikke like. Gammel Altinn: $alleUnderenheter, Altinn 3: $alleAltinn3Underenheter")
-        }
-        return alleUnderenheter
-    }
 
     fun getSortingOrderForPageable(sortingOrder: SortingOrder): Sort.Order {
         when (sortingOrder) {
@@ -247,6 +248,10 @@ data class InnloggetArbeidsgiver(
 
     private fun sjekkHarTilgangTilRefusjonerForBedrift(bedriftNr: String, deltakerFnr: String) {
         if (organisasjoner.none { it.organizationNumber == bedriftNr }) {
+            if (!organisasjonerFraAltinn3.none { it.organizationNumber == bedriftNr }) {
+                // sjekk at man ikke får tilgang til flere bedrifter enn det man fikk før med altin 2
+                log.warn("Bedriftnummer som  orga feilet for refusjon med bedriftNr: $bedriftNr og deltakerFnr: $deltakerFnr")
+            }
             throw TilgangskontrollException()
         }
 

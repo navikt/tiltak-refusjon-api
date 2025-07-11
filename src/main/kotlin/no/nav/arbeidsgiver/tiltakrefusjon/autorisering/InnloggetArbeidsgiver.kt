@@ -47,10 +47,12 @@ data class InnloggetArbeidsgiver(
     val adresseSperretilganger: Set<Organisasjon> = altinnTilgangsstyringService.hentAdressesperreTilganger(identifikator)
 
     init {
-        if (organisasjonerFraAltinn3 != organisasjoner) {
-            log.warn("Obs!! InnloggetArbeidsgiver initialisert med ulike organisasjoner: $organisasjoner fra Altinn 2 og Altinn 3: $organisasjonerFraAltinn3")
+        if (!organisasjonerFraAltinn3.containsAll(organisasjoner)) {
+            log.warn("InnloggetArbeidsgiver har ikke tilgang til alle org i Altinn 3 som finnes i Altinn 2. Altinn 2 size: ${organisasjoner.size}, Altinn 3 size: ${organisasjonerFraAltinn3.size}.");
         } else {
-            log.info("InnloggetArbeidsgiver initialisert med like organisasjoner: $organisasjoner fra Altinn 2 og Altinn 3: $organisasjonerFraAltinn3")
+            log.info("InnloggetArbeidsgiver har tilgang til alle org i Altinn 3 som finnes i Altinn 2. " +
+                    "Altinn 2 size: ${organisasjoner.size}, Altinn 3 size: ${organisasjonerFraAltinn3.size}. " +
+                    "Er identiske: ${organisasjoner == organisasjonerFraAltinn3}.")
         }
     }
 

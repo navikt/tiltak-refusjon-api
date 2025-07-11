@@ -43,6 +43,8 @@ spec:
         - application: tiltak-dokgen
         - application: poao-tilgang
           namespace: poao
+        - application: arbeidsgiver-altinn-tilganger
+          namespace: fager
   kafka:
     pool: {{kafka-pool}}
   envFrom:

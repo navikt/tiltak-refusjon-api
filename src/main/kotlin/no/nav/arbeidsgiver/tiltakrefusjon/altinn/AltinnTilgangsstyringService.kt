@@ -9,6 +9,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
+import org.springframework.web.client.postForObject
 import org.springframework.web.util.UriComponentsBuilder
 
 @Service
@@ -16,6 +17,8 @@ class AltinnTilgangsstyringService(
     val altinnTilgangsstyringProperties: AltinnTilgangsstyringProperties,
     @Qualifier("påVegneAvArbeidsgiverAltinnRestTemplate")
     val restTemplate: RestTemplate,
+    @Qualifier("påVegneAvArbeidsgiverAltinn3RestTemplate")
+    val restTemplateAltinn3: RestTemplate
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -46,6 +49,55 @@ class AltinnTilgangsstyringService(
             merÅHente = nyeOrg.size >= altinnTilgangsstyringProperties.antall
         }
         return organisasjoner
+    }
+
+    fun hentInntektsmeldingEllerRefusjonTilganger(): Set<Organisasjon> {
+        val altinnTilgangerRequest = AltinnTilgangerRequest(
+            filter = Filter(
+                altinn2Tilganger = setOf(altinnTilgangsstyringProperties.inntektsmeldingsKodeAltinn2()),
+                altinn3Tilganger = setOf("nav_tiltak_tiltaksrefusjon"),
+                inkluderSlettede = false
+            )
+        )
+
+        val response =  try {
+            restTemplateAltinn3.postForObject<AltinnTilgangerResponse>(
+                altinnTilgangsstyringProperties.arbeidsgiverAltinnTilgangerUri,
+                altinnTilgangerRequest
+            ).hierarki
+        } catch (exception: RuntimeException) {
+            logger.error("Feil ved henting av Altinn-tilganger fra arbeidsgiver-altinn-tilganger", exception)
+            throw FeilkodeException(Feilkode.ALTINN)
+        }
+
+
+        val organisasjonerPåGammeltFormat = response.flatMap { org ->
+            val hovedenhet = Organisasjon(
+                organizationNumber = org.orgnr,
+                name = org.navn,
+                organizationForm = org.organisasjonsform,
+                type = if (org.organisasjonsform == "BEDR") "Business" else "Enterprise", // TODO: Verifiser dette med fager.
+                status = "Active", // Assuming all organizations are active TODO: Verifiser dette med fager.
+                parentOrganizationNumber = response.find { parentOrg ->
+                    parentOrg.underenheter?.any { underenhet -> underenhet.orgnr == org.orgnr } == true
+                }?.orgnr
+            )
+
+            val underenheter = org.underenheter.map { underenhet ->
+                Organisasjon(
+                    organizationNumber = underenhet.orgnr,
+                    name = underenhet.navn,
+                    organizationForm = underenhet.organisasjonsform,
+                    type = if (underenhet.organisasjonsform == "BEDR") "Business" else "Enterprise", // TODO: Verifiser dette med fager.
+                    status = "Active", // Assuming all organizations are active TODO: Verifiser dette med fager.
+                    parentOrganizationNumber = org.orgnr
+                )
+            }
+
+            listOf(hovedenhet) + underenheter
+        }.toSet()
+
+        return organisasjonerPåGammeltFormat
     }
 
     fun hentInntektsmeldingTilganger(fnr: String): Set<Organisasjon> {

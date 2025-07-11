@@ -49,7 +49,7 @@ data class InnloggetArbeidsgiver(
     init {
         if (!organisasjonerFraAltinn3.containsAll(organisasjoner)) {
             log.warn("InnloggetArbeidsgiver har ikke tilgang til alle org i Altinn 3 som finnes i Altinn 2. Altinn 2 size: ${organisasjoner.size}, Altinn 3 size: ${organisasjonerFraAltinn3.size}.");
-            log.warn("Altinnn 3 organisasjoner: ${organisasjonerFraAltinn3.map { it.organizationNumber }}, Altinn 2 organisasjoner: ${organisasjoner.map { it.organizationNumber }}")
+            log.warn("Altinnn 3 organisasjoner: $organisasjonerFraAltinn3, Altinn 2 organisasjoner: $organisasjoner")
         } else {
             log.info("InnloggetArbeidsgiver har tilgang til alle org i Altinn 3 som finnes i Altinn 2. " +
                     "Altinn 2 size: ${organisasjoner.size}, Altinn 3 size: ${organisasjonerFraAltinn3.size}. " +

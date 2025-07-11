@@ -58,7 +58,7 @@ data class InnloggetArbeidsgiver(
         return filtrerRefusjonerMedTilgang(refusjonRepository.findAllByBedriftNr(bedriftnummer))
     }
 
-    /** Funksjon for å utlede alle underenheter til arbeidsgiver. Brukes i de tilfellene der man velger "ALLEBEDRIFTER", da sendes det ikke med noe konkret bedriftnr. */
+    /** Brukes i de tilfellene der man velger "ALLEBEDRIFTER", da sendes det ikke med noe konkret bedriftnr. */
     fun finnAlleUnderenheterTilArbeidsgiver() =
         this.organisasjoner.filter { org -> org.type != "Enterprise" && org.organizationForm != "FLI" && org.organizationForm != "AS" }
             .map { organisasjon -> organisasjon.organizationNumber }

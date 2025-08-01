@@ -1,7 +1,5 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.automatisk_utbetaling
 
-import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.SYSTEM_BRUKER
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonRepository
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonStatus
@@ -27,7 +25,11 @@ class AutomatiskInnsendingService(
         )
             .forEach { refusjon ->
                 if (refusjon.settKlarTilInnsendingHvisMulig()) {
-                    refusjonService.utførAutomatiskInnsendingHvisMulig(refusjon)
+                    try {
+                        refusjonService.utførAutomatiskInnsendingHvisMulig(refusjon)
+                    } catch (e: Exception) {
+                        log.error("Kunne ikke utføre automatisk innsending på ${refusjon.id}", e)
+                    }
                 }
             }
     }

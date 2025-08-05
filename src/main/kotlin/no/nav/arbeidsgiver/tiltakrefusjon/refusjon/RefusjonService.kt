@@ -360,7 +360,6 @@ class RefusjonService(
     @Transactional
     fun utførAutomatiskInnsendingHvisMulig(refusjon: Refusjon) {
         if (!refusjon.settKlarTilInnsendingHvisMulig()) {
-            log.info("Refusjon ${refusjon.id} er ikke klar for innsending")
             return
         }
         if (!refusjon.tiltakstype().utbetalesAutomatisk()) {

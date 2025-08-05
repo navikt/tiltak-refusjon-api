@@ -17,6 +17,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkj
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 import java.time.YearMonth
 
@@ -356,7 +357,12 @@ class RefusjonService(
         refusjon.endreBruttolønn(inntekterKunFraTiltaket, bruttoLønn)
     }
 
+    @Transactional
     fun utførAutomatiskInnsendingHvisMulig(refusjon: Refusjon) {
+        if (!refusjon.settKlarTilInnsendingHvisMulig()) {
+            log.info("Refusjon ${refusjon.id} er ikke klar for innsending")
+            return
+        }
         if (!refusjon.tiltakstype().utbetalesAutomatisk()) {
             throw IllegalStateException("Refusjon ${refusjon.id} kan ikke sendes inn automatisk (tiltakstype ${refusjon.tiltakstype()})")
         }

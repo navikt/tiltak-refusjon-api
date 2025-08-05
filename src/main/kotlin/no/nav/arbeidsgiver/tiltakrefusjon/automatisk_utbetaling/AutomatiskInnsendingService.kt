@@ -6,7 +6,6 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonStatus
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 
 @Service
 class AutomatiskInnsendingService(
@@ -17,19 +16,16 @@ class AutomatiskInnsendingService(
 
     val tiltakstyperSomKanSendesInnAutomatisk = Tiltakstype.entries.filter { it.utbetalesAutomatisk() }.toSet()
 
-    @Transactional
     fun utførAutomatiskInnsendingHvisMulig() {
         refusjonRepository.findAllByStatusAndRefusjonsgrunnlagTilskuddsgrunnlagTiltakstypeIn(
             RefusjonStatus.FOR_TIDLIG,
             tiltakstyperSomKanSendesInnAutomatisk
         )
             .forEach { refusjon ->
-                if (refusjon.settKlarTilInnsendingHvisMulig()) {
-                    try {
-                        refusjonService.utførAutomatiskInnsendingHvisMulig(refusjon)
-                    } catch (e: Exception) {
-                        log.error("Kunne ikke utføre automatisk innsending på ${refusjon.id}", e)
-                    }
+                try {
+                    refusjonService.utførAutomatiskInnsendingHvisMulig(refusjon)
+                } catch (e: Exception) {
+                    log.error("Kunne ikke utføre automatisk innsending på ${refusjon.id}", e)
                 }
             }
     }

@@ -311,7 +311,6 @@ class AdminController(
 
     @Unprotected
     @PostMapping("utfoer-automatisk-innsending")
-    @Transactional
     fun manuellAutomatiskUtbetaling() {
         automatiskInnsendingService.utførAutomatiskInnsendingHvisMulig()
     }

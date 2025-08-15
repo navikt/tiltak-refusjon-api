@@ -10,7 +10,7 @@ class TilgangskontrollService(
 ) {
     val log = LoggerFactory.getLogger(TilgangskontrollService::class.java)
 
-    fun harLeseTilgang(internIdentifikatorer: InternIdentifikatorer, deltakerFnr: String): Boolean {
+    fun harLeseTilgang(internIdentifikatorer: InternIdentifikatorer, deltakerFnr: String): Tilgang {
         return poaoTilgangService.harSkrivetilgang(internIdentifikatorer.azureOid, Fnr(deltakerFnr))
     }
 }

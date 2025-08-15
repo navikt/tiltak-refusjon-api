@@ -13,6 +13,7 @@ import no.nav.poao_tilgang.client.PolicyRequest
 import no.nav.poao_tilgang.client.TilgangType
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService
 import no.nav.security.token.support.client.spring.ClientConfigurationProperties
+import org.slf4j.Logger
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Service
@@ -25,6 +26,8 @@ class PoaoTilgangServiceImpl(
     clientConfigurationProperties: ClientConfigurationProperties,
     oAuth2AccessTokenService: OAuth2AccessTokenService
 ) : PoaoTilgangService {
+    val log: Logger = org.slf4j.LoggerFactory.getLogger(javaClass)
+
     private var klient: PoaoTilgangClient = PoaoTilgangCachedClient.createDefaultCacheClient(
         PoaoTilgangHttpClient(
             poaoTilgangUrl,
@@ -33,8 +36,19 @@ class PoaoTilgangServiceImpl(
         )
     )
 
-    override fun harSkrivetilgang(beslutterAzureUUID: UUID, fnr: Fnr) =
-        hentSkrivetilgang(beslutterAzureUUID, fnr.verdi)?.isPermit ?: false
+    override fun harSkrivetilgang(beslutterAzureUUID: UUID, fnr: Fnr): Tilgang {
+        try {
+            val decision = hentSkrivetilgang(beslutterAzureUUID, fnr.verdi)
+            return if (decision?.isPermit == true) {
+                Tilgang.Tillat()
+            } else {
+                Tilgang.Avvis(Avslagskode.parse(decision), (decision as Deny).message)
+            }
+        } catch (e: Exception) {
+            log.error("Feil ved tilgangskontroll-sjekk", e)
+            return Tilgang.Avvis(Avslagskode.INGEN_RESPONS, "Ingen respons fra POAO-tilgang")
+        }
+    }
 
     override fun harSkrivetilgang(beslutterAzureUUID: UUID, fnrSet: Set<Fnr>) =
         hentSkrivetilganger(beslutterAzureUUID, fnrSet)

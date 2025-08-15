@@ -31,7 +31,6 @@ import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import java.time.LocalDate
 import java.util.*
-
 data class InnloggetSaksbehandler(
     override val identifikator: String,
     val azureOid: UUID,
@@ -100,8 +99,12 @@ data class InnloggetSaksbehandler(
 
         val diskresjonskoder = hentDiskresjonskoder(reusjonPage.content)
         val refusjonerMedTilgang = reusjonPage.content
-            .filter { tilgangskontrollService.harLeseTilgang(internIdentifikatorer, it.deltakerFnr) }
+            .filter { tilgangskontrollService.harLeseTilgang(internIdentifikatorer, it.deltakerFnr).erTillat() }
             .map { BegrensetRefusjon.fraRefusjon(it, diskresjonskoder[it.deltakerFnr]) }
+
+        if (refusjonerMedTilgang.isEmpty() && queryParametre.erSokPaEnkeltperson()) {
+            reusjonPage.content.forEach { reusjon -> sjekkLesetilgang(reusjon) }
+        }
 
         return mapOf(
             Pair("refusjoner", refusjonerMedTilgang),
@@ -161,14 +164,16 @@ data class InnloggetSaksbehandler(
     }
 
     private fun sjekkLesetilgang(refusjon: Refusjon) {
-        if (!tilgangskontrollService.harLeseTilgang(internIdentifikatorer, refusjon.deltakerFnr)) {
-            throw TilgangskontrollException()
+        val tilgang = tilgangskontrollService.harLeseTilgang(internIdentifikatorer, refusjon.deltakerFnr)
+        if (tilgang is Tilgang.Avvis) {
+            throw TilgangskontrollException.fraAvvisning(tilgang)
         }
     }
 
     private fun sjekkLesetilgang(korreksjon: Korreksjon) {
-        if (!tilgangskontrollService.harLeseTilgang(internIdentifikatorer, korreksjon.deltakerFnr)) {
-            throw TilgangskontrollException()
+        val tilgang = tilgangskontrollService.harLeseTilgang(internIdentifikatorer, korreksjon.deltakerFnr)
+        if (tilgang is Tilgang.Avvis) {
+            throw TilgangskontrollException.fraAvvisning(tilgang)
         }
     }
 

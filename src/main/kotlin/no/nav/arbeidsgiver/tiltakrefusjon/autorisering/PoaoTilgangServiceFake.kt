@@ -12,7 +12,11 @@ class PoaoTilgangServiceFake : PoaoTilgangService {
         Fnr("07098142678")
     )
 
-    override fun harSkrivetilgang(beslutterAzureUUID: UUID, fnr: Fnr) = !deny.contains(fnr)
+    override fun harSkrivetilgang(beslutterAzureUUID: UUID, fnr: Fnr) = if (deny.contains(fnr)) {
+        Tilgang.Avvis(Avslagskode.entries.random(), "Ingen tilgang")
+    } else {
+        Tilgang.Tillat()
+    }
 
     override fun harSkrivetilgang(beslutterAzureUUID: UUID, fnrSet: Set<Fnr>) =
         fnrSet.associateWith { true }

@@ -27,8 +27,10 @@ class ExceptionHandler : ResponseEntityExceptionHandler() {
     }
 
     @ExceptionHandler(TilgangskontrollException::class)
-    fun håndterAutorisering(e: Exception, request: WebRequest): ResponseEntity<Nothing> {
-        return ResponseEntity(HttpStatus.UNAUTHORIZED)
+    fun håndterAutorisering(e: TilgangskontrollException, request: WebRequest): ResponseEntity<Nothing> {
+        val headers = HttpHeaders()
+        headers["feilkode"] = e.feilkode.toString()
+        return ResponseEntity(null, headers, HttpStatus.FORBIDDEN)
     }
 
     @ExceptionHandler(UgyldigRequestException::class)

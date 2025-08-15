@@ -7,8 +7,12 @@ import no.nav.arbeidsgiver.tiltakrefusjon.hendelseslogg.HendelsesloggDTO
 import no.nav.arbeidsgiver.tiltakrefusjon.hendelseslogg.HendelsesloggRepository
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.ForlengFristRequest
 import no.nav.security.token.support.core.api.ProtectedWithClaims
-import org.springframework.web.bind.annotation.*
-import java.time.LocalDate
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 
 const val REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON = "/api/saksbehandler/refusjon"
 
@@ -21,8 +25,10 @@ data class HentSaksbehandlerRefusjonerQueryParametre(
     val tiltakstype: Tiltakstype? = null,
     val avtaleNr: Int? = null,
     val page: Int = 0,
-    val size: Int = 10
-)
+    val size: Int = 10,
+) {
+    fun erSokPaEnkeltperson(): Boolean = deltakerFnr != null || avtaleNr != null
+}
 
 data class MerkForUnntakOmInntekterToMånederFremRequest(val merking: Int)
 

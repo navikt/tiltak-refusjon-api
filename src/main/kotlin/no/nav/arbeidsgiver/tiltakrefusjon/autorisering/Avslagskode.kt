@@ -30,16 +30,12 @@ enum class Avslagskode {
 
             return when (deny.reason) {
                 "MANGLER_TILGANG_TIL_AD_GRUPPE" -> {
-                    if (deny.message.contains("0000-GA-Strengt_Fortrolig_Adresse")) {
-                        STRENGT_FORTROLIG_ADRESSE
+                    when {
+                        deny.message.contains("0000-GA-Strengt_Fortrolig_Adresse") -> STRENGT_FORTROLIG_ADRESSE
+                        deny.message.contains("0000-GA-Fortrolig_Adresse") -> FORTROLIG_ADRESSE
+                        deny.message.contains("0000-GA-Egne_ansatte") -> EGNE_ANSATTE
+                        else -> IKKE_TILGANG_TIL_NAV_ENHET
                     }
-                    if (deny.message.contains("0000-GA-Fortrolig_Adresse")) {
-                        FORTROLIG_ADRESSE
-                    }
-                    if (deny.message.contains("0000-GA-Egne_ansatte")) {
-                        EGNE_ANSATTE
-                    }
-                    IKKE_TILGANG_TIL_NAV_ENHET
                 }
                 "POLICY_IKKE_IMPLEMENTERT" -> POLICY_IKKE_IMPLEMENTERT
                 "IKKE_TILGANG_FRA_ABAC" -> IKKE_TILGANG_FRA_ABAC

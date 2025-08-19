@@ -3,9 +3,9 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.ninjasquad.springmockk.SpykBean
+import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.verify
-import io.mockk.clearMocks
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
 import no.nav.arbeidsgiver.tiltakrefusjon.audit.AuditConsoleLogger
@@ -17,7 +17,9 @@ import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.varsling.VarslingRepository
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -198,7 +200,7 @@ class RefusjonApiTest(
     fun `hent() - Arbeidsgiver mangler tilgang til refusjon med id`() {
         val id = refusjonRepository.findAll().find { it.deltakerFnr == "23119409195" }?.id
 
-        sendRequest(get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id"), arbGiverToken, status().isUnauthorized)
+        sendRequest(get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id"), arbGiverToken, status().isForbidden)
     }
 
     @Test
@@ -217,7 +219,7 @@ class RefusjonApiTest(
     @Test
     fun `hent() - Saksbehandler mangler tilgang til henter refusjon med id`() {
         val id = refusjonRepository.findAll().find { it.deltakerFnr == "07098142678" }?.id
-        sendRequest(get("$REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON/$id"), navToken, status().isUnauthorized)
+        sendRequest(get("$REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON/$id"), navToken, status().isForbidden)
     }
 
     @Test

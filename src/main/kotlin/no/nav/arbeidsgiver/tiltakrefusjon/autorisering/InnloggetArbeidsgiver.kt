@@ -55,6 +55,10 @@ data class InnloggetArbeidsgiver(
                     "Altinn 2 size: ${organisasjoner.size}, Altinn 3 size: ${organisasjonerFraAltinn3.size}. " +
                     "Er identiske: ${organisasjoner == organisasjonerFraAltinn3}.")
         }
+
+        // TODO: FJERN DENNE - KUN FOR SAMMELIGNING I TEST:
+        log.info("Organisasjoner fra Altinn 2: $organisasjoner")
+        log.info("Organisasjoner fra Altinn 3: $organisasjonerFraAltinn3")
     }
 
     fun finnAlleMedBedriftnummer(bedriftnummer: String): List<Refusjon> {

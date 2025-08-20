@@ -76,8 +76,8 @@ class AltinnTilgangsstyringService(
                 organizationNumber = org.orgnr,
                 name = org.navn,
                 organizationForm = org.organisasjonsform,
-                type = if (org.organisasjonsform == "BEDR") "Business" else "Enterprise", // TODO: Verifiser dette med fager.
-                status = "Active", // Assuming all organizations are active TODO: Verifiser dette med fager.
+                type = if (org.underenheter.isEmpty()) "Business" else "Enterprise", // Løvnode - har ingen grener, kun et blad og kan da velges som "Business".
+                status = "Active", // Vi ber ikke om slettede enheter, ergo er alle da aktive.
                 parentOrganizationNumber = response.find { parentOrg ->
                     parentOrg.underenheter?.any { underenhet -> underenhet.orgnr == org.orgnr } == true
                 }?.orgnr

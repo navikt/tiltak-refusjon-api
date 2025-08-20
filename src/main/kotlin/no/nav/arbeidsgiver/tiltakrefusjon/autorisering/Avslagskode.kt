@@ -22,9 +22,11 @@ enum class Avslagskode {
 
     companion object {
         fun parse(decision: Decision?): Avslagskode {
-            require(decision?.isPermit ?: false) { "Kan ikke hente tilgangskode for en tillatelse" }
+            if (decision?.isPermit == true) {
+                throw IllegalArgumentException("Kan ikke hente tilgangskode for en tillatelse")
+            }
 
-            val deny = if (decision.isDeny) decision as Deny else {
+            val deny = if (decision?.isDeny == true) decision as Deny else {
                 return UKJENT
             }
 

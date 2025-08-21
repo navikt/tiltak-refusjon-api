@@ -25,13 +25,11 @@ fun ulid(): String = ulidGenerator.nextULID()
 
 
 /** Altinn Utils */
-fun <T : AltinnTilgang> split(
+fun <T> split(
     predicate: (T) -> Boolean,
     liste: List<T>
 ): Pair<List<T>, List<T>> {
-    val children = liste.filter(predicate)
-    val otherParents = liste.filterNot(predicate)
-    return Pair(children, otherParents)
+    return liste.partition(predicate)
 }
 /**
  * Altinn util: Function that returns leaf nodes and first-level parents as a flat list

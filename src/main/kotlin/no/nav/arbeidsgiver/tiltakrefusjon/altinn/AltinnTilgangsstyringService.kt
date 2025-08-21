@@ -2,6 +2,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon.altinn
 
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.flatUtHierarki
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.http.HttpEntity
@@ -51,6 +52,15 @@ class AltinnTilgangsstyringService(
         return organisasjoner
     }
 
+    fun <T : AltinnTilgang> split(
+        predicate: (T) -> Boolean,
+        liste: List<T>
+    ): Pair<List<T>, List<T>> {
+        val children = liste.filter(predicate)
+        val otherParents = liste.filterNot(predicate)
+        return Pair(children, otherParents)
+    }
+
     fun hentInntektsmeldingEllerRefusjonTilganger(): Set<Organisasjon> {
         val altinnTilgangerRequest = AltinnTilgangerRequest(
             filter = Filter(
@@ -70,31 +80,18 @@ class AltinnTilgangsstyringService(
             throw FeilkodeException(Feilkode.ALTINN)
         }
 
-
-        val organisasjonerPåGammeltFormat = response.flatMap { org ->
-            val hovedenhet = Organisasjon(
+        val løvnoderOgParents = flatUtHierarki(response)
+        val organisasjonerPåGammeltFormat = løvnoderOgParents.map { org ->
+            Organisasjon(
                 organizationNumber = org.orgnr,
                 name = org.navn,
                 organizationForm = org.organisasjonsform,
-                type = if (org.underenheter.isEmpty()) "Business" else "Enterprise", // Løvnode - har ingen grener, kun et blad og kan da velges som "Business".
-                status = "Active", // Vi ber ikke om slettede enheter, ergo er alle da aktive.
-                parentOrganizationNumber = response.find { parentOrg ->
-                    parentOrg.underenheter?.any { underenhet -> underenhet.orgnr == org.orgnr } == true
+                type = if (org.isLeaf()) "Business" else "Enterprise", // Løvnode - har ingen grener (barn) og kan da velges som "Business".
+                status = if (org.erSlettet) "Inactive" else "Active",
+                parentOrganizationNumber = løvnoderOgParents.find { parentOrg -> // Finn orgnr som har org som underenhet
+                    parentOrg.underenheter.any { underenhet -> underenhet.orgnr == org.orgnr }
                 }?.orgnr
             )
-
-            val underenheter = org.underenheter.map { underenhet ->
-                Organisasjon(
-                    organizationNumber = underenhet.orgnr,
-                    name = underenhet.navn,
-                    organizationForm = underenhet.organisasjonsform,
-                    type = if (underenhet.organisasjonsform == "BEDR") "Business" else "Enterprise", // TODO: Verifiser dette med fager.
-                    status = "Active", // Assuming all organizations are active TODO: Verifiser dette med fager.
-                    parentOrganizationNumber = org.orgnr
-                )
-            }
-
-            listOf(hovedenhet) + underenheter
         }.toSet()
 
         return organisasjonerPåGammeltFormat

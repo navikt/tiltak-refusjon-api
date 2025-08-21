@@ -17,3 +17,5 @@ data class AltinnTilgang(
     val organisasjonsform: String,
     val erSlettet: Boolean = false,
 )
+
+fun AltinnTilgang.isLeaf(): Boolean = underenheter.isEmpty()

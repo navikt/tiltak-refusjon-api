@@ -80,7 +80,9 @@ class AltinnTilgangsstyringService(
             throw FeilkodeException(Feilkode.ALTINN)
         }
 
+        logger.info("Response fra altinn 3 (.hierarki) størrelse: ${response.size}")
         val løvnoderOgParents = flatUtHierarki(response)
+        logger.info("Flatet ut har størrelse: ${løvnoderOgParents.size}")
         val organisasjonerPåGammeltFormat = løvnoderOgParents.map { org ->
             Organisasjon(
                 organizationNumber = org.orgnr,

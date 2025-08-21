@@ -52,14 +52,6 @@ class AltinnTilgangsstyringService(
         return organisasjoner
     }
 
-    fun <T : AltinnTilgang> split(
-        predicate: (T) -> Boolean,
-        liste: List<T>
-    ): Pair<List<T>, List<T>> {
-        val children = liste.filter(predicate)
-        val otherParents = liste.filterNot(predicate)
-        return Pair(children, otherParents)
-    }
 
     fun hentInntektsmeldingEllerRefusjonTilganger(): Set<Organisasjon> {
         val altinnTilgangerRequest = AltinnTilgangerRequest(
@@ -83,20 +75,28 @@ class AltinnTilgangsstyringService(
         logger.info("Response fra altinn 3 (.hierarki) størrelse: ${response.size}")
         val løvnoderOgParents = flatUtHierarki(response)
         logger.info("Flatet ut har størrelse: ${løvnoderOgParents.size}")
-        val organisasjonerPåGammeltFormat = løvnoderOgParents.map { org ->
-            Organisasjon(
+        val organisasjonerPåGammeltFormat = løvnoderOgParents.flatMap { org ->
+            listOf<Organisasjon>(Organisasjon(
                 organizationNumber = org.orgnr,
                 name = org.navn,
                 organizationForm = org.organisasjonsform,
-                type = if (org.isLeaf()) "Business" else "Enterprise", // Løvnode - har ingen grener (barn) og kan da velges som "Business".
+                type = "Enterprise",
                 status = if (org.erSlettet) "Inactive" else "Active",
-                parentOrganizationNumber = løvnoderOgParents.find { parentOrg -> // Finn orgnr som har org som underenhet
-                    parentOrg.underenheter.any { underenhet -> underenhet.orgnr == org.orgnr }
-                }?.orgnr
-            )
-        }.toSet()
+                parentOrganizationNumber = null
+            )) + org.underenheter.map { underenhet ->
+                Organisasjon(
+                    organizationNumber = underenhet.orgnr,
+                    name = underenhet.navn,
+                    organizationForm = underenhet.organisasjonsform,
+                    type = "Business",
+                    status = if (underenhet.erSlettet) "Inactive" else "Active",
+                    parentOrganizationNumber = org.orgnr
+                )
+            }
+        }
 
-        return organisasjonerPåGammeltFormat
+
+        return organisasjonerPåGammeltFormat.toSet()
     }
 
     fun hentInntektsmeldingTilganger(fnr: String): Set<Organisasjon> {

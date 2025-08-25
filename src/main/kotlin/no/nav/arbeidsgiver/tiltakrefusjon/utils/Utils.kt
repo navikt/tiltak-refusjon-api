@@ -1,6 +1,8 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.utils
 
 import de.huxhorn.sulky.ulid.ULID
+import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgang
+import no.nav.arbeidsgiver.tiltakrefusjon.altinn.isLeaf
 
 fun erIkkeTomme(vararg objekter: Any?): Boolean {
     for (objekt in objekter) {
@@ -20,3 +22,29 @@ fun erNoenTomme(vararg objekter: Any?): Boolean {
 
 private val ulidGenerator = ULID()
 fun ulid(): String = ulidGenerator.nextULID()
+
+
+/** Altinn Utils */
+fun <T> split(
+    predicate: (T) -> Boolean,
+    liste: List<T>
+): Pair<List<T>, List<T>> {
+    return liste.partition(predicate)
+}
+/**
+ * Altinn util: Function that returns leaf nodes and first-level parents as a flat list
+ */
+fun flatUtHierarki(organisasjonstre: List<AltinnTilgang>): List<AltinnTilgang> {
+    fun mapR(parent: AltinnTilgang): List<AltinnTilgang> {
+        val (children, otherParents) = split(AltinnTilgang::isLeaf, parent.underenheter)
+        val current = if (children.isNotEmpty()) {
+            listOf(parent.copy(underenheter = children))
+        } else {
+            emptyList()
+        }
+        return current + otherParents.flatMap { mapR(it) }
+    }
+    return organisasjonstre
+        .flatMap { mapR(it) }
+        .sortedBy { it.navn }
+}

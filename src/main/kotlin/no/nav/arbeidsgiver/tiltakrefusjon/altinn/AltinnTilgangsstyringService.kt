@@ -72,7 +72,9 @@ class AltinnTilgangsstyringService(
             throw FeilkodeException(Feilkode.ALTINN)
         }
 
+        logger.info("Altinn 3 respons før utflating: $response")
         val løvnoderOgParents = flatUtHierarki(response)
+        logger.info("Altinn 3 respons etter utflating: $løvnoderOgParents")
         val organisasjonerPåGammeltFormat = løvnoderOgParents.flatMap { org ->
             listOf<Organisasjon>(Organisasjon(
                 organizationNumber = org.orgnr,
@@ -92,6 +94,7 @@ class AltinnTilgangsstyringService(
                 )
             }
         }
+        logger.info("Altinn 3 respons etter mapping til gammelt format: $organisasjonerPåGammeltFormat")
 
 
         return organisasjonerPåGammeltFormat.toSet()

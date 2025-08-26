@@ -1,5 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.altinn
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.flatUtHierarki
@@ -21,6 +22,7 @@ class AltinnTilgangsstyringService(
     @Qualifier("påVegneAvArbeidsgiverAltinn3RestTemplate")
     val restTemplateAltinn3: RestTemplate
 ) {
+    private val objectMapper: ObjectMapper = ObjectMapper()
     private val logger = LoggerFactory.getLogger(javaClass)
 
     // URL-strengen har to "uri-variabler": fnr og skip
@@ -62,17 +64,10 @@ class AltinnTilgangsstyringService(
             )
         )
 
-        val response =  try {
-            restTemplateAltinn3.postForObject<AltinnTilgangerResponse>(
-                altinnTilgangsstyringProperties.arbeidsgiverAltinnTilgangerUri,
-                altinnTilgangerRequest
-            ).hierarki
-        } catch (exception: RuntimeException) {
-            logger.error("Feil ved henting av Altinn-tilganger fra arbeidsgiver-altinn-tilganger", exception)
-            throw FeilkodeException(Feilkode.ALTINN)
-        }
+        val response = kallAltinn3(altinnTilgangerRequest)
 
         logger.info("Altinn 3 respons før utflating: $response")
+        logger.info("Altinn3 response før utflating (JSON): {}", objectMapper.writeValueAsString(response))
         val løvnoderOgParents = flatUtHierarki(response)
         logger.info("Altinn 3 respons etter utflating: $løvnoderOgParents")
         val organisasjonerPåGammeltFormat = løvnoderOgParents.flatMap { org ->
@@ -98,6 +93,19 @@ class AltinnTilgangsstyringService(
 
 
         return organisasjonerPåGammeltFormat.toSet()
+    }
+
+    fun kallAltinn3(altinnTilgangerRequest: AltinnTilgangerRequest): List<AltinnTilgang> {
+        val response = try {
+            restTemplateAltinn3.postForObject<AltinnTilgangerResponse>(
+                altinnTilgangsstyringProperties.arbeidsgiverAltinnTilgangerUri,
+                altinnTilgangerRequest
+            ).hierarki
+        } catch (exception: RuntimeException) {
+            logger.error("Feil ved henting av Altinn-tilganger fra arbeidsgiver-altinn-tilganger", exception)
+            throw FeilkodeException(Feilkode.ALTINN)
+        }
+        return response
     }
 
     fun hentInntektsmeldingTilganger(fnr: String): Set<Organisasjon> {

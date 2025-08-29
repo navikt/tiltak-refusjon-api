@@ -54,7 +54,6 @@ class AltinnTilgangsstyringService(
         return organisasjoner
     }
 
-
     fun hentInntektsmeldingEllerRefusjonTilganger(): Set<Organisasjon> {
         val altinnTilgangerRequest = AltinnTilgangerRequest(
             filter = Filter(
@@ -65,13 +64,9 @@ class AltinnTilgangsstyringService(
         )
 
         val response = kallAltinn3(altinnTilgangerRequest)
-
-        logger.info("Altinn 3 respons før utflating: $response")
-        logger.info("Altinn3 response før utflating (JSON): {}", objectMapper.writeValueAsString(response))
         val løvnoderOgParents = flatUtHierarki(response)
-        logger.info("Altinn 3 respons etter utflating: $løvnoderOgParents")
         val organisasjonerPåGammeltFormat = løvnoderOgParents.flatMap { org ->
-            listOf<Organisasjon>(Organisasjon(
+            listOf(Organisasjon(
                 organizationNumber = org.orgnr,
                 name = org.navn,
                 organizationForm = org.organisasjonsform,
@@ -89,9 +84,6 @@ class AltinnTilgangsstyringService(
                 )
             }
         }
-        logger.info("Altinn 3 respons etter mapping til gammelt format: $organisasjonerPåGammeltFormat")
-
-
         return organisasjonerPåGammeltFormat.toSet()
     }
 

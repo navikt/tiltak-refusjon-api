@@ -98,6 +98,24 @@ class FakeInntektskomponentService : InntektskomponentService {
             inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "fastloenn", 30000.0,  YearMonth.of(nesteMåned.year, nesteMåned.month), YearMonth.of(nesteMåned.year, nesteMåned.month).atEndOfMonth(), måned.atEndOfMonth()))
             inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "fastloenn", 2000.0,  YearMonth.of(nesteMåned.year, nesteMåned.month), YearMonth.of(nesteMåned.year, nesteMåned.month).atEndOfMonth(), måned.atEndOfMonth()))
             return Pair(inntektslinjer, "Fake response med  ferietrekk")
+        } else if (fnr == "12118338764"){
+            val inntektslinjer = ArrayList<Inntektslinje>()
+            val måned = YearMonth.of(datoFra.year, datoFra.month)
+            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "fastloenn", 20000.0,  måned, datoTil, måned.atEndOfMonth()))
+            return Pair(inntektslinjer, "fake respons med inntekter og ferietrekk både minus og pluss")
+
+        } else if (fnr == "27058520778"){
+            val inntektslinjer = ArrayList<Inntektslinje>()
+            val måned = YearMonth.of(datoFra.year, datoFra.month)
+            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "fastloenn", 10000.0,  måned, datoTil, måned.atEndOfMonth()))
+            return Pair(inntektslinjer, "fake respons med inntekter og ferietrekk både minus og pluss")
+
+        } else if (fnr == "13068002812"){
+            val inntektslinjer = ArrayList<Inntektslinje>()
+            val måned = YearMonth.of(datoFra.year, datoFra.month)
+            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "fastloenn", 0.0,  måned, datoTil, måned.atEndOfMonth()))
+         return Pair(inntektslinjer, "fake respons med inntekter og ferietrekk både minus og pluss")
+
         }
 
         val inntektslinjer = ArrayList<Inntektslinje>()

@@ -465,6 +465,9 @@ fun refusjoner(): List<Refusjon> {
         `Vidar Fortidlig`(),
         `Vidar SendKrav`(),
         `Vidar Utbetalt`(),
+        `Mentor klar for innsending høy nok inntekt`(),
+        `Mentor klar for innsending for lav inntekt`(),
+        `Mentor klar for innsending med 0 i inntekt`(),
         `Camilla Collett`(),
         `Snorre Sturlason`(),
         `Sigrid Undset`(),
@@ -516,6 +519,33 @@ fun etTilskuddsgrunnlag(tiltakstype: Tiltakstype = Tiltakstype.SOMMERJOBB) = Til
     tilskuddFom = Now.localDate().minusMonths(1).withDayOfMonth(1),
     tilskuddTom = Now.localDate().minusMonths(1).with(lastDayOfMonth()),
     tilskuddsbeløp = 13579,
+    avtaleNr = 3456,
+    løpenummer = 3,
+    resendingsnummer = 1,
+    enhet = "1000",
+    godkjentAvBeslutterTidspunkt = Now.localDateTime().minusMonths(3).withDayOfMonth(1),
+)
+
+fun etHøytNokMentorTilskuddsgrunnlag(tiltakstype: Tiltakstype = Tiltakstype.MENTOR) = Tilskuddsgrunnlag(
+    avtaleId = UUID.randomUUID().toString(),
+    tilskuddsperiodeId = UUID.randomUUID().toString(),
+    deltakerFornavn = "",
+    deltakerEtternavn = "",
+    arbeidsgiverFornavn = "Arne",
+    arbeidsgiverEtternavn = "Arbeidsgiver",
+    arbeidsgiverTlf = "41111111",
+    tiltakstype = tiltakstype,
+    deltakerFnr = "",
+    veilederNavIdent = "",
+    bedriftNavn = "Kiwi Majorstuen",
+    bedriftNr = "999999999",
+    otpSats = 0.02,
+    feriepengerSats = 0.12,
+    arbeidsgiveravgiftSats = 0.141,
+    lønnstilskuddsprosent = 40,
+    tilskuddFom = Now.localDate().minusMonths(1).withDayOfMonth(1),
+    tilskuddTom = Now.localDate().minusMonths(1).with(lastDayOfMonth()),
+    tilskuddsbeløp = 20000,
     avtaleNr = 3456,
     løpenummer = 3,
     resendingsnummer = 1,
@@ -896,6 +926,121 @@ fun `Vidar Utbetalt`(): Refusjon {
 
     return refusjon
 }
+
+fun `Mentor klar for innsending høy nok inntekt`(): Refusjon {
+    val deltakerFnr = "12118338764"
+    val bedriftNr = "999999999"
+    val refusjon = Refusjon(
+        tilskuddsgrunnlag = etHøytNokMentorTilskuddsgrunnlag().copy(
+            avtaleId = UUID.randomUUID().toString(),
+            avtaleNr = 4415,
+            tilskuddsperiodeId = UUID.randomUUID().toString(),
+            tiltakstype = Tiltakstype.MENTOR,
+            deltakerFornavn = "Nils",
+            deltakerEtternavn = "Høy nok",
+            deltakerFnr = deltakerFnr,
+            bedriftNr = bedriftNr,
+            tilskuddsbeløp = 6808,
+            veilederNavIdent = "X123456",
+            avtaleFom = Now.localDate().minusDays(1),
+            avtaleTom = Now.localDate().plusMonths(2),
+        ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
+    )
+
+    refusjon.let {
+        it.medBeregning()
+        it.medBedriftKontonummer()
+        it.status = RefusjonStatus.KLAR_FOR_INNSENDING
+        it.godkjentAvArbeidsgiver = Now.localDate()
+            .with(firstDayOfMonth())
+            .atStartOfDay(ZoneId.of("Europe/Oslo"))
+            .toInstant()
+        it.utbetaltTidspunkt = Now.localDate()
+            .with(firstDayOfMonth())
+            .plusDays(2)
+            .atStartOfDay(ZoneId.of("Europe/Oslo"))
+            .toInstant()
+    }
+
+    return refusjon
+}
+fun `Mentor klar for innsending for lav inntekt`(): Refusjon {
+    val deltakerFnr = "27058520778"
+    val bedriftNr = "999999999"
+    val refusjon = Refusjon(
+        tilskuddsgrunnlag = etHøytNokMentorTilskuddsgrunnlag().copy(
+            avtaleId = UUID.randomUUID().toString(),
+            avtaleNr = 4415,
+            tilskuddsperiodeId = UUID.randomUUID().toString(),
+            tiltakstype = Tiltakstype.MENTOR,
+            deltakerFornavn = "Nils",
+            deltakerEtternavn = "For lavt",
+            deltakerFnr = deltakerFnr,
+            bedriftNr = bedriftNr,
+            tilskuddsbeløp = 6808,
+            veilederNavIdent = "X123456",
+            avtaleFom = Now.localDate().minusDays(1),
+            avtaleTom = Now.localDate().plusMonths(2),
+        ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
+    )
+
+    refusjon.let {
+        it.medBeregning()
+        it.medBedriftKontonummer()
+        it.status = RefusjonStatus.KLAR_FOR_INNSENDING
+        it.godkjentAvArbeidsgiver = Now.localDate()
+            .with(firstDayOfMonth())
+            .atStartOfDay(ZoneId.of("Europe/Oslo"))
+            .toInstant()
+        it.utbetaltTidspunkt = Now.localDate()
+            .with(firstDayOfMonth())
+            .plusDays(2)
+            .atStartOfDay(ZoneId.of("Europe/Oslo"))
+            .toInstant()
+    }
+
+    return refusjon
+}
+
+fun `Mentor klar for innsending med 0 i inntekt`(): Refusjon {
+    val deltakerFnr = "13068002812"
+    val bedriftNr = "999999999"
+    val refusjon = Refusjon(
+        tilskuddsgrunnlag = etHøytNokMentorTilskuddsgrunnlag().copy(
+            avtaleId = UUID.randomUUID().toString(),
+            avtaleNr = 4415,
+            tilskuddsperiodeId = UUID.randomUUID().toString(),
+            tiltakstype = Tiltakstype.MENTOR,
+            deltakerFornavn = "Nils",
+            deltakerEtternavn = "Null",
+            deltakerFnr = deltakerFnr,
+            bedriftNr = bedriftNr,
+            tilskuddsbeløp = 6808,
+            veilederNavIdent = "X123456",
+            avtaleFom = Now.localDate().minusDays(1),
+            avtaleTom = Now.localDate().plusMonths(2),
+        ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
+    )
+
+    refusjon.let {
+        it.medBeregning()
+        it.medBedriftKontonummer()
+        it.status = RefusjonStatus.KLAR_FOR_INNSENDING
+        it.godkjentAvArbeidsgiver = Now.localDate()
+            .with(firstDayOfMonth())
+            .atStartOfDay(ZoneId.of("Europe/Oslo"))
+            .toInstant()
+        it.utbetaltTidspunkt = Now.localDate()
+            .with(firstDayOfMonth())
+            .plusDays(2)
+            .atStartOfDay(ZoneId.of("Europe/Oslo"))
+            .toInstant()
+    }
+
+    return refusjon
+}
+
+
 
 fun dodsfallUnderTiltakRefusjon(): Refusjon {
     val deltakerFnrMedMasseUtbetalt = "30038738743"

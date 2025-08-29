@@ -42,13 +42,26 @@ data class InnloggetArbeidsgiver(
     override val rolle: BrukerRolle = BrukerRolle.ARBEIDSGIVER
 
     val organisasjoner: Set<Organisasjon> = altinnTilgangsstyringService.hentInntektsmeldingTilganger(identifikator)
-    val adresseSperretilganger: Set<Organisasjon> =
-        altinnTilgangsstyringService.hentAdressesperreTilganger(identifikator)
+    @JsonIgnore
+    val organisasjonerFraAltinn3: Set<Organisasjon> = altinnTilgangsstyringService.hentInntektsmeldingEllerRefusjonTilganger()
+    val adresseSperretilganger: Set<Organisasjon> = altinnTilgangsstyringService.hentAdressesperreTilganger(identifikator)
+
+    init {
+        if (!organisasjonerFraAltinn3.containsAll(organisasjoner)) {
+            log.warn("InnloggetArbeidsgiver har ikke tilgang til alle org i Altinn 3 som finnes i Altinn 2. Altinn 2 size: ${organisasjoner.size}, Altinn 3 size: ${organisasjonerFraAltinn3.size}.");
+            log.warn("Altinnn 3 organisasjoner: $organisasjonerFraAltinn3, Altinn 2 organisasjoner: $organisasjoner")
+        } else {
+            log.info("InnloggetArbeidsgiver har tilgang til alle org i Altinn 3 som finnes i Altinn 2. " +
+                    "Altinn 2 size: ${organisasjoner.size}, Altinn 3 size: ${organisasjonerFraAltinn3.size}. " +
+                    "Er identiske: ${organisasjoner == organisasjonerFraAltinn3}.")
+        }
+    }
 
     fun finnAlleMedBedriftnummer(bedriftnummer: String): List<Refusjon> {
         return filtrerRefusjonerMedTilgang(refusjonRepository.findAllByBedriftNr(bedriftnummer))
     }
 
+    /** Brukes i de tilfellene der man velger "ALLEBEDRIFTER", da sendes det ikke med noe konkret bedriftnr. */
     fun finnAlleUnderenheterTilArbeidsgiver() =
         this.organisasjoner.filter { org -> org.type != "Enterprise" && org.organizationForm != "FLI" && org.organizationForm != "AS" }
             .map { organisasjon -> organisasjon.organizationNumber }

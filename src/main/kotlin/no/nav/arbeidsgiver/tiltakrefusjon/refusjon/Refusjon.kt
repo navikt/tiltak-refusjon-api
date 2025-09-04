@@ -203,12 +203,15 @@ class Refusjon(
         if (refusjonsgrunnlag.bedriftKontonummer == null) {
             throw FeilkodeException(Feilkode.INGEN_BEDRIFTKONTONUMMER)
         }
-        if (this.måTaStillingTilInntekter() && !this.harTattStillingTilAlleInntektslinjer()) {
-            throw FeilkodeException(Feilkode.IKKE_TATT_STILLING_TIL_ALLE_INNTEKTSLINJER)
+        if(refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype != Tiltakstype.MENTOR) {
+            if (this.måTaStillingTilInntekter() && !this.harTattStillingTilAlleInntektslinjer()) {
+                throw FeilkodeException(Feilkode.IKKE_TATT_STILLING_TIL_ALLE_INNTEKTSLINJER)
+            }
+            if (refusjonsgrunnlag.beregning == null) {
+                throw FeilkodeException(Feilkode.INGEN_BEREGNING)
+            }
         }
-        if (refusjonsgrunnlag.beregning == null) {
-            throw FeilkodeException(Feilkode.INGEN_BEREGNING)
-        }
+
         godkjentAvArbeidsgiver = Now.instant()
         status = RefusjonStatus.SENDT_KRAV
 

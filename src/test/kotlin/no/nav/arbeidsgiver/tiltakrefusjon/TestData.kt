@@ -940,7 +940,7 @@ fun `Mentor klar for innsending høy nok inntekt`(): Refusjon {
             deltakerEtternavn = "Høy nok",
             deltakerFnr = deltakerFnr,
             bedriftNr = bedriftNr,
-            tilskuddsbeløp = 6808,
+            tilskuddsbeløp = 20000,
             veilederNavIdent = "X123456",
             avtaleFom = Now.localDate().minusDays(1),
             avtaleTom = Now.localDate().plusMonths(2),

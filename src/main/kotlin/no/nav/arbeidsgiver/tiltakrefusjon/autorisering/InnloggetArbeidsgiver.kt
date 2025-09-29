@@ -47,13 +47,24 @@ data class InnloggetArbeidsgiver(
     val adresseSperretilganger: Set<Organisasjon> = altinnTilgangsstyringService.hentAdressesperreTilganger(identifikator)
 
     init {
-        if (!organisasjonerFraAltinn3.containsAll(organisasjoner)) {
+
+        // Case 1: arbeidsgiver-altinn-tilganger (altinn 3) fjerner parents som ikke har barn
+        val parentsSomIkkeHarBarn = organisasjoner
+            .filter { it.type == "Enterprise" && organisasjoner.none { org -> org.parentOrganizationNumber == it.organizationNumber } }
+        val altinn2UtenParentsUtenBarn = organisasjoner.filter { !parentsSomIkkeHarBarn.contains(it) }
+
+        if (!altinn2UtenParentsUtenBarn.containsAll(organisasjoner)) {
+            // gå gjennom de som ikke finnes i altinn 3. er det foreldre uten barn? Da er det ok! (disse fjerner altinn3)
             log.warn("InnloggetArbeidsgiver har ikke tilgang til alle org i Altinn 3 som finnes i Altinn 2. Altinn 2 size: ${organisasjoner.size}, Altinn 3 size: ${organisasjonerFraAltinn3.size}.");
             log.warn("Altinnn 3 organisasjoner: $organisasjonerFraAltinn3, Altinn 2 organisasjoner: $organisasjoner")
         } else {
             log.info("InnloggetArbeidsgiver har tilgang til alle org i Altinn 3 som finnes i Altinn 2. " +
                     "Altinn 2 size: ${organisasjoner.size}, Altinn 3 size: ${organisasjonerFraAltinn3.size}. " +
                     "Er identiske: ${organisasjoner == organisasjonerFraAltinn3}.")
+        }
+        if (!organisasjoner.containsAll(organisasjonerFraAltinn3)) {
+            // Finne ut om det er foreldreløse barn som viu ville slått opp
+            log.warn("InnloggetArbeidsgiver har tilgang til org i Altinn 3 som ikke finnes i Altinn 2. Altinn 2 size: ${organisasjoner.size}, Altinn 3 size: ${organisasjonerFraAltinn3.size}.");
         }
     }
 

@@ -53,7 +53,7 @@ data class InnloggetArbeidsgiver(
             .filter { it.type == "Enterprise" && organisasjoner.none { org -> org.parentOrganizationNumber == it.organizationNumber } }
         val altinn2UtenParentsUtenBarn = organisasjoner.filter { !parentsSomIkkeHarBarn.contains(it) }
 
-        if (!altinn2UtenParentsUtenBarn.containsAll(organisasjoner)) {
+        if (!organisasjonerFraAltinn3.containsAll(altinn2UtenParentsUtenBarn)) {
             // gå gjennom de som ikke finnes i altinn 3. er det foreldre uten barn? Da er det ok! (disse fjerner altinn3)
             log.warn("InnloggetArbeidsgiver har ikke tilgang til alle org i Altinn 3 som finnes i Altinn 2. Altinn 2 size: ${organisasjoner.size}, Altinn 3 size: ${organisasjonerFraAltinn3.size}.");
             log.warn("Altinnn 3 organisasjoner: $organisasjonerFraAltinn3, Altinn 2 organisasjoner: $organisasjoner")

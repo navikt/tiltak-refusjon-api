@@ -55,7 +55,7 @@ data class InnloggetArbeidsgiver(
 
         if (!organisasjonerFraAltinn3.containsAll(altinn2UtenParentsUtenBarn)) {
             // gå gjennom de som ikke finnes i altinn 3. er det foreldre uten barn? Da er det ok! (disse fjerner altinn3)
-            log.warn("InnloggetArbeidsgiver har ikke tilgang til alle org i Altinn 3 som finnes i Altinn 2. Altinn 2 size: ${organisasjoner.size}, Altinn 3 size: ${organisasjonerFraAltinn3.size}.");
+            log.warn("InnloggetArbeidsgiver har ikke tilgang til alle org i Altinn 3 som finnes i Altinn 2. Altinn 2 size: ${organisasjoner.size}, Altinn 3 size: ${organisasjonerFraAltinn3.size}. \n Mangler følgende org i Altinn 3: ${altinn2UtenParentsUtenBarn.filter { !organisasjonerFraAltinn3.contains(it) }}");
             log.warn("Altinnn 3 organisasjoner: $organisasjonerFraAltinn3, Altinn 2 organisasjoner: $organisasjoner")
         } else {
             log.info("InnloggetArbeidsgiver har tilgang til alle org i Altinn 3 som finnes i Altinn 2. " +

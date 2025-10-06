@@ -41,32 +41,10 @@ data class InnloggetArbeidsgiver(
     val log: Logger = LoggerFactory.getLogger(javaClass)
     override val rolle: BrukerRolle = BrukerRolle.ARBEIDSGIVER
 
-    val organisasjoner: Set<Organisasjon> = altinnTilgangsstyringService.hentInntektsmeldingTilganger(identifikator)
+    val organisasjoner: Set<Organisasjon> = altinnTilgangsstyringService.hentInntektsmeldingEllerRefusjonTilganger()
     @JsonIgnore
     val organisasjonerFraAltinn3: Set<Organisasjon> = altinnTilgangsstyringService.hentInntektsmeldingEllerRefusjonTilganger()
     val adresseSperretilganger: Set<Organisasjon> = altinnTilgangsstyringService.hentAdressesperreTilganger(identifikator)
-
-    init {
-
-        // Case 1: arbeidsgiver-altinn-tilganger (altinn 3) fjerner parents som ikke har barn
-        val parentsSomIkkeHarBarn = organisasjoner
-            .filter { it.type == "Enterprise" && organisasjoner.none { org -> org.parentOrganizationNumber == it.organizationNumber } }
-        val altinn2UtenParentsUtenBarn = organisasjoner.filter { !parentsSomIkkeHarBarn.contains(it) }
-
-        if (!organisasjonerFraAltinn3.containsAll(altinn2UtenParentsUtenBarn)) {
-            // gå gjennom de som ikke finnes i altinn 3. er det foreldre uten barn? Da er det ok! (disse fjerner altinn3)
-            log.warn("InnloggetArbeidsgiver har ikke tilgang til alle org i Altinn 3 som finnes i Altinn 2. Altinn 2 size: ${organisasjoner.size}, Altinn 3 size: ${organisasjonerFraAltinn3.size}. \n Mangler følgende org i Altinn 3: ${altinn2UtenParentsUtenBarn.filter { !organisasjonerFraAltinn3.contains(it) }}");
-            log.warn("Altinnn 3 organisasjoner: $organisasjonerFraAltinn3, Altinn 2 organisasjoner: $organisasjoner")
-        } else {
-            log.info("InnloggetArbeidsgiver har tilgang til alle org i Altinn 3 som finnes i Altinn 2. " +
-                    "Altinn 2 size: ${organisasjoner.size}, Altinn 3 size: ${organisasjonerFraAltinn3.size}. " +
-                    "Er identiske: ${organisasjoner == organisasjonerFraAltinn3}.")
-        }
-        if (!organisasjoner.containsAll(organisasjonerFraAltinn3)) {
-            // Finne ut om det er foreldreløse barn som viu ville slått opp
-            log.warn("InnloggetArbeidsgiver har tilgang til org i Altinn 3 som ikke finnes i Altinn 2. Altinn 2 size: ${organisasjoner.size}, Altinn 3 size: ${organisasjonerFraAltinn3.size}.");
-        }
-    }
 
     fun finnAlleMedBedriftnummer(bedriftnummer: String): List<Refusjon> {
         return filtrerRefusjonerMedTilgang(refusjonRepository.findAllByBedriftNr(bedriftnummer))

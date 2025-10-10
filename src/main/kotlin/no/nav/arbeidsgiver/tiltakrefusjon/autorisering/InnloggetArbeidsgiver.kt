@@ -6,6 +6,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.RessursFinnesIkkeException
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
+import no.nav.arbeidsgiver.tiltakrefusjon.featuretoggles.FeatureToggleService
 import no.nav.arbeidsgiver.tiltakrefusjon.persondata.PersondataService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.BrukerRolle
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Korreksjon
@@ -34,7 +35,8 @@ data class InnloggetArbeidsgiver(
     @JsonIgnore val refusjonRepository: RefusjonRepository,
     @JsonIgnore val korreksjonRepository: KorreksjonRepository,
     @JsonIgnore val refusjonService: RefusjonService,
-    @JsonIgnore val persondataService: PersondataService
+    @JsonIgnore val persondataService: PersondataService,
+    @JsonIgnore val featureToggleService: FeatureToggleService
 ) : InnloggetBruker {
 
     @JsonIgnore
@@ -42,18 +44,23 @@ data class InnloggetArbeidsgiver(
     override val rolle: BrukerRolle = BrukerRolle.ARBEIDSGIVER
 
     val organisasjoner: Set<Organisasjon> = altinnTilgangsstyringService.hentInntektsmeldingTilganger(identifikator)
+
     @JsonIgnore
-    val organisasjonerFraAltinn3: Set<Organisasjon> = altinnTilgangsstyringService.hentInntektsmeldingEllerRefusjonTilganger()
-    val adresseSperretilganger: Set<Organisasjon> = altinnTilgangsstyringService.hentAdressesperreTilganger(identifikator)
+    val organisasjonerFraAltinn3: Set<Organisasjon> =
+        altinnTilgangsstyringService.hentInntektsmeldingEllerRefusjonTilganger()
+    val adresseSperretilganger: Set<Organisasjon> =
+        altinnTilgangsstyringService.hentAdressesperreTilganger(identifikator)
 
     init {
         if (!organisasjonerFraAltinn3.containsAll(organisasjoner)) {
             log.warn("InnloggetArbeidsgiver har ikke tilgang til alle org i Altinn 3 som finnes i Altinn 2. Altinn 2 size: ${organisasjoner.size}, Altinn 3 size: ${organisasjonerFraAltinn3.size}.");
             log.warn("Altinnn 3 organisasjoner: $organisasjonerFraAltinn3, Altinn 2 organisasjoner: $organisasjoner")
         } else {
-            log.info("InnloggetArbeidsgiver har tilgang til alle org i Altinn 3 som finnes i Altinn 2. " +
-                    "Altinn 2 size: ${organisasjoner.size}, Altinn 3 size: ${organisasjonerFraAltinn3.size}. " +
-                    "Er identiske: ${organisasjoner == organisasjonerFraAltinn3}.")
+            log.info(
+                "InnloggetArbeidsgiver har tilgang til alle org i Altinn 3 som finnes i Altinn 2. " +
+                        "Altinn 2 size: ${organisasjoner.size}, Altinn 3 size: ${organisasjonerFraAltinn3.size}. " +
+                        "Er identiske: ${organisasjoner == organisasjonerFraAltinn3}."
+            )
         }
     }
 
@@ -89,7 +96,8 @@ data class InnloggetArbeidsgiver(
         tiltakstype: Tiltakstype?,
         sortingOrder: SortingOrder?,
         page: Int,
-        size: Int
+        size: Int,
+        inkludereMentor: Boolean
     ): Page<Refusjon> {
 
         val paging: Pageable = PageRequest.of(page, size)
@@ -98,11 +106,12 @@ data class InnloggetArbeidsgiver(
                 bedriftNr,
                 status,
                 tiltakstype,
+                inkludereMentor,
                 PageRequest.of(page, size, Sort.by(getSortingOrderForPageable(sortingOrder), Sort.Order.asc("id")))
             )
         } else {
             refusjonRepository.findAllByBedriftNrAndStatusDefaultSort(
-                bedriftNr, status, tiltakstype, paging
+                bedriftNr, status, tiltakstype, inkludereMentor, paging
             )
         }
         val refusjonerMedTilgang = filtrerRefusjonerMedTilgang(refusjonPage.content)
@@ -118,6 +127,9 @@ data class InnloggetArbeidsgiver(
         page: Int,
         size: Int
     ): Page<Refusjon> {
+
+        val mentorToggle = featureToggleService.isEnabled("mentorFeatureToggle", this.identifikator);
+
         return if (bedrifter != null && bedrifter != "ALLEBEDRIFTER") {
             getQueryMethodForFinnAlleForGittArbeidsgiver(
                 bedrifter.split(",").filter { org -> organisasjoner.any { it.organizationNumber == org } },
@@ -125,11 +137,18 @@ data class InnloggetArbeidsgiver(
                 tiltakstype,
                 sortingOrder,
                 page,
-                size
+                size,
+                mentorToggle
             )
         } else {
             getQueryMethodForFinnAlleForGittArbeidsgiver(
-                finnAlleUnderenheterTilArbeidsgiver(), status, tiltakstype, sortingOrder, page, size
+                finnAlleUnderenheterTilArbeidsgiver(),
+                status,
+                tiltakstype,
+                sortingOrder,
+                page,
+                size,
+                mentorToggle
             )
         }
     }

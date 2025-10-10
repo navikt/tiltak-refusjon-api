@@ -6,6 +6,7 @@ import io.mockk.every
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgang
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
+import no.nav.arbeidsgiver.tiltakrefusjon.featuretoggles.FeatureToggleService
 import no.nav.arbeidsgiver.tiltakrefusjon.innloggetBruker
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
 import no.nav.arbeidsgiver.tiltakrefusjon.persondata.PersondataService
@@ -62,6 +63,9 @@ internal class InnloggetArbeidsgiverTest(
 
     @MockkBean
     lateinit var korreksjonRepository: KorreksjonRepository
+
+    @MockkBean
+    lateinit var featureToggleService: FeatureToggleService
 
     @BeforeEach
     fun setup() {
@@ -172,7 +176,8 @@ internal class InnloggetArbeidsgiverTest(
             refusjonRepository,
             korreksjonRepository,
             refusjonService,
-            persondataService
+            persondataService,
+            featureToggleService
         )
         val refusjonFunnet = innloggetArbeidsgiver.finnRefusjon(refusjon1.id)
         assertThat(refusjonFunnet).isEqualTo(refusjon1)
@@ -192,7 +197,8 @@ internal class InnloggetArbeidsgiverTest(
             refusjonRepository,
             korreksjonRepository,
             refusjonService,
-            persondataService
+            persondataService,
+            featureToggleService
         )
 
         val tilskuddMelding2LittEldreMedLøpenummer2 = TilskuddsperiodeGodkjentMelding(
@@ -374,7 +380,8 @@ internal class InnloggetArbeidsgiverTest(
             refusjonRepository,
             korreksjonRepository,
             refusjonService,
-            persondataService
+            persondataService,
+            featureToggleService
         )
 
         // Tre refusjoner med samme avtalenr.
@@ -555,7 +562,8 @@ internal class InnloggetArbeidsgiverTest(
             refusjonRepository,
             korreksjonRepository,
             refusjonService,
-            persondataService
+            persondataService,
+            featureToggleService
         )
 
         // Tre refusjoner med ulik avtalenr
@@ -627,7 +635,8 @@ internal class InnloggetArbeidsgiverTest(
             refusjonRepository,
             korreksjonRepository,
             refusjonService,
-            persondataService
+            persondataService,
+            featureToggleService
         )
 
         val refusjon1FunnetViaFinnRefusjon = innloggetArbeidsgiver.finnRefusjon(refusjon1.id)
@@ -689,7 +698,8 @@ internal class InnloggetArbeidsgiverTest(
             refusjonRepository,
             korreksjonRepository,
             refusjonService,
-            persondataService
+            persondataService,
+            featureToggleService
         )
 
         val refusjon2 = opprettRefusjonOgGjørInntektoppslag(tilskuddMelding2LittEldreMedLøpenummer2)
@@ -789,7 +799,8 @@ internal class InnloggetArbeidsgiverTest(
             refusjonRepository = refusjonRepository,
             korreksjonRepository = korreksjonRepository,
             refusjonService = refusjonService,
-            persondataService = persondataService
+            persondataService = persondataService,
+            featureToggleService = featureToggleService
         )
         assertThrows<TilgangskontrollException> { innlogget.finnRefusjon(refusjon.id) }
     }
@@ -840,7 +851,8 @@ internal class InnloggetArbeidsgiverTest(
             refusjonRepository = refusjonRepository,
             korreksjonRepository = korreksjonRepository,
             refusjonService = refusjonService,
-            persondataService = persondataService
+            persondataService = persondataService,
+            featureToggleService = featureToggleService
         )
         assertThat(
             innlogget.finnRefusjon(

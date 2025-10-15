@@ -103,6 +103,7 @@ class InnloggetBrukerService(
                     adGruppeTilganger = AdGruppeTilganger.av(adGrupperConfig, context),
                     norgeService = norgService,
                     persondataService = persondataService,
+                    featureToggleService = featureToggleService
                 )
             }
 

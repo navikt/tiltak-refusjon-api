@@ -14,24 +14,34 @@ import java.util.stream.Collectors
 class FeatureToggleService @Autowired constructor(
     private val unleash: Unleash,
 ) {
-    fun hentFeatureToggles(features: List<String?>, innloggetSaksbehandler: InnloggetSaksbehandler): Map<String?, Boolean> {
-        return features.stream().collect(Collectors.toMap(
+    fun hentFeatureToggles(
+        features: List<String?>,
+        innloggetSaksbehandler: InnloggetSaksbehandler
+    ): Map<String?, Boolean> {
+        return features.stream().collect(
+            Collectors.toMap(
             { feature: String? -> feature },
             { feature: String? -> isEnabled(feature, innloggetSaksbehandler) }
         ))
     }
 
     fun hentVarianter(features: List<String?>, innloggetSaksbehandler: InnloggetSaksbehandler): Map<String, Variant> {
-        return features.stream().collect(Collectors.toMap(
-            { feature: String? -> feature }
-        ) { feature: String? ->
-            unleash.getVariant(
-                feature!!, contextMedInnloggetBruker(innloggetSaksbehandler.identifikator))
-        })
+        return features.stream().collect(
+            Collectors.toMap(
+                { feature: String? -> feature }
+            ) { feature: String? ->
+                unleash.getVariant(
+                    feature!!, contextMedInnloggetBruker(innloggetSaksbehandler.identifikator)
+                )
+            })
     }
 
     fun isEnabled(feature: String?, innloggetSaksbehandler: InnloggetSaksbehandler): Boolean {
         return unleash.isEnabled(feature!!, contextMedInnloggetBruker(innloggetSaksbehandler.identifikator))
+    }
+
+    fun isEnabled(feature: FeatureToggle, identifikator: String): Boolean {
+        return unleash.isEnabled(feature.toggleNavn, contextMedInnloggetBruker(identifikator))
     }
 
     fun isEnabled(feature: String?, identifikator: String): Boolean {

@@ -2,6 +2,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.arbeidsgiver.tiltakrefusjon.Topics
+import no.nav.arbeidsgiver.tiltakrefusjon.featuretoggles.FeatureToggle
 import no.nav.arbeidsgiver.tiltakrefusjon.featuretoggles.FeatureToggleService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
@@ -27,7 +28,7 @@ class TilskuddsperiodeKafkaLytter(
     fun tilskuddsperiodeGodkjent(tilskuddMelding: String) {
         val godkjentMelding = objectMapper.readValue(tilskuddMelding, TilskuddsperiodeGodkjentMelding::class.java)
         if (godkjentMelding.tiltakstype == Tiltakstype.MENTOR && !featureToggleService.isEnabled(
-                "mentorFeatureToggle",
+                FeatureToggle.MENTOR_TILSKUDD,
                 godkjentMelding.veilederNavIdent
             )
         ) {

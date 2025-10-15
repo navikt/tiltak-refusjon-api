@@ -44,26 +44,10 @@ data class InnloggetArbeidsgiver(
     val log: Logger = LoggerFactory.getLogger(javaClass)
     override val rolle: BrukerRolle = BrukerRolle.ARBEIDSGIVER
 
-    val organisasjoner: Set<Organisasjon> = altinnTilgangsstyringService.hentInntektsmeldingTilganger(identifikator)
-
-    @JsonIgnore
-    val organisasjonerFraAltinn3: Set<Organisasjon> =
+    val organisasjoner: Set<Organisasjon> =
         altinnTilgangsstyringService.hentInntektsmeldingEllerRefusjonTilganger()
     val adresseSperretilganger: Set<Organisasjon> =
         altinnTilgangsstyringService.hentAdressesperreTilganger(identifikator)
-
-    init {
-        if (!organisasjonerFraAltinn3.containsAll(organisasjoner)) {
-            log.warn("InnloggetArbeidsgiver har ikke tilgang til alle org i Altinn 3 som finnes i Altinn 2. Altinn 2 size: ${organisasjoner.size}, Altinn 3 size: ${organisasjonerFraAltinn3.size}.");
-            log.warn("Altinnn 3 organisasjoner: $organisasjonerFraAltinn3, Altinn 2 organisasjoner: $organisasjoner")
-        } else {
-            log.info(
-                "InnloggetArbeidsgiver har tilgang til alle org i Altinn 3 som finnes i Altinn 2. " +
-                        "Altinn 2 size: ${organisasjoner.size}, Altinn 3 size: ${organisasjonerFraAltinn3.size}. " +
-                        "Er identiske: ${organisasjoner == organisasjonerFraAltinn3}."
-            )
-        }
-    }
 
     fun finnAlleMedBedriftnummer(bedriftnummer: String): List<Refusjon> {
         return filtrerRefusjonerMedTilgang(refusjonRepository.findAllByBedriftNr(bedriftnummer))

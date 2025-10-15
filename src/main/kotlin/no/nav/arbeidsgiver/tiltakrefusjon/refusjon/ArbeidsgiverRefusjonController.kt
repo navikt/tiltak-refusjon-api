@@ -4,6 +4,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.UgyldigRequestException
 import no.nav.arbeidsgiver.tiltakrefusjon.audit.AuditLogging
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBrukerService
 import no.nav.arbeidsgiver.tiltakrefusjon.dokgen.DokgenService
+import no.nav.arbeidsgiver.tiltakrefusjon.featuretoggles.FeatureToggle
 import no.nav.arbeidsgiver.tiltakrefusjon.featuretoggles.FeatureToggleService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.slf4j.Logger
@@ -53,7 +54,7 @@ class ArbeidsgiverRefusjonController(
             throw UgyldigRequestException()
         }
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-        val mentorEnabled = featureToggleService.isEnabled("mentorFeatureToggle", arbeidsgiver.identifikator)
+        val mentorEnabled = featureToggleService.isEnabled(FeatureToggle.MENTOR_TILSKUDD, arbeidsgiver.identifikator)
         return arbeidsgiver.finnAlleMedBedriftnummer(queryParametre.bedriftNr)
             .filter { queryParametre.status == null || queryParametre.status == it.status }
             .filter { it.tiltakstype() != Tiltakstype.MENTOR || mentorEnabled }

@@ -6,6 +6,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.RessursFinnesIkkeException
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
+import no.nav.arbeidsgiver.tiltakrefusjon.featuretoggles.FeatureToggle
 import no.nav.arbeidsgiver.tiltakrefusjon.featuretoggles.FeatureToggleService
 import no.nav.arbeidsgiver.tiltakrefusjon.persondata.PersondataService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.BrukerRolle
@@ -128,7 +129,7 @@ data class InnloggetArbeidsgiver(
         size: Int
     ): Page<Refusjon> {
 
-        val mentorToggle = featureToggleService.isEnabled("mentorFeatureToggle", this.identifikator);
+        val mentorToggle = featureToggleService.isEnabled(FeatureToggle.MENTOR_TILSKUDD, this.identifikator);
 
         return if (bedrifter != null && bedrifter != "ALLEBEDRIFTER") {
             getQueryMethodForFinnAlleForGittArbeidsgiver(
@@ -172,6 +173,15 @@ data class InnloggetArbeidsgiver(
     fun finnRefusjon(id: String): Refusjon {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr, refusjon.deltakerFnr)
+
+        if (refusjon.tiltakstype() == Tiltakstype.MENTOR && !featureToggleService.isEnabled(
+                FeatureToggle.MENTOR_TILSKUDD,
+                this.identifikator
+            )
+        ) {
+            throw RessursFinnesIkkeException()
+        }
+
         return refusjon
     }
 

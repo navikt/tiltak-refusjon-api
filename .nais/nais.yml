@@ -77,6 +77,13 @@ spec:
         databases:
           - name: tiltak-refusjon
             envVarPrefix: DB
+        flags:
+          - name: "cloudsql.enable_pgaudit"
+            value: "on"
+          - name: "pgaudit.log"
+            value: "write,ddl,role"
+          - name: "pgaudit.log_parameter"
+            value: "on"
   prometheus:
     enabled: true
     path: /internal/actuator/prometheus

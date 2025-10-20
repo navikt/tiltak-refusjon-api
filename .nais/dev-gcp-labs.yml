@@ -39,5 +39,3 @@ spec:
     logging:
       destinations:
         - id: elastic
-        - id: team_logs
-        - id: loki

@@ -33,9 +33,6 @@ spec:
         - application: tiltak-fakelogin
         - application: tiltak-refusjon-api-wiremock
   observability:
-    autoInstrumentation:
-      enabled: true
-      runtime: java
     logging:
       destinations:
         - id: elastic

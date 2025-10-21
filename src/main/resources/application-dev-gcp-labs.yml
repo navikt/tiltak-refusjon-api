@@ -43,6 +43,7 @@ tiltak-refusjon:
     fake: true
   altinn-tilgangstyring:
     uri: http://tiltak-refusjon-api-wiremock/altinn-tilgangsstyring
+    arbeidsgiverAltinnTilgangerUri: http://tiltak-refusjon-api-wiremock/altinn-tilganger
     beOmRettighetBaseUrl: https://arbeidsgiver-q.nav.no/min-side-arbeidsgiver/?fragment=be-om-tilgang
     inntektsmeldingServiceCode: 4936
     inntektsmeldingServiceEdition: 1

@@ -4,6 +4,8 @@ import no.nav.arbeidsgiver.tiltakrefusjon.UgyldigRequestException
 import no.nav.arbeidsgiver.tiltakrefusjon.audit.AuditLogging
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBrukerService
 import no.nav.arbeidsgiver.tiltakrefusjon.dokgen.DokgenService
+import no.nav.arbeidsgiver.tiltakrefusjon.featuretoggles.FeatureToggle
+import no.nav.arbeidsgiver.tiltakrefusjon.featuretoggles.FeatureToggleService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -23,7 +25,6 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import java.time.Duration
 import java.time.Instant
-import java.time.temporal.ChronoField
 
 const val REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON = "/api/arbeidsgiver/refusjon"
 
@@ -41,31 +42,36 @@ data class HentArbeidsgiverRefusjonerQueryParametre(
 @ProtectedWithClaims(issuer = "tokenx")
 class ArbeidsgiverRefusjonController(
     val innloggetBrukerService: InnloggetBrukerService,
-    val dokgenService: DokgenService
+    val dokgenService: DokgenService,
+    private val featureToggleService: FeatureToggleService
 ) {
     var logger: Logger = LoggerFactory.getLogger(javaClass)
 
     @GetMapping
     fun hentAlle(queryParametre: HentArbeidsgiverRefusjonerQueryParametre): List<Refusjon> {
+
         if (queryParametre.bedriftNr == null) {
             throw UgyldigRequestException()
         }
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
+        val mentorEnabled = featureToggleService.isEnabled(FeatureToggle.MENTOR_TILSKUDD, arbeidsgiver.identifikator)
         return arbeidsgiver.finnAlleMedBedriftnummer(queryParametre.bedriftNr)
             .filter { queryParametre.status == null || queryParametre.status == it.status }
+            .filter { it.tiltakstype() != Tiltakstype.MENTOR || mentorEnabled }
             .filter { queryParametre.tiltakstype == null || queryParametre.tiltakstype == it.refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype }
     }
 
     @GetMapping("/{id}/pdf")
-    fun hentPDF(@PathVariable id:String): HttpEntity<ByteArray>{
-        if(id.trim().isEmpty()) return HttpEntity.EMPTY as HttpEntity<ByteArray>
+    fun hentPDF(@PathVariable id: String): HttpEntity<ByteArray> {
+        if (id.trim().isEmpty()) return HttpEntity.EMPTY as HttpEntity<ByteArray>
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
         val refusjon = arbeidsgiver.finnRefusjon(id)
         val pdfDataAsByteArray: ByteArray = dokgenService.refusjonPdf(refusjon)
 
         val header = HttpHeaders()
         header.contentType = MediaType.APPLICATION_PDF
-        header[HttpHeaders.CONTENT_DISPOSITION] = "inline; filename=Refusjon om " + refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype.name + ".pdf"
+        header[HttpHeaders.CONTENT_DISPOSITION] =
+            "inline; filename=Refusjon om " + refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype.name + ".pdf"
         header.contentLength = pdfDataAsByteArray.size.toLong()
         return HttpEntity<ByteArray>(pdfDataAsByteArray, header)
 
@@ -101,15 +107,24 @@ class ArbeidsgiverRefusjonController(
 
     @PostMapping("{id}/sett-kontonummer-og-inntekter")
     @Transactional
-    fun settKontonummerOgInntekterPåRefusjon(@PathVariable id: String, @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant?) {
+    fun settKontonummerOgInntekterPåRefusjon(
+        @PathVariable id: String,
+        @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant?
+    ) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
         arbeidsgiver.settKontonummerOgInntekterPåRefusjon(id, sistEndret);
     }
 
     @PostMapping("{id}/sett-kontonummer-og-inntekter", consumes = ["application/json"])
     @Transactional
-    fun settKontonummerOgInntekterPåRefusjon(@PathVariable id: String, @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant?, @RequestBody body: SistEndretBody?) {
-        if (body?.sistEndret != null && sistEndret != null && Duration.between(sistEndret, body.sistEndret).toMinutes() > 1) {
+    fun settKontonummerOgInntekterPåRefusjon(
+        @PathVariable id: String,
+        @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant?,
+        @RequestBody body: SistEndretBody?
+    ) {
+        if (body?.sistEndret != null && sistEndret != null && Duration.between(sistEndret, body.sistEndret)
+                .toMinutes() > 1
+        ) {
             val avvik = Duration.between(sistEndret, body.sistEndret).toMinutes() > 1
             logger.warn("SistEndret-tid i body og header divergerer for refusjon $id med $avvik minutter")
         }
@@ -121,9 +136,13 @@ class ArbeidsgiverRefusjonController(
 
     @PostMapping("/{id}/endre-bruttolønn")
     @Transactional
-    fun endreBruttolønn(@PathVariable id: String, @RequestBody request: EndreBruttolønnRequest, @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant) {
+    fun endreBruttolønn(
+        @PathVariable id: String,
+        @RequestBody request: EndreBruttolønnRequest,
+        @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant
+    ) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-         arbeidsgiver.endreBruttolønn(
+        arbeidsgiver.endreBruttolønn(
             id,
             request.inntekterKunFraTiltaket,
             request.bruttoLønn,
@@ -133,21 +152,38 @@ class ArbeidsgiverRefusjonController(
 
     @PostMapping("/{id}/lagre-bedriftKID")
     @Transactional
-    fun lagreBedriftKID(@PathVariable id: String, @RequestBody request: EndreBedriftKIDRequest, @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant) {
+    fun lagreBedriftKID(
+        @PathVariable id: String,
+        @RequestBody request: EndreBedriftKIDRequest,
+        @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant
+    ) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
         arbeidsgiver.lagreBedriftKID(id, request.bedriftKID, sistEndret)
     }
 
     @PostMapping("/{id}/fratrekk-sykepenger")
     @Transactional
-    fun fratrekkSykepenger(@PathVariable id: String, @RequestBody request: FratrekkRefunderbarBeløp, @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant) {
+    fun fratrekkSykepenger(
+        @PathVariable id: String,
+        @RequestBody request: FratrekkRefunderbarBeløp,
+        @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant
+    ) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-        arbeidsgiver.settFratrekkRefunderbarBeløp(id, request.fratrekkRefunderbarBeløp, request.refunderbarBeløp, sistEndret)
+        arbeidsgiver.settFratrekkRefunderbarBeløp(
+            id,
+            request.fratrekkRefunderbarBeløp,
+            request.refunderbarBeløp,
+            sistEndret
+        )
     }
 
     @PostMapping("/{id}/set-inntektslinje-opptjent-i-periode")
     @Transactional
-    fun settInntektslinjeOpptjentIPeriode(@PathVariable id: String, @RequestBody request: EndreRefundertInntektslinjeRequest, @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant) {
+    fun settInntektslinjeOpptjentIPeriode(
+        @PathVariable id: String,
+        @RequestBody request: EndreRefundertInntektslinjeRequest,
+        @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant
+    ) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
         arbeidsgiver.setInntektslinjeTilOpptjentIPeriode(
             refusjonId = id,
@@ -166,14 +202,21 @@ class ArbeidsgiverRefusjonController(
 
     @PostMapping("/{id}/godkjenn-nullbeløp")
     @Transactional
-    fun godkjennNullbeløp(@PathVariable id: String, @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant) {
+    fun godkjennNullbeløp(
+        @PathVariable id: String,
+        @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant
+    ) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
         arbeidsgiver.godkjennNullbeløp(id, sistEndret)
     }
 
     @PostMapping("/{id}/merk-for-hent-inntekter-frem")
     @Transactional
-    fun merkForHentInntekterFrem(@PathVariable id: String, @RequestBody request: MerkInntekterFremRequest, @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant) {
+    fun merkForHentInntekterFrem(
+        @PathVariable id: String,
+        @RequestBody request: MerkInntekterFremRequest,
+        @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant
+    ) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
         arbeidsgiver.merkForHentInntekterFrem(id, request.merking, sistEndret)
     }

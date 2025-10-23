@@ -6,6 +6,8 @@ import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.RessursFinnesIkkeException
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
+import no.nav.arbeidsgiver.tiltakrefusjon.featuretoggles.FeatureToggle
+import no.nav.arbeidsgiver.tiltakrefusjon.featuretoggles.FeatureToggleService
 import no.nav.arbeidsgiver.tiltakrefusjon.persondata.PersondataService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.BrukerRolle
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Korreksjon
@@ -34,15 +36,18 @@ data class InnloggetArbeidsgiver(
     @JsonIgnore val refusjonRepository: RefusjonRepository,
     @JsonIgnore val korreksjonRepository: KorreksjonRepository,
     @JsonIgnore val refusjonService: RefusjonService,
-    @JsonIgnore val persondataService: PersondataService
+    @JsonIgnore val persondataService: PersondataService,
+    @JsonIgnore val featureToggleService: FeatureToggleService
 ) : InnloggetBruker {
 
     @JsonIgnore
     val log: Logger = LoggerFactory.getLogger(javaClass)
     override val rolle: BrukerRolle = BrukerRolle.ARBEIDSGIVER
 
-    val organisasjoner: Set<Organisasjon> = altinnTilgangsstyringService.hentInntektsmeldingEllerRefusjonTilganger()
-    val adresseSperretilganger: Set<Organisasjon> = altinnTilgangsstyringService.hentAdressesperreTilganger(identifikator)
+    val organisasjoner: Set<Organisasjon> =
+        altinnTilgangsstyringService.hentInntektsmeldingEllerRefusjonTilganger()
+    val adresseSperretilganger: Set<Organisasjon> =
+        altinnTilgangsstyringService.hentAdressesperreTilganger(identifikator)
 
     fun finnAlleMedBedriftnummer(bedriftnummer: String): List<Refusjon> {
         return filtrerRefusjonerMedTilgang(refusjonRepository.findAllByBedriftNr(bedriftnummer))
@@ -76,7 +81,8 @@ data class InnloggetArbeidsgiver(
         tiltakstype: Tiltakstype?,
         sortingOrder: SortingOrder?,
         page: Int,
-        size: Int
+        size: Int,
+        inkludereMentor: Boolean
     ): Page<Refusjon> {
 
         val paging: Pageable = PageRequest.of(page, size)
@@ -85,11 +91,12 @@ data class InnloggetArbeidsgiver(
                 bedriftNr,
                 status,
                 tiltakstype,
+                inkludereMentor,
                 PageRequest.of(page, size, Sort.by(getSortingOrderForPageable(sortingOrder), Sort.Order.asc("id")))
             )
         } else {
             refusjonRepository.findAllByBedriftNrAndStatusDefaultSort(
-                bedriftNr, status, tiltakstype, paging
+                bedriftNr, status, tiltakstype, inkludereMentor, paging
             )
         }
         val refusjonerMedTilgang = filtrerRefusjonerMedTilgang(refusjonPage.content)
@@ -105,6 +112,9 @@ data class InnloggetArbeidsgiver(
         page: Int,
         size: Int
     ): Page<Refusjon> {
+
+        val mentorToggle = featureToggleService.isEnabled(FeatureToggle.MENTOR_TILSKUDD, this.identifikator);
+
         return if (bedrifter != null && bedrifter != "ALLEBEDRIFTER") {
             getQueryMethodForFinnAlleForGittArbeidsgiver(
                 bedrifter.split(",").filter { org -> organisasjoner.any { it.organizationNumber == org } },
@@ -112,11 +122,18 @@ data class InnloggetArbeidsgiver(
                 tiltakstype,
                 sortingOrder,
                 page,
-                size
+                size,
+                mentorToggle
             )
         } else {
             getQueryMethodForFinnAlleForGittArbeidsgiver(
-                finnAlleUnderenheterTilArbeidsgiver(), status, tiltakstype, sortingOrder, page, size
+                finnAlleUnderenheterTilArbeidsgiver(),
+                status,
+                tiltakstype,
+                sortingOrder,
+                page,
+                size,
+                mentorToggle
             )
         }
     }
@@ -140,6 +157,15 @@ data class InnloggetArbeidsgiver(
     fun finnRefusjon(id: String): Refusjon {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr, refusjon.deltakerFnr)
+
+        if (refusjon.tiltakstype() == Tiltakstype.MENTOR && !featureToggleService.isEnabled(
+                FeatureToggle.MENTOR_TILSKUDD,
+                this.identifikator
+            )
+        ) {
+            throw RessursFinnesIkkeException()
+        }
+
         return refusjon
     }
 

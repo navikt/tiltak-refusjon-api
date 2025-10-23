@@ -2,6 +2,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon.autorisering
 
 import io.micrometer.observation.annotation.Observed
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
+import no.nav.arbeidsgiver.tiltakrefusjon.featuretoggles.FeatureToggleService
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
 import no.nav.arbeidsgiver.tiltakrefusjon.norg.NorgService
 import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterService
@@ -32,6 +33,7 @@ class InnloggetBrukerService(
     val norgService: NorgService,
     val adGrupperConfig: AdGrupperConfig,
     val persondataService: PersondataService,
+    val featureToggleService: FeatureToggleService,
 ) {
     var logger: Logger = LoggerFactory.getLogger(javaClass)
 
@@ -74,7 +76,8 @@ class InnloggetBrukerService(
                     refusjonRepository,
                     korreksjonRepository,
                     refusjonService,
-                    persondataService
+                    persondataService,
+                    featureToggleService
                 )
             }
 
@@ -100,6 +103,7 @@ class InnloggetBrukerService(
                     adGruppeTilganger = AdGruppeTilganger.av(adGrupperConfig, context),
                     norgeService = norgService,
                     persondataService = persondataService,
+                    featureToggleService = featureToggleService
                 )
             }
 

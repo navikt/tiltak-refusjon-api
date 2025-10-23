@@ -4,7 +4,6 @@ import io.getunleash.DefaultUnleash
 import io.getunleash.Unleash
 import io.getunleash.util.UnleashConfig
 import jakarta.servlet.http.HttpServletRequest
-
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -38,12 +37,6 @@ class FeatureToggleConfig {
     @RequestScope
     fun unleashMock(@Autowired request: HttpServletRequest): Unleash {
         val fakeUnleash = FakeFakeUnleash()
-        val allEnabled = "enabled" == request.getHeader("features")
-        if (allEnabled) {
-            fakeUnleash.enableAll()
-        } else {
-            fakeUnleash.disableAll()
-        }
         return fakeUnleash
     }
 

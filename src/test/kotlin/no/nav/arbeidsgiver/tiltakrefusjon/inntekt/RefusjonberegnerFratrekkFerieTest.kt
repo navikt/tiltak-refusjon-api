@@ -2,11 +2,11 @@ package no.nav.arbeidsgiver.tiltakrefusjon.inntekt
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
-import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgang
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetArbeidsgiver
 import no.nav.arbeidsgiver.tiltakrefusjon.etInntektsgrunnlag
+import no.nav.arbeidsgiver.tiltakrefusjon.featuretoggles.FeatureToggleService
 import no.nav.arbeidsgiver.tiltakrefusjon.innloggetBruker
 import no.nav.arbeidsgiver.tiltakrefusjon.persondata.PersondataService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Beregning
@@ -57,6 +57,9 @@ class RefusjonberegnerFratrekkFerieTest(
 
     @MockkBean
     lateinit var persondataService: PersondataService
+
+    @MockkBean
+    lateinit var featureToggleService: FeatureToggleService
 
     val WIREMOCK_IDENT: String = "08098613316"
     val WIREMOCK_VIRKSOMHET_IDENTIFIKATOR: String = "972674818"
@@ -306,14 +309,17 @@ class RefusjonberegnerFratrekkFerieTest(
         } returns setOf<Organisasjon>(defaultOrg)
         every { altinnTilgangsstyringService.hentAdressesperreTilganger(any()) } returns setOf<Organisasjon>(defaultOrg)
         every { persondataService.hentDiskresjonskode(any()) } returns Diskresjonskode.UGRADERT
-        every { altinnTilgangsstyringService.hentInntektsmeldingEllerRefusjonTilganger() } returns setOf<Organisasjon>(defaultOrg)
+        every { altinnTilgangsstyringService.hentInntektsmeldingEllerRefusjonTilganger() } returns setOf<Organisasjon>(
+            defaultOrg
+        )
         val innloggetArbeidsgiver = InnloggetArbeidsgiver(
             "12345678901",
             altinnTilgangsstyringService,
             refusjonRepository,
             korreksjonRepository,
             refusjonService,
-            persondataService
+            persondataService,
+            featureToggleService
         )
 
         // Det kan oppstå 2 refusjoner innenfor samme måned ved f.eks. forlengelse. (eks. 01-15 og 16-30)
@@ -367,14 +373,17 @@ class RefusjonberegnerFratrekkFerieTest(
             )
         } returns setOf<Organisasjon>(defaultOrg)
         every { altinnTilgangsstyringService.hentAdressesperreTilganger(any()) } returns setOf(defaultOrg)
-        every { altinnTilgangsstyringService.hentInntektsmeldingEllerRefusjonTilganger() } returns setOf<Organisasjon>(defaultOrg)
+        every { altinnTilgangsstyringService.hentInntektsmeldingEllerRefusjonTilganger() } returns setOf<Organisasjon>(
+            defaultOrg
+        )
         val innloggetArbeidsgiver = InnloggetArbeidsgiver(
             "12345678901",
             altinnTilgangsstyringService,
             refusjonRepository,
             korreksjonRepository,
             refusjonService,
-            persondataService
+            persondataService,
+            featureToggleService
         )
 
         Now.fixedDateTime(LocalDateTime.of(2024, 7, 1, 0, 0, 0))

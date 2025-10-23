@@ -1,5 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.autorisering
 
+import no.nav.arbeidsgiver.tiltakrefusjon.featuretoggles.FeatureToggleService
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.FakeInntektskomponentService
 import no.nav.arbeidsgiver.tiltakrefusjon.norg.NorgService
 import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.FakeKontoregisterService
@@ -33,7 +34,8 @@ class InnloggetSaksbehandlerTest(
     @Autowired val inntektskomponentService: FakeInntektskomponentService,
     @Autowired val kontoregisterService: FakeKontoregisterService,
     @Autowired val norgService: NorgService,
-    @Autowired val persondataService: PersondataService
+    @Autowired val persondataService: PersondataService,
+    @Autowired val featureToggleService: FeatureToggleService
 ) {
     @BeforeEach
     fun setUp() {
@@ -58,12 +60,14 @@ class InnloggetSaksbehandlerTest(
             fortroligAdresse = false,
             strengtFortroligAdresse = false
         ),
-        persondataService
+        persondataService,
+        featureToggleService
     )
 
     @Test
     fun `saksbehandler får ikke opp refusjoner som den ikke har tilgang til`() {
-        val alleRefusjoner = saksbehandler.finnAlle(HentSaksbehandlerRefusjonerQueryParametre(enhet = "1000", size = 1000))
+        val alleRefusjoner =
+            saksbehandler.finnAlle(HentSaksbehandlerRefusjonerQueryParametre(enhet = "1000", size = 1000))
         val refusjonerIRepository = refusjonRepository.findAll()
 
         val refusjonerSaksbehandlerHartilgangtil = alleRefusjoner.get("refusjoner") as List<BegrensetRefusjon>
@@ -77,7 +81,12 @@ class InnloggetSaksbehandlerTest(
     fun `saksbehandler henter refusjoner for ett BedriftNr`() {
         val bedriftNrDetSlåesOppPå = "998877665"
 
-        val alleRefusjoner = saksbehandler.finnAlle(HentSaksbehandlerRefusjonerQueryParametre(size = 1000, bedriftNr = bedriftNrDetSlåesOppPå))
+        val alleRefusjoner = saksbehandler.finnAlle(
+            HentSaksbehandlerRefusjonerQueryParametre(
+                size = 1000,
+                bedriftNr = bedriftNrDetSlåesOppPå
+            )
+        )
         val refusjonerSaksbehandlerHartilgangtil = alleRefusjoner.get("refusjoner") as List<BegrensetRefusjon>
         assertEquals(4, refusjonerSaksbehandlerHartilgangtil.size)
     }

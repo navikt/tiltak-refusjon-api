@@ -2,6 +2,8 @@ package no.nav.arbeidsgiver.tiltakrefusjon.autorisering
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.arbeidsgiver.tiltakrefusjon.RessursFinnesIkkeException
+import no.nav.arbeidsgiver.tiltakrefusjon.featuretoggles.FeatureToggle
+import no.nav.arbeidsgiver.tiltakrefusjon.featuretoggles.FeatureToggleService
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
 import no.nav.arbeidsgiver.tiltakrefusjon.norg.NorgService
 import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterService
@@ -31,6 +33,7 @@ import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import java.time.LocalDate
 import java.util.*
+
 data class InnloggetSaksbehandler(
     override val identifikator: String,
     val azureOid: UUID,
@@ -44,6 +47,7 @@ data class InnloggetSaksbehandler(
     @JsonIgnore val kontoregisterService: KontoregisterService,
     @JsonIgnore val adGruppeTilganger: AdGruppeTilganger,
     @JsonIgnore val persondataService: PersondataService,
+    @JsonIgnore val featureToggleService: FeatureToggleService,
 ) : InnloggetBruker {
     @JsonIgnore
     val log: Logger = LoggerFactory.getLogger(javaClass)
@@ -52,10 +56,25 @@ data class InnloggetSaksbehandler(
     override val rolle: BrukerRolle = BrukerRolle.BESLUTTER
 
     fun finnAlle(queryParametre: HentSaksbehandlerRefusjonerQueryParametre): Map<String, Any> {
-        val pageable: Pageable = PageRequest.of(queryParametre.page, queryParametre.size, Sort.Direction.ASC, "fristForGodkjenning", "status", "id")
+        val pageable: Pageable = PageRequest.of(
+            queryParametre.page,
+            queryParametre.size,
+            Sort.Direction.ASC,
+            "fristForGodkjenning",
+            "status",
+            "id"
+        )
 
-        val statuser = if (queryParametre.status != null) listOf(queryParametre.status) else RefusjonStatus.values().toList()
-        val tiltakstyper = if (queryParametre.tiltakstype != null) listOf(queryParametre.tiltakstype) else Tiltakstype.values().toList()
+        val mentorTilskuddFeature: Boolean = featureToggleService.isEnabled(
+            FeatureToggle.MENTOR_TILSKUDD,
+            internIdentifikatorer.navIdent
+        )
+
+        val statuser =
+            if (queryParametre.status != null) listOf(queryParametre.status) else RefusjonStatus.values().toList()
+        val tiltakstyper =
+            if (queryParametre.tiltakstype != null) listOf(queryParametre.tiltakstype) else Tiltakstype.values()
+                .toList()
 
         val reusjonPage: Page<Refusjon> =
             if (!queryParametre.veilederNavIdent.isNullOrBlank()) {
@@ -100,6 +119,7 @@ data class InnloggetSaksbehandler(
         val diskresjonskoder = hentDiskresjonskoder(reusjonPage.content)
         val refusjonerMedTilgang = reusjonPage.content
             .filter { tilgangskontrollService.harLeseTilgang(internIdentifikatorer, it.deltakerFnr).erTillat() }
+            .filter { it.tiltakstype() != Tiltakstype.MENTOR || mentorTilskuddFeature }
             .map { BegrensetRefusjon.fraRefusjon(it, diskresjonskoder[it.deltakerFnr]) }
 
         if (refusjonerMedTilgang.isEmpty() && queryParametre.erSokPaEnkeltperson()) {
@@ -150,7 +170,9 @@ data class InnloggetSaksbehandler(
                 fnr = korreksjon.deltakerFnr,
                 bedriftnummerDetSøkesPå = korreksjon.bedriftNr,
                 datoFra = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
-                datoTil = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom.plusMonths(antallMånederSomSkalSjekkes)
+                datoTil = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom.plusMonths(
+                    antallMånederSomSkalSjekkes
+                )
             )
             val inntektsgrunnlag = Inntektsgrunnlag(
                 inntekter = inntektsoppslag.first,
@@ -183,11 +205,21 @@ data class InnloggetSaksbehandler(
         }
     }
 
-    fun opprettKorreksjonsutkast(id: String, korreksjonsgrunner: Set<Korreksjonsgrunn>, unntakOmInntekterFremitid: Int?, annetGrunn: String?): Refusjon {
+    fun opprettKorreksjonsutkast(
+        id: String,
+        korreksjonsgrunner: Set<Korreksjonsgrunn>,
+        unntakOmInntekterFremitid: Int?,
+        annetGrunn: String?
+    ): Refusjon {
         sjekkKorreksjonTilgang()
         val refusjonSomSkalKorrigeres = finnRefusjon(id)
         log.info("Oppretter korreksjonsutkast fra refusjon med id ${refusjonSomSkalKorrigeres.id} og status ${refusjonSomSkalKorrigeres.status}")
-        refusjonService.opprettKorreksjonsutkast(refusjonSomSkalKorrigeres, korreksjonsgrunner, unntakOmInntekterFremitid, annetGrunn)
+        refusjonService.opprettKorreksjonsutkast(
+            refusjonSomSkalKorrigeres,
+            korreksjonsgrunner,
+            unntakOmInntekterFremitid,
+            annetGrunn
+        )
         return refusjonSomSkalKorrigeres
     }
 

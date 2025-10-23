@@ -74,8 +74,8 @@ try {
             line = line.replace(match[0], replaceDate(match[0]));
         });
 
-        line.replaceAll(/MEMORY /g, '');
-        line.replaceAll(/"PUBLIC"\./g, '');
+        line = line.replaceAll(/MEMORY /g, '');
+        line = line.replaceAll(/"PUBLIC"\./g, '');
 
         output.write(line + '\n');
         drawProgressBar(idx);

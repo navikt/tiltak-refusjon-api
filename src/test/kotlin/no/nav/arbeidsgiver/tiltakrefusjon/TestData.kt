@@ -950,7 +950,7 @@ fun `Mentor klar for innsending høy nok inntekt`(): Refusjon {
     refusjon.let {
         it.medBeregning()
         it.medBedriftKontonummer()
-        it.status = RefusjonStatus.KLAR_FOR_INNSENDING
+        it.status = RefusjonStatus.FOR_TIDLIG
         it.godkjentAvArbeidsgiver = Now.localDate()
             .with(firstDayOfMonth())
             .atStartOfDay(ZoneId.of("Europe/Oslo"))
@@ -987,7 +987,7 @@ fun `Mentor klar for innsending for lav inntekt`(): Refusjon {
     refusjon.let {
         it.medBeregning()
         it.medBedriftKontonummer()
-        it.status = RefusjonStatus.KLAR_FOR_INNSENDING
+        it.status = RefusjonStatus.SENDT_KRAV
         it.godkjentAvArbeidsgiver = Now.localDate()
             .with(firstDayOfMonth())
             .atStartOfDay(ZoneId.of("Europe/Oslo"))

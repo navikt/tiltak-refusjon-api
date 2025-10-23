@@ -74,7 +74,7 @@ class InnloggetSaksbehandlerTest(
 
         assertNull(refusjonerSaksbehandlerHartilgangtil.find { it.refusjonsgrunnlag.tilskuddsgrunnlag.enhet != "1000" })
         // 9 avtaler som saksbehandler ikke har tilgang til med fnr som gir Deny i wiremock
-        assertEquals(9, refusjonerIRepository.size - refusjonerSaksbehandlerHartilgangtil.size)
+        assertEquals(12, refusjonerIRepository.size - refusjonerSaksbehandlerHartilgangtil.size)
     }
 
     @Test

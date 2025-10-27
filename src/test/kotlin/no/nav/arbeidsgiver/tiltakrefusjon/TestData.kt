@@ -1029,7 +1029,7 @@ fun `Mentor klar for innsending med 0 i inntekt`(): Refusjon {
     refusjon.let {
         it.medBeregning()
         it.medBedriftKontonummer()
-        it.status = RefusjonStatus.KLAR_FOR_INNSENDING
+        it.status = RefusjonStatus.UTBETALT
         it.godkjentAvArbeidsgiver = Now.localDate()
             .with(firstDayOfMonth())
             .atStartOfDay(ZoneId.of("Europe/Oslo"))

@@ -553,6 +553,8 @@ fun etHøytNokMentorTilskuddsgrunnlag(tiltakstype: Tiltakstype = Tiltakstype.MEN
     resendingsnummer = 1,
     enhet = "1000",
     godkjentAvBeslutterTidspunkt = Now.localDateTime().minusMonths(3).withDayOfMonth(1),
+    mentorTimelonn = 500,
+    mentorAntallTimer = 15.0
 )
 
 fun `Jonas Lie`(): Refusjon {

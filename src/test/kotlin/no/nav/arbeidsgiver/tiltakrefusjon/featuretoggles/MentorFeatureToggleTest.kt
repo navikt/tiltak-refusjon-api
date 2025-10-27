@@ -175,6 +175,8 @@ class MentorFeatureToggleTest(
             godkjentTidspunkt = java.time.LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
+            mentorTimelonn = 500,
+            mentorAntallTimer = 15.0
         )
         val vanligTilskudd = mentorTilskudd.copy(
             avtaleId = "vanlig-avtale",
@@ -281,6 +283,8 @@ class MentorFeatureToggleTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
+            mentorTimelonn = 500,
+            mentorAntallTimer = 15.0
         )
         val vanligTilskudd = mentorTilskudd.copy(
             avtaleId = "vanlig-avtale",

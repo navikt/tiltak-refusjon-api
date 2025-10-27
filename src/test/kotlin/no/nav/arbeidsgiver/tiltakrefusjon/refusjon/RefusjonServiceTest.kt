@@ -83,6 +83,8 @@ class RefusjonServiceTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
+            mentorTimelonn = null,
+            mentorAntallTimer = null,
         )
 
 
@@ -128,6 +130,8 @@ class RefusjonServiceTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
+            mentorTimelonn = null,
+            mentorAntallTimer = null,
         )
         val tilskuddMelding2LittEldreMedLøpenummer2 = TilskuddsperiodeGodkjentMelding(
             avtaleId = "1",
@@ -157,6 +161,8 @@ class RefusjonServiceTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
+            mentorTimelonn = null,
+            mentorAntallTimer = null,
         )
 
         val tilskuddMelding3LittEldreMedLøpenummer3 = TilskuddsperiodeGodkjentMelding(
@@ -187,6 +193,8 @@ class RefusjonServiceTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
+            mentorTimelonn = null,
+            mentorAntallTimer = null,
         )
 
         val refusjon1 = refusjonService.opprettRefusjon(tilskuddMelding)!!
@@ -246,6 +254,8 @@ class RefusjonServiceTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
+            mentorTimelonn = null,
+            mentorAntallTimer = null,
         )
         val refusjon = refusjonService.opprettRefusjon(tilskuddMelding)!!
         refusjonService.gjørBedriftKontonummeroppslag(refusjon)
@@ -290,6 +300,8 @@ class RefusjonServiceTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
+            mentorTimelonn = null,
+            mentorAntallTimer = null,
         )
         refusjonService.opprettRefusjon(tilskuddMelding)
         val pageable: Pageable = PageRequest.of(0, 100)
@@ -343,6 +355,8 @@ class RefusjonServiceTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
+            mentorTimelonn = null,
+            mentorAntallTimer = null,
         )
         refusjonService.opprettRefusjon(tilskuddMelding)
         refusjonService.opprettRefusjon(tilskuddMelding)
@@ -382,6 +396,8 @@ class RefusjonServiceTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
+            mentorTimelonn = null,
+            mentorAntallTimer = null,
         )
         val refusjon = refusjonService.opprettRefusjon(tilskuddMelding) ?: fail("Skulle kunne opprette refusjon")
 
@@ -430,6 +446,8 @@ class RefusjonServiceTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
+            mentorTimelonn = null,
+            mentorAntallTimer = null,
         )
         val refusjon = refusjonService.opprettRefusjon(tilskuddMelding) ?: fail("Skulle kunne opprette refusjon")
 
@@ -479,6 +497,8 @@ class RefusjonServiceTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
+            mentorTimelonn = null,
+            mentorAntallTimer = null,
         )
         val refusjon = refusjonService.opprettRefusjon(tilskuddMelding) ?: fail("Skulle kunne opprette refusjon")
         refusjonService.gjørInntektsoppslag(refusjon, innloggetArbeidsgiver)
@@ -525,6 +545,8 @@ class RefusjonServiceTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
+            mentorTimelonn = null,
+            mentorAntallTimer = null,
         )
         refusjonService.opprettRefusjon(tilskuddMelding)
         assertThat(refusjonRepository.findAll().filter { it.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId == tilskuddMelding.tilskuddsperiodeId }).hasSize(1)
@@ -566,6 +588,8 @@ class RefusjonServiceTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
+            mentorTimelonn = null,
+            mentorAntallTimer = null,
         )
         val refusjon = refusjonService.opprettRefusjon(tilskuddMelding)!!
 

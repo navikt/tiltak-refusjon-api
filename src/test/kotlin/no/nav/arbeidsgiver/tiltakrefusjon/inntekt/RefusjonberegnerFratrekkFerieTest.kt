@@ -99,6 +99,8 @@ class RefusjonberegnerFratrekkFerieTest(
             godkjentTidspunkt = LocalDateTime.of(tilskuddTom.year, tilskuddTom.month, tilskuddTom.dayOfMonth, 0, 0),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
+            mentorTimelonn = null,
+            mentorAntallTimer = null,
         )
         return tilskuddsperiodeGodkjentMelding
     }

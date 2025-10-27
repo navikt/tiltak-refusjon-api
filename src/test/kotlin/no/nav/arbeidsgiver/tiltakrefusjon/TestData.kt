@@ -521,6 +521,8 @@ fun etTilskuddsgrunnlag(tiltakstype: Tiltakstype = Tiltakstype.SOMMERJOBB) = Til
     resendingsnummer = 1,
     enhet = "1000",
     godkjentAvBeslutterTidspunkt = Now.localDateTime().minusMonths(3).withDayOfMonth(1),
+    mentorTimelonn = null,
+    mentorAntallTimer = null,
 )
 
 fun `Jonas Lie`(): Refusjon {

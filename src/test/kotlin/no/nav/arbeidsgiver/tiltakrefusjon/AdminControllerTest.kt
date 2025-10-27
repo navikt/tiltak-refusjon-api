@@ -33,7 +33,7 @@ internal class AdminControllerTest {
             "arbeidsgiverEtternavn":"Arbeidsgiver","arbeidsgiverTlf":"41111111", "bedriftNr":"123456789",
             "tilskuddsbeløp":3287,"tilskuddFom":"2021-07-05","tilskuddTom":"2021-07-17","feriepengerSats":0.102,
             "otpSats":0.02,"arbeidsgiveravgiftSats":0.141,"lønnstilskuddsprosent":50,"avtaleNr":33732,"løpenummer":1,"enhet":"0235","beslutterNavIdent":"J111142",
-            "godkjentTidspunkt": "2021-07-10T00:00:00.000000"}
+            "godkjentTidspunkt": "2021-07-10T00:00:00.000000", "mentorTimelonn" : null, "mentorAntallTimer" : null}
             """
 
         every {

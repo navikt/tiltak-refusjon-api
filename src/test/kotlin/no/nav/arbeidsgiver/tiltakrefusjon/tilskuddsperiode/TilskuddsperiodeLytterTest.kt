@@ -71,6 +71,8 @@ class TilskuddsperiodeLytterTest {
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
+            mentorTimelonn = null,
+            mentorAntallTimer = null,
         )
 
         kafkaTemplate.send(Topics.TILSKUDDSPERIODE_GODKJENT, tilskuddMelding.tilskuddsperiodeId, tilskuddMelding)

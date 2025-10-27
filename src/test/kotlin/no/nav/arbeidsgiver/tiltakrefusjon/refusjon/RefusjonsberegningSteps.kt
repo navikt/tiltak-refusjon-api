@@ -72,7 +72,9 @@ class RefusjonsberegningSteps {
             løpenummer = 3,
             resendingsnummer = null,
             enhet = "1000",
-            godkjentAvBeslutterTidspunkt = LocalDateTime.now()
+            godkjentAvBeslutterTidspunkt = LocalDateTime.now(),
+            mentorTimelonn = null,
+            mentorAntallTimer = null,
         )
     }
 

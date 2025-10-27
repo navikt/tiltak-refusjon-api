@@ -71,7 +71,9 @@ class RefusjonService(
             løpenummer = tilskuddsperiodeGodkjentMelding.løpenummer,
             resendingsnummer = tilskuddsperiodeGodkjentMelding.resendingsnummer,
             enhet = tilskuddsperiodeGodkjentMelding.enhet,
-            godkjentAvBeslutterTidspunkt = tilskuddsperiodeGodkjentMelding.godkjentTidspunkt
+            godkjentAvBeslutterTidspunkt = tilskuddsperiodeGodkjentMelding.godkjentTidspunkt,
+            mentorTimelonn = tilskuddsperiodeGodkjentMelding.mentorTimelonn,
+            mentorAntallTimer = tilskuddsperiodeGodkjentMelding.mentorAntallTimer,
         )
         val refusjon = Refusjon(
             tilskuddsgrunnlag = tilskuddsgrunnlag,

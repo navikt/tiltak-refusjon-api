@@ -183,6 +183,8 @@ private val tilskuddsmelding = TilskuddsperiodeGodkjentMelding(
     godkjentTidspunkt = LocalDateTime.of(2024, 2, 1, 0, 0),
     arbeidsgiverKontonummer = "12345678908",
     arbeidsgiverKid = null,
+    mentorTimelonn = null,
+    mentorAntallTimer = null,
 )
 
 private val differanseI5G = (åretsG * 5) - (forrigeÅretsG * 5)

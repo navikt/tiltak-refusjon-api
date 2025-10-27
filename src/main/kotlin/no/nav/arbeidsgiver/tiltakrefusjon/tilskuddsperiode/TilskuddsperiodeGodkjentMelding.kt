@@ -34,4 +34,6 @@ data class TilskuddsperiodeGodkjentMelding(
         val godkjentTidspunkt: LocalDateTime,
         val arbeidsgiverKontonummer: String?,
         val arbeidsgiverKid: String?,
+        val mentorTimelonn: Int?,
+        val mentorAntallTimer: Double?,
 )

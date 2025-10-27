@@ -36,7 +36,9 @@ data class Tilskuddsgrunnlag(
     val løpenummer: Int,
     val resendingsnummer: Int? = null,
     val enhet: String?,
-    val godkjentAvBeslutterTidspunkt: LocalDateTime?
+    val godkjentAvBeslutterTidspunkt: LocalDateTime?,
+    val mentorTimelonn: Int?,
+    val mentorAntallTimer: Double?,
 ) {
     @Id
     val id: String = ulid()

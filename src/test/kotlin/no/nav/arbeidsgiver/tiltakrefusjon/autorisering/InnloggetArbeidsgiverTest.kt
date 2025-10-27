@@ -132,6 +132,8 @@ internal class InnloggetArbeidsgiverTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
+            mentorTimelonn = null,
+            mentorAntallTimer = null,
         )
         val tilskuddMelding2LittEldreMedLøpenummer2 = TilskuddsperiodeGodkjentMelding(
             avtaleId = "1",
@@ -161,6 +163,8 @@ internal class InnloggetArbeidsgiverTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
+            mentorTimelonn = null,
+            mentorAntallTimer = null,
         )
 
         val refusjon1 = refusjonService.opprettRefusjon(tilskuddMelding)!!
@@ -223,6 +227,8 @@ internal class InnloggetArbeidsgiverTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
+            mentorTimelonn = null,
+            mentorAntallTimer = null,
         )
 
         val refusjon2 = opprettRefusjonOgGjørInntektoppslag(tilskuddMelding2LittEldreMedLøpenummer2)
@@ -276,6 +282,8 @@ internal class InnloggetArbeidsgiverTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
+            mentorTimelonn = null,
+            mentorAntallTimer = null,
         )
         val tilskuddMelding2LittEldreMedLøpenummer2 = TilskuddsperiodeGodkjentMelding(
             avtaleId = "1",
@@ -305,6 +313,8 @@ internal class InnloggetArbeidsgiverTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
+            mentorTimelonn = null,
+            mentorAntallTimer = null,
         )
 
         // Stort nok tilskuddsbeløp for å "nullstille" siste minusbeløp
@@ -336,6 +346,8 @@ internal class InnloggetArbeidsgiverTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
+            mentorTimelonn = null,
+            mentorAntallTimer = null,
         )
 
         val tilskuddMelding4LittEldreMedLøpenummer4 = TilskuddsperiodeGodkjentMelding(
@@ -366,6 +378,8 @@ internal class InnloggetArbeidsgiverTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
+            mentorTimelonn = null,
+            mentorAntallTimer = null,
         )
 
         val innloggetArbeidsgiver = InnloggetArbeidsgiver(
@@ -456,6 +470,8 @@ internal class InnloggetArbeidsgiverTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
+            mentorTimelonn = null,
+            mentorAntallTimer = null,
         )
         val tilskuddMelding2LittEldreMedLøpenummer2 = TilskuddsperiodeGodkjentMelding(
             avtaleId = "2",
@@ -485,6 +501,8 @@ internal class InnloggetArbeidsgiverTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
+            mentorTimelonn = null,
+            mentorAntallTimer = null,
         )
 
         // Stort nok tilskuddsbeløp for å "nullstille" siste minusbeløp
@@ -516,6 +534,8 @@ internal class InnloggetArbeidsgiverTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
+            mentorTimelonn = null,
+            mentorAntallTimer = null,
         )
 
         // Stort nok tilskuddsbeløp for å "nullstille" siste minusbeløp
@@ -547,6 +567,8 @@ internal class InnloggetArbeidsgiverTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
+            mentorTimelonn = null,
+            mentorAntallTimer = null,
         )
 
         val innloggetArbeidsgiver = InnloggetArbeidsgiver(
@@ -614,6 +636,8 @@ internal class InnloggetArbeidsgiverTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
+            mentorTimelonn = null,
+            mentorAntallTimer = null,
         )
 
 
@@ -672,6 +696,8 @@ internal class InnloggetArbeidsgiverTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
+            mentorTimelonn = null,
+            mentorAntallTimer = null,
         )
 
         // Stort nok tilskuddsbeløp for å "nullstille" siste minusbeløp
@@ -774,6 +800,8 @@ internal class InnloggetArbeidsgiverTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
+            mentorTimelonn = null,
+            mentorAntallTimer = null,
         )
         val refusjon = refusjonService.opprettRefusjon(melding)!!
 
@@ -833,6 +861,8 @@ internal class InnloggetArbeidsgiverTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
+            mentorTimelonn = null,
+            mentorAntallTimer = null,
         )
         val innlogget = InnloggetArbeidsgiver(
             identifikator = "16120102137",

@@ -169,9 +169,7 @@ class RefusjonService(
     fun godkjennForArbeidsgiver(refusjon: Refusjon, utførtAv: InnloggetBruker) {
         val alleMinusBeløp = minusbelopRepository.findAllByAvtaleNr(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr)
         val sumMinusbelop = alleMinusBeløp
-            .filter { !it.gjortOpp }
-            .map { minusbelop -> minusbelop.beløp }
-            .filterNotNull()
+            .filter { !it.gjortOpp }.mapNotNull { minusbelop -> minusbelop.beløp }
             .reduceOrNull { sum, beløp -> sum + beløp }
         // Om det er et gammelt minusbeløp, men alle minusbeløp er gjort opp må refusjonen lastes på ny for å reberegnes
         if (sumMinusbelop != null && sumMinusbelop != 0 && refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp != sumMinusbelop) {
@@ -316,22 +314,7 @@ class RefusjonService(
     }
 
     fun gjørBeregning(refusjon: Refusjon, utførtAv: InnloggetBruker) {
-        var beregning: Beregning? = null
-        if (refusjon.refusjonsgrunnlag.erAltOppgitt()) {
-            beregning = beregnRefusjonsbeløp(
-                inntekter = refusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.toList() ?: emptyList(),
-                tilskuddsgrunnlag = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag,
-                tidligereUtbetalt = refusjon.refusjonsgrunnlag.tidligereUtbetalt,
-                korrigertBruttoLønn = refusjon.refusjonsgrunnlag.endretBruttoLønn,
-                fratrekkRefunderbarSum = refusjon.refusjonsgrunnlag.refunderbarBeløp,
-                forrigeRefusjonMinusBeløp = refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
-                tilskuddFom = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
-                sumUtbetaltVarig = refusjon.refusjonsgrunnlag.sumUtbetaltVarig,
-                harFerietrekkForSammeMåned = refusjon.refusjonsgrunnlag.harFerietrekkForSammeMåned
-            )
-        } else if (refusjon.tiltakstype().harFastUtbetalingssum()) {
-            beregning = fastBeløpBeregning(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag, refusjon.refusjonsgrunnlag.tidligereUtbetalt)
-        }
+        val beregning: Beregning? = beregnRefusjon(refusjon)
         if (beregning != null) {
             refusjon.refusjonsgrunnlag.beregning = beregning
             log.info("Oppdatert beregning på refusjon ${refusjon.id} til ${beregning.id}")

@@ -5,9 +5,11 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.BrukerRolle
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Inntektsgrunnlag
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Inntektslinje
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonStatus
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tilskuddsgrunnlag
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.beregnRefusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.beregnRefusjonsbeløp
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.fastBeløpBeregning
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
@@ -465,6 +467,9 @@ fun refusjoner(): List<Refusjon> {
         `Vidar Fortidlig`(),
         `Vidar SendKrav`(),
         `Vidar Utbetalt`(),
+        `Ole-Johnny Fortidlig`(),
+        `Ole-Johnny SendKrav`(),
+        `Ole-Johnny Utbetalt`(),
         `Camilla Collett`(),
         `Snorre Sturlason`(),
         `Sigrid Undset`(),
@@ -899,6 +904,118 @@ fun `Vidar Utbetalt`(): Refusjon {
     return refusjon
 }
 
+fun `Ole-Johnny Fortidlig`(): Refusjon {
+    val deltakerFnr = "23119409195"
+    val bedriftNr = "999999999"
+    val refusjon = Refusjon(
+        tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
+            avtaleId = UUID.randomUUID().toString(),
+            avtaleNr = 4414,
+            tilskuddsperiodeId = UUID.randomUUID().toString(),
+            tiltakstype = Tiltakstype.MENTOR,
+            deltakerFornavn = "Ole-Johnny",
+            deltakerEtternavn = "Person",
+            deltakerFnr = deltakerFnr,
+            bedriftNr = bedriftNr,
+            tilskuddsbeløp = 3369,
+            mentorTimelonn = 250,
+            mentorAntallTimer = 10.5,
+            arbeidsgiveravgiftSats = 0.102,
+            otpSats = 0.02,
+            feriepengerSats = 0.142,
+            veilederNavIdent = "X123456",
+            avtaleFom = Now.localDate().minusMonths(4).withDayOfMonth(1),
+            avtaleTom = Now.localDate().plusYears(2).withDayOfMonth(1),
+        ),
+        bedriftNr = bedriftNr, deltakerFnr = deltakerFnr,
+    )
+
+    refusjon.status = RefusjonStatus.FOR_TIDLIG
+
+    return refusjon
+}
+
+fun `Ole-Johnny SendKrav`(): Refusjon {
+    val deltakerFnr = "23119409195"
+    val bedriftNr = "999999999"
+    val refusjon = Refusjon(
+        tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
+            avtaleId = UUID.randomUUID().toString(),
+            avtaleNr = 4414,
+            tilskuddsperiodeId = UUID.randomUUID().toString(),
+            tiltakstype = Tiltakstype.MENTOR,
+            deltakerFornavn = "Ole-Johnny",
+            deltakerEtternavn = "Person",
+            deltakerFnr = deltakerFnr,
+            bedriftNr = bedriftNr,
+            tilskuddsbeløp = 3369,
+            mentorTimelonn = 250,
+            mentorAntallTimer = 10.5,
+            arbeidsgiveravgiftSats = 0.102,
+            otpSats = 0.02,
+            feriepengerSats = 0.142,
+            veilederNavIdent = "X123456",
+            avtaleFom = Now.localDate().minusMonths(3).withDayOfMonth(1),
+            avtaleTom = Now.localDate().plusYears(2).withDayOfMonth(1),
+        ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
+    )
+
+    refusjon.let {
+        it.medBeregning()
+        it.medBedriftKontonummer()
+        it.status = RefusjonStatus.SENDT_KRAV
+        it.godkjentAvArbeidsgiver = Now.localDate()
+            .with(firstDayOfMonth())
+            .atStartOfDay(ZoneId.of("Europe/Oslo"))
+            .toInstant()
+    }
+
+    return refusjon
+}
+
+fun `Ole-Johnny Utbetalt`(): Refusjon {
+    val deltakerFnr = "23119409195"
+    val bedriftNr = "999999999"
+    val refusjon = Refusjon(
+        tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
+            avtaleId = UUID.randomUUID().toString(),
+            avtaleNr = 4414,
+            tilskuddsperiodeId = UUID.randomUUID().toString(),
+            tiltakstype = Tiltakstype.MENTOR,
+            deltakerFornavn = "Ole-Johnny",
+            deltakerEtternavn = "Person",
+            deltakerFnr = deltakerFnr,
+            bedriftNr = bedriftNr,
+            tilskuddsbeløp = 3369,
+            mentorTimelonn = 250,
+            mentorAntallTimer = 10.5,
+            arbeidsgiveravgiftSats = 0.102,
+            otpSats = 0.02,
+            feriepengerSats = 0.142,
+            veilederNavIdent = "X123456",
+            avtaleFom = Now.localDate().minusMonths(3).withDayOfMonth(1),
+            avtaleTom = Now.localDate().plusYears(2).withDayOfMonth(1),
+        ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
+    )
+
+    refusjon.let {
+        it.medBeregning()
+        it.medBedriftKontonummer()
+        it.status = RefusjonStatus.UTBETALT
+        it.godkjentAvArbeidsgiver = Now.localDate()
+            .with(firstDayOfMonth())
+            .atStartOfDay(ZoneId.of("Europe/Oslo"))
+            .toInstant()
+        it.utbetaltTidspunkt = Now.localDate()
+            .with(firstDayOfMonth())
+            .plusDays(2)
+            .atStartOfDay(ZoneId.of("Europe/Oslo"))
+            .toInstant()
+    }
+
+    return refusjon
+}
+
 fun dodsfallUnderTiltakRefusjon(): Refusjon {
     val deltakerFnrMedMasseUtbetalt = "30038738743"
     val bedriftNr = "999999999"
@@ -926,21 +1043,7 @@ fun Refusjon.medInntektsgrunnlag(
 
 fun Refusjon.medBeregning(
 ): Refusjon {
-    if (this.tiltakstype().harFastUtbetalingssum()) {
-        this.refusjonsgrunnlag.beregning = fastBeløpBeregning(this.refusjonsgrunnlag.tilskuddsgrunnlag, 0)
-    } else {
-        this.refusjonsgrunnlag.beregning = beregnRefusjonsbeløp(
-            inntekter = this.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.toList() ?: emptyList(),
-            tilskuddsgrunnlag = this.refusjonsgrunnlag.tilskuddsgrunnlag,
-            tidligereUtbetalt = this.refusjonsgrunnlag.tidligereUtbetalt,
-            korrigertBruttoLønn = this.refusjonsgrunnlag.endretBruttoLønn,
-            fratrekkRefunderbarSum = this.refusjonsgrunnlag.refunderbarBeløp,
-            forrigeRefusjonMinusBeløp = this.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
-            tilskuddFom = this.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
-            sumUtbetaltVarig = this.refusjonsgrunnlag.sumUtbetaltVarig,
-            harFerietrekkForSammeMåned = this.refusjonsgrunnlag.harFerietrekkForSammeMåned
-        )
-    }
+    this.refusjonsgrunnlag.beregning = beregnRefusjon(this)
     return this
 }
 

@@ -185,6 +185,8 @@ private val tilskuddsmelding = TilskuddsperiodeGodkjentMelding(
     arbeidsgiverKid = null,
     mentorTimelonn = null,
     mentorAntallTimer = null,
+    mentorFornavn = null,
+    mentorEtternavn = null
 )
 
 private val differanseI5G = (åretsG * 5) - (forrigeÅretsG * 5)

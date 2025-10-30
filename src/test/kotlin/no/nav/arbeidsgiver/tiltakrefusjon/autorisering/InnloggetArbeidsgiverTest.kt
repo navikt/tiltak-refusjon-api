@@ -134,6 +134,8 @@ internal class InnloggetArbeidsgiverTest(
             arbeidsgiverKid = null,
             mentorTimelonn = null,
             mentorAntallTimer = null,
+            mentorFornavn = null,
+            mentorEtternavn = null
         )
         val tilskuddMelding2LittEldreMedLøpenummer2 = TilskuddsperiodeGodkjentMelding(
             avtaleId = "1",
@@ -165,6 +167,8 @@ internal class InnloggetArbeidsgiverTest(
             arbeidsgiverKid = null,
             mentorTimelonn = null,
             mentorAntallTimer = null,
+            mentorFornavn = null,
+            mentorEtternavn = null
         )
 
         val refusjon1 = refusjonService.opprettRefusjon(tilskuddMelding)!!
@@ -229,6 +233,8 @@ internal class InnloggetArbeidsgiverTest(
             arbeidsgiverKid = null,
             mentorTimelonn = null,
             mentorAntallTimer = null,
+            mentorFornavn = null,
+            mentorEtternavn = null
         )
 
         val refusjon2 = opprettRefusjonOgGjørInntektoppslag(tilskuddMelding2LittEldreMedLøpenummer2)
@@ -284,6 +290,8 @@ internal class InnloggetArbeidsgiverTest(
             arbeidsgiverKid = null,
             mentorTimelonn = null,
             mentorAntallTimer = null,
+            mentorFornavn = null,
+            mentorEtternavn = null
         )
         val tilskuddMelding2LittEldreMedLøpenummer2 = TilskuddsperiodeGodkjentMelding(
             avtaleId = "1",
@@ -315,6 +323,8 @@ internal class InnloggetArbeidsgiverTest(
             arbeidsgiverKid = null,
             mentorTimelonn = null,
             mentorAntallTimer = null,
+            mentorFornavn = null,
+            mentorEtternavn = null
         )
 
         // Stort nok tilskuddsbeløp for å "nullstille" siste minusbeløp
@@ -348,6 +358,8 @@ internal class InnloggetArbeidsgiverTest(
             arbeidsgiverKid = null,
             mentorTimelonn = null,
             mentorAntallTimer = null,
+            mentorFornavn = null,
+            mentorEtternavn = null
         )
 
         val tilskuddMelding4LittEldreMedLøpenummer4 = TilskuddsperiodeGodkjentMelding(
@@ -380,6 +392,8 @@ internal class InnloggetArbeidsgiverTest(
             arbeidsgiverKid = null,
             mentorTimelonn = null,
             mentorAntallTimer = null,
+            mentorFornavn = null,
+            mentorEtternavn = null
         )
 
         val innloggetArbeidsgiver = InnloggetArbeidsgiver(
@@ -472,6 +486,8 @@ internal class InnloggetArbeidsgiverTest(
             arbeidsgiverKid = null,
             mentorTimelonn = null,
             mentorAntallTimer = null,
+            mentorFornavn = null,
+            mentorEtternavn = null
         )
         val tilskuddMelding2LittEldreMedLøpenummer2 = TilskuddsperiodeGodkjentMelding(
             avtaleId = "2",
@@ -503,6 +519,8 @@ internal class InnloggetArbeidsgiverTest(
             arbeidsgiverKid = null,
             mentorTimelonn = null,
             mentorAntallTimer = null,
+            mentorFornavn = null,
+            mentorEtternavn = null
         )
 
         // Stort nok tilskuddsbeløp for å "nullstille" siste minusbeløp
@@ -536,6 +554,8 @@ internal class InnloggetArbeidsgiverTest(
             arbeidsgiverKid = null,
             mentorTimelonn = null,
             mentorAntallTimer = null,
+            mentorFornavn = null,
+            mentorEtternavn = null
         )
 
         // Stort nok tilskuddsbeløp for å "nullstille" siste minusbeløp
@@ -569,6 +589,8 @@ internal class InnloggetArbeidsgiverTest(
             arbeidsgiverKid = null,
             mentorTimelonn = null,
             mentorAntallTimer = null,
+            mentorFornavn = null,
+            mentorEtternavn = null
         )
 
         val innloggetArbeidsgiver = InnloggetArbeidsgiver(
@@ -638,6 +660,8 @@ internal class InnloggetArbeidsgiverTest(
             arbeidsgiverKid = null,
             mentorTimelonn = null,
             mentorAntallTimer = null,
+            mentorFornavn = null,
+            mentorEtternavn = null
         )
 
 
@@ -698,6 +722,8 @@ internal class InnloggetArbeidsgiverTest(
             arbeidsgiverKid = null,
             mentorTimelonn = null,
             mentorAntallTimer = null,
+            mentorFornavn = null,
+            mentorEtternavn = null
         )
 
         // Stort nok tilskuddsbeløp for å "nullstille" siste minusbeløp
@@ -802,6 +828,8 @@ internal class InnloggetArbeidsgiverTest(
             arbeidsgiverKid = null,
             mentorTimelonn = null,
             mentorAntallTimer = null,
+            mentorFornavn = null,
+            mentorEtternavn = null
         )
         val refusjon = refusjonService.opprettRefusjon(melding)!!
 
@@ -863,6 +891,8 @@ internal class InnloggetArbeidsgiverTest(
             arbeidsgiverKid = null,
             mentorTimelonn = null,
             mentorAntallTimer = null,
+            mentorFornavn = null,
+            mentorEtternavn = null
         )
         val innlogget = InnloggetArbeidsgiver(
             identifikator = "16120102137",

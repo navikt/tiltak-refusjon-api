@@ -85,6 +85,8 @@ class RefusjonServiceTest(
             arbeidsgiverKid = null,
             mentorTimelonn = null,
             mentorAntallTimer = null,
+            mentorFornavn = null,
+            mentorEtternavn = null
         )
 
 
@@ -132,6 +134,8 @@ class RefusjonServiceTest(
             arbeidsgiverKid = null,
             mentorTimelonn = null,
             mentorAntallTimer = null,
+            mentorFornavn = null,
+            mentorEtternavn = null
         )
         val tilskuddMelding2LittEldreMedLøpenummer2 = TilskuddsperiodeGodkjentMelding(
             avtaleId = "1",
@@ -163,6 +167,8 @@ class RefusjonServiceTest(
             arbeidsgiverKid = null,
             mentorTimelonn = null,
             mentorAntallTimer = null,
+            mentorFornavn = null,
+            mentorEtternavn = null
         )
 
         val tilskuddMelding3LittEldreMedLøpenummer3 = TilskuddsperiodeGodkjentMelding(
@@ -195,6 +201,8 @@ class RefusjonServiceTest(
             arbeidsgiverKid = null,
             mentorTimelonn = null,
             mentorAntallTimer = null,
+            mentorFornavn = null,
+            mentorEtternavn = null
         )
 
         val refusjon1 = refusjonService.opprettRefusjon(tilskuddMelding)!!
@@ -256,6 +264,8 @@ class RefusjonServiceTest(
             arbeidsgiverKid = null,
             mentorTimelonn = null,
             mentorAntallTimer = null,
+            mentorFornavn = null,
+            mentorEtternavn = null
         )
         val refusjon = refusjonService.opprettRefusjon(tilskuddMelding)!!
         refusjonService.gjørBedriftKontonummeroppslag(refusjon)
@@ -302,6 +312,8 @@ class RefusjonServiceTest(
             arbeidsgiverKid = null,
             mentorTimelonn = null,
             mentorAntallTimer = null,
+            mentorFornavn = null,
+            mentorEtternavn = null
         )
         refusjonService.opprettRefusjon(tilskuddMelding)
         val pageable: Pageable = PageRequest.of(0, 100)
@@ -357,6 +369,8 @@ class RefusjonServiceTest(
             arbeidsgiverKid = null,
             mentorTimelonn = null,
             mentorAntallTimer = null,
+            mentorFornavn = null,
+            mentorEtternavn = null
         )
         refusjonService.opprettRefusjon(tilskuddMelding)
         refusjonService.opprettRefusjon(tilskuddMelding)
@@ -398,6 +412,8 @@ class RefusjonServiceTest(
             arbeidsgiverKid = null,
             mentorTimelonn = null,
             mentorAntallTimer = null,
+            mentorFornavn = null,
+            mentorEtternavn = null
         )
         val refusjon = refusjonService.opprettRefusjon(tilskuddMelding) ?: fail("Skulle kunne opprette refusjon")
 
@@ -448,6 +464,8 @@ class RefusjonServiceTest(
             arbeidsgiverKid = null,
             mentorTimelonn = null,
             mentorAntallTimer = null,
+            mentorFornavn = null,
+            mentorEtternavn = null
         )
         val refusjon = refusjonService.opprettRefusjon(tilskuddMelding) ?: fail("Skulle kunne opprette refusjon")
 
@@ -499,6 +517,8 @@ class RefusjonServiceTest(
             arbeidsgiverKid = null,
             mentorTimelonn = null,
             mentorAntallTimer = null,
+            mentorFornavn = null,
+            mentorEtternavn = null
         )
         val refusjon = refusjonService.opprettRefusjon(tilskuddMelding) ?: fail("Skulle kunne opprette refusjon")
         refusjonService.gjørInntektsoppslag(refusjon, innloggetArbeidsgiver)
@@ -547,6 +567,8 @@ class RefusjonServiceTest(
             arbeidsgiverKid = null,
             mentorTimelonn = null,
             mentorAntallTimer = null,
+            mentorFornavn = null,
+            mentorEtternavn = null
         )
         refusjonService.opprettRefusjon(tilskuddMelding)
         assertThat(refusjonRepository.findAll().filter { it.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId == tilskuddMelding.tilskuddsperiodeId }).hasSize(1)
@@ -590,6 +612,8 @@ class RefusjonServiceTest(
             arbeidsgiverKid = null,
             mentorTimelonn = null,
             mentorAntallTimer = null,
+            mentorFornavn = null,
+            mentorEtternavn = null
         )
         val refusjon = refusjonService.opprettRefusjon(tilskuddMelding)!!
 

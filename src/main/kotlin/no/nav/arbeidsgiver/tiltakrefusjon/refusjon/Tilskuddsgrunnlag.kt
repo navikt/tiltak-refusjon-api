@@ -39,6 +39,8 @@ data class Tilskuddsgrunnlag(
     val godkjentAvBeslutterTidspunkt: LocalDateTime?,
     val mentorTimelonn: Int?,
     val mentorAntallTimer: Double?,
+    val mentorFornavn: String?,
+    val mentorEtternavn: String?
 ) {
     @Id
     val id: String = ulid()

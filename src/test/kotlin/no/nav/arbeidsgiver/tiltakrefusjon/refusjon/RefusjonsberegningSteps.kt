@@ -75,6 +75,8 @@ class RefusjonsberegningSteps {
             godkjentAvBeslutterTidspunkt = LocalDateTime.now(),
             mentorTimelonn = null,
             mentorAntallTimer = null,
+            mentorFornavn = null,
+            mentorEtternavn = null
         )
     }
 

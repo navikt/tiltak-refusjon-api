@@ -72,6 +72,8 @@ class RefusjonsberegnerTest {
             godkjentAvBeslutterTidspunkt = LocalDateTime.of(tilskuddTom.year, tilskuddTom.month, tilskuddTom.dayOfMonth, 0, 0 ),
             mentorTimelonn = null,
             mentorAntallTimer = null,
+            mentorFornavn = null,
+            mentorEtternavn = null
         )
         return tilskuddsgrunnlag
     }

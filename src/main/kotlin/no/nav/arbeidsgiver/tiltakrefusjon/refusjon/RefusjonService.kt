@@ -74,6 +74,8 @@ class RefusjonService(
             godkjentAvBeslutterTidspunkt = tilskuddsperiodeGodkjentMelding.godkjentTidspunkt,
             mentorTimelonn = tilskuddsperiodeGodkjentMelding.mentorTimelonn,
             mentorAntallTimer = tilskuddsperiodeGodkjentMelding.mentorAntallTimer,
+            mentorFornavn = tilskuddsperiodeGodkjentMelding.mentorFornavn,
+            mentorEtternavn = tilskuddsperiodeGodkjentMelding.mentorEtternavn
         )
         val refusjon = Refusjon(
             tilskuddsgrunnlag = tilskuddsgrunnlag,
@@ -96,11 +98,9 @@ class RefusjonService(
     fun settMinusBeløpFraTidligereRefusjonerTilknyttetAvtalen(refusjon: Refusjon) {
         val avtaleNr = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr
         val alleMinusbeløp = minusbelopRepository.findAllByAvtaleNr(avtaleNr = avtaleNr)
-        if (!alleMinusbeløp.isNullOrEmpty()) {
+        if (alleMinusbeløp.isNotEmpty()) {
             val sumMinusbelop = alleMinusbeløp
-                .filter { !it.gjortOpp }
-                .map { minusbelop -> minusbelop.beløp }
-                .filterNotNull()
+                .filter { !it.gjortOpp }.mapNotNull { minusbelop -> minusbelop.beløp }
                 .reduceOrNull { sum, beløp -> sum + beløp }
             if (sumMinusbelop != null) {
                 refusjon.refusjonsgrunnlag.oppgiForrigeRefusjonsbeløp(sumMinusbelop)
@@ -169,9 +169,7 @@ class RefusjonService(
     fun godkjennForArbeidsgiver(refusjon: Refusjon, utførtAv: InnloggetBruker) {
         val alleMinusBeløp = minusbelopRepository.findAllByAvtaleNr(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr)
         val sumMinusbelop = alleMinusBeløp
-            .filter { !it.gjortOpp }
-            .map { minusbelop -> minusbelop.beløp }
-            .filterNotNull()
+            .filter { !it.gjortOpp }.mapNotNull { minusbelop -> minusbelop.beløp }
             .reduceOrNull { sum, beløp -> sum + beløp }
         // Om det er et gammelt minusbeløp, men alle minusbeløp er gjort opp må refusjonen lastes på ny for å reberegnes
         if (sumMinusbelop != null && sumMinusbelop != 0 && refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp != sumMinusbelop) {
@@ -309,6 +307,9 @@ class RefusjonService(
             oppdaterSistEndret(refusjon)
             gjørBeregning(refusjon, utførtAv)
         }
+        if (refusjon.tiltakstype().utbetalesAutomatisk()) {
+            gjørBeregning(refusjon, utførtAv)
+        }
     }
 
     fun oppdaterSistEndret(refusjon: Refusjon) {
@@ -316,22 +317,7 @@ class RefusjonService(
     }
 
     fun gjørBeregning(refusjon: Refusjon, utførtAv: InnloggetBruker) {
-        var beregning: Beregning? = null
-        if (refusjon.refusjonsgrunnlag.erAltOppgitt()) {
-            beregning = beregnRefusjonsbeløp(
-                inntekter = refusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.toList() ?: emptyList(),
-                tilskuddsgrunnlag = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag,
-                tidligereUtbetalt = refusjon.refusjonsgrunnlag.tidligereUtbetalt,
-                korrigertBruttoLønn = refusjon.refusjonsgrunnlag.endretBruttoLønn,
-                fratrekkRefunderbarSum = refusjon.refusjonsgrunnlag.refunderbarBeløp,
-                forrigeRefusjonMinusBeløp = refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
-                tilskuddFom = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
-                sumUtbetaltVarig = refusjon.refusjonsgrunnlag.sumUtbetaltVarig,
-                harFerietrekkForSammeMåned = refusjon.refusjonsgrunnlag.harFerietrekkForSammeMåned
-            )
-        } else if (refusjon.tiltakstype().harFastUtbetalingssum()) {
-            beregning = fastBeløpBeregning(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag, refusjon.refusjonsgrunnlag.tidligereUtbetalt)
-        }
+        val beregning: Beregning? = beregnRefusjon(refusjon)
         if (beregning != null) {
             refusjon.refusjonsgrunnlag.beregning = beregning
             log.info("Oppdatert beregning på refusjon ${refusjon.id} til ${beregning.id}")

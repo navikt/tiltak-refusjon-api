@@ -140,6 +140,7 @@ data class InnloggetArbeidsgiver(
     fun finnRefusjon(id: String): Refusjon {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr, refusjon.deltakerFnr)
+        refusjonService.oppdaterRefusjon(refusjon, this) // Trigge beregning på automatisk innsendte refusjoner (mentor/VTAO)
         return refusjon
     }
 

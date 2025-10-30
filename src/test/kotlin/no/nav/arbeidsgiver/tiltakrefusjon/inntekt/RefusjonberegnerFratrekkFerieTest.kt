@@ -101,6 +101,8 @@ class RefusjonberegnerFratrekkFerieTest(
             arbeidsgiverKid = null,
             mentorTimelonn = null,
             mentorAntallTimer = null,
+            mentorFornavn = null,
+            mentorEtternavn = null
         )
         return tilskuddsperiodeGodkjentMelding
     }

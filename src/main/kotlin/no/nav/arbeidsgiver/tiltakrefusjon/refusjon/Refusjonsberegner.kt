@@ -59,6 +59,34 @@ fun fastBeløpBeregning(tilskuddsgrunnlag: Tilskuddsgrunnlag, tidligereUtbetalt:
     )
 }
 
+fun mentorBeregning(tilskuddsgrunnlag: Tilskuddsgrunnlag): Beregning? {
+    if (tilskuddsgrunnlag.mentorTimelonn == null || tilskuddsgrunnlag.mentorAntallTimer == null) {
+        return null
+    }
+    val lonn = tilskuddsgrunnlag.mentorAntallTimer * tilskuddsgrunnlag.mentorTimelonn
+    val feriepenger = lonn * tilskuddsgrunnlag.feriepengerSats
+    val tjenestepensjon = (lonn + feriepenger) * tilskuddsgrunnlag.otpSats
+    val arbeidsgiveravgift = (lonn + tjenestepensjon + feriepenger) * tilskuddsgrunnlag.arbeidsgiveravgiftSats
+    val beregnetBeløp = (lonn + tjenestepensjon + feriepenger + arbeidsgiveravgift).roundToInt()
+
+    return Beregning(
+        lønn = lonn.roundToInt(),
+        lønnFratrukketFerie = 0,
+        feriepenger = feriepenger.roundToInt(),
+        tjenestepensjon = tjenestepensjon.roundToInt(),
+        arbeidsgiveravgift = arbeidsgiveravgift.roundToInt(),
+        sumUtgifter = beregnetBeløp,
+        beregnetBeløp = tilskuddsgrunnlag.tilskuddsbeløp,
+        refusjonsbeløp = tilskuddsgrunnlag.tilskuddsbeløp,
+        overTilskuddsbeløp = false,
+        tidligereUtbetalt = 0,
+        fratrekkLønnFerie = 0,
+        tidligereRefundertBeløp = 0,
+        overFemGrunnbeløp = false,
+        sumUtgifterFratrukketRefundertBeløp = 0
+    )
+}
+
 fun beregnRefusjonsbeløp(
     inntekter: List<Inntektslinje>,
     tilskuddsgrunnlag: Tilskuddsgrunnlag,
@@ -122,6 +150,32 @@ fun beregnRefusjonsbeløp(
         sumUtgifterFratrukketRefundertBeløp = sumUtgifterFratrukketRefundertBeløp.roundToInt()
     )
 }
+
+fun beregnRefusjon(refusjon: Refusjon) =
+    if (refusjon.tiltakstype().harFastUtbetalingssum()) {
+        if (refusjon.tiltakstype() == Tiltakstype.VTAO) {
+            fastBeløpBeregning(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag, refusjon.refusjonsgrunnlag.tidligereUtbetalt)
+        } else if (refusjon.tiltakstype() == Tiltakstype.MENTOR) {
+            mentorBeregning(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag)
+        } else {
+            throw Exception("Ukjent tiltakstype med fast sum: ${refusjon.tiltakstype()}")
+        }
+    } else if (refusjon.refusjonsgrunnlag.erAltOppgitt()) {
+        beregnRefusjonsbeløp(
+            inntekter = refusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.toList() ?: emptyList(),
+            tilskuddsgrunnlag = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag,
+            tidligereUtbetalt = refusjon.refusjonsgrunnlag.tidligereUtbetalt,
+            korrigertBruttoLønn = refusjon.refusjonsgrunnlag.endretBruttoLønn,
+            fratrekkRefunderbarSum = refusjon.refusjonsgrunnlag.refunderbarBeløp,
+            forrigeRefusjonMinusBeløp = refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
+            tilskuddFom = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
+            sumUtbetaltVarig = refusjon.refusjonsgrunnlag.sumUtbetaltVarig,
+            harFerietrekkForSammeMåned = refusjon.refusjonsgrunnlag.harFerietrekkForSammeMåned
+        )
+    } else {
+        null
+    }
+
 
 fun leggSammenTrekkGrunnlag(inntekter: List<Inntektslinje>, tilskuddFom: LocalDate, ekstraFerietrekk: Int? = null): Double {
     var ferieTrekkGrunnlag = inntekter.filter { it.skalTrekkesIfraInntektsgrunnlag(tilskuddFom) }

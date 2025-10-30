@@ -307,6 +307,9 @@ class RefusjonService(
             oppdaterSistEndret(refusjon)
             gjørBeregning(refusjon, utførtAv)
         }
+        if (refusjon.tiltakstype().utbetalesAutomatisk()) {
+            gjørBeregning(refusjon, utførtAv)
+        }
     }
 
     fun oppdaterSistEndret(refusjon: Refusjon) {

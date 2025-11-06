@@ -259,9 +259,8 @@ internal class RefusjonTest {
             )
         ).medInntekterKunFraTiltaket().medInntektsgrunnlag().medBeregning()
         refusjon.oppgiBedriftKontonummer("10000008145")
-        val refusjonMedKontonummer = refusjon.medBeregning()
-        refusjonMedKontonummer.godkjennForArbeidsgiver(innloggetArbeidsgiver)
-        assertThat(refusjonMedKontonummer.status).isEqualTo(RefusjonStatus.GODKJENT_MINUSBELØP)
+        refusjon.godkjennForArbeidsgiver(innloggetArbeidsgiver)
+        assertThat(refusjon.status).isEqualTo(RefusjonStatus.GODKJENT_MINUSBELØP)
     }
 
     @Test
@@ -274,9 +273,8 @@ internal class RefusjonTest {
             )
         ).medInntekterKunFraTiltaket().medInntektsgrunnlag().medBeregning()
         refusjon.oppgiBedriftKontonummer("10000008145")
-        val refusjonMedKontonummer = refusjon.medBeregning()
-        refusjonMedKontonummer.godkjennForArbeidsgiver(innloggetArbeidsgiver)
-        assertThat(refusjonMedKontonummer.status).isEqualTo(RefusjonStatus.GODKJENT_NULLBELØP)
+        refusjon.godkjennForArbeidsgiver(innloggetArbeidsgiver)
+        assertThat(refusjon.status).isEqualTo(RefusjonStatus.GODKJENT_NULLBELØP)
     }
 
     @Test

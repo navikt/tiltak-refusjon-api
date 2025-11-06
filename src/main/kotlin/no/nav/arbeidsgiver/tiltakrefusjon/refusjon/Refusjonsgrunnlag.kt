@@ -1,6 +1,11 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
-import jakarta.persistence.*
+import jakarta.persistence.CascadeType
+import jakarta.persistence.Entity
+import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.ManyToOne
+import jakarta.persistence.OneToOne
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
@@ -127,10 +132,10 @@ class Refusjonsgrunnlag(
         this.refunderbarBeløp = refunderbarBeløp
     }
 
-    fun erAltOppgitt(): Boolean {
+    fun harTilstrekkeligInformasjonForBeregning(): Boolean {
         val inntektsgrunnlag = inntektsgrunnlag
         if (inntektsgrunnlag == null || inntektsgrunnlag.inntekter.none { it.erMedIInntektsgrunnlag() }) return false
-        return bedriftKontonummer != null && (inntekterKunFraTiltaket == true && endretBruttoLønn == null ||
+        return (inntekterKunFraTiltaket == true && endretBruttoLønn == null ||
                 ((inntekterKunFraTiltaket == false || inntekterKunFraTiltaket == null) && endretBruttoLønn != null))
     }
 }

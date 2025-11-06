@@ -323,7 +323,7 @@ class RefusjonService(
     }
 
     fun gjørKorreksjonBeregning(korreksjon: Korreksjon, utførtAv: InnloggetBruker) {
-        if (korreksjon.refusjonsgrunnlag.erAltOppgitt()) {
+        if (korreksjon.refusjonsgrunnlag.harTilstrekkeligInformasjonForBeregning()) {
             val beregning = beregnRefusjonsbeløp(
                 inntekter = korreksjon.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
                 tilskuddsgrunnlag = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag,

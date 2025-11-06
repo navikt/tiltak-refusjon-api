@@ -160,7 +160,7 @@ fun beregnRefusjon(refusjon: Refusjon) =
         } else {
             throw Exception("Ukjent tiltakstype med fast sum: ${refusjon.tiltakstype()}")
         }
-    } else if (refusjon.refusjonsgrunnlag.erAltOppgitt()) {
+    } else if (refusjon.refusjonsgrunnlag.harTilstrekkeligInformasjonForBeregning()) {
         beregnRefusjonsbeløp(
             inntekter = refusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.toList() ?: emptyList(),
             tilskuddsgrunnlag = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag,

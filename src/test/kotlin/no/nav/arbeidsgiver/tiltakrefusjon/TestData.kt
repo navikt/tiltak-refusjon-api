@@ -468,7 +468,7 @@ fun refusjoner(): List<Refusjon> {
         `Vidar SendKrav`(),
         `Vidar Utbetalt`(),
         `Ole-Johnny Fortidlig`(),
-        `Ole-Johnny SendKrav`(),
+        `Ole-Johnny SendtKrav`(),
         `Ole-Johnny Utbetalt`(),
         `Camilla Collett`(),
         `Snorre Sturlason`(),
@@ -935,7 +935,7 @@ fun `Ole-Johnny Fortidlig`(): Refusjon {
     return refusjon
 }
 
-fun `Ole-Johnny SendKrav`(): Refusjon {
+fun `Ole-Johnny SendtKrav`(): Refusjon {
     val deltakerFnr = "23119409195"
     val bedriftNr = "999999999"
     val refusjon = Refusjon(

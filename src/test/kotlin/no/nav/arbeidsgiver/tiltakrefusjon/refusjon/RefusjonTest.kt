@@ -98,17 +98,7 @@ internal class RefusjonTest {
 
         // Tar stilling til alle inntektslinjer
         refusjon.setInntektslinjeTilOpptjentIPeriode(enInntektslinjeIkkeTattStillingTilOpptjening.id, true)
-        refusjon.refusjonsgrunnlag.beregning = beregnRefusjonsbeløp(
-            inntekter = refusjon.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
-            tilskuddsgrunnlag = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag,
-            tidligereUtbetalt = refusjon.refusjonsgrunnlag.tidligereUtbetalt,
-            korrigertBruttoLønn = refusjon.refusjonsgrunnlag.endretBruttoLønn,
-            fratrekkRefunderbarSum = refusjon.refusjonsgrunnlag.refunderbarBeløp,
-            forrigeRefusjonMinusBeløp = refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
-            tilskuddFom = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
-            sumUtbetaltVarig = refusjon.refusjonsgrunnlag.sumUtbetaltVarig,
-            harFerietrekkForSammeMåned = refusjon.refusjonsgrunnlag.harFerietrekkForSammeMåned
-        )
+        refusjon.refusjonsgrunnlag.beregning = beregnRefusjon(refusjon)
 
         refusjon.godkjennForArbeidsgiver(innloggetArbeidsgiver)
 
@@ -331,17 +321,7 @@ internal class RefusjonTest {
 
         val refusjon = enRefusjon().medBedriftKontonummer().medInntekterKunFraTiltaket()
         refusjon.oppgiInntektsgrunnlag(inntektsgrunnlag)
-        refusjon.refusjonsgrunnlag.beregning = beregnRefusjonsbeløp(
-            inntekter = refusjon.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
-            tilskuddsgrunnlag = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag,
-            tidligereUtbetalt = refusjon.refusjonsgrunnlag.tidligereUtbetalt,
-            korrigertBruttoLønn = refusjon.refusjonsgrunnlag.endretBruttoLønn,
-            fratrekkRefunderbarSum = refusjon.refusjonsgrunnlag.refunderbarBeløp,
-            forrigeRefusjonMinusBeløp = refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
-            tilskuddFom = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
-            sumUtbetaltVarig = refusjon.refusjonsgrunnlag.sumUtbetaltVarig,
-            harFerietrekkForSammeMåned = refusjon.refusjonsgrunnlag.harFerietrekkForSammeMåned
-        )
+        refusjon.refusjonsgrunnlag.beregning = beregnRefusjon(refusjon)
 
         assertThat(refusjon.refusjonsgrunnlag.beregning?.lønn).isEqualTo(inntektslinjeOpptjentIPeriode.beløp.toInt())
     }

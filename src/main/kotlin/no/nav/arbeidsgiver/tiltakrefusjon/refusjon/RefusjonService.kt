@@ -256,11 +256,7 @@ class RefusjonService(
         val korreksjonsutkast = refusjon.opprettKorreksjonsutkast(korreksjonsgrunner, unntakOmInntekterFremitid, annetGrunn)
         if (refusjon.tiltakstype() == Tiltakstype.VTAO) {
             // Utfør beregning umiddelbart for VTAO-korreksjoner
-            korreksjonsutkast.refusjonsgrunnlag.beregning = fastBeløpBeregning(
-                korreksjonsutkast.refusjonsgrunnlag.tilskuddsgrunnlag,
-                refusjon.refusjonsgrunnlag.beregning?.refusjonsbeløp ?: 0,
-                true
-            )
+            korreksjonsutkast.refusjonsgrunnlag.beregning = beregnKorreksjon(korreksjonsutkast)
         }
         korreksjonRepository.save(korreksjonsutkast)
         refusjonRepository.save(refusjon)
@@ -323,18 +319,8 @@ class RefusjonService(
     }
 
     fun gjørKorreksjonBeregning(korreksjon: Korreksjon, utførtAv: InnloggetBruker) {
-        if (korreksjon.refusjonsgrunnlag.harTilstrekkeligInformasjonForBeregning()) {
-            val beregning = beregnRefusjonsbeløp(
-                inntekter = korreksjon.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
-                tilskuddsgrunnlag = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag,
-                tidligereUtbetalt = korreksjon.refusjonsgrunnlag.tidligereUtbetalt,
-                korrigertBruttoLønn = korreksjon.refusjonsgrunnlag.endretBruttoLønn,
-                fratrekkRefunderbarSum = korreksjon.refusjonsgrunnlag.refunderbarBeløp,
-                forrigeRefusjonMinusBeløp = korreksjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
-                tilskuddFom = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
-                sumUtbetaltVarig = korreksjon.refusjonsgrunnlag.sumUtbetaltVarig,
-                harFerietrekkForSammeMåned = korreksjon.refusjonsgrunnlag.harFerietrekkForSammeMåned
-            )
+        val beregning = beregnKorreksjon(korreksjon)
+        if (beregning != null) {
             korreksjon.refusjonsgrunnlag.beregning = beregning
             applicationEventPublisher.publishEvent(KorreksjonBeregningUtført(korreksjon, utførtAv))
         }

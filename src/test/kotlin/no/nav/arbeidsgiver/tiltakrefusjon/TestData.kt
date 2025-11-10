@@ -5,13 +5,10 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.BrukerRolle
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Inntektsgrunnlag
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Inntektslinje
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonStatus
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tilskuddsgrunnlag
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.beregnRefusjon
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.beregnRefusjonsbeløp
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.fastBeløpBeregning
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.ulid
 import no.nav.arbeidsgiver.tiltakrefusjon.varsling.VarselType

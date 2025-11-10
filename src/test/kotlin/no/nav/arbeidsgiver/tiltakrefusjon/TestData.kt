@@ -528,6 +528,8 @@ fun etTilskuddsgrunnlag(tiltakstype: Tiltakstype = Tiltakstype.SOMMERJOBB) = Til
     godkjentAvBeslutterTidspunkt = Now.localDateTime().minusMonths(3).withDayOfMonth(1),
     mentorTimelonn = null,
     mentorAntallTimer = null,
+    mentorFornavn = null,
+    mentorEtternavn = null
 )
 
 fun `Jonas Lie`(): Refusjon {
@@ -920,6 +922,8 @@ fun `Ole-Johnny Fortidlig`(): Refusjon {
             tilskuddsbeløp = 3369,
             mentorTimelonn = 250,
             mentorAntallTimer = 10.5,
+            mentorFornavn = "Ronny",
+            mentorEtternavn = "Rogersen",
             arbeidsgiveravgiftSats = 0.102,
             otpSats = 0.02,
             feriepengerSats = 0.142,
@@ -951,6 +955,8 @@ fun `Ole-Johnny SendtKrav`(): Refusjon {
             tilskuddsbeløp = 3369,
             mentorTimelonn = 250,
             mentorAntallTimer = 10.5,
+            mentorFornavn = "Ronny",
+            mentorEtternavn = "Rogersen",
             arbeidsgiveravgiftSats = 0.102,
             otpSats = 0.02,
             feriepengerSats = 0.142,
@@ -989,6 +995,8 @@ fun `Ole-Johnny Utbetalt`(): Refusjon {
             tilskuddsbeløp = 3369,
             mentorTimelonn = 250,
             mentorAntallTimer = 10.5,
+            mentorFornavn = "Ronny",
+            mentorEtternavn = "Rogersen",
             arbeidsgiveravgiftSats = 0.102,
             otpSats = 0.02,
             feriepengerSats = 0.142,

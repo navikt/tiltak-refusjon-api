@@ -74,6 +74,8 @@ class RefusjonService(
             godkjentAvBeslutterTidspunkt = tilskuddsperiodeGodkjentMelding.godkjentTidspunkt,
             mentorTimelonn = tilskuddsperiodeGodkjentMelding.mentorTimelonn,
             mentorAntallTimer = tilskuddsperiodeGodkjentMelding.mentorAntallTimer,
+            mentorFornavn = tilskuddsperiodeGodkjentMelding.mentorFornavn,
+            mentorEtternavn = tilskuddsperiodeGodkjentMelding.mentorEtternavn
         )
         val refusjon = Refusjon(
             tilskuddsgrunnlag = tilskuddsgrunnlag,
@@ -96,11 +98,9 @@ class RefusjonService(
     fun settMinusBeløpFraTidligereRefusjonerTilknyttetAvtalen(refusjon: Refusjon) {
         val avtaleNr = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr
         val alleMinusbeløp = minusbelopRepository.findAllByAvtaleNr(avtaleNr = avtaleNr)
-        if (!alleMinusbeløp.isNullOrEmpty()) {
+        if (alleMinusbeløp.isNotEmpty()) {
             val sumMinusbelop = alleMinusbeløp
-                .filter { !it.gjortOpp }
-                .map { minusbelop -> minusbelop.beløp }
-                .filterNotNull()
+                .filter { !it.gjortOpp }.mapNotNull { minusbelop -> minusbelop.beløp }
                 .reduceOrNull { sum, beløp -> sum + beløp }
             if (sumMinusbelop != null) {
                 refusjon.refusjonsgrunnlag.oppgiForrigeRefusjonsbeløp(sumMinusbelop)
@@ -305,6 +305,9 @@ class RefusjonService(
             settTotalBeløpUtbetalteVarigLønnstilskudd(refusjon)
             settOmFerieErTrukketForSammeMåned(refusjon)
             oppdaterSistEndret(refusjon)
+            gjørBeregning(refusjon, utførtAv)
+        }
+        if (refusjon.tiltakstype().utbetalesAutomatisk()) {
             gjørBeregning(refusjon, utførtAv)
         }
     }

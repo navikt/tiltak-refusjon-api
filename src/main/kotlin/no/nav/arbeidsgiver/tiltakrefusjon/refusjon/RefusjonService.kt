@@ -254,8 +254,8 @@ class RefusjonService(
 
     fun opprettKorreksjonsutkast(refusjon: Refusjon, korreksjonsgrunner: Set<Korreksjonsgrunn>, unntakOmInntekterFremitid: Int?, annetGrunn: String?): Korreksjon {
         val korreksjonsutkast = refusjon.opprettKorreksjonsutkast(korreksjonsgrunner, unntakOmInntekterFremitid, annetGrunn)
-        if (refusjon.tiltakstype().harFastUtbetalingssum()) {
-            // Utfør beregning umiddelbart
+        if (refusjon.tiltakstype() == Tiltakstype.VTAO) {
+            // Utfør beregning umiddelbart for VTAO-korreksjoner
             korreksjonsutkast.refusjonsgrunnlag.beregning = fastBeløpBeregning(
                 korreksjonsutkast.refusjonsgrunnlag.tilskuddsgrunnlag,
                 refusjon.refusjonsgrunnlag.beregning?.refusjonsbeløp ?: 0,

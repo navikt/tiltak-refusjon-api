@@ -307,9 +307,8 @@ internal class RefusjonTest {
         ).medInntekterKunFraTiltaket().medInntektsgrunnlag().medBeregning()
         assertFeilkode(Feilkode.INGEN_BEDRIFTKONTONUMMER) { refusjon.godkjennForArbeidsgiver(innloggetArbeidsgiver) }
         refusjon.oppgiBedriftKontonummer("10000008145")
-        val refusjonMedKontonummer = refusjon.medBeregning()
-        refusjonMedKontonummer.godkjennForArbeidsgiver(innloggetArbeidsgiver)
-        assertThat(refusjonMedKontonummer.status).isEqualTo(RefusjonStatus.SENDT_KRAV)
+        refusjon.godkjennForArbeidsgiver(innloggetArbeidsgiver)
+        assertThat(refusjon.status).isEqualTo(RefusjonStatus.SENDT_KRAV)
     }
 
     @Test

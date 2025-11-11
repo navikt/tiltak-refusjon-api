@@ -169,9 +169,7 @@ class RefusjonService(
     fun godkjennForArbeidsgiver(refusjon: Refusjon, utførtAv: InnloggetBruker) {
         val alleMinusBeløp = minusbelopRepository.findAllByAvtaleNr(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr)
         val sumMinusbelop = alleMinusBeløp
-            .filter { !it.gjortOpp }
-            .map { minusbelop -> minusbelop.beløp }
-            .filterNotNull()
+            .filter { !it.gjortOpp }.mapNotNull { minusbelop -> minusbelop.beløp }
             .reduceOrNull { sum, beløp -> sum + beløp }
         // Om det er et gammelt minusbeløp, men alle minusbeløp er gjort opp må refusjonen lastes på ny for å reberegnes
         if (sumMinusbelop != null && sumMinusbelop != 0 && refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp != sumMinusbelop) {
@@ -256,13 +254,9 @@ class RefusjonService(
 
     fun opprettKorreksjonsutkast(refusjon: Refusjon, korreksjonsgrunner: Set<Korreksjonsgrunn>, unntakOmInntekterFremitid: Int?, annetGrunn: String?): Korreksjon {
         val korreksjonsutkast = refusjon.opprettKorreksjonsutkast(korreksjonsgrunner, unntakOmInntekterFremitid, annetGrunn)
-        if (refusjon.tiltakstype().harFastUtbetalingssum()) {
-            // Utfør beregning umiddelbart
-            korreksjonsutkast.refusjonsgrunnlag.beregning = fastBeløpBeregning(
-                korreksjonsutkast.refusjonsgrunnlag.tilskuddsgrunnlag,
-                refusjon.refusjonsgrunnlag.beregning?.refusjonsbeløp ?: 0,
-                true
-            )
+        if (refusjon.tiltakstype() == Tiltakstype.VTAO) {
+            // Utfør beregning umiddelbart for VTAO-korreksjoner
+            korreksjonsutkast.refusjonsgrunnlag.beregning = beregnKorreksjon(korreksjonsutkast)
         }
         korreksjonRepository.save(korreksjonsutkast)
         refusjonRepository.save(refusjon)
@@ -316,22 +310,7 @@ class RefusjonService(
     }
 
     fun gjørBeregning(refusjon: Refusjon, utførtAv: InnloggetBruker) {
-        var beregning: Beregning? = null
-        if (refusjon.refusjonsgrunnlag.erAltOppgitt()) {
-            beregning = beregnRefusjonsbeløp(
-                inntekter = refusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.toList() ?: emptyList(),
-                tilskuddsgrunnlag = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag,
-                tidligereUtbetalt = refusjon.refusjonsgrunnlag.tidligereUtbetalt,
-                korrigertBruttoLønn = refusjon.refusjonsgrunnlag.endretBruttoLønn,
-                fratrekkRefunderbarSum = refusjon.refusjonsgrunnlag.refunderbarBeløp,
-                forrigeRefusjonMinusBeløp = refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
-                tilskuddFom = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
-                sumUtbetaltVarig = refusjon.refusjonsgrunnlag.sumUtbetaltVarig,
-                harFerietrekkForSammeMåned = refusjon.refusjonsgrunnlag.harFerietrekkForSammeMåned
-            )
-        } else if (refusjon.tiltakstype().harFastUtbetalingssum()) {
-            beregning = fastBeløpBeregning(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag, refusjon.refusjonsgrunnlag.tidligereUtbetalt)
-        }
+        val beregning: Beregning? = beregnRefusjon(refusjon)
         if (beregning != null) {
             refusjon.refusjonsgrunnlag.beregning = beregning
             log.info("Oppdatert beregning på refusjon ${refusjon.id} til ${beregning.id}")
@@ -340,18 +319,8 @@ class RefusjonService(
     }
 
     fun gjørKorreksjonBeregning(korreksjon: Korreksjon, utførtAv: InnloggetBruker) {
-        if (korreksjon.refusjonsgrunnlag.erAltOppgitt()) {
-            val beregning = beregnRefusjonsbeløp(
-                inntekter = korreksjon.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
-                tilskuddsgrunnlag = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag,
-                tidligereUtbetalt = korreksjon.refusjonsgrunnlag.tidligereUtbetalt,
-                korrigertBruttoLønn = korreksjon.refusjonsgrunnlag.endretBruttoLønn,
-                fratrekkRefunderbarSum = korreksjon.refusjonsgrunnlag.refunderbarBeløp,
-                forrigeRefusjonMinusBeløp = korreksjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
-                tilskuddFom = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
-                sumUtbetaltVarig = korreksjon.refusjonsgrunnlag.sumUtbetaltVarig,
-                harFerietrekkForSammeMåned = korreksjon.refusjonsgrunnlag.harFerietrekkForSammeMåned
-            )
+        val beregning = beregnKorreksjon(korreksjon)
+        if (beregning != null) {
             korreksjon.refusjonsgrunnlag.beregning = beregning
             applicationEventPublisher.publishEvent(KorreksjonBeregningUtført(korreksjon, utførtAv))
         }

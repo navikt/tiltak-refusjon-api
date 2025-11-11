@@ -59,6 +59,39 @@ fun fastBeløpBeregning(tilskuddsgrunnlag: Tilskuddsgrunnlag, tidligereUtbetalt:
     )
 }
 
+private fun mentorBeregning(tilskuddsgrunnlag: Tilskuddsgrunnlag): Beregning {
+    val mentorAntallTimer: Double? = tilskuddsgrunnlag.mentorAntallTimer
+    val mentorTimelonn: Int? = tilskuddsgrunnlag.mentorTimelonn
+    if (mentorTimelonn == null || mentorAntallTimer == null) {
+        throw RuntimeException(
+            "Tilskuddsgrunnlag ${tilskuddsgrunnlag.id} mangler verdi for mentorAntallTimer eller mentorTimelonn!" +
+                    "Har mentorberegning blitt kalt uten å først sjekke om alle felter er fylt ut?"
+        )
+    }
+    val lonn = mentorAntallTimer * mentorTimelonn
+    val feriepenger = lonn * tilskuddsgrunnlag.feriepengerSats
+    val tjenestepensjon = (lonn + feriepenger) * tilskuddsgrunnlag.otpSats
+    val arbeidsgiveravgift = (lonn + tjenestepensjon + feriepenger) * tilskuddsgrunnlag.arbeidsgiveravgiftSats
+    val beregnetBeløp = (lonn + tjenestepensjon + feriepenger + arbeidsgiveravgift).roundToInt()
+
+    return Beregning(
+        lønn = lonn.roundToInt(),
+        lønnFratrukketFerie = 0,
+        feriepenger = feriepenger.roundToInt(),
+        tjenestepensjon = tjenestepensjon.roundToInt(),
+        arbeidsgiveravgift = arbeidsgiveravgift.roundToInt(),
+        sumUtgifter = beregnetBeløp,
+        beregnetBeløp = tilskuddsgrunnlag.tilskuddsbeløp,
+        refusjonsbeløp = tilskuddsgrunnlag.tilskuddsbeløp,
+        overTilskuddsbeløp = false,
+        tidligereUtbetalt = 0,
+        fratrekkLønnFerie = 0,
+        tidligereRefundertBeløp = 0,
+        overFemGrunnbeløp = false,
+        sumUtgifterFratrukketRefundertBeløp = 0
+    )
+}
+
 fun beregnRefusjonsbeløp(
     inntekter: List<Inntektslinje>,
     tilskuddsgrunnlag: Tilskuddsgrunnlag,
@@ -122,6 +155,51 @@ fun beregnRefusjonsbeløp(
         sumUtgifterFratrukketRefundertBeløp = sumUtgifterFratrukketRefundertBeløp.roundToInt()
     )
 }
+
+fun beregnRefusjon(refusjon: Refusjon): Beregning? {
+    if (!refusjon.refusjonsgrunnlag.harTilstrekkeligInformasjonForBeregning()) {
+        return null
+    }
+
+    return when (refusjon.tiltakstype()) {
+        Tiltakstype.VTAO -> fastBeløpBeregning(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag, refusjon.refusjonsgrunnlag.tidligereUtbetalt)
+        Tiltakstype.MENTOR -> mentorBeregning(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag)
+        Tiltakstype.SOMMERJOBB, Tiltakstype.VARIG_LONNSTILSKUDD, Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD -> beregnRefusjonsbeløp(
+            inntekter = refusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.toList() ?: emptyList(),
+            tilskuddsgrunnlag = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag,
+            tidligereUtbetalt = refusjon.refusjonsgrunnlag.tidligereUtbetalt,
+            korrigertBruttoLønn = refusjon.refusjonsgrunnlag.endretBruttoLønn,
+            fratrekkRefunderbarSum = refusjon.refusjonsgrunnlag.refunderbarBeløp,
+            forrigeRefusjonMinusBeløp = refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
+            tilskuddFom = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
+            sumUtbetaltVarig = refusjon.refusjonsgrunnlag.sumUtbetaltVarig,
+            harFerietrekkForSammeMåned = refusjon.refusjonsgrunnlag.harFerietrekkForSammeMåned
+        )
+    }
+}
+
+fun beregnKorreksjon(korreksjon: Korreksjon): Beregning? {
+    if (!korreksjon.refusjonsgrunnlag.harTilstrekkeligInformasjonForBeregning()) {
+        return null
+    }
+
+    return when (korreksjon.tiltakstype()) {
+        Tiltakstype.VTAO -> fastBeløpBeregning(korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag, korreksjon.refusjonsgrunnlag.tidligereUtbetalt, true)
+        Tiltakstype.MENTOR -> null
+        Tiltakstype.SOMMERJOBB, Tiltakstype.VARIG_LONNSTILSKUDD, Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD -> beregnRefusjonsbeløp(
+            inntekter = korreksjon.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
+            tilskuddsgrunnlag = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag,
+            tidligereUtbetalt = korreksjon.refusjonsgrunnlag.tidligereUtbetalt,
+            korrigertBruttoLønn = korreksjon.refusjonsgrunnlag.endretBruttoLønn,
+            fratrekkRefunderbarSum = korreksjon.refusjonsgrunnlag.refunderbarBeløp,
+            forrigeRefusjonMinusBeløp = korreksjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
+            tilskuddFom = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
+            sumUtbetaltVarig = korreksjon.refusjonsgrunnlag.sumUtbetaltVarig,
+            harFerietrekkForSammeMåned = korreksjon.refusjonsgrunnlag.harFerietrekkForSammeMåned
+        )
+    }
+}
+
 
 fun leggSammenTrekkGrunnlag(inntekter: List<Inntektslinje>, tilskuddFom: LocalDate, ekstraFerietrekk: Int? = null): Double {
     var ferieTrekkGrunnlag = inntekter.filter { it.skalTrekkesIfraInntektsgrunnlag(tilskuddFom) }

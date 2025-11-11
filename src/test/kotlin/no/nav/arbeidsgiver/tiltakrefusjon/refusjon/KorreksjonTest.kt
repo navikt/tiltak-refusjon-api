@@ -1,6 +1,11 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
-import no.nav.arbeidsgiver.tiltakrefusjon.*
+import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
+import no.nav.arbeidsgiver.tiltakrefusjon.assertFeilkode
+import no.nav.arbeidsgiver.tiltakrefusjon.enInntektslinje
+import no.nav.arbeidsgiver.tiltakrefusjon.etInntektsgrunnlag
+import no.nav.arbeidsgiver.tiltakrefusjon.etTilskuddsgrunnlag
+import no.nav.arbeidsgiver.tiltakrefusjon.innloggetBruker
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.ulid
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Disabled
@@ -35,17 +40,7 @@ class KorreksjonTest {
             )
         )
         korreksjon.oppgiBedriftKontonummer("99999999999")
-        korreksjon.refusjonsgrunnlag.beregning = beregnRefusjonsbeløp(
-            inntekter = korreksjon.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
-            tilskuddsgrunnlag = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag,
-            tidligereUtbetalt = korreksjon.refusjonsgrunnlag.tidligereUtbetalt,
-            korrigertBruttoLønn = korreksjon.refusjonsgrunnlag.endretBruttoLønn,
-            fratrekkRefunderbarSum = korreksjon.refusjonsgrunnlag.refunderbarBeløp,
-            forrigeRefusjonMinusBeløp = korreksjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
-            tilskuddFom = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
-            sumUtbetaltVarig = korreksjon.refusjonsgrunnlag.sumUtbetaltVarig,
-            harFerietrekkForSammeMåned = korreksjon.refusjonsgrunnlag.harFerietrekkForSammeMåned
-        )
+        korreksjon.refusjonsgrunnlag.beregning = beregnKorreksjon(korreksjon)
         korreksjon.utbetalKorreksjon(innloggetBeslutter, "1000")
 
         assertThat(korreksjon.status).isEqualTo(Korreksjonstype.TILLEGSUTBETALING)
@@ -76,17 +71,7 @@ class KorreksjonTest {
             )
         )
         korreksjon.oppgiBedriftKontonummer("99999999999")
-        korreksjon.refusjonsgrunnlag.beregning = beregnRefusjonsbeløp(
-            inntekter = korreksjon.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
-            tilskuddsgrunnlag = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag,
-            tidligereUtbetalt = korreksjon.refusjonsgrunnlag.tidligereUtbetalt,
-            korrigertBruttoLønn = korreksjon.refusjonsgrunnlag.endretBruttoLønn,
-            fratrekkRefunderbarSum = korreksjon.refusjonsgrunnlag.refunderbarBeløp,
-            forrigeRefusjonMinusBeløp = korreksjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
-            tilskuddFom = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
-            sumUtbetaltVarig = korreksjon.refusjonsgrunnlag.sumUtbetaltVarig,
-            harFerietrekkForSammeMåned = korreksjon.refusjonsgrunnlag.harFerietrekkForSammeMåned
-        )
+        korreksjon.refusjonsgrunnlag.beregning = beregnKorreksjon(korreksjon)
         assertFeilkode(Feilkode.KOSTNADSSTED_MANGLER) { korreksjon.utbetalKorreksjon(innloggetBeslutter, "") }
 
     }
@@ -147,17 +132,7 @@ class KorreksjonTest {
             )
         )
         korreksjon.oppgiBedriftKontonummer("99999999999")
-        korreksjon.refusjonsgrunnlag.beregning = beregnRefusjonsbeløp(
-            inntekter = korreksjon.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
-            tilskuddsgrunnlag = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag,
-            tidligereUtbetalt = korreksjon.refusjonsgrunnlag.tidligereUtbetalt,
-            korrigertBruttoLønn = korreksjon.refusjonsgrunnlag.endretBruttoLønn,
-            fratrekkRefunderbarSum = korreksjon.refusjonsgrunnlag.refunderbarBeløp,
-            forrigeRefusjonMinusBeløp = korreksjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
-            tilskuddFom = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
-            sumUtbetaltVarig = korreksjon.refusjonsgrunnlag.sumUtbetaltVarig,
-            harFerietrekkForSammeMåned = korreksjon.refusjonsgrunnlag.harFerietrekkForSammeMåned
-        )
+        korreksjon.refusjonsgrunnlag.beregning = beregnKorreksjon(korreksjon)
         korreksjon.utbetalKorreksjon(innloggetBeslutter, "1009")
         assertThat(korreksjon.status).isEqualTo(Korreksjonstype.TILLEGSUTBETALING)
     }
@@ -187,17 +162,7 @@ class KorreksjonTest {
             )
         )
         korreksjon.oppgiBedriftKontonummer("99999999999")
-        korreksjon.refusjonsgrunnlag.beregning = beregnRefusjonsbeløp(
-            inntekter = korreksjon.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
-            tilskuddsgrunnlag = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag,
-            tidligereUtbetalt = korreksjon.refusjonsgrunnlag.tidligereUtbetalt,
-            korrigertBruttoLønn = korreksjon.refusjonsgrunnlag.endretBruttoLønn,
-            fratrekkRefunderbarSum = korreksjon.refusjonsgrunnlag.refunderbarBeløp,
-            forrigeRefusjonMinusBeløp = korreksjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
-            tilskuddFom = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
-            sumUtbetaltVarig = korreksjon.refusjonsgrunnlag.sumUtbetaltVarig,
-            harFerietrekkForSammeMåned = korreksjon.refusjonsgrunnlag.harFerietrekkForSammeMåned
-        )
+        korreksjon.refusjonsgrunnlag.beregning = beregnKorreksjon(korreksjon)
         assertFeilkode(Feilkode.KORREKSJONSBELOP_NEGATIVT) { korreksjon.utbetalKorreksjon(innloggetBeslutter, "9999") }
         assertFeilkode(Feilkode.KORREKSJONSBELOP_IKKE_NULL) { korreksjon.fullførKorreksjonVedOppgjort(innloggetBeslutter) }
         korreksjon.fullførKorreksjonVedTilbakekreving(innloggetBeslutter)
@@ -229,17 +194,7 @@ class KorreksjonTest {
             )
         )
         korreksjon.oppgiBedriftKontonummer("99999999999")
-        korreksjon.refusjonsgrunnlag.beregning = beregnRefusjonsbeløp(
-            inntekter = korreksjon.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
-            tilskuddsgrunnlag = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag,
-            tidligereUtbetalt = korreksjon.refusjonsgrunnlag.tidligereUtbetalt,
-            korrigertBruttoLønn = korreksjon.refusjonsgrunnlag.endretBruttoLønn,
-            fratrekkRefunderbarSum = korreksjon.refusjonsgrunnlag.refunderbarBeløp,
-            forrigeRefusjonMinusBeløp = korreksjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
-            tilskuddFom = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
-            sumUtbetaltVarig = korreksjon.refusjonsgrunnlag.sumUtbetaltVarig,
-            harFerietrekkForSammeMåned = korreksjon.refusjonsgrunnlag.harFerietrekkForSammeMåned
-        )
+        korreksjon.refusjonsgrunnlag.beregning = beregnKorreksjon(korreksjon)
         assertFeilkode(Feilkode.KORREKSJONSBELOP_NEGATIVT) { korreksjon.utbetalKorreksjon(innloggetBeslutter, "9999") }
         assertFeilkode(Feilkode.KORREKSJONSBELOP_POSITIVT) { korreksjon.fullførKorreksjonVedTilbakekreving(innloggetBeslutter) }
         korreksjon.fullførKorreksjonVedOppgjort(innloggetBeslutter)
@@ -273,17 +228,7 @@ class KorreksjonTest {
 
         korreksjon.oppgiBedriftKontonummer("123456789")
         korreksjon.oppgiInntektsgrunnlag(inntektsgrunnlag)
-        korreksjon.refusjonsgrunnlag.beregning = beregnRefusjonsbeløp(
-            inntekter = korreksjon.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
-            tilskuddsgrunnlag = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag,
-            tidligereUtbetalt = korreksjon.refusjonsgrunnlag.tidligereUtbetalt,
-            korrigertBruttoLønn = korreksjon.refusjonsgrunnlag.endretBruttoLønn,
-            fratrekkRefunderbarSum = korreksjon.refusjonsgrunnlag.refunderbarBeløp,
-            forrigeRefusjonMinusBeløp = korreksjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
-            tilskuddFom = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
-            sumUtbetaltVarig = korreksjon.refusjonsgrunnlag.sumUtbetaltVarig,
-            harFerietrekkForSammeMåned = korreksjon.refusjonsgrunnlag.harFerietrekkForSammeMåned
-        )
+        korreksjon.refusjonsgrunnlag.beregning = beregnKorreksjon(korreksjon)
         assertThat(korreksjon.refusjonsgrunnlag.beregning?.lønn).isEqualTo(inntektslinjeOpptjentIPeriode.beløp.toInt())
     }
 }

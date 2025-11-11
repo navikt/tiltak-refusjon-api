@@ -1,6 +1,18 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
-import no.nav.arbeidsgiver.tiltakrefusjon.*
+import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
+import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
+import no.nav.arbeidsgiver.tiltakrefusjon.assertFeilkode
+import no.nav.arbeidsgiver.tiltakrefusjon.enInntektslinje
+import no.nav.arbeidsgiver.tiltakrefusjon.enRefusjon
+import no.nav.arbeidsgiver.tiltakrefusjon.etInntektsgrunnlag
+import no.nav.arbeidsgiver.tiltakrefusjon.etTilskuddsgrunnlag
+import no.nav.arbeidsgiver.tiltakrefusjon.innloggetBruker
+import no.nav.arbeidsgiver.tiltakrefusjon.medBedriftKontonummer
+import no.nav.arbeidsgiver.tiltakrefusjon.medBeregning
+import no.nav.arbeidsgiver.tiltakrefusjon.medInntekterKunFraTiltaket
+import no.nav.arbeidsgiver.tiltakrefusjon.medInntektsgrunnlag
+import no.nav.arbeidsgiver.tiltakrefusjon.medSendtKravFraArbeidsgiver
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.antallMånederEtter
 import org.assertj.core.api.Assertions.assertThat
@@ -86,16 +98,7 @@ internal class RefusjonTest {
 
         // Tar stilling til alle inntektslinjer
         refusjon.setInntektslinjeTilOpptjentIPeriode(enInntektslinjeIkkeTattStillingTilOpptjening.id, true)
-        refusjon.refusjonsgrunnlag.beregning = beregnRefusjonsbeløp(
-            inntekter = refusjon.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
-            tilskuddsgrunnlag = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag,
-            tidligereUtbetalt = refusjon.refusjonsgrunnlag.tidligereUtbetalt,
-            korrigertBruttoLønn = refusjon.refusjonsgrunnlag.endretBruttoLønn,
-            fratrekkRefunderbarSum = refusjon.refusjonsgrunnlag.refunderbarBeløp,
-            forrigeRefusjonMinusBeløp = refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
-            tilskuddFom = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
-            sumUtbetaltVarig = refusjon.refusjonsgrunnlag.sumUtbetaltVarig,
-            harFerietrekkForSammeMåned = refusjon.refusjonsgrunnlag.harFerietrekkForSammeMåned)
+        refusjon.refusjonsgrunnlag.beregning = beregnRefusjon(refusjon)
 
         refusjon.godkjennForArbeidsgiver(innloggetArbeidsgiver)
 
@@ -236,7 +239,7 @@ internal class RefusjonTest {
         assertThat(refusjon.status).isEqualTo(RefusjonStatus.KLAR_FOR_INNSENDING)
     }
 
-   @Test
+    @Test
     fun `oppdater status til GODKJENT_MINUSBELØP`() {
         val refusjon = enRefusjon(
             etTilskuddsgrunnlag().copy(
@@ -317,16 +320,7 @@ internal class RefusjonTest {
 
         val refusjon = enRefusjon().medBedriftKontonummer().medInntekterKunFraTiltaket()
         refusjon.oppgiInntektsgrunnlag(inntektsgrunnlag)
-        refusjon.refusjonsgrunnlag.beregning = beregnRefusjonsbeløp(
-            inntekter = refusjon.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
-            tilskuddsgrunnlag = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag,
-            tidligereUtbetalt = refusjon.refusjonsgrunnlag.tidligereUtbetalt,
-            korrigertBruttoLønn = refusjon.refusjonsgrunnlag.endretBruttoLønn,
-            fratrekkRefunderbarSum = refusjon.refusjonsgrunnlag.refunderbarBeløp,
-            forrigeRefusjonMinusBeløp = refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
-            tilskuddFom = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
-            sumUtbetaltVarig = refusjon.refusjonsgrunnlag.sumUtbetaltVarig,
-            harFerietrekkForSammeMåned = refusjon.refusjonsgrunnlag.harFerietrekkForSammeMåned)
+        refusjon.refusjonsgrunnlag.beregning = beregnRefusjon(refusjon)
 
         assertThat(refusjon.refusjonsgrunnlag.beregning?.lønn).isEqualTo(inntektslinjeOpptjentIPeriode.beløp.toInt())
     }
@@ -387,7 +381,8 @@ internal class RefusjonTest {
         val tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
             tilskuddFom = iDag.minusMonths(2),
             tilskuddTom = iDag.minusMonths(1),
-            godkjentAvBeslutterTidspunkt = LocalDateTime.now())
+            godkjentAvBeslutterTidspunkt = LocalDateTime.now()
+        )
         val refusjon = enRefusjon(tilskuddsgrunnlag)
 
         val godkjentAvBeslutterTidspunkt = tilskuddsgrunnlag.godkjentAvBeslutterTidspunkt!!.toLocalDate()
@@ -400,7 +395,8 @@ internal class RefusjonTest {
         val tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
             tilskuddFom = iDag,
             tilskuddTom = iDag.plusMonths(1),
-            godkjentAvBeslutterTidspunkt = LocalDateTime.now())
+            godkjentAvBeslutterTidspunkt = LocalDateTime.now()
+        )
         val refusjon = enRefusjon(tilskuddsgrunnlag)
         assertThat(refusjon.fristForGodkjenning).isEqualTo(antallMånederEtter(tilskuddsgrunnlag.tilskuddTom, 2))
     }

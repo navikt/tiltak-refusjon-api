@@ -1,6 +1,11 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
-import jakarta.persistence.*
+import jakarta.persistence.CascadeType
+import jakarta.persistence.Entity
+import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.ManyToOne
+import jakarta.persistence.OneToOne
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
@@ -81,7 +86,7 @@ class Refusjonsgrunnlag(
     }
 
     fun endreBruttolønn(inntekterKunFraTiltaket: Boolean?, bruttoLønn: Int?) {
-        if (inntekterKunFraTiltaket != null && inntekterKunFraTiltaket == true && bruttoLønn != null) {
+        if (inntekterKunFraTiltaket == true && bruttoLønn != null) {
             throw FeilkodeException(Feilkode.INNTEKTER_KUN_FRA_TILTAK_OG_OPPGIR_BELØP)
         }
         this.inntekterKunFraTiltaket = inntekterKunFraTiltaket
@@ -89,11 +94,13 @@ class Refusjonsgrunnlag(
     }
 
     fun refusjonsgrunnlagetErNegativt(): Boolean {
-        return this.beregning?.refusjonsbeløp != null && this.beregning!!.refusjonsbeløp < 0
+        val beregning = this.beregning
+        return beregning != null && beregning.refusjonsbeløp < 0
     }
 
     fun refusjonsgrunnlagetErNullSomIZero(): Boolean {
-        return this.beregning?.refusjonsbeløp != null && this.beregning!!.refusjonsbeløp == 0
+        val beregning = this.beregning
+        return beregning != null && beregning.refusjonsbeløp == 0
     }
 
     fun setInntektslinjeTilOpptjentIPeriode(inntekslinjeId: String, erOpptjentIPeriode: Boolean) {
@@ -127,10 +134,19 @@ class Refusjonsgrunnlag(
         this.refunderbarBeløp = refunderbarBeløp
     }
 
-    fun erAltOppgitt(): Boolean {
-        val inntektsgrunnlag = inntektsgrunnlag
-        if (inntektsgrunnlag == null || inntektsgrunnlag.inntekter.none { it.erMedIInntektsgrunnlag() }) return false
-        return bedriftKontonummer != null && (inntekterKunFraTiltaket == true && endretBruttoLønn == null ||
-                ((inntekterKunFraTiltaket == false || inntekterKunFraTiltaket == null) && endretBruttoLønn != null))
-    }
+    private fun harValgtMinstEnInntektslinje() = inntektsgrunnlag?.inntekter?.any { it.erMedIInntektsgrunnlag() } ?: false
+
+    private fun harFyltInnEndretBruttolønn() = inntekterKunFraTiltaket == false && endretBruttoLønn != null
+
+    private fun harIkkeEndretBruttolønn() = inntekterKunFraTiltaket == true && endretBruttoLønn == null
+
+    private fun harTattStillingTilEndringAvBruttolønn() = inntekterKunFraTiltaket != null && (harFyltInnEndretBruttolønn() || harIkkeEndretBruttolønn())
+
+    fun harTilstrekkeligInformasjonForBeregning() =
+        when (tilskuddsgrunnlag.tiltakstype) {
+            Tiltakstype.MENTOR -> tilskuddsgrunnlag.mentorTimelonn != null && tilskuddsgrunnlag.mentorAntallTimer != null
+            Tiltakstype.VTAO -> true
+            Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD, Tiltakstype.VARIG_LONNSTILSKUDD, Tiltakstype.SOMMERJOBB ->
+                harValgtMinstEnInntektslinje() && harTattStillingTilEndringAvBruttolønn()
+        }
 }

@@ -52,7 +52,7 @@ class RefusjonServiceTest(
     val innloggetSaksbehandler = innloggetBruker("X123456", BrukerRolle.BESLUTTER);
 
     @Test
-    fun `godkjennForArbeidsgiver feiler fordi refusjon er ikke klar til innsending`(){
+    fun `godkjennForArbeidsgiver feiler fordi refusjon er ikke klar til innsending`() {
 
         val deltakerFnr = "00000000000"
         val tilskuddMelding = TilskuddsperiodeGodkjentMelding(
@@ -71,7 +71,7 @@ class RefusjonServiceTest(
             deltakerFnr = deltakerFnr,
             feriepengerSats = 0.141,
             otpSats = 0.02,
-            tilskuddFom =  Now.localDate().minusWeeks(4),
+            tilskuddFom = Now.localDate().minusWeeks(4),
             tilskuddTom = Now.localDate().minusDays(1),
             tilskuddsperiodeId = "1",
             veilederNavIdent = "X123456",
@@ -99,7 +99,7 @@ class RefusjonServiceTest(
     }
 
     @Test
-    fun `rekkefølge GODKJENNING av refusjon, ingen krav til godkjenning i rekkefølge`(){
+    fun `rekkefølge GODKJENNING av refusjon, ingen krav til godkjenning i rekkefølge`() {
 
         val deltakerFnr = "00000000000"
         val tilskuddMelding = TilskuddsperiodeGodkjentMelding(
@@ -118,7 +118,7 @@ class RefusjonServiceTest(
             deltakerFnr = deltakerFnr,
             feriepengerSats = 0.141,
             otpSats = 0.02,
-            tilskuddFom =  Now.localDate().minusMonths(4),
+            tilskuddFom = Now.localDate().minusMonths(4),
             tilskuddTom = Now.localDate().minusMonths(3).minusDays(1),
             tilskuddsperiodeId = "1",
             veilederNavIdent = "X123456",
@@ -242,7 +242,7 @@ class RefusjonServiceTest(
             deltakerFnr = deltakerFnr,
             feriepengerSats = 0.141,
             otpSats = 0.02,
-            tilskuddFom =  Now.localDate().minusWeeks(4),
+            tilskuddFom = Now.localDate().minusWeeks(4),
             tilskuddTom = Now.localDate().minusDays(1),
             tilskuddsperiodeId = "1",
             veilederNavIdent = "X123456",
@@ -305,21 +305,38 @@ class RefusjonServiceTest(
         )
         refusjonService.opprettRefusjon(tilskuddMelding)
         val pageable: Pageable = PageRequest.of(0, 100)
-        var lagretRefusjon = refusjonRepository.findAllByDeltakerFnrAndStatusInAndRefusjonsgrunnlag_Tilskuddsgrunnlag_TiltakstypeIn(deltakerFnr, RefusjonStatus.values().toList(), Tiltakstype.values().toList(), pageable).content[0]
+        var lagretRefusjon =
+            refusjonRepository.findAllByDeltakerFnrAndStatusInAndRefusjonsgrunnlag_Tilskuddsgrunnlag_TiltakstypeIn(
+                deltakerFnr,
+                RefusjonStatus.values().toList(),
+                Tiltakstype.values().toList(),
+                pageable
+            ).content[0]
         assertThat(lagretRefusjon.refusjonsgrunnlag.tilskuddsgrunnlag).isNotNull
         assertThat(lagretRefusjon.status).isEqualTo(RefusjonStatus.FOR_TIDLIG)
 
         // Forkorting
         val forkortetTilskuddTom = lagretRefusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom.minusDays(1)
         val nyttBeløp = 19
-        refusjonService.forkortRefusjon(TilskuddsperiodeForkortetMelding(lagretRefusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId, nyttBeløp, forkortetTilskuddTom))
+        refusjonService.forkortRefusjon(
+            TilskuddsperiodeForkortetMelding(
+                lagretRefusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId,
+                nyttBeløp,
+                forkortetTilskuddTom
+            )
+        )
         lagretRefusjon = refusjonRepository.findByIdOrNull(lagretRefusjon.id) ?: throw RuntimeException()
         assertThat(lagretRefusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom).isEqualTo(forkortetTilskuddTom)
         assertThat(lagretRefusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsbeløp).isEqualTo(nyttBeløp)
         assertThat(lagretRefusjon.status).isEqualTo(RefusjonStatus.KLAR_FOR_INNSENDING)
 
         // Annullering
-        refusjonService.annullerRefusjon(TilskuddsperiodeAnnullertMelding(lagretRefusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId, MidlerFrigjortÅrsak.AVTALE_ANNULLERT))
+        refusjonService.annullerRefusjon(
+            TilskuddsperiodeAnnullertMelding(
+                lagretRefusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId,
+                MidlerFrigjortÅrsak.AVTALE_ANNULLERT
+            )
+        )
         lagretRefusjon = refusjonRepository.findByIdOrNull(lagretRefusjon.id) ?: throw RuntimeException()
         assertThat(lagretRefusjon.status).isEqualTo(RefusjonStatus.ANNULLERT)
     }
@@ -361,7 +378,11 @@ class RefusjonServiceTest(
         refusjonService.opprettRefusjon(tilskuddMelding)
         refusjonService.opprettRefusjon(tilskuddMelding)
 
-        assertThat(refusjonRepository.findAll().filter { it.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId == tilskuddMelding.tilskuddsperiodeId }).hasSize(1)
+        assertThat(
+            refusjonRepository.findAll()
+                .filter { it.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId == tilskuddMelding.tilskuddsperiodeId }).hasSize(
+            1
+        )
 
     }
 
@@ -403,14 +424,24 @@ class RefusjonServiceTest(
 
         refusjonService.gjørInntektsoppslag(refusjon, innloggetArbeidsgiver)
         verify {
-            inntektskomponentService.hentInntekter(tilskuddMelding.deltakerFnr, tilskuddMelding.bedriftNr, tilskuddMelding.tilskuddFom, tilskuddMelding.tilskuddTom.plusMonths(1))
+            inntektskomponentService.hentInntekter(
+                tilskuddMelding.deltakerFnr,
+                tilskuddMelding.bedriftNr,
+                tilskuddMelding.tilskuddFom,
+                tilskuddMelding.tilskuddTom.plusMonths(1)
+            )
         }
 
         Now.fixedDate(LocalDate.now().plusDays(1))
         refusjon.merkForUnntakOmInntekterFremITid(2, innloggetSaksbehandler)
         refusjonService.gjørInntektsoppslag(refusjon, innloggetArbeidsgiver)
         verify {
-            inntektskomponentService.hentInntekter(tilskuddMelding.deltakerFnr, tilskuddMelding.bedriftNr, tilskuddMelding.tilskuddFom, tilskuddMelding.tilskuddTom.plusMonths(2))
+            inntektskomponentService.hentInntekter(
+                tilskuddMelding.deltakerFnr,
+                tilskuddMelding.bedriftNr,
+                tilskuddMelding.tilskuddFom,
+                tilskuddMelding.tilskuddTom.plusMonths(2)
+            )
         }
         Now.resetClock()
     }
@@ -434,8 +465,9 @@ class RefusjonServiceTest(
             deltakerFnr = deltakerFnr,
             feriepengerSats = 0.141,
             otpSats = 0.02,
-            tilskuddFom = YearMonth.from(Now.localDate().minusMonths(1)).atDay(1), //Now.localDate().minusWeeks(4).plusDays(1),
-            tilskuddTom =YearMonth.from(Now.localDate().minusMonths(1)).atEndOfMonth(), //Now.localDate().minusDays(1),
+            tilskuddFom = YearMonth.from(Now.localDate().minusMonths(1))
+                .atDay(1), //Now.localDate().minusWeeks(4).plusDays(1),
+            tilskuddTom = YearMonth.from(Now.localDate().minusMonths(1)).atEndOfMonth(), //Now.localDate().minusDays(1),
             tilskuddsperiodeId = "4",
             veilederNavIdent = "X123456",
             lønnstilskuddsprosent = 60,
@@ -453,7 +485,12 @@ class RefusjonServiceTest(
 
         refusjonService.gjørInntektsoppslag(refusjon, innloggetArbeidsgiver)
         verify {
-            inntektskomponentService.hentInntekter(tilskuddMelding.deltakerFnr, tilskuddMelding.bedriftNr, tilskuddMelding.tilskuddFom, tilskuddMelding.tilskuddTom.plusMonths(0))
+            inntektskomponentService.hentInntekter(
+                tilskuddMelding.deltakerFnr,
+                tilskuddMelding.bedriftNr,
+                tilskuddMelding.tilskuddFom,
+                tilskuddMelding.tilskuddTom.plusMonths(0)
+            )
         }
 
         Now.fixedDate(LocalDate.now().plusDays(1))
@@ -461,7 +498,12 @@ class RefusjonServiceTest(
         refusjon.merkForHentInntekterFrem(true, innloggetSaksbehandler)
         refusjonService.gjørInntektsoppslag(refusjon, innloggetArbeidsgiver)
         verify {
-            inntektskomponentService.hentInntekter(tilskuddMelding.deltakerFnr, tilskuddMelding.bedriftNr, tilskuddMelding.tilskuddFom, tilskuddMelding.tilskuddTom.plusMonths(1))
+            inntektskomponentService.hentInntekter(
+                tilskuddMelding.deltakerFnr,
+                tilskuddMelding.bedriftNr,
+                tilskuddMelding.tilskuddFom,
+                tilskuddMelding.tilskuddTom.plusMonths(1)
+            )
         }
         Now.resetClock()
     }
@@ -503,13 +545,23 @@ class RefusjonServiceTest(
         val refusjon = refusjonService.opprettRefusjon(tilskuddMelding) ?: fail("Skulle kunne opprette refusjon")
         refusjonService.gjørInntektsoppslag(refusjon, innloggetArbeidsgiver)
         verify {
-            inntektskomponentService.hentInntekter(tilskuddMelding.deltakerFnr, tilskuddMelding.bedriftNr, tilskuddMelding.tilskuddFom, tilskuddMelding.tilskuddTom.plusMonths(0))
+            inntektskomponentService.hentInntekter(
+                tilskuddMelding.deltakerFnr,
+                tilskuddMelding.bedriftNr,
+                tilskuddMelding.tilskuddFom,
+                tilskuddMelding.tilskuddTom.plusMonths(0)
+            )
         }
         Now.fixedDate(LocalDate.now().plusDays(1))
         refusjon.merkForUnntakOmInntekterFremITid(2, innloggetSaksbehandler)
         refusjonService.gjørInntektsoppslag(refusjon, innloggetArbeidsgiver)
         verify {
-            inntektskomponentService.hentInntekter(tilskuddMelding.deltakerFnr, tilskuddMelding.bedriftNr, tilskuddMelding.tilskuddFom, tilskuddMelding.tilskuddTom.plusMonths(2))
+            inntektskomponentService.hentInntekter(
+                tilskuddMelding.deltakerFnr,
+                tilskuddMelding.bedriftNr,
+                tilskuddMelding.tilskuddFom,
+                tilskuddMelding.tilskuddTom.plusMonths(2)
+            )
         }
         Now.resetClock()
     }
@@ -549,11 +601,22 @@ class RefusjonServiceTest(
             mentorAntallTimer = null,
         )
         refusjonService.opprettRefusjon(tilskuddMelding)
-        assertThat(refusjonRepository.findAll().filter { it.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId == tilskuddMelding.tilskuddsperiodeId }).hasSize(1)
-        var lagretRefusjon = refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_TilskuddsperiodeId(tilskuddMelding.tilskuddsperiodeId).firstOrNull()
+        assertThat(
+            refusjonRepository.findAll()
+                .filter { it.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId == tilskuddMelding.tilskuddsperiodeId }).hasSize(
+            1
+        )
+        var lagretRefusjon =
+            refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_TilskuddsperiodeId(tilskuddMelding.tilskuddsperiodeId)
+                .firstOrNull()
 
-        refusjonService.annullerRefusjon(TilskuddsperiodeAnnullertMelding(tilskuddMelding.tilskuddsperiodeId, MidlerFrigjortÅrsak.REFUSJON_IKKE_SØKT))
-        lagretRefusjon = refusjonRepository.findByIdOrNull(lagretRefusjon?.id) ?: throw RuntimeException()
+        refusjonService.annullerRefusjon(
+            TilskuddsperiodeAnnullertMelding(
+                tilskuddMelding.tilskuddsperiodeId,
+                MidlerFrigjortÅrsak.REFUSJON_IKKE_SØKT
+            )
+        )
+        lagretRefusjon = lagretRefusjon?.id?.let { refusjonRepository.findByIdOrNull(it) } ?: throw RuntimeException()
         assertThat(lagretRefusjon.status).isNotEqualTo(RefusjonStatus.ANNULLERT)
     }
 
@@ -576,7 +639,7 @@ class RefusjonServiceTest(
             deltakerFnr = deltakerFnr,
             feriepengerSats = 0.0,
             otpSats = 0.0,
-            tilskuddFom =  Now.localDate().minusWeeks(4),
+            tilskuddFom = Now.localDate().minusWeeks(4),
             tilskuddTom = Now.localDate().minusDays(1),
             tilskuddsperiodeId = "1",
             veilederNavIdent = "X123456",
@@ -601,9 +664,10 @@ class RefusjonServiceTest(
 
     fun gjørInntektoppslagForRefusjon(refusjon: Refusjon) {
         // Sett innhentede inntekter til opptjent i periode
-        refusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.forEach { it.erOpptjentIPeriode = true }
+        refusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }
+            ?.forEach { it.erOpptjentIPeriode = true }
         // Bekreft at alle inntektene kun er fra tiltaket
-        refusjonService.endreBruttolønn(refusjon,true, null)
+        refusjonService.endreBruttolønn(refusjon, true, null)
         refusjonService.gjørBeregning(refusjon, innloggetArbeidsgiver)
     }
 

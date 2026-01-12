@@ -31,6 +31,10 @@ class VarslingJobb(
 
         val refusjoner = refusjonRepository.findAllByStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
         for (refusjon in refusjoner) {
+            if (refusjon.tiltakstype().utbetalesAutomatisk()) {
+                logger.error("Refusjon ${refusjon.id} av tiltakstype ${refusjon.tiltakstype()} skal ikke ha manuell godkjenning")
+                continue;
+            }
 
             val varslerForRefusjon = varslingRepository.findAllByRefusjonId(refusjon.id)
             val kortTidTilRefusjonenGårUt = refusjon.fristForGodkjenning.isBefore(Now.localDate().plusWeeks(2))
@@ -56,6 +60,10 @@ class VarslingJobb(
         val refusjoner = refusjonRepository.findAllByStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
         var antallSendteVarsler = 0
         for (refusjon in refusjoner) {
+            if (refusjon.tiltakstype().utbetalesAutomatisk()) {
+                logger.error("Refusjon ${refusjon.id} av tiltakstype ${refusjon.tiltakstype()} skal ikke ha manuell godkjenning")
+                continue;
+            }
             val varslerForRefusjon = varslingRepository.findAllByRefusjonId(refusjon.id)
 
             if (varslerForRefusjon.none { it.varselType === VarselType.KLAR} && forrigeMåned.equals(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom.month)) {

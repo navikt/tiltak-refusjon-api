@@ -39,6 +39,9 @@ no.nav.security.jwt:
     tokenx:
       discoveryurl: ${TOKEN_X_WELL_KNOWN_URL}
       accepted_audience: ${TOKEN_X_CLIENT_ID}
+    azure-access-token:
+      discoveryurl: "https://login.microsoftonline.com/62366534-1ec3-4962-8869-9b5535279d0b/.well-known/openid-configuration"
+      accepted_audience: "https://management.core.windows.net/"
   client:
     registration:
       tokenx-altinn:

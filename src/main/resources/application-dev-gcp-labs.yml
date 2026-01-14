@@ -22,6 +22,9 @@ no.nav.security.jwt:
     tokenx:
       discoveryurl: http://tiltak-fakelogin/metadata?issuer=tokenx
       accepted_audience: aud-tokenx
+    azure-access-token:
+      discoveryurl: "https://login.microsoftonline.com/62366534-1ec3-4962-8869-9b5535279d0b/.well-known/openid-configuration"
+      accepted_audience: "https://management.core.windows.net/"
   client:
     registration:
       dummy:

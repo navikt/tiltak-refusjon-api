@@ -5,19 +5,12 @@ import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.ADMIN_BRUKER
 import no.nav.arbeidsgiver.tiltakrefusjon.leader.LeaderPodCheck
 import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterServiceImpl
 import no.nav.arbeidsgiver.tiltakrefusjon.rapport.UbetaltRefusjonRapport
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Beregning
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Korreksjonsgrunn
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonKafkaProducer
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonRepository
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonService
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonStatus
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.StatusJobb
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.beregnRefusjonsbeløp
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonEndretStatus
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.MidlerFrigjortÅrsak
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeForkortetMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
+import no.nav.security.token.support.core.api.ProtectedWithClaims
 import no.nav.security.token.support.core.api.Unprotected
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.PageRequest
@@ -25,14 +18,10 @@ import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.ResponseEntity
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import java.time.LocalDate
 
+@ProtectedWithClaims(issuer = "azure-access-token", claimMap = ["groups=fb516b74-0f2e-4b62-bad8-d70b82c3ae0b"])
 @RestController
 @RequestMapping("/internal/admin")
 class AdminController(
@@ -47,19 +36,16 @@ class AdminController(
 ) {
     val logger = LoggerFactory.getLogger(javaClass)
 
-    @Unprotected
     @GetMapping("kontoregister/{orgnr}")
     fun kontoregisterKall(@PathVariable orgnr: String): String {
         return "Bank kontonummer: " + kontoregisterService?.hentBankkontonummer(orgnr)
     }
 
-    @Unprotected
     @GetMapping("/")
     fun hjem(): String? {
         return "Velkommen til Refusjon Admin API"
     }
 
-    @Unprotected
     @PostMapping("opprett-refusjon")
     fun opprettRefusjon(@RequestBody jsonMelding: TilskuddsperiodeGodkjentMelding): Refusjon? {
         logger.info(
@@ -69,7 +55,6 @@ class AdminController(
         return service.opprettRefusjon(jsonMelding)
     }
 
-    @Unprotected
     @PostMapping("opprett-refusjoner")
     fun opprettRefusjoner(@RequestBody jsonMeldinger: List<TilskuddsperiodeGodkjentMelding>) {
         jsonMeldinger.forEach {
@@ -81,7 +66,6 @@ class AdminController(
         }
     }
 
-    @Unprotected
     @PostMapping("forkort-tilskuddsperiode")
     fun forkortTilskuddsperiode(@RequestBody jsonMelding: TilskuddsperiodeForkortetMelding) {
         logger.info(
@@ -91,7 +75,6 @@ class AdminController(
         service.forkortRefusjon(jsonMelding)
     }
 
-    @Unprotected
     @PostMapping("lag-korreksjoner")
     fun lagKorreksjoner(@RequestBody korreksjonRequest: KorreksjonRequest): List<String> {
         logger.info(
@@ -120,7 +103,6 @@ class AdminController(
     //     }
     // }
 
-    @Unprotected
     @PostMapping("forleng-frister")
     fun forlengFrister(@RequestBody request: ForlengFristerRequest) {
         logger.info(
@@ -144,7 +126,6 @@ class AdminController(
         }
     }
 
-    @Unprotected
     @PostMapping("forleng-frister-til-og-med-dato")
     fun forlengFristerTilOgMedDato(@RequestBody request: ForlengFristerTilOgMedRequest) {
         logger.info("Bruker AdminController for å forlenge refusjoner med frist før ${request.tilDato} til ny frist: ${request.nyFrist}")
@@ -172,7 +153,6 @@ class AdminController(
         logger.info("Forlenget frister på $fristerForlenget refusjoner")
     }
 
-    @Unprotected
     @PostMapping("annuller-refusjon-ved-tilskuddsperiode")
     fun annullerRefusjon(@RequestBody annullerRefusjon: AnnullerRefusjon) {
         logger.info("Annullerer refusjon med tilskuddsperiodeId ${annullerRefusjon.tilskuddsperiodeId}")
@@ -185,19 +165,16 @@ class AdminController(
             }
     }
 
-    @Unprotected
     @PostMapping("sjekk-for-klar-for-innsending")
     fun sjekkForKlarforInnsending() {
         StatusJobb(refusjonRepository, leaderPodCheck, automatiskInnsendingService).settForTidligTilKlarForInnsendingHvisMulig()
     }
 
-    @Unprotected
     @PostMapping("sjekk-for-utgått")
     fun sjekkForUtgått() {
         StatusJobb(refusjonRepository, leaderPodCheck, automatiskInnsendingService).settKlarForInnsendingTilUtgåttHvisMulig()
     }
 
-    @Unprotected
     @PostMapping("reberegn-dry/{id}")
     fun reberegnDryRun(@PathVariable id: String, @RequestBody request: ReberegnRequest): Beregning {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
@@ -215,7 +192,6 @@ class AdminController(
         )
     }
 
-    @Unprotected
     @PostMapping("reberegn-lagre/{id}")
     @Transactional
     fun reberegn(@PathVariable id: String, @RequestBody request: ReberegnRequest): Beregning {
@@ -239,11 +215,9 @@ class AdminController(
         return beregning
     }
 
-    @Unprotected
     @GetMapping("hent-refusjoner-med-status-sendt")
     fun hentRefusjonerMedStatusSendtKrav() = refusjonRepository.findAllByStatus(RefusjonStatus.SENDT_KRAV)
 
-    @Unprotected
     @PostMapping("oppdater-alle-refusjoner-klar-med-data/{page}")
     @Transactional
     fun oppdaterAlleRefusjonerKlarMedData(@PathVariable page: String) {
@@ -256,7 +230,6 @@ class AdminController(
         }
     }
 
-    @Unprotected
     @PostMapping("oppdater-alle-refusjoner-fortidlig-med-data/{page}")
     @Transactional
     fun oppdaterAlleRefusjonerForTidligMedData(@PathVariable page: String) {
@@ -268,7 +241,6 @@ class AdminController(
         }
     }
 
-    @Unprotected
     @PostMapping("send-refusjon-godkjent-melding")
     @Transactional
     fun sendRefusjonGodkjentMelding(@RequestBody refusjonGodkjentRequest: RefusjonGodkjentRequest): ResponseEntity<String> {
@@ -287,7 +259,6 @@ class AdminController(
         }
     }
 
-    @Unprotected
     @PostMapping("send-tilskuddsperiode-annullert-melding")
     @Transactional
     fun sentTilskuddsperiodeAnnullertMelding(@RequestBody annullerRefusjon: AnnullerRefusjon): ResponseEntity<String> {
@@ -309,13 +280,11 @@ class AdminController(
         }
     }
 
-    @Unprotected
     @PostMapping("utfoer-automatisk-innsending")
     fun manuellAutomatiskUtbetaling() {
         automatiskInnsendingService.utførAutomatiskInnsendingHvisMulig()
     }
 
-    @Unprotected
     @PostMapping("rapport-om-ubetalte-refusjoner")
     @Transactional
     fun rapportOmUbetalteRefusjoner() {

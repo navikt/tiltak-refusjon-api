@@ -15,6 +15,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonStatus
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.StatusJobb
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.beregnRefusjonsbeløp
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonEndretStatus
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonUtgått
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.MidlerFrigjortÅrsak
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeForkortetMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
@@ -24,6 +25,7 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.ResponseEntity
+import org.springframework.http.ResponseEntity.ok
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -195,6 +197,17 @@ class AdminController(
         ).settKlarForInnsendingTilUtgåttHvisMulig()
     }
 
+    @PostMapping("send-utgått-melding-for-refusjon")
+    fun sendUtgaattMeldingForRefusjon(@RequestBody refusjon: RefusjonRequest): ResponseEntity<String> {
+        val refusjon = refusjonRepository.findByIdOrNull(refusjon.refusjonId) ?: throw RessursFinnesIkkeException()
+        return if (refusjon.status == RefusjonStatus.UTGÅTT) {
+            refusjonKafkaProducer!!.refusjonUtgått(RefusjonUtgått(refusjon))
+            ok("refusjonUtgått-melding sendt")
+        } else {
+            ResponseEntity.badRequest().body("Refusjon er ikke utgått!")
+        }
+    }
+
     @PostMapping("reberegn-dry/{id}")
     fun reberegnDryRun(@PathVariable id: String, @RequestBody request: ReberegnRequest): Beregning {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
@@ -343,5 +356,6 @@ data class ForlengFristerTilOgMedRequest(
     val enforce: Boolean
 )
 
+data class RefusjonRequest(val refusjonId: String)
 data class AnnullerRefusjon(val tilskuddsperiodeId: String)
 data class RefusjonGodkjentRequest(val refusjonId: String)

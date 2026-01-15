@@ -129,6 +129,11 @@ class Refusjon(
         }
     }
 
+    private fun settRefusjonUtgått() {
+        status = RefusjonStatus.UTGÅTT
+        registerEvent(RefusjonUtgått(this))
+    }
+
     fun oppdaterStatus() {
         val statuserSomIkkeKanEndres =
             listOf(RefusjonStatus.SENDT_KRAV, RefusjonStatus.ANNULLERT, RefusjonStatus.UTBETALT)
@@ -136,7 +141,7 @@ class Refusjon(
 
         val today = Now.localDate()
         if (today.isAfter(fristForGodkjenning)) {
-            status = RefusjonStatus.UTGÅTT
+            settRefusjonUtgått()
             return
         }
 
@@ -288,8 +293,7 @@ class Refusjon(
      */
     fun settTilUtgåttHvisMulig(): Boolean {
         if (status == RefusjonStatus.KLAR_FOR_INNSENDING && Now.localDate().isAfter(fristForGodkjenning)) {
-            status = RefusjonStatus.UTGÅTT
-            registerEvent(RefusjonUtgått(this))
+            settRefusjonUtgått()
             registerEvent(RefusjonEndretStatus(this))
             return true
         }

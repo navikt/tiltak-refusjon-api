@@ -188,7 +188,7 @@ class AdminController(
         ).settForTidligTilKlarForInnsendingHvisMulig()
     }
 
-    @PostMapping("sjekk-for-utgått")
+    @PostMapping("sjekk-for-utgaatt")
     fun sjekkForUtgått() {
         StatusJobb(
             refusjonRepository,
@@ -197,7 +197,7 @@ class AdminController(
         ).settKlarForInnsendingTilUtgåttHvisMulig()
     }
 
-    @PostMapping("send-utgått-melding-for-refusjon")
+    @PostMapping("send-utgaatt-melding-for-refusjon")
     fun sendUtgaattMeldingForRefusjon(@RequestBody refusjon: RefusjonRequest): ResponseEntity<String> {
         val refusjon = refusjonRepository.findByIdOrNull(refusjon.refusjonId) ?: throw RessursFinnesIkkeException()
         return if (refusjon.status == RefusjonStatus.UTGÅTT) {

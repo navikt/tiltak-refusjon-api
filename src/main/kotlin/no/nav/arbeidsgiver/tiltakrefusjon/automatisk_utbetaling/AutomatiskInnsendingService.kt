@@ -25,7 +25,7 @@ class AutomatiskInnsendingService(
                 try {
                     refusjonService.utførAutomatiskInnsendingHvisMulig(refusjon)
                 } catch (e: Exception) {
-                    log.error("Kunne ikke utføre automatisk innsending på ${refusjon.id}", e)
+                    log.error("Kunne ikke utføre automatisk innsending på ${refusjon.id}, (status: ${refusjon.status})", e)
                 }
             }
     }

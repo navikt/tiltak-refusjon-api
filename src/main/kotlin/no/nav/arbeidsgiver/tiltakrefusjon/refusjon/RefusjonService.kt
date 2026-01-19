@@ -336,7 +336,7 @@ class RefusjonService(
             return
         }
         if (!refusjon.tiltakstype().utbetalesAutomatisk()) {
-            throw IllegalStateException("Refusjon ${refusjon.id} kan ikke sendes inn automatisk (tiltakstype ${refusjon.tiltakstype()}, status ${refusjon.status})")
+            throw IllegalStateException("Refusjon ${refusjon.id} kan ikke sendes inn automatisk (tiltakstype ${refusjon.tiltakstype()})")
         }
         log.info(
             "Utfører automatisk innsending av refusjon {}-{} ({})",

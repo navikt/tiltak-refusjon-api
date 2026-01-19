@@ -3,7 +3,8 @@ package no.nav.arbeidsgiver.tiltakrefusjon.featuretoggles
 import io.getunleash.MoreOperations
 import io.getunleash.Unleash
 import io.getunleash.UnleashContext
-import io.getunleash.Variant
+import io.getunleash.impactmetrics.MetricsAPI
+import io.getunleash.variant.Variant
 import java.util.function.BiPredicate
 
 
@@ -60,11 +61,11 @@ class FakeFakeUnleash : Unleash {
         }
     }
 
-    override fun getFeatureToggleNames(): List<String> {
-        return ArrayList(features.keys)
+    override fun more(): MoreOperations {
+        TODO("Not yet implemented")
     }
 
-    override fun more(): MoreOperations {
+    override fun getImpactMetrics(): MetricsAPI {
         TODO("Not yet implemented")
     }
 
@@ -78,33 +79,5 @@ class FakeFakeUnleash : Unleash {
         disableAll = true
         enableAll = false
         features.clear()
-    }
-
-    fun resetAll() {
-        disableAll = false
-        enableAll = false
-        features.clear()
-    }
-
-    fun enable(vararg features: String) {
-        for (name in features) {
-            this.features[name] = true
-        }
-    }
-
-    fun disable(vararg features: String) {
-        for (name in features) {
-            this.features[name] = false
-        }
-    }
-
-    fun reset(vararg features: String) {
-        for (name in features) {
-            this.features.remove(name)
-        }
-    }
-
-    fun setVariant(t1: String, a: Variant) {
-        variants[t1] = a
     }
 }

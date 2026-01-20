@@ -2,7 +2,6 @@ package no.nav.arbeidsgiver.tiltakrefusjon.dokgen
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.mockk.mockk
-import no.nav.arbeidsgiver.tiltakrefusjon.`Siri Hansen`
 import no.nav.arbeidsgiver.tiltakrefusjon.pdf.RefusjonTilPDF
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
 import org.junit.jupiter.api.Assertions.assertDoesNotThrow
@@ -46,7 +45,9 @@ internal class DokgenServiceTest () {
             tilskuddsbeløp = 1000,
             forrigeRefusjonMinusBeløp = 1000,
             forrigeRefusjonsnummer = "1233",
-            sumUtgifterFratrukketRefundertBeløp = 1000
+            sumUtgifterFratrukketRefundertBeløp = 1000,
+            mentorTimelonn = null,
+            mentorAntallTimer = null
         )
         val dokenservice = DokgenService(
             DokgenProperties(null), ObjectMapper(), mockk()

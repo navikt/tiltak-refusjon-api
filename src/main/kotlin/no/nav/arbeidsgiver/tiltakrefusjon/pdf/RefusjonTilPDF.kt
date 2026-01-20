@@ -17,7 +17,7 @@ data class RefusjonTilPDF(
     val kontonummer: String,
     val bedriftKid: String,
     val lønn: Int,
-    var feriepengerSats:Double,
+    var feriepengerSats: Double,
     val feriepenger: Int,
     var otpSats: Double,
     val tjenestepensjon: Int,
@@ -35,6 +35,9 @@ data class RefusjonTilPDF(
     val tilskuddsbeløp: Int,
     val forrigeRefusjonMinusBeløp: Int,
     val forrigeRefusjonsnummer: String,
-    val sumUtgifterFratrukketRefundertBeløp: Int
+    val sumUtgifterFratrukketRefundertBeløp: Int,
+    val mentorTimelonn: Int?,
+    val mentorAntallTimer: Double?
+
 )
 

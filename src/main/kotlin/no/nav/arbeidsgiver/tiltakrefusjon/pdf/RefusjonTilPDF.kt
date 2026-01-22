@@ -37,7 +37,8 @@ data class RefusjonTilPDF(
     val forrigeRefusjonsnummer: String,
     val sumUtgifterFratrukketRefundertBeløp: Int,
     val mentorTimelonn: Int?,
-    val mentorAntallTimer: Double?
+    val mentorAntallTimer: Double?,
+    val reduksjonForDelvisPeriode: Int
 
 )
 

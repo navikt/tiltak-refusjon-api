@@ -47,7 +47,8 @@ internal class DokgenServiceTest () {
             forrigeRefusjonsnummer = "1233",
             sumUtgifterFratrukketRefundertBeløp = 1000,
             mentorTimelonn = null,
-            mentorAntallTimer = null
+            mentorAntallTimer = null,
+            reduksjonForDelvisPeriode = null
         )
         val dokenservice = DokgenService(
             DokgenProperties(null), ObjectMapper(), mockk()

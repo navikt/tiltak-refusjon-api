@@ -67,7 +67,8 @@ object RefusjonTilPDFMapper {
                 forrigeRefusjonsnummer = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr.toString() + "-" + (refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.løpenummer -1),
                 sumUtgifterFratrukketRefundertBeløp = 0,
                 mentorTimelonn = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.mentorTimelonn,
-                mentorAntallTimer = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.mentorAntallTimer
+                mentorAntallTimer = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.mentorAntallTimer,
+                reduksjonForDelvisPeriode = (refusjon.refusjonsgrunnlag.beregning!!.sumUtgifter - refusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp)
             )
         }
 

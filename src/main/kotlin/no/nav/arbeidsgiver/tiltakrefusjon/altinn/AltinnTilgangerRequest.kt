@@ -6,5 +6,5 @@ data class AltinnTilgangerRequest(val filter: Filter)
 data class Filter(
     val altinn2Tilganger: Set<String> = emptySet(),
     val altinn3Tilganger: Set<String> = emptySet(),
-    val inkluderSlettede: Boolean = false,
+    val inkluderSlettede: Boolean = true,
 )

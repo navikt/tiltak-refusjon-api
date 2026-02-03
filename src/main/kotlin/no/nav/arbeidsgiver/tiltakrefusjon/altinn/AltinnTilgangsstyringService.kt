@@ -58,7 +58,7 @@ class AltinnTilgangsstyringService(
         val altinnTilgangerRequest = AltinnTilgangerRequest(
             filter = Filter(
                 altinn3Tilganger = setOf("nav_tiltak_tiltaksrefusjon"),
-                inkluderSlettede = true
+                inkluderSlettede = false
             )
         )
 

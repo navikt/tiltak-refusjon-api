@@ -52,7 +52,7 @@ class BetalingStatusKafkaLytter(
     @KafkaListener(topics = [REFUSJON_ENDRET_BETALINGSSTATUS])
     fun oppdaterKorreksjonEllerRefusjonStatusBasertPåBetalingStatusFraØkonomi(event: String) {
         val betalingsstatus = objectMapper.readValue(event, BetalingStatusEndringMelding::class.java)
-        log.info("Mottatt en betalingsstatus som skal behandles for avtale ${betalingsstatus.avtaleNr} med betalingsstatus ${betalingsstatus.status}")
+        log.info("Mottatt en betalingsstatus som skal behandles for avtale ${betalingsstatus.avtaleNr} - ${betalingsstatus.løpenummer} med betalingsstatus ${betalingsstatus.status}")
 
         if (betalingsstatus.erForRefusjon() && betalingsstatus.erForKorreksjon()) {
             log.error(

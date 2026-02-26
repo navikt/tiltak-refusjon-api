@@ -135,7 +135,7 @@ fun beregnRefusjon(refusjon: Refusjon): Beregning? {
     return when (refusjon.tiltakstype()) {
         Tiltakstype.VTAO -> fastBeløpBeregning(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag, refusjon.refusjonsgrunnlag.tidligereUtbetalt)
         Tiltakstype.MENTOR -> mentorBeregning(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag)
-        Tiltakstype.SOMMERJOBB, Tiltakstype.VARIG_LONNSTILSKUDD, Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD -> beregnRefusjonsbeløp(
+        Tiltakstype.SOMMERJOBB, Tiltakstype.VARIG_LONNSTILSKUDD, Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD, Tiltakstype.FIREARIG_LONNSTILSKUDD -> beregnRefusjonsbeløp(
             inntekter = refusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.toList() ?: emptyList(),
             tilskuddsgrunnlag = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag,
             tidligereUtbetalt = refusjon.refusjonsgrunnlag.tidligereUtbetalt,
@@ -157,7 +157,7 @@ fun beregnKorreksjon(korreksjon: Korreksjon): Beregning? {
     return when (korreksjon.tiltakstype()) {
         Tiltakstype.VTAO -> fastBeløpBeregning(korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag, korreksjon.refusjonsgrunnlag.tidligereUtbetalt, true)
         Tiltakstype.MENTOR -> null
-        Tiltakstype.SOMMERJOBB, Tiltakstype.VARIG_LONNSTILSKUDD, Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD -> beregnRefusjonsbeløp(
+        Tiltakstype.SOMMERJOBB, Tiltakstype.VARIG_LONNSTILSKUDD, Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD, Tiltakstype.FIREARIG_LONNSTILSKUDD -> beregnRefusjonsbeløp(
             inntekter = korreksjon.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
             tilskuddsgrunnlag = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag,
             tidligereUtbetalt = korreksjon.refusjonsgrunnlag.tidligereUtbetalt,

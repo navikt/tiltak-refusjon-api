@@ -146,7 +146,7 @@ class Refusjonsgrunnlag(
         when (tilskuddsgrunnlag.tiltakstype) {
             Tiltakstype.MENTOR -> tilskuddsgrunnlag.mentorTimelonn != null && tilskuddsgrunnlag.mentorAntallTimer != null
             Tiltakstype.VTAO -> true
-            Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD, Tiltakstype.VARIG_LONNSTILSKUDD, Tiltakstype.SOMMERJOBB ->
+            Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD, Tiltakstype.VARIG_LONNSTILSKUDD, Tiltakstype.SOMMERJOBB, Tiltakstype.FIREARIG_LONNSTILSKUDD ->
                 harValgtMinstEnInntektslinje() && harTattStillingTilEndringAvBruttolønn()
         }
 }

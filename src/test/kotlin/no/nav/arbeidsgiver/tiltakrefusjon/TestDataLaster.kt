@@ -1,6 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonRepository
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.ApplicationListener
 import org.springframework.context.annotation.Profile
@@ -12,10 +13,12 @@ class TestDataLaster(private val refusjonRepository: RefusjonRepository) : Appli
     override fun onApplicationEvent(event: ApplicationReadyEvent) {
         val refusjoner = refusjoner()
         val refusjonerMedFerietrekk = refusjonerMedFerietrekk()
-        val utbetalteRefusjoner = gamleUtbetalteRefusjonerOgEnNy()
-        println("Laster inn testdata med ${refusjoner.size + refusjonerMedFerietrekk.size + utbetalteRefusjoner.size} refusjoner")
+        val utbetalteVarigLontilRefusjoner = gamleUtbetalteRefusjonerOgEnNy(Tiltakstype.VARIG_LONNSTILSKUDD)
+        val utbetalteFireårigLontilRefusjoner = gamleUtbetalteRefusjonerOgEnNy(Tiltakstype.FIREARIG_LONNSTILSKUDD)
+        println("Laster inn testdata med ${refusjoner.size + refusjonerMedFerietrekk.size + utbetalteVarigLontilRefusjoner.size + utbetalteFireårigLontilRefusjoner.size} refusjoner")
         refusjonRepository.saveAll(refusjoner)
         refusjonRepository.saveAll(refusjonerMedFerietrekk)
-        refusjonRepository.saveAll(utbetalteRefusjoner)
+        refusjonRepository.saveAll(utbetalteVarigLontilRefusjoner)
+        refusjonRepository.saveAll(utbetalteFireårigLontilRefusjoner)
     }
 }

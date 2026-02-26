@@ -5,4 +5,8 @@ enum class Tiltakstype {
 
     fun utbetalesAutomatisk() = this == VTAO || this == MENTOR
     fun harFastUtbetalingssum() = this == VTAO || this == MENTOR
+    fun kanIkkeOverskride5g() = when (this) {
+        VARIG_LONNSTILSKUDD -> true
+        MIDLERTIDIG_LONNSTILSKUDD, SOMMERJOBB, VTAO, MENTOR -> false
+    }
 }

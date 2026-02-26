@@ -6,6 +6,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBrukerService
 import no.nav.arbeidsgiver.tiltakrefusjon.hendelseslogg.HendelsesloggDTO
 import no.nav.arbeidsgiver.tiltakrefusjon.hendelseslogg.HendelsesloggRepository
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.ForlengFristRequest
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.SortingOrder
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -24,6 +25,7 @@ data class HentSaksbehandlerRefusjonerQueryParametre(
     val status: RefusjonStatus? = null,
     val tiltakstype: Tiltakstype? = null,
     val avtaleNr: Int? = null,
+    val sorting: SortingOrder? = null,
     val page: Int = 0,
     val size: Int = 10,
 ) {

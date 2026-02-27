@@ -20,6 +20,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonStatus
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.beregnRefusjonsbeløp
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.sortPageable
 import no.nav.team_tiltak.felles.persondata.pdl.domene.Diskresjonskode
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -52,7 +53,8 @@ data class InnloggetSaksbehandler(
     override val rolle: BrukerRolle = BrukerRolle.BESLUTTER
 
     fun finnAlle(queryParametre: HentSaksbehandlerRefusjonerQueryParametre): Map<String, Any> {
-        val pageable: Pageable = PageRequest.of(queryParametre.page, queryParametre.size, Sort.Direction.ASC, "fristForGodkjenning", "status", "id")
+        val sorting = if (queryParametre.sorting != null) sortPageable(queryParametre.sorting) else Sort.by(Sort.Direction.ASC, "fristForGodkjenning", "status", "id")
+        val pageable: Pageable = PageRequest.of(queryParametre.page, queryParametre.size, sorting)
 
         val statuser = if (queryParametre.status != null) listOf(queryParametre.status) else RefusjonStatus.values().toList()
         val tiltakstyper = if (queryParametre.tiltakstype != null) listOf(queryParametre.tiltakstype) else Tiltakstype.values().toList()

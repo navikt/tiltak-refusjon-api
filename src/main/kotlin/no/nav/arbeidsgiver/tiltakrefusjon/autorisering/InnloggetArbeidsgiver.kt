@@ -14,17 +14,17 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonRepository
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonStatus
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.SortingOrder
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.SortingOrder
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.antallMånederEtter
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.sortPageable
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
-import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import java.time.Instant
 
@@ -53,23 +53,6 @@ data class InnloggetArbeidsgiver(
         this.organisasjoner.filter { org -> org.type != "Enterprise" && org.organizationForm != "FLI" && org.organizationForm != "AS" }
             .map { organisasjon -> organisasjon.organizationNumber }
 
-    fun getSortingOrderForPageable(sortingOrder: SortingOrder): Sort.Order {
-        when (sortingOrder) {
-            SortingOrder.TILTAKSTYPE_ASC -> return Sort.Order.asc("refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype")
-            SortingOrder.TILTAKSTYPE_DESC -> return Sort.Order.desc("refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype")
-            SortingOrder.BEDRIFT_ASC -> return Sort.Order.asc("refusjonsgrunnlag.tilskuddsgrunnlag.bedriftNavn")
-            SortingOrder.BEDRIFT_DESC -> return Sort.Order.desc("refusjonsgrunnlag.tilskuddsgrunnlag.bedriftNavn")
-            SortingOrder.DELTAKER_ASC -> return Sort.Order.asc("refusjonsgrunnlag.tilskuddsgrunnlag.deltakerFornavn")
-            SortingOrder.DELTAKER_DESC -> return Sort.Order.desc("refusjonsgrunnlag.tilskuddsgrunnlag.deltakerFornavn")
-            SortingOrder.PERIODE_ASC -> return Sort.Order.asc("refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom")
-            SortingOrder.PERIODE_DESC -> return Sort.Order.desc("refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom")
-            SortingOrder.STATUS_DESC -> return Sort.Order.desc("status")
-            SortingOrder.FRISTFORGODKJENNING_ASC -> return Sort.Order.asc("fristForGodkjenning")
-            SortingOrder.FRISTFORGODKJENNING_DESC -> return Sort.Order.desc("fristForGodkjenning")
-            else -> return Sort.Order.asc("status")
-        }
-    }
-
     private fun getQueryMethodForFinnAlleForGittArbeidsgiver(
         bedriftNr: List<String>,
         status: RefusjonStatus?,
@@ -85,7 +68,7 @@ data class InnloggetArbeidsgiver(
                 bedriftNr,
                 status,
                 tiltakstype,
-                PageRequest.of(page, size, Sort.by(getSortingOrderForPageable(sortingOrder), Sort.Order.asc("id")))
+                PageRequest.of(page, size, sortPageable(sortingOrder))
             )
         } else {
             refusjonRepository.findAllByBedriftNrAndStatusDefaultSort(

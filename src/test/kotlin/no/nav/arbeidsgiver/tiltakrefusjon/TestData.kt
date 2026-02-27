@@ -74,12 +74,12 @@ fun refusjonerMedFerietrekk(): List<Refusjon> {
     return listOf(refusjon1, refusjon2)
 }
 
-fun gamleUtbetalteRefusjonerOgEnNy(): List<Refusjon> {
+fun gamleUtbetalteRefusjonerOgEnNy(tiltakstype: Tiltakstype): List<Refusjon> {
     val deltakerFnrMedMasseUtbetalt = "08098138758"
     val bedriftNr = "999999999"
     val refusjon1 = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
-            tiltakstype = Tiltakstype.VARIG_LONNSTILSKUDD,
+            tiltakstype = tiltakstype,
             deltakerFnr = deltakerFnrMedMasseUtbetalt,
             bedriftNr = bedriftNr,
             deltakerFornavn = "Olav",
@@ -104,7 +104,7 @@ fun gamleUtbetalteRefusjonerOgEnNy(): List<Refusjon> {
     }
     val refusjon2 = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
-            tiltakstype = Tiltakstype.VARIG_LONNSTILSKUDD,
+            tiltakstype = tiltakstype,
             deltakerFnr = deltakerFnrMedMasseUtbetalt,
             bedriftNr = bedriftNr,
             deltakerFornavn = "Olav",
@@ -128,7 +128,7 @@ fun gamleUtbetalteRefusjonerOgEnNy(): List<Refusjon> {
     }
     val refusjon3 = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
-            tiltakstype = Tiltakstype.VARIG_LONNSTILSKUDD,
+            tiltakstype = tiltakstype,
             deltakerFnr = deltakerFnrMedMasseUtbetalt,
             bedriftNr = bedriftNr,
             deltakerFornavn = "Olav",
@@ -152,7 +152,7 @@ fun gamleUtbetalteRefusjonerOgEnNy(): List<Refusjon> {
     }
     val refusjon4 = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
-            tiltakstype = Tiltakstype.VARIG_LONNSTILSKUDD,
+            tiltakstype = tiltakstype,
             deltakerFnr = deltakerFnrMedMasseUtbetalt,
             bedriftNr = bedriftNr,
             deltakerFornavn = "Olav",
@@ -176,7 +176,7 @@ fun gamleUtbetalteRefusjonerOgEnNy(): List<Refusjon> {
     }
     val refusjon5 = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
-            tiltakstype = Tiltakstype.VARIG_LONNSTILSKUDD,
+            tiltakstype = tiltakstype,
             deltakerFnr = deltakerFnrMedMasseUtbetalt,
             bedriftNr = bedriftNr,
             deltakerFornavn = "Olav",
@@ -200,7 +200,7 @@ fun gamleUtbetalteRefusjonerOgEnNy(): List<Refusjon> {
     }
     val refusjon6 = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
-            tiltakstype = Tiltakstype.VARIG_LONNSTILSKUDD,
+            tiltakstype = tiltakstype,
             deltakerFnr = deltakerFnrMedMasseUtbetalt,
             bedriftNr = bedriftNr,
             deltakerFornavn = "Olav",
@@ -224,7 +224,7 @@ fun gamleUtbetalteRefusjonerOgEnNy(): List<Refusjon> {
     }
     val refusjon7 = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
-            tiltakstype = Tiltakstype.VARIG_LONNSTILSKUDD,
+            tiltakstype = tiltakstype,
             deltakerFnr = deltakerFnrMedMasseUtbetalt,
             bedriftNr = bedriftNr,
             deltakerFornavn = "Olav",
@@ -248,7 +248,7 @@ fun gamleUtbetalteRefusjonerOgEnNy(): List<Refusjon> {
     }
     val refusjon8 = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
-            tiltakstype = Tiltakstype.VARIG_LONNSTILSKUDD,
+            tiltakstype = tiltakstype,
             deltakerFnr = deltakerFnrMedMasseUtbetalt,
             bedriftNr = bedriftNr,
             deltakerFornavn = "Olav",
@@ -272,7 +272,7 @@ fun gamleUtbetalteRefusjonerOgEnNy(): List<Refusjon> {
     }
     val refusjon9 = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
-            tiltakstype = Tiltakstype.VARIG_LONNSTILSKUDD,
+            tiltakstype = tiltakstype,
             deltakerFnr = deltakerFnrMedMasseUtbetalt,
             bedriftNr = bedriftNr,
             deltakerFornavn = "Olav",
@@ -283,7 +283,7 @@ fun gamleUtbetalteRefusjonerOgEnNy(): List<Refusjon> {
     )
     val refusjon10 = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
-            tiltakstype = Tiltakstype.VARIG_LONNSTILSKUDD,
+            tiltakstype = tiltakstype,
             deltakerFnr = deltakerFnrMedMasseUtbetalt,
             bedriftNr = bedriftNr,
             deltakerFornavn = "Olav",

@@ -1,37 +1,8 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
-import no.nav.arbeidsgiver.tiltakrefusjon.utils.erMånedIPeriode
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.gjenståendeEtterMaks5G
 import java.time.LocalDate
 import kotlin.math.roundToInt
-
-private fun beløpPerInntektslinje(
-    inntektslinje: Inntektslinje,
-    fom: LocalDate,
-    tom: LocalDate,
-    tiltakstype: Tiltakstype,
-): Double {
-    if (inntektslinje.opptjeningsperiodeFom == null || inntektslinje.opptjeningsperiodeTom == null || tiltakstype == Tiltakstype.SOMMERJOBB)
-        return if (erMånedIPeriode(inntektslinje.måned, fom, tom)) {
-            inntektslinje.beløp
-        } else {
-            0.0
-        }
-
-    if (inntektslinje.opptjeningsperiodeTom < fom) {
-        return 0.0
-    }
-
-    val antallDagerSkalFordelesPå =
-        antallDager(inntektslinje.opptjeningsperiodeFom, inntektslinje.opptjeningsperiodeTom)
-    val dagsats = inntektslinje.beløp / antallDagerSkalFordelesPå
-
-
-    return dagsats * antallDager(
-        maxOf(fom, inntektslinje.opptjeningsperiodeFom),
-        minOf(tom, inntektslinje.opptjeningsperiodeTom)
-    )
-}
 
 private fun antallDager(
     fom: LocalDate,
@@ -131,7 +102,7 @@ fun beregnRefusjonsbeløp(
     var refusjonsbeløp: Int =
         (if (overTilskuddsbeløp) tilskuddsgrunnlag.tilskuddsbeløp else avrundetBeregnetBeløp) - tidligereUtbetalt + forrigeRefusjonMinusBeløp
     var overFemGrunnbeløp = false
-    if (tilskuddsgrunnlag.tiltakstype == Tiltakstype.VARIG_LONNSTILSKUDD) {
+    if (tilskuddsgrunnlag.tiltakstype.kanIkkeOverskride5g()) {
         if (refusjonsbeløp > gjenståendeEtterMaks5G(sumUtbetaltVarig, tilskuddFom)) {
             refusjonsbeløp = gjenståendeEtterMaks5G(sumUtbetaltVarig, tilskuddFom)
             overFemGrunnbeløp = true
@@ -164,7 +135,7 @@ fun beregnRefusjon(refusjon: Refusjon): Beregning? {
     return when (refusjon.tiltakstype()) {
         Tiltakstype.VTAO -> fastBeløpBeregning(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag, refusjon.refusjonsgrunnlag.tidligereUtbetalt)
         Tiltakstype.MENTOR -> mentorBeregning(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag)
-        Tiltakstype.SOMMERJOBB, Tiltakstype.VARIG_LONNSTILSKUDD, Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD -> beregnRefusjonsbeløp(
+        Tiltakstype.SOMMERJOBB, Tiltakstype.VARIG_LONNSTILSKUDD, Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD, Tiltakstype.FIREARIG_LONNSTILSKUDD -> beregnRefusjonsbeløp(
             inntekter = refusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.toList() ?: emptyList(),
             tilskuddsgrunnlag = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag,
             tidligereUtbetalt = refusjon.refusjonsgrunnlag.tidligereUtbetalt,
@@ -186,7 +157,7 @@ fun beregnKorreksjon(korreksjon: Korreksjon): Beregning? {
     return when (korreksjon.tiltakstype()) {
         Tiltakstype.VTAO -> fastBeløpBeregning(korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag, korreksjon.refusjonsgrunnlag.tidligereUtbetalt, true)
         Tiltakstype.MENTOR -> null
-        Tiltakstype.SOMMERJOBB, Tiltakstype.VARIG_LONNSTILSKUDD, Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD -> beregnRefusjonsbeløp(
+        Tiltakstype.SOMMERJOBB, Tiltakstype.VARIG_LONNSTILSKUDD, Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD, Tiltakstype.FIREARIG_LONNSTILSKUDD -> beregnRefusjonsbeløp(
             inntekter = korreksjon.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
             tilskuddsgrunnlag = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag,
             tidligereUtbetalt = korreksjon.refusjonsgrunnlag.tidligereUtbetalt,

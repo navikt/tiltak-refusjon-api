@@ -7,7 +7,7 @@ import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.getForObject
 import java.net.URI
 import java.time.LocalDate
-import java.util.TreeMap
+import java.util.*
 
 @Component
 class GrunnbelopClient(val noAuthRestTemplate: RestTemplate) {
@@ -21,9 +21,4 @@ class GrunnbelopClient(val noAuthRestTemplate: RestTemplate) {
         }
         return grunnbelopTree
     }
-}
-
-fun main() {
-    val client = GrunnbelopClient(RestTemplate())
-    println(client.alleGrunnbelop().lowerEntry(LocalDate.of(2025, 5, 1)))
 }

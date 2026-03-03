@@ -1,12 +1,10 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.grunnbelop
 
-import no.nav.arbeidsgiver.tiltakrefusjon.caching.CacheConfig
 import no.nav.arbeidsgiver.tiltakrefusjon.caching.FEM_G
 import org.slf4j.LoggerFactory
 import org.springframework.cache.CacheManager
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
-import org.springframework.web.client.RestTemplate
 import java.time.LocalDate
 import java.util.*
 
@@ -39,18 +37,4 @@ class GrunnbelopService(val grunnbelopClient: GrunnbelopClient, val cacheManager
             logger.error("Feil ved oppdatering av cachen for grunnbeløp", e)
         }
     }
-}
-
-fun main() {
-    val cacheManager = CacheConfig().cacheManager()
-    val service = GrunnbelopService(GrunnbelopClient(RestTemplate()), cacheManager)
-    println("I første kall må cache oppdateres i requesten: " + service.grunnbelopForDato(LocalDate.of(2025, 5, 1)))
-    cacheManager.getCache(FEM_G)?.evict(FEM_G)
-    println("Etter en evict må cache oppdateres i requesten: " + service.grunnbelopForDato(LocalDate.of(2025, 5, 1)))
-    cacheManager.getCache(FEM_G)?.evict(FEM_G)
-    println("Evicted? " + (cacheManager.getCache(FEM_G)?.get(FEM_G) == null))
-    service.oppdaterGrunnbelopCache()
-    println("I tredje kall har vi oppdatert cache allerede og vil ikke treffe cache igjen: " + service.grunnbelopForDato(LocalDate.of(2025, 5, 1)))
-    println("Ei heller fjerde: " + service.grunnbelopForDato(LocalDate.of(2024, 5, 1)))
-    println("Eller femte: " + service.grunnbelopForDato(LocalDate.of(2023, 5, 1)))
 }

@@ -16,9 +16,9 @@ class CacheConfig {
         val cacheManager = CaffeineCacheManager()
         listOf(
             CacheDefinition(
-                ABAC,
-                1000,
-                Duration.ofMinutes(30)
+                FEM_G,
+                1,
+                Duration.ofDays(2)
             )
         ).forEach{
             cacheManager.registerCustomCache(it.name, Caffeine.newBuilder()
@@ -36,4 +36,4 @@ class CacheConfig {
     )
 }
 
-const val ABAC = "abac-cache"
+const val FEM_G = "fem-g-cache"

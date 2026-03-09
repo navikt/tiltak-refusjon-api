@@ -100,7 +100,7 @@ internal class RefusjonTest {
         // Tar stilling til alle inntektslinjer
         refusjon.setInntektslinjeTilOpptjentIPeriode(enInntektslinjeIkkeTattStillingTilOpptjening.id, true)
         refusjon.refusjonsgrunnlag.beregning = beregnRefusjon(Beregningskontekst(
-           grunnbelop = mapOf(
+           alleGrunnbelop = mapOf(
                LocalDate.of(2020, 10, 1) to 101351,
                LocalDate.of(2021, 10, 1) to 106399
            ).toMap(TreeMap())
@@ -327,7 +327,7 @@ internal class RefusjonTest {
         val refusjon = enRefusjon().medBedriftKontonummer().medInntekterKunFraTiltaket()
         refusjon.oppgiInntektsgrunnlag(inntektsgrunnlag)
         refusjon.refusjonsgrunnlag.beregning = beregnRefusjon(Beregningskontekst(
-            grunnbelop = mapOf(
+            alleGrunnbelop = mapOf(
                 LocalDate.of(2021, 10, 1) to 101351,
                 LocalDate.of(2022, 10, 1) to 106399
             ).toMap(TreeMap())

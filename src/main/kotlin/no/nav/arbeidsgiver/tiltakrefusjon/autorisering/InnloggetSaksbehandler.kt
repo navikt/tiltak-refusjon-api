@@ -324,7 +324,7 @@ data class InnloggetSaksbehandler(
             harFerietrekkForSammeMåned = harFerietrekkForSammeMåned,
             sumUtbetaltVarig = refusjon.refusjonsgrunnlag.sumUtbetaltVarig,
             beregningskontekst = Beregningskontekst(
-                grunnbelop = grunnbelopService.grunnbelop()
+                alleGrunnbelop = grunnbelopService.grunnbelop()
             )
         )
     }

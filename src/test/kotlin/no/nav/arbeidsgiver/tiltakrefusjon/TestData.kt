@@ -1043,7 +1043,7 @@ fun Refusjon.medInntektsgrunnlag(
 fun Refusjon.medBeregning(
 ): Refusjon {
     this.refusjonsgrunnlag.beregning = beregnRefusjon(Beregningskontekst(
-        grunnbelop = mapOf<LocalDate, Int>(
+        alleGrunnbelop = mapOf<LocalDate, Int>(
             LocalDate.of(2020, 1, 1) to 101351,
             LocalDate.of(2021, 1, 1) to 106399,
             LocalDate.of(2022, 1, 1) to 111477,

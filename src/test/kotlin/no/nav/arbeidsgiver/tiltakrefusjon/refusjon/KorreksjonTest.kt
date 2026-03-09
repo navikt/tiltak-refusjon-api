@@ -17,7 +17,7 @@ import java.util.TreeMap
 class KorreksjonTest {
     val innloggetBeslutter = innloggetBruker("X123456", BrukerRolle.BESLUTTER)
     val beregningskontekst = Beregningskontekst(
-        grunnbelop = mapOf(
+        alleGrunnbelop = mapOf(
             LocalDate.of(2020, 5, 1) to 111477,
             LocalDate.of(2021, 5, 1) to 117806,
             LocalDate.of(2022, 5, 1) to 118620,

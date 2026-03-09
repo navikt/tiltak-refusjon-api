@@ -109,7 +109,7 @@ class RefusjonsberegningSteps {
             tilskuddFom = tilskuddsgrunnlag.tilskuddFom,
             harFerietrekkForSammeMåned = false,
             beregningskontekst = Beregningskontekst(
-                grunnbelop = mapOf(
+                alleGrunnbelop = mapOf(
                     LocalDate.of(2019, 5, 1) to 99858,
                     LocalDate.of(2020, 5, 1) to 101351,
                     LocalDate.of(2021, 5, 1) to 106399,

@@ -2,10 +2,12 @@ package no.nav.arbeidsgiver.tiltakrefusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.automatisk_utbetaling.AutomatiskInnsendingService
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.ADMIN_BRUKER
+import no.nav.arbeidsgiver.tiltakrefusjon.grunnbelop.GrunnbelopService
 import no.nav.arbeidsgiver.tiltakrefusjon.leader.LeaderPodCheck
 import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterServiceImpl
 import no.nav.arbeidsgiver.tiltakrefusjon.rapport.UbetaltRefusjonRapport
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Beregning
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Beregningskontekst
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Korreksjonsgrunn
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonKafkaProducer
@@ -46,7 +48,8 @@ class AdminController(
     val refusjonKafkaProducer: RefusjonKafkaProducer?,
     val kontoregisterService: KontoregisterServiceImpl?,
     val automatiskInnsendingService: AutomatiskInnsendingService,
-    private val ubetaltRefusjonRapport: UbetaltRefusjonRapport
+    private val ubetaltRefusjonRapport: UbetaltRefusjonRapport,
+    private val grunnbelopService: GrunnbelopService
 ) {
     val logger = LoggerFactory.getLogger(javaClass)
 
@@ -221,7 +224,10 @@ class AdminController(
             tilskuddFom = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
             harFerietrekkForSammeMåned = request.harFerietrekkForSammeMåned,
             sumUtbetaltVarig = refusjon.refusjonsgrunnlag.sumUtbetaltVarig,
-            ekstraFerietrekk = request.ferieTrekk
+            ekstraFerietrekk = request.ferieTrekk,
+            beregningskontekst = Beregningskontekst(
+                grunnbelopService.grunnbelop()
+            )
         )
     }
 
@@ -239,7 +245,10 @@ class AdminController(
             tilskuddFom = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
             harFerietrekkForSammeMåned = request.harFerietrekkForSammeMåned,
             sumUtbetaltVarig = refusjon.refusjonsgrunnlag.sumUtbetaltVarig,
-            ekstraFerietrekk = request.ferieTrekk
+            ekstraFerietrekk = request.ferieTrekk,
+            beregningskontekst = Beregningskontekst(
+                grunnbelopService.grunnbelop()
+            )
         )
         refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp = request.minusBeløp
         refusjon.refusjonsgrunnlag.beregning = beregning

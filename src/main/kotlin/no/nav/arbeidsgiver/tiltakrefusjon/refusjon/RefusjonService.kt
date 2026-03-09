@@ -6,6 +6,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBruker
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.SYSTEM_BRUKER
+import no.nav.arbeidsgiver.tiltakrefusjon.grunnbelop.GrunnbelopService
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
 import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.BeregningUtført
@@ -29,7 +30,8 @@ class RefusjonService(
     val korreksjonRepository: KorreksjonRepository,
     val kontoregisterService: KontoregisterService,
     val minusbelopRepository: MinusbelopRepository,
-    val applicationEventPublisher: ApplicationEventPublisher
+    val applicationEventPublisher: ApplicationEventPublisher,
+    private val grunnbelopService: GrunnbelopService
 ) {
     val log = LoggerFactory.getLogger(javaClass)
 
@@ -256,7 +258,9 @@ class RefusjonService(
         val korreksjonsutkast = refusjon.opprettKorreksjonsutkast(korreksjonsgrunner, unntakOmInntekterFremitid, annetGrunn)
         if (refusjon.tiltakstype() == Tiltakstype.VTAO) {
             // Utfør beregning umiddelbart for VTAO-korreksjoner
-            korreksjonsutkast.refusjonsgrunnlag.beregning = beregnKorreksjon(korreksjonsutkast)
+            korreksjonsutkast.refusjonsgrunnlag.beregning = beregnKorreksjon(Beregningskontekst(
+                grunnbelopService.grunnbelop()
+            ), korreksjonsutkast,)
         }
         korreksjonRepository.save(korreksjonsutkast)
         refusjonRepository.save(refusjon)
@@ -310,7 +314,7 @@ class RefusjonService(
     }
 
     fun gjørBeregning(refusjon: Refusjon, utførtAv: InnloggetBruker) {
-        val beregning: Beregning? = beregnRefusjon(refusjon)
+        val beregning: Beregning? = beregnRefusjon(Beregningskontekst(grunnbelopService.grunnbelop()), refusjon)
         if (beregning != null) {
             refusjon.refusjonsgrunnlag.beregning = beregning
             log.info("Oppdatert beregning på refusjon ${refusjon.id} til ${beregning.id}")
@@ -319,7 +323,9 @@ class RefusjonService(
     }
 
     fun gjørKorreksjonBeregning(korreksjon: Korreksjon, utførtAv: InnloggetBruker) {
-        val beregning = beregnKorreksjon(korreksjon)
+        val beregning = beregnKorreksjon(Beregningskontekst(
+            grunnbelopService.grunnbelop()
+        ), korreksjon)
         if (beregning != null) {
             korreksjon.refusjonsgrunnlag.beregning = beregning
             applicationEventPublisher.publishEvent(KorreksjonBeregningUtført(korreksjon, utførtAv))

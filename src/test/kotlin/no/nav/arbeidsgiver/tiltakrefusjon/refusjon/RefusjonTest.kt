@@ -23,6 +23,7 @@ import org.junit.jupiter.api.assertThrows
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
+import java.util.TreeMap
 
 internal class RefusjonTest {
 
@@ -98,7 +99,12 @@ internal class RefusjonTest {
 
         // Tar stilling til alle inntektslinjer
         refusjon.setInntektslinjeTilOpptjentIPeriode(enInntektslinjeIkkeTattStillingTilOpptjening.id, true)
-        refusjon.refusjonsgrunnlag.beregning = beregnRefusjon(refusjon)
+        refusjon.refusjonsgrunnlag.beregning = beregnRefusjon(Beregningskontekst(
+           grunnbelop = mapOf(
+               LocalDate.of(2020, 10, 1) to 101351,
+               LocalDate.of(2021, 10, 1) to 106399
+           ).toMap(TreeMap())
+        ), refusjon)
 
         refusjon.godkjennForArbeidsgiver(innloggetArbeidsgiver)
 
@@ -320,7 +326,12 @@ internal class RefusjonTest {
 
         val refusjon = enRefusjon().medBedriftKontonummer().medInntekterKunFraTiltaket()
         refusjon.oppgiInntektsgrunnlag(inntektsgrunnlag)
-        refusjon.refusjonsgrunnlag.beregning = beregnRefusjon(refusjon)
+        refusjon.refusjonsgrunnlag.beregning = beregnRefusjon(Beregningskontekst(
+            grunnbelop = mapOf(
+                LocalDate.of(2021, 10, 1) to 101351,
+                LocalDate.of(2022, 10, 1) to 106399
+            ).toMap(TreeMap())
+        ), refusjon)
 
         assertThat(refusjon.refusjonsgrunnlag.beregning?.lønn).isEqualTo(inntektslinjeOpptjentIPeriode.beløp.toInt())
     }

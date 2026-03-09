@@ -3,8 +3,6 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.innloggetBruker
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
-import no.nav.arbeidsgiver.tiltakrefusjon.utils.forrigeÅretsG
-import no.nav.arbeidsgiver.tiltakrefusjon.utils.åretsG
 import no.nav.arbeidsgiver.tiltakrefusjon.varsling.VarslingRepository
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
@@ -18,6 +16,9 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.temporal.TemporalAdjusters.lastDayOfMonth
 
+private val åretsG = 130160
+private val forrigeÅretsG = 124028
+
 @SpringBootTest(properties = ["NAIS_APP_IMAGE=test"])
 @ActiveProfiles("local")
 @AutoConfigureWireMock(port = 8090)
@@ -27,7 +28,7 @@ class RefusjonVarig5GTest(
     @Autowired
     val refusjonRepository: RefusjonRepository,
     @Autowired
-    val varslingRepository: VarslingRepository
+    val varslingRepository: VarslingRepository,
 ) {
     @BeforeEach
     fun setup() {

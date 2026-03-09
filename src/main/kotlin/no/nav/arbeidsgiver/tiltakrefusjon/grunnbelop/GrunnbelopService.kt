@@ -13,12 +13,12 @@ class GrunnbelopService(val grunnbelopClient: GrunnbelopClient, val cacheManager
     val logger = LoggerFactory.getLogger(GrunnbelopService::class.java)
     val cacheKey = FEM_G
 
-    fun grunnbelopForDato(dato: LocalDate): Int {
+    fun grunnbelop(): TreeMap<LocalDate, Int> {
         val grunnbelopMap: TreeMap<LocalDate, Int>? = cacheManager.getCache(FEM_G)?.get(cacheKey, {
             logger.info("Cache miss for grunnbeløp, henter fra g.nav")
             grunnbelopClient.alleGrunnbelop()
         })
-        return grunnbelopMap?.lowerEntry(dato)?.value ?: throw IllegalStateException("Fant ikke grunnbeløp for dato $dato")
+        return grunnbelopMap ?: throw IllegalStateException("Kunne ikke hente grunnbeløp fra cache eller g.nav")
     }
 
     /**

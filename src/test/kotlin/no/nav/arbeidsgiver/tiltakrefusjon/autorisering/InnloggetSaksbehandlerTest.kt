@@ -1,5 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.autorisering
 
+import no.nav.arbeidsgiver.tiltakrefusjon.grunnbelop.GrunnbelopService
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.FakeInntektskomponentService
 import no.nav.arbeidsgiver.tiltakrefusjon.norg.NorgService
 import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.FakeKontoregisterService
@@ -33,7 +34,8 @@ class InnloggetSaksbehandlerTest(
     @Autowired val inntektskomponentService: FakeInntektskomponentService,
     @Autowired val kontoregisterService: FakeKontoregisterService,
     @Autowired val norgService: NorgService,
-    @Autowired val persondataService: PersondataService
+    @Autowired val persondataService: PersondataService,
+    @Autowired val grunnbelopService: GrunnbelopService
 ) {
     @BeforeEach
     fun setUp() {
@@ -58,7 +60,8 @@ class InnloggetSaksbehandlerTest(
             fortroligAdresse = false,
             strengtFortroligAdresse = false
         ),
-        persondataService
+        persondataService,
+        grunnbelopService,
     )
 
     @Test

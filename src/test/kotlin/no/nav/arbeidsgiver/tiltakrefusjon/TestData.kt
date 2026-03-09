@@ -1,6 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBruker
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Beregningskontekst
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.BrukerRolle
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Inntektsgrunnlag
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Inntektslinje
@@ -13,6 +14,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.ulid
 import no.nav.arbeidsgiver.tiltakrefusjon.varsling.VarselType
 import no.nav.arbeidsgiver.tiltakrefusjon.varsling.Varsling
+import java.time.LocalDate
 import java.time.YearMonth
 import java.time.ZoneId
 import java.time.temporal.TemporalAdjusters.firstDayOfMonth
@@ -1040,7 +1042,14 @@ fun Refusjon.medInntektsgrunnlag(
 
 fun Refusjon.medBeregning(
 ): Refusjon {
-    this.refusjonsgrunnlag.beregning = beregnRefusjon(this)
+    this.refusjonsgrunnlag.beregning = beregnRefusjon(Beregningskontekst(
+        grunnbelop = mapOf<LocalDate, Int>(
+            LocalDate.of(2020, 1, 1) to 101351,
+            LocalDate.of(2021, 1, 1) to 106399,
+            LocalDate.of(2022, 1, 1) to 111477,
+            LocalDate.of(2023, 1, 1) to 117543,
+        ).toMap(TreeMap())
+    ),this)
     return this
 }
 

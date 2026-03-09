@@ -13,6 +13,7 @@ import org.springframework.test.context.ContextConfiguration
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
+import java.util.TreeMap
 
 @CucumberContextConfiguration
 @ContextConfiguration
@@ -106,7 +107,15 @@ class RefusjonsberegningSteps {
             tidligereUtbetalt,
             korrigertBruttoLønn,
             tilskuddFom = tilskuddsgrunnlag.tilskuddFom,
-            harFerietrekkForSammeMåned = false
+            harFerietrekkForSammeMåned = false,
+            beregningskontekst = Beregningskontekst(
+                grunnbelop = mapOf(
+                    LocalDate.of(2020, 5, 1) to 101351,
+                    LocalDate.of(2021, 5, 1) to 106399,
+                    LocalDate.of(2022, 5, 1) to 111477,
+                    LocalDate.of(2023, 5, 1) to 117806,
+                ).toMap(TreeMap())
+            )
         )
         assertThat(beregnet.refusjonsbeløp).isEqualByComparingTo(refusjon);
     }

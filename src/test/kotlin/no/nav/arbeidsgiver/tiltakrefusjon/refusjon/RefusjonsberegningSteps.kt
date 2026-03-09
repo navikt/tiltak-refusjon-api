@@ -7,6 +7,7 @@ import io.cucumber.java.no.Når
 import io.cucumber.java.no.Og
 import io.cucumber.java.no.Så
 import io.cucumber.spring.CucumberContextConfiguration
+import no.nav.arbeidsgiver.tiltakrefusjon.enBeregningskontekst
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Assume
 import org.springframework.test.context.ContextConfiguration
@@ -108,15 +109,7 @@ class RefusjonsberegningSteps {
             korrigertBruttoLønn,
             tilskuddFom = tilskuddsgrunnlag.tilskuddFom,
             harFerietrekkForSammeMåned = false,
-            beregningskontekst = Beregningskontekst(
-                alleGrunnbelop = mapOf(
-                    LocalDate.of(2019, 5, 1) to 99858,
-                    LocalDate.of(2020, 5, 1) to 101351,
-                    LocalDate.of(2021, 5, 1) to 106399,
-                    LocalDate.of(2022, 5, 1) to 111477,
-                    LocalDate.of(2023, 5, 1) to 117806,
-                ).toMap(TreeMap())
-            )
+            beregningskontekst = enBeregningskontekst()
         )
         assertThat(beregnet.refusjonsbeløp).isEqualByComparingTo(refusjon);
     }

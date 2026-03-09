@@ -23,6 +23,20 @@ import java.util.*
 
 val innloggetTestbruker = innloggetBruker("testsystem", BrukerRolle.SYSTEM)
 
+val alleGrunnbelopMap = mapOf<LocalDate, Int>(
+    LocalDate.of(2019, 5, 1) to 99858,
+    LocalDate.of(2020, 5, 1) to 101351,
+    LocalDate.of(2021, 5, 1) to 106399,
+    LocalDate.of(2022, 5, 1) to 111477,
+    LocalDate.of(2023, 5, 1) to 118620,
+    LocalDate.of(2024, 5, 1) to 124028,
+    LocalDate.of(2025, 5, 1) to 130160,
+).toMap(TreeMap())
+
+fun enBeregningskontekst() = Beregningskontekst(
+    alleGrunnbelop = alleGrunnbelopMap
+)
+
 fun innloggetBruker(identifikator: String, rolle: BrukerRolle) = object : InnloggetBruker {
     override val identifikator: String
         get() = identifikator
@@ -1043,12 +1057,7 @@ fun Refusjon.medInntektsgrunnlag(
 fun Refusjon.medBeregning(
 ): Refusjon {
     this.refusjonsgrunnlag.beregning = beregnRefusjon(Beregningskontekst(
-        alleGrunnbelop = mapOf<LocalDate, Int>(
-            LocalDate.of(2020, 1, 1) to 101351,
-            LocalDate.of(2021, 1, 1) to 106399,
-            LocalDate.of(2022, 1, 1) to 111477,
-            LocalDate.of(2023, 1, 1) to 117543,
-        ).toMap(TreeMap())
+        alleGrunnbelop = alleGrunnbelopMap
     ), this)
     return this
 }

@@ -1,5 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.inntekt
 
+import no.nav.arbeidsgiver.tiltakrefusjon.alleGrunnbelopMap
+import no.nav.arbeidsgiver.tiltakrefusjon.enBeregningskontekst
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.ulid
 import org.assertj.core.api.Assertions.assertThat
@@ -8,7 +10,6 @@ import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
-import java.util.TreeMap
 
 class RefusjonsberegnerTest {
 
@@ -20,14 +21,7 @@ class RefusjonsberegnerTest {
     lateinit var inntektsliste: List<Inntektslinje>
     lateinit var inntektsgrunnlag: Inntektsgrunnlag
     lateinit var inntektsgrunnlagUregelmessig: Inntektsgrunnlag
-    val beregningskontekst = Beregningskontekst(
-        alleGrunnbelop = mapOf(
-            LocalDate.of(2020, 5, 1) to 101351,
-            LocalDate.of(2021, 5, 1) to 106399,
-            LocalDate.of(2022, 5, 1) to 111477,
-            LocalDate.of(2023, 5, 1) to 118620,
-        ).toMap(TreeMap())
-    )
+    val beregningskontekst = enBeregningskontekst()
 
     @BeforeEach
     fun init() {

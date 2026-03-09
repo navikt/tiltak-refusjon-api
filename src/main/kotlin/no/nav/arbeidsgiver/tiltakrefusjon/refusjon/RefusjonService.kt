@@ -258,9 +258,10 @@ class RefusjonService(
         val korreksjonsutkast = refusjon.opprettKorreksjonsutkast(korreksjonsgrunner, unntakOmInntekterFremitid, annetGrunn)
         if (refusjon.tiltakstype() == Tiltakstype.VTAO) {
             // Utfør beregning umiddelbart for VTAO-korreksjoner
-            korreksjonsutkast.refusjonsgrunnlag.beregning = beregnKorreksjon(Beregningskontekst(
-                grunnbelopService.grunnbelop()
-            ), korreksjonsutkast,)
+            korreksjonsutkast.refusjonsgrunnlag.beregning = beregnKorreksjon(
+                Beregningskontekst(grunnbelopService),
+                korreksjonsutkast
+            )
         }
         korreksjonRepository.save(korreksjonsutkast)
         refusjonRepository.save(refusjon)
@@ -314,7 +315,7 @@ class RefusjonService(
     }
 
     fun gjørBeregning(refusjon: Refusjon, utførtAv: InnloggetBruker) {
-        val beregning: Beregning? = beregnRefusjon(Beregningskontekst(grunnbelopService.grunnbelop()), refusjon)
+        val beregning: Beregning? = beregnRefusjon(Beregningskontekst(grunnbelopService), refusjon)
         if (beregning != null) {
             refusjon.refusjonsgrunnlag.beregning = beregning
             log.info("Oppdatert beregning på refusjon ${refusjon.id} til ${beregning.id}")
@@ -323,9 +324,7 @@ class RefusjonService(
     }
 
     fun gjørKorreksjonBeregning(korreksjon: Korreksjon, utførtAv: InnloggetBruker) {
-        val beregning = beregnKorreksjon(Beregningskontekst(
-            grunnbelopService.grunnbelop()
-        ), korreksjon)
+        val beregning = beregnKorreksjon(Beregningskontekst(grunnbelopService), korreksjon)
         if (beregning != null) {
             korreksjon.refusjonsgrunnlag.beregning = beregning
             applicationEventPublisher.publishEvent(KorreksjonBeregningUtført(korreksjon, utførtAv))

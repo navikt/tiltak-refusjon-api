@@ -225,9 +225,7 @@ class AdminController(
             harFerietrekkForSammeMåned = request.harFerietrekkForSammeMåned,
             sumUtbetaltVarig = refusjon.refusjonsgrunnlag.sumUtbetaltVarig,
             ekstraFerietrekk = request.ferieTrekk,
-            beregningskontekst = Beregningskontekst(
-                grunnbelopService.grunnbelop()
-            )
+            beregningskontekst = Beregningskontekst(grunnbelopService)
         )
     }
 
@@ -246,9 +244,7 @@ class AdminController(
             harFerietrekkForSammeMåned = request.harFerietrekkForSammeMåned,
             sumUtbetaltVarig = refusjon.refusjonsgrunnlag.sumUtbetaltVarig,
             ekstraFerietrekk = request.ferieTrekk,
-            beregningskontekst = Beregningskontekst(
-                grunnbelopService.grunnbelop()
-            )
+            beregningskontekst = Beregningskontekst(grunnbelopService)
         )
         refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp = request.minusBeløp
         refusjon.refusjonsgrunnlag.beregning = beregning

@@ -323,9 +323,7 @@ data class InnloggetSaksbehandler(
             tilskuddFom = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
             harFerietrekkForSammeMåned = harFerietrekkForSammeMåned,
             sumUtbetaltVarig = refusjon.refusjonsgrunnlag.sumUtbetaltVarig,
-            beregningskontekst = Beregningskontekst(
-                alleGrunnbelop = grunnbelopService.grunnbelop()
-            )
+            beregningskontekst = Beregningskontekst(grunnbelopService)
         )
     }
 }

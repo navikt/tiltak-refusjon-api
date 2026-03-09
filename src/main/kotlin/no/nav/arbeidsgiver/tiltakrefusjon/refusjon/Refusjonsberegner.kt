@@ -96,10 +96,13 @@ fun beregnRefusjonsbeløp(
     val overTilskuddsbeløp = avrundetBeregnetBeløp > tilskuddsgrunnlag.tilskuddsbeløp
     var refusjonsbeløp: Int =
         (if (overTilskuddsbeløp) tilskuddsgrunnlag.tilskuddsbeløp else avrundetBeregnetBeløp) - tidligereUtbetalt + forrigeRefusjonMinusBeløp
-    val grunnbelopForPerioden = beregningskontekst.alleGrunnbelop.floorEntry(tilskuddFom)
+    val grunnbelopForPerioden: Map.Entry<LocalDate, Int>? = beregningskontekst.alleGrunnbelop.floorEntry(tilskuddFom)
 
     var overFemGrunnbeløp = false
     if (tilskuddsgrunnlag.tiltakstype.kanIkkeOverskride5g()) {
+        if (grunnbelopForPerioden == null) {
+            throw RuntimeException("Fant ikke grunnbeløp for periode $tilskuddFom")
+        }
         val maksBelopForPerioden = gjenståendeEtterMaks5G(grunnbelopForPerioden.value, sumUtbetaltVarig)
 
         if (refusjonsbeløp > maksBelopForPerioden) {
@@ -123,8 +126,8 @@ fun beregnRefusjonsbeløp(
         tidligereRefundertBeløp = fratrekkRefunderbarBeløp,
         overFemGrunnbeløp = overFemGrunnbeløp,
         sumUtgifterFratrukketRefundertBeløp = sumUtgifterFratrukketRefundertBeløp.roundToInt(),
-        grunnbelopBrukt = grunnbelopForPerioden.value,
-        grunnbelopDato = grunnbelopForPerioden.key,
+        grunnbelopBrukt = grunnbelopForPerioden?.value,
+        grunnbelopDato = grunnbelopForPerioden?.key,
     )
 }
 

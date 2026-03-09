@@ -18,7 +18,9 @@ class GrunnbelopService(val grunnbelopClient: GrunnbelopClient, val cacheManager
             logger.info("Cache miss for grunnbeløp, henter fra g.nav")
             grunnbelopClient.alleGrunnbelop()
         })
-        return grunnbelopMap ?: throw IllegalStateException("Kunne ikke hente grunnbeløp fra cache eller g.nav")
+        // Lag kopi av cachet map for å unngå mutasjon
+        return grunnbelopMap?.toMap(TreeMap())
+            ?: throw IllegalStateException("Kunne ikke hente grunnbeløp fra cache eller g.nav")
     }
 
     /**

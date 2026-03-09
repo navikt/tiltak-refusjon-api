@@ -35,7 +35,7 @@ class InnloggetSaksbehandlerTest(
     @Autowired val kontoregisterService: FakeKontoregisterService,
     @Autowired val norgService: NorgService,
     @Autowired val persondataService: PersondataService,
-    @Autowired val grunnbelopService: GrunnbelopService
+    @Autowired val grunnbelopService: GrunnbelopService,
 ) {
     @BeforeEach
     fun setUp() {

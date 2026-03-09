@@ -46,8 +46,6 @@ internal class InnloggetArbeidsgiverTest(
     val varslingRepository: VarslingRepository,
     @Autowired
     val minusbelopRepository: MinusbelopRepository,
-    @Autowired
-    val grunnbelopService: GrunnbelopService,
 ) {
     val innloggetArbeidsgiverBruker = innloggetBruker(
         "16120102137",

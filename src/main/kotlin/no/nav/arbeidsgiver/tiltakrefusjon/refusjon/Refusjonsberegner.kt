@@ -96,7 +96,7 @@ fun beregnRefusjonsbeløp(
     val overTilskuddsbeløp = avrundetBeregnetBeløp > tilskuddsgrunnlag.tilskuddsbeløp
     var refusjonsbeløp: Int =
         (if (overTilskuddsbeløp) tilskuddsgrunnlag.tilskuddsbeløp else avrundetBeregnetBeløp) - tidligereUtbetalt + forrigeRefusjonMinusBeløp
-    val grunnbelopForPerioden = beregningskontekst.grunnbelop.lowerEntry(tilskuddFom)
+    val grunnbelopForPerioden = beregningskontekst.grunnbelop.floorEntry(tilskuddFom)
 
     var overFemGrunnbeløp = false
     if (tilskuddsgrunnlag.tiltakstype.kanIkkeOverskride5g()) {

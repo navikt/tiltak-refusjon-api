@@ -110,6 +110,7 @@ class RefusjonsberegningSteps {
             harFerietrekkForSammeMåned = false,
             beregningskontekst = Beregningskontekst(
                 grunnbelop = mapOf(
+                    LocalDate.of(2019, 5, 1) to 99858,
                     LocalDate.of(2020, 5, 1) to 101351,
                     LocalDate.of(2021, 5, 1) to 106399,
                     LocalDate.of(2022, 5, 1) to 111477,

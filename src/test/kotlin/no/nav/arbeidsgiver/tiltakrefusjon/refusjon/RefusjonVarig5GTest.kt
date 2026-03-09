@@ -1,5 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
+import no.nav.arbeidsgiver.tiltakrefusjon.grunnbelop.GrunnbelopService
 import no.nav.arbeidsgiver.tiltakrefusjon.innloggetBruker
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
@@ -16,8 +17,8 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.temporal.TemporalAdjusters.lastDayOfMonth
 
-private val åretsG = 130160
-private val forrigeÅretsG = 124028
+private val åretsG = 124028
+private val forrigeÅretsG = 118620
 
 @SpringBootTest(properties = ["NAIS_APP_IMAGE=test"])
 @ActiveProfiles("local")

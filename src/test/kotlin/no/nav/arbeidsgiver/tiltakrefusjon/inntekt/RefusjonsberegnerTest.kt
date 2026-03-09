@@ -22,10 +22,10 @@ class RefusjonsberegnerTest {
     lateinit var inntektsgrunnlagUregelmessig: Inntektsgrunnlag
     val beregningskontekst = Beregningskontekst(
         grunnbelop = mapOf(
-            LocalDate.of(2020, 5, 1) to 111477,
-            LocalDate.of(2021, 5, 1) to 117806,
-            LocalDate.of(2022, 5, 1) to 118620,
-            LocalDate.of(2023, 5, 1) to 124028,
+            LocalDate.of(2020, 5, 1) to 101351,
+            LocalDate.of(2021, 5, 1) to 106399,
+            LocalDate.of(2022, 5, 1) to 111477,
+            LocalDate.of(2023, 5, 1) to 118620,
         ).toMap(TreeMap())
     )
 

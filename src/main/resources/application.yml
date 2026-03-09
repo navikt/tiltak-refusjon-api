@@ -68,3 +68,5 @@ tiltak-refusjon:
     apiGwApiKey: ${ALTINN_API_GW_API_KEY}
   dokgen:
     uri: "http://tiltak-dokgen/template/tiltak-refusjon/create-pdf"
+  grunnbelop:
+    uri: "https://g.nav.no/api/v1/historikk/grunnbel%C3%B8p"

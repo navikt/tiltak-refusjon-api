@@ -10,7 +10,7 @@ import org.springframework.test.context.ActiveProfiles
 
 @SpringBootTest
 @ActiveProfiles("local")
-@AutoConfigureWireMock(port = 8091)
+@AutoConfigureWireMock
 class PersondataServiceTest {
     final val STRENGT_FORTROLIG_UTLAND_FNR = "28033114267"
     final val STRENGT_FORTROLIG_FNR = "28128521498"

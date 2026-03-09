@@ -38,8 +38,8 @@ import java.time.LocalDateTime
 
 @DirtiesContext
 @SpringBootTest(properties = ["NAIS_APP_IMAGE=test", "tiltak-refusjon.inntektskomponenten.fake=false"])
-@ActiveProfiles("local", "wiremock")
-@AutoConfigureWireMock(port = 8090)
+@ActiveProfiles("local")
+@AutoConfigureWireMock
 class RefusjonberegnerFratrekkFerieTest(
     @Autowired
     val refusjonService: RefusjonService,

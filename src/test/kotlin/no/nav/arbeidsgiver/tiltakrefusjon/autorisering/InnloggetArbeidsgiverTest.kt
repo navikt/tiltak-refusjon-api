@@ -6,7 +6,6 @@ import io.mockk.every
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgang
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
-import no.nav.arbeidsgiver.tiltakrefusjon.grunnbelop.GrunnbelopService
 import no.nav.arbeidsgiver.tiltakrefusjon.innloggetBruker
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
 import no.nav.arbeidsgiver.tiltakrefusjon.persondata.PersondataService

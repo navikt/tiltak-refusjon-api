@@ -31,7 +31,7 @@ class RefusjonService(
     val kontoregisterService: KontoregisterService,
     val minusbelopRepository: MinusbelopRepository,
     val applicationEventPublisher: ApplicationEventPublisher,
-    private val grunnbelopService: GrunnbelopService
+    private val grunnbelopService: GrunnbelopService,
 ) {
     val log = LoggerFactory.getLogger(javaClass)
 

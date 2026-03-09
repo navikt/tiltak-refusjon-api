@@ -52,8 +52,8 @@ tiltak-refusjon:
   inntektskomponenten:
     fake: true
   altinn-tilgangstyring:
-    uri: http://localhost:${wiremock.port}/altinn-tilgangsstyring
-    arbeidsgiverAltinnTilgangerUri: http://localhost:${wiremock.port}/altinn-tilganger
+    uri: http://localhost:${wiremock.server.port}/altinn-tilgangsstyring
+    arbeidsgiverAltinnTilgangerUri: http://localhost:${wiremock.server.port}/altinn-tilganger
     proxyUri: http://localhost:9090/altinn-rettigheter-proxy/ekstern/altinn/api/serviceowner/reportees
     beOmRettighetBaseUrl: https://arbeidsgiver-q.nav.no/min-side-arbeidsgiver/?fragment=be-om-tilgang
     inntektsmeldingServiceCode: 4936
@@ -61,7 +61,7 @@ tiltak-refusjon:
     adressesperreServiceCode: 5516
     adressesperreServiceEdition: 7
   abac-tilgangstyring:
-    uri: http://localhost:${wiremock.port}/abac-tilgangstyring
+    uri: http://localhost:${wiremock.server.port}/abac-tilgangstyring
     username: na
     password: na
   unleash:
@@ -75,7 +75,7 @@ tiltak-refusjon:
     fortrolig-adresse: 1a1d2745-952f-4a0f-839f-9530145b1d4a
     strengt-fortrolig-adresse: 1a1d2745-952f-4a0f-839f-9530145b1d4a
   pdl-api:
-    uri: http://localhost:${wiremock.port}/persondata
+    uri: http://localhost:${wiremock.server.port}/persondata
   dokgen:
     uri: http://localhost:5913/template/tiltak-refusjon/create-pdf
 server:

@@ -70,10 +70,10 @@ tiltak-refusjon:
     #uri: http://tiltak-dokgen.arbeidsgiver.svc.nais.local/template/tiltak-refusjon/create-pdf
   inntektskomponenten:
     fake: true
-    uri: http://localhost:${wiremock.port}/inntektskomponenten
+    uri: http://localhost:${wiremock.server.port}/inntektskomponenten
   altinn-tilgangstyring:
-    uri: http://localhost:${wiremock.port}/altinn-tilgangsstyring
-    arbeidsgiverAltinnTilgangerUri: http://localhost:${wiremock.port}/altinn-tilganger
+    uri: http://localhost:${wiremock.server.port}/altinn-tilgangsstyring
+    arbeidsgiverAltinnTilgangerUri: http://localhost:${wiremock.server.port}/altinn-tilganger
     proxyUri: http://localhost:9090/altinn-rettigheter-proxy/ekstern/altinn/api/serviceowner/reportees
     beOmRettighetBaseUrl: https://arbeidsgiver-q.nav.no/min-side-arbeidsgiver/?fragment=be-om-tilgang
     inntektsmeldingServiceCode: 4936
@@ -81,7 +81,7 @@ tiltak-refusjon:
     adressesperreServiceCode: 5516
     adressesperreServiceEdition: 7
   abac-tilgangstyring:
-    uri: http://localhost:${wiremock.port}/abac-tilgangstyring
+    uri: http://localhost:${wiremock.server.port}/abac-tilgangstyring
   unleash:
     mock: true
   varsling:
@@ -93,11 +93,15 @@ tiltak-refusjon:
   norg:
     fake: true
   pdl-api:
-    uri: http://localhost:${wiremock.port}/persondata
+    uri: http://localhost:${wiremock.server.port}/persondata
+  grunnbelop:
+    uri: http://localhost:${wiremock.server.port}/grunnbelop
 server:
   port: 8081
 
 wiremock:
-  port: 8091
+  server:
+    port: 0
+
 
 NAIS_APP_IMAGE: ghcr.io/navikt/tiltak-refusjon-api/tiltak-refusjon-api:804742e2ce6cffec5d1b51715215c6734642cb30

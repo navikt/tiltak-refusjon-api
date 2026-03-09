@@ -6,7 +6,6 @@ import io.mockk.every
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgang
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
-import no.nav.arbeidsgiver.tiltakrefusjon.grunnbelop.GrunnbelopService
 import no.nav.arbeidsgiver.tiltakrefusjon.innloggetBruker
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
 import no.nav.arbeidsgiver.tiltakrefusjon.persondata.PersondataService
@@ -36,7 +35,7 @@ import java.time.temporal.TemporalAdjusters
 
 @SpringBootTest(properties = ["NAIS_APP_IMAGE=test"])
 @ActiveProfiles("local")
-@AutoConfigureWireMock(port = 8090)
+@AutoConfigureWireMock
 internal class InnloggetArbeidsgiverTest(
     @Autowired
     val refusjonService: RefusjonService,
@@ -45,9 +44,7 @@ internal class InnloggetArbeidsgiverTest(
     @Autowired
     val varslingRepository: VarslingRepository,
     @Autowired
-    val minusbelopRepository: MinusbelopRepository,
-    @Autowired
-    val grunnbelopService: GrunnbelopService,
+    val minusbelopRepository: MinusbelopRepository
 ) {
     val innloggetArbeidsgiverBruker = innloggetBruker(
         "16120102137",

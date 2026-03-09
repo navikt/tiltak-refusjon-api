@@ -20,7 +20,7 @@ import org.springframework.web.client.RestTemplate
 
 @SpringBootTest
 @ActiveProfiles("local")
-@AutoConfigureWireMock(port = 8091)
+@AutoConfigureWireMock
 class AltinnTilgangsstyringServiceTest {
 
     @Autowired

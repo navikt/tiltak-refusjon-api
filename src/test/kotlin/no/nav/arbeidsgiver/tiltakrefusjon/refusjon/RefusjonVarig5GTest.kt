@@ -1,6 +1,5 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
-import no.nav.arbeidsgiver.tiltakrefusjon.grunnbelop.GrunnbelopService
 import no.nav.arbeidsgiver.tiltakrefusjon.innloggetBruker
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
@@ -29,7 +28,7 @@ class RefusjonVarig5GTest(
     @Autowired
     val refusjonRepository: RefusjonRepository,
     @Autowired
-    val varslingRepository: VarslingRepository,
+    val varslingRepository: VarslingRepository
 ) {
     @BeforeEach
     fun setup() {

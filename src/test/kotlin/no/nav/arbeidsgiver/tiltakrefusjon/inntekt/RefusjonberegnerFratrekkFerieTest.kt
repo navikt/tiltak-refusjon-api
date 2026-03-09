@@ -2,12 +2,10 @@ package no.nav.arbeidsgiver.tiltakrefusjon.inntekt
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
-import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgang
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetArbeidsgiver
 import no.nav.arbeidsgiver.tiltakrefusjon.etInntektsgrunnlag
-import no.nav.arbeidsgiver.tiltakrefusjon.grunnbelop.GrunnbelopService
 import no.nav.arbeidsgiver.tiltakrefusjon.innloggetBruker
 import no.nav.arbeidsgiver.tiltakrefusjon.persondata.PersondataService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Beregning
@@ -47,8 +45,6 @@ class RefusjonberegnerFratrekkFerieTest(
     val refusjonService: RefusjonService,
     @Autowired
     val refusjonRepository: RefusjonRepository,
-    @Autowired
-    val grunnbelopService: GrunnbelopService,
 ) {
     val innloggetArbeidsgiver = innloggetBruker("12345678910", BrukerRolle.ARBEIDSGIVER);
 
@@ -318,8 +314,7 @@ class RefusjonberegnerFratrekkFerieTest(
             refusjonRepository,
             korreksjonRepository,
             refusjonService,
-            persondataService,
-            grunnbelopService,
+            persondataService
         )
 
         // Det kan oppstå 2 refusjoner innenfor samme måned ved f.eks. forlengelse. (eks. 01-15 og 16-30)
@@ -380,8 +375,7 @@ class RefusjonberegnerFratrekkFerieTest(
             refusjonRepository,
             korreksjonRepository,
             refusjonService,
-            persondataService,
-            grunnbelopService,
+            persondataService
         )
 
         Now.fixedDateTime(LocalDateTime.of(2024, 7, 1, 0, 0, 0))

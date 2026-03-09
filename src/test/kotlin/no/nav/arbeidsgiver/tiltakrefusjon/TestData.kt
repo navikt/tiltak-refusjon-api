@@ -1049,7 +1049,7 @@ fun Refusjon.medBeregning(
             LocalDate.of(2022, 1, 1) to 111477,
             LocalDate.of(2023, 1, 1) to 117543,
         ).toMap(TreeMap())
-    ),this)
+    ), this)
     return this
 }
 

@@ -76,8 +76,7 @@ class InnloggetBrukerService(
                     refusjonRepository,
                     korreksjonRepository,
                     refusjonService,
-                    persondataService,
-                    grunnbelopService,
+                    persondataService
                 )
             }
 

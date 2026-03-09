@@ -129,7 +129,7 @@ fun beregnRefusjonsbeløp(
 }
 
 // Returnerer det man får opp til 5G. Altså 5G - Totalt utbetalt
-fun gjenståendeEtterMaks5G(grunnbelop: Int, sumUtbetalt: Int): Int {
+private fun gjenståendeEtterMaks5G(grunnbelop: Int, sumUtbetalt: Int): Int {
     return 0.coerceAtLeast(5 * grunnbelop - sumUtbetalt)
 }
 

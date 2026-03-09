@@ -1056,9 +1056,7 @@ fun Refusjon.medInntektsgrunnlag(
 
 fun Refusjon.medBeregning(
 ): Refusjon {
-    this.refusjonsgrunnlag.beregning = beregnRefusjon(Beregningskontekst(
-        alleGrunnbelop = alleGrunnbelopMap
-    ), this)
+    this.refusjonsgrunnlag.beregning = beregnRefusjon(enBeregningskontekst(), this)
     return this
 }
 

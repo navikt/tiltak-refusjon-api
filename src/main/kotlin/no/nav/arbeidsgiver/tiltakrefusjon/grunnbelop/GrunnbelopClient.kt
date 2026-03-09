@@ -12,13 +12,8 @@ import java.util.*
 @Component
 class GrunnbelopClient(val noAuthRestTemplate: RestTemplate) {
     @Retryable(value = [Exception::class], maxAttempts = 3, backoff = Backoff(delay = 1000))
-    fun alleGrunnbelop(): TreeMap<LocalDate, Int> {
-        val grunnbelopTree = TreeMap<LocalDate, Int>()
+    fun alleGrunnbelop(): TreeMap<LocalDate, Int> =
         noAuthRestTemplate.getForObject<Array<GrunnbelopApiResponse>>(
-            URI.create("https://g.nav.no/api/v1/historikk/grunnbeløp")
-        ).forEach {
-            grunnbelopTree[it.dato] = it.grunnbeløp
-        }
-        return grunnbelopTree
-    }
+            URI.create("https://g.nav.no/api/v1/historikk/grunnbel%C3%B8p")
+        ).associateTo(TreeMap()) { it.dato to it.grunnbeløp }
 }

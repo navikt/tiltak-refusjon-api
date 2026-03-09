@@ -14,7 +14,6 @@ import org.springframework.test.context.ContextConfiguration
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
-import java.util.TreeMap
 
 @CucumberContextConfiguration
 @ContextConfiguration
@@ -109,7 +108,7 @@ class RefusjonsberegningSteps {
             korrigertBruttoLønn,
             tilskuddFom = tilskuddsgrunnlag.tilskuddFom,
             harFerietrekkForSammeMåned = false,
-            beregningskontekst = enBeregningskontekst()
+            beregningskontekst = enBeregningskontekst(),
         )
         assertThat(beregnet.refusjonsbeløp).isEqualByComparingTo(refusjon);
     }

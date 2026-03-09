@@ -11,9 +11,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.utils.ulid
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
-import java.time.LocalDate
 import java.time.YearMonth
-import java.util.TreeMap
 
 class KorreksjonTest {
     val innloggetBeslutter = innloggetBruker("X123456", BrukerRolle.BESLUTTER)

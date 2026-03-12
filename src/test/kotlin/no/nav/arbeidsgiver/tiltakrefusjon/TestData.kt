@@ -1,6 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBruker
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Beregningskontekst
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.BrukerRolle
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Inntektsgrunnlag
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Inntektslinje
@@ -13,6 +14,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.ulid
 import no.nav.arbeidsgiver.tiltakrefusjon.varsling.VarselType
 import no.nav.arbeidsgiver.tiltakrefusjon.varsling.Varsling
+import java.time.LocalDate
 import java.time.YearMonth
 import java.time.ZoneId
 import java.time.temporal.TemporalAdjusters.firstDayOfMonth
@@ -20,6 +22,20 @@ import java.time.temporal.TemporalAdjusters.lastDayOfMonth
 import java.util.*
 
 val innloggetTestbruker = innloggetBruker("testsystem", BrukerRolle.SYSTEM)
+
+val alleGrunnbelopMap = mapOf<LocalDate, Int>(
+    LocalDate.of(2019, 5, 1) to 99858,
+    LocalDate.of(2020, 5, 1) to 101351,
+    LocalDate.of(2021, 5, 1) to 106399,
+    LocalDate.of(2022, 5, 1) to 111477,
+    LocalDate.of(2023, 5, 1) to 118620,
+    LocalDate.of(2024, 5, 1) to 124028,
+    LocalDate.of(2025, 5, 1) to 130160,
+).toMap(TreeMap())
+
+fun enBeregningskontekst() = Beregningskontekst(
+    alleGrunnbelop = alleGrunnbelopMap
+)
 
 fun innloggetBruker(identifikator: String, rolle: BrukerRolle) = object : InnloggetBruker {
     override val identifikator: String
@@ -1040,7 +1056,7 @@ fun Refusjon.medInntektsgrunnlag(
 
 fun Refusjon.medBeregning(
 ): Refusjon {
-    this.refusjonsgrunnlag.beregning = beregnRefusjon(this)
+    this.refusjonsgrunnlag.beregning = beregnRefusjon(enBeregningskontekst(), this)
     return this
 }
 

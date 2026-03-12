@@ -1,13 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
-import no.nav.arbeidsgiver.tiltakrefusjon.utils.gjenståendeEtterMaks5G
 import java.time.LocalDate
 import kotlin.math.roundToInt
-
-private fun antallDager(
-    fom: LocalDate,
-    tom: LocalDate,
-) = fom.datesUntil(tom.plusDays(1)).count().toInt()
 
 fun fastBeløpBeregning(tilskuddsgrunnlag: Tilskuddsgrunnlag, tidligereUtbetalt: Int, korriger: Boolean = false): Beregning {
     val beregnetBeløp = if (korriger) 0 else tilskuddsgrunnlag.tilskuddsbeløp
@@ -74,6 +68,7 @@ fun beregnRefusjonsbeløp(
     sumUtbetaltVarig: Int = 0,
     harFerietrekkForSammeMåned: Boolean,
     ekstraFerietrekk: Int? = null,
+    beregningskontekst: Beregningskontekst,
 
     ): Beregning {
     val kalkulertBruttoLønn = kalkulerBruttoLønn(inntekter).roundToInt()
@@ -101,10 +96,17 @@ fun beregnRefusjonsbeløp(
     val overTilskuddsbeløp = avrundetBeregnetBeløp > tilskuddsgrunnlag.tilskuddsbeløp
     var refusjonsbeløp: Int =
         (if (overTilskuddsbeløp) tilskuddsgrunnlag.tilskuddsbeløp else avrundetBeregnetBeløp) - tidligereUtbetalt + forrigeRefusjonMinusBeløp
+    val grunnbelopForPerioden: Map.Entry<LocalDate, Int> = beregningskontekst.alleGrunnbelop.floorEntry(tilskuddFom)
+        // Antas å kun inntreffe dersom vi ikke har et grunnbeløp for en periode veldig langt tilbake i tid,
+        // feks før 1970, eller dersom api-kall returnerte tom liste
+        ?: throw RuntimeException("Fant ikke grunnbeløp for periode $tilskuddFom")
+
     var overFemGrunnbeløp = false
     if (tilskuddsgrunnlag.tiltakstype.kanIkkeOverskride5g()) {
-        if (refusjonsbeløp > gjenståendeEtterMaks5G(sumUtbetaltVarig, tilskuddFom)) {
-            refusjonsbeløp = gjenståendeEtterMaks5G(sumUtbetaltVarig, tilskuddFom)
+        val maksBelopForPerioden = gjenståendeEtterMaks5G(grunnbelopForPerioden.value, sumUtbetaltVarig)
+
+        if (refusjonsbeløp > maksBelopForPerioden) {
+            refusjonsbeløp = maksBelopForPerioden
             overFemGrunnbeløp = true
         }
     }
@@ -123,11 +125,18 @@ fun beregnRefusjonsbeløp(
         fratrekkLønnFerie = trekkgrunnlagFerie,
         tidligereRefundertBeløp = fratrekkRefunderbarBeløp,
         overFemGrunnbeløp = overFemGrunnbeløp,
-        sumUtgifterFratrukketRefundertBeløp = sumUtgifterFratrukketRefundertBeløp.roundToInt()
+        sumUtgifterFratrukketRefundertBeløp = sumUtgifterFratrukketRefundertBeløp.roundToInt(),
+        grunnbelopBrukt = grunnbelopForPerioden.value,
+        grunnbelopDato = grunnbelopForPerioden.key,
     )
 }
 
-fun beregnRefusjon(refusjon: Refusjon): Beregning? {
+// Returnerer det man får opp til 5G. Altså 5G - Totalt utbetalt
+private fun gjenståendeEtterMaks5G(grunnbelop: Int, sumUtbetalt: Int): Int {
+    return 0.coerceAtLeast(5 * grunnbelop - sumUtbetalt)
+}
+
+fun beregnRefusjon(beregningskontekst: Beregningskontekst, refusjon: Refusjon): Beregning? {
     if (!refusjon.refusjonsgrunnlag.harTilstrekkeligInformasjonForBeregning()) {
         return null
     }
@@ -144,12 +153,13 @@ fun beregnRefusjon(refusjon: Refusjon): Beregning? {
             forrigeRefusjonMinusBeløp = refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
             tilskuddFom = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
             sumUtbetaltVarig = refusjon.refusjonsgrunnlag.sumUtbetaltVarig,
-            harFerietrekkForSammeMåned = refusjon.refusjonsgrunnlag.harFerietrekkForSammeMåned
+            harFerietrekkForSammeMåned = refusjon.refusjonsgrunnlag.harFerietrekkForSammeMåned,
+            beregningskontekst = beregningskontekst,
         )
     }
 }
 
-fun beregnKorreksjon(korreksjon: Korreksjon): Beregning? {
+fun beregnKorreksjon(beregningskontekst: Beregningskontekst, korreksjon: Korreksjon): Beregning? {
     if (!korreksjon.refusjonsgrunnlag.harTilstrekkeligInformasjonForBeregning()) {
         return null
     }
@@ -166,7 +176,8 @@ fun beregnKorreksjon(korreksjon: Korreksjon): Beregning? {
             forrigeRefusjonMinusBeløp = korreksjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
             tilskuddFom = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
             sumUtbetaltVarig = korreksjon.refusjonsgrunnlag.sumUtbetaltVarig,
-            harFerietrekkForSammeMåned = korreksjon.refusjonsgrunnlag.harFerietrekkForSammeMåned
+            harFerietrekkForSammeMåned = korreksjon.refusjonsgrunnlag.harFerietrekkForSammeMåned,
+            beregningskontekst = beregningskontekst
         )
     }
 }

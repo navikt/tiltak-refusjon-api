@@ -1,6 +1,11 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.inntekt
 
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.*
+import no.nav.arbeidsgiver.tiltakrefusjon.enBeregningskontekst
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Inntektsgrunnlag
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Inntektslinje
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tilskuddsgrunnlag
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.beregnRefusjonsbeløp
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.ulid
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -125,7 +130,8 @@ class RefusjonsberegnerTest {
             null,
             null,
             tilskuddFom = LocalDate.of(2023,6,1),
-            harFerietrekkForSammeMåned = false
+            harFerietrekkForSammeMåned = false,
+            beregningskontekst = enBeregningskontekst()
         )
         val beregnetBeløpHeleInntektsgrunnlaget = 20520
         assertThat(beregning.refusjonsbeløp).isEqualTo(beregnetBeløpHeleInntektsgrunnlaget)
@@ -145,7 +151,8 @@ class RefusjonsberegnerTest {
             0,
             null,
             tilskuddFom = LocalDate.of(2023,6,1),
-            harFerietrekkForSammeMåned = false
+            harFerietrekkForSammeMåned = false,
+            beregningskontekst = enBeregningskontekst()
         )
         val beregnetBeløpAvAntallDagerJobbetInnenforInntektsgrunnlaget = 20520
         assertThat(beregning.refusjonsbeløp).isEqualTo(beregnetBeløpAvAntallDagerJobbetInnenforInntektsgrunnlaget)
@@ -167,7 +174,8 @@ class RefusjonsberegnerTest {
             null,
             tilskuddFom = LocalDate.of(2023,6,1),
             sumUtbetaltVarig = 590000,
-            harFerietrekkForSammeMåned = false
+            harFerietrekkForSammeMåned = false,
+            beregningskontekst = enBeregningskontekst()
         )
         val beregning2 = beregnRefusjonsbeløp(
             inntektsgrunnlagUregelmessig.inntekter.toList(),
@@ -176,7 +184,8 @@ class RefusjonsberegnerTest {
             null,
             tilskuddFom = LocalDate.of(2023,6,1),
             sumUtbetaltVarig = 590000,
-            harFerietrekkForSammeMåned = false
+            harFerietrekkForSammeMåned = false,
+            beregningskontekst = enBeregningskontekst(),
         )
 
         // Beregning uten 5G-sjekk skal gi et refusjonsbeløp på 20856
@@ -202,7 +211,8 @@ class RefusjonsberegnerTest {
             null,
             tilskuddFom = LocalDate.of(2023,9,1),
             sumUtbetaltVarig = 16666,
-            harFerietrekkForSammeMåned = false
+            harFerietrekkForSammeMåned = false,
+            beregningskontekst = enBeregningskontekst(),
         )
 
         assertThat(beregning.sumUtgifter).isEqualTo(21375)
@@ -227,7 +237,8 @@ class RefusjonsberegnerTest {
             null,
             tilskuddFom = LocalDate.of(2023,9,1),
             sumUtbetaltVarig = 16666,
-            harFerietrekkForSammeMåned = false
+            harFerietrekkForSammeMåned = false,
+            beregningskontekst = enBeregningskontekst(),
         )
 
         assertThat(beregning.refusjonsbeløp)

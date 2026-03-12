@@ -7,6 +7,7 @@ import io.cucumber.java.no.Når
 import io.cucumber.java.no.Og
 import io.cucumber.java.no.Så
 import io.cucumber.spring.CucumberContextConfiguration
+import no.nav.arbeidsgiver.tiltakrefusjon.enBeregningskontekst
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Assume
 import org.springframework.test.context.ContextConfiguration
@@ -106,7 +107,8 @@ class RefusjonsberegningSteps {
             tidligereUtbetalt,
             korrigertBruttoLønn,
             tilskuddFom = tilskuddsgrunnlag.tilskuddFom,
-            harFerietrekkForSammeMåned = false
+            harFerietrekkForSammeMåned = false,
+            beregningskontekst = enBeregningskontekst(),
         )
         assertThat(beregnet.refusjonsbeløp).isEqualByComparingTo(refusjon);
     }

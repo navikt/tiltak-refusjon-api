@@ -133,7 +133,7 @@ class KorreksjonTest {
             )
         )
         korreksjon.oppgiBedriftKontonummer("99999999999")
-        korreksjon.refusjonsgrunnlag.beregning = beregnKorreksjon(enBeregningskontekst(), korreksjon,)
+        korreksjon.refusjonsgrunnlag.beregning = beregnKorreksjon(enBeregningskontekst(), korreksjon)
         korreksjon.utbetalKorreksjon(innloggetBeslutter, "1009")
         assertThat(korreksjon.status).isEqualTo(Korreksjonstype.TILLEGSUTBETALING)
     }

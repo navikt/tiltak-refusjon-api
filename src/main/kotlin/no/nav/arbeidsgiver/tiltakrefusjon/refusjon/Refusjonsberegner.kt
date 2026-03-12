@@ -126,8 +126,8 @@ fun beregnRefusjonsbeløp(
         tidligereRefundertBeløp = fratrekkRefunderbarBeløp,
         overFemGrunnbeløp = overFemGrunnbeløp,
         sumUtgifterFratrukketRefundertBeløp = sumUtgifterFratrukketRefundertBeløp.roundToInt(),
-        grunnbelopBrukt = grunnbelopForPerioden?.value,
-        grunnbelopDato = grunnbelopForPerioden?.key,
+        grunnbelopBrukt = grunnbelopForPerioden.value,
+        grunnbelopDato = grunnbelopForPerioden.key,
     )
 }
 

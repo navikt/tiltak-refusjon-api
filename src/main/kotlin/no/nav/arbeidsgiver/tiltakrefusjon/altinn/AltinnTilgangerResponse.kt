@@ -1,6 +1,11 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.altinn
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+
+
 // https://arbeidsgiver-altinn-tilganger.intern.dev.nav.no/swagger-ui
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class AltinnTilgangerResponse(
     val isError: Boolean,
     val hierarki: List<AltinnTilgang>,

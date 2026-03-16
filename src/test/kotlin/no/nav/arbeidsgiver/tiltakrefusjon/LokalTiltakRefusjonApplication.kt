@@ -11,6 +11,6 @@ class LokalTiltakRefusjonApplication
 
 fun main(args: Array<String>) {
     runApplication<LokalTiltakRefusjonApplication>(*args) {
-        setAdditionalProfiles("local","wiremock", "testdata")
+        setAdditionalProfiles("local", "wiremock", "testdata")
     }
 }

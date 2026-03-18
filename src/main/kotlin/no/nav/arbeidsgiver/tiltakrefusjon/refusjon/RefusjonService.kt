@@ -25,12 +25,12 @@ import java.time.YearMonth
 @Service
 @Observed
 class RefusjonService(
-    val inntektskomponentService: InntektskomponentService,
-    val refusjonRepository: RefusjonRepository,
-    val korreksjonRepository: KorreksjonRepository,
-    val kontoregisterService: KontoregisterService,
-    val minusbelopRepository: MinusbelopRepository,
-    val applicationEventPublisher: ApplicationEventPublisher,
+    private val inntektskomponentService: InntektskomponentService,
+    private val refusjonRepository: RefusjonRepository,
+    private val korreksjonRepository: KorreksjonRepository,
+    private val kontoregisterService: KontoregisterService,
+    private val minusbelopRepository: MinusbelopRepository,
+    private val applicationEventPublisher: ApplicationEventPublisher,
     private val grunnbelopService: GrunnbelopService,
 ) {
     val log = LoggerFactory.getLogger(javaClass)

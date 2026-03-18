@@ -35,6 +35,7 @@ spec:
         - application: tiltak-refusjon-arbeidsgiver
     outbound:
       external:
+        - host: "g.nav.no"
       {{#each host}}
         - host: "{{this}}"
       {{/each}}

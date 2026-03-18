@@ -109,10 +109,10 @@ fun beregnRefusjonsbeløp(
 
     var overFemGrunnbeløp = false
     if (tilskuddsgrunnlag.tiltakstype.kanIkkeOverskride5g()) {
-        val maksBelopForPerioden = beregningskontekst.gjenståendeEtterMaks5G(tilskuddFom, sumUtbetaltVarig)
+        val resultat = beregningskontekst.gjenståendeEtterMaks5G(tilskuddFom, sumUtbetaltVarig, refusjonsbeløp)
 
-        if (refusjonsbeløp > maksBelopForPerioden) {
-            refusjonsbeløp = maksBelopForPerioden
+        if (resultat is Maks5GResultat.OverMaks) {
+            refusjonsbeløp = resultat.maksbelop
             overFemGrunnbeløp = true
         }
     }

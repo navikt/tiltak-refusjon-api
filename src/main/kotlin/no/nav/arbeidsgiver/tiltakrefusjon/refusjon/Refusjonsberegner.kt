@@ -109,7 +109,7 @@ fun beregnRefusjonsbeløp(
 
     var overFemGrunnbeløp = false
     if (tilskuddsgrunnlag.tiltakstype.kanIkkeOverskride5g()) {
-        val maksBelopForPerioden = gjenståendeEtterMaks5G(grunnbelopForPerioden.belop, sumUtbetaltVarig)
+        val maksBelopForPerioden = beregningskontekst.gjenståendeEtterMaks5G(tilskuddFom, sumUtbetaltVarig)
 
         if (refusjonsbeløp > maksBelopForPerioden) {
             refusjonsbeløp = maksBelopForPerioden
@@ -135,11 +135,6 @@ fun beregnRefusjonsbeløp(
         grunnbelopBrukt = grunnbelopForPerioden.belop,
         grunnbelopDato = grunnbelopForPerioden.gjelderFraOgMed,
     )
-}
-
-// Returnerer det man får opp til 5G. Altså 5G - Totalt utbetalt
-private fun gjenståendeEtterMaks5G(grunnbelop: Int, sumUtbetalt: Int): Int {
-    return 0.coerceAtLeast(5 * grunnbelop - sumUtbetalt)
 }
 
 fun beregnRefusjon(beregningskontekst: Beregningskontekst, refusjon: Refusjon): Beregning? {

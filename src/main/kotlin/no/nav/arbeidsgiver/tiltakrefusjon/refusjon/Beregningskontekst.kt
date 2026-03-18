@@ -16,4 +16,9 @@ class Beregningskontekst(
         alleGrunnbelop.floorEntry(tilskuddFom)?.let {
             Grunnbelop(it.key, it.value)
         } ?: throw RuntimeException("Fant ikke grunnbeløp for dato $tilskuddFom.")
+
+    fun gjenståendeEtterMaks5G(tilskuddFom: LocalDate, sumUtbetaltSaaLangtIAaret: Int): Int {
+        val grunnbelopForPeriode = grunnbelopForPerioden(tilskuddFom)
+        return 0.coerceAtLeast(5 * grunnbelopForPeriode.belop - sumUtbetaltSaaLangtIAaret)
+    }
 }

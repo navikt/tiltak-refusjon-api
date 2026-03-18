@@ -2,6 +2,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.assertFeilkode
+import no.nav.arbeidsgiver.tiltakrefusjon.enBeregningskontekst
 import no.nav.arbeidsgiver.tiltakrefusjon.enInntektslinje
 import no.nav.arbeidsgiver.tiltakrefusjon.etInntektsgrunnlag
 import no.nav.arbeidsgiver.tiltakrefusjon.etTilskuddsgrunnlag
@@ -40,7 +41,7 @@ class KorreksjonTest {
             )
         )
         korreksjon.oppgiBedriftKontonummer("99999999999")
-        korreksjon.refusjonsgrunnlag.beregning = beregnKorreksjon(korreksjon)
+        korreksjon.refusjonsgrunnlag.beregning = beregnKorreksjon(enBeregningskontekst(), korreksjon)
         korreksjon.utbetalKorreksjon(innloggetBeslutter, "1000")
 
         assertThat(korreksjon.status).isEqualTo(Korreksjonstype.TILLEGSUTBETALING)
@@ -71,7 +72,7 @@ class KorreksjonTest {
             )
         )
         korreksjon.oppgiBedriftKontonummer("99999999999")
-        korreksjon.refusjonsgrunnlag.beregning = beregnKorreksjon(korreksjon)
+        korreksjon.refusjonsgrunnlag.beregning = beregnKorreksjon(enBeregningskontekst(), korreksjon)
         assertFeilkode(Feilkode.KOSTNADSSTED_MANGLER) { korreksjon.utbetalKorreksjon(innloggetBeslutter, "") }
 
     }
@@ -132,7 +133,7 @@ class KorreksjonTest {
             )
         )
         korreksjon.oppgiBedriftKontonummer("99999999999")
-        korreksjon.refusjonsgrunnlag.beregning = beregnKorreksjon(korreksjon)
+        korreksjon.refusjonsgrunnlag.beregning = beregnKorreksjon(enBeregningskontekst(), korreksjon)
         korreksjon.utbetalKorreksjon(innloggetBeslutter, "1009")
         assertThat(korreksjon.status).isEqualTo(Korreksjonstype.TILLEGSUTBETALING)
     }
@@ -162,7 +163,7 @@ class KorreksjonTest {
             )
         )
         korreksjon.oppgiBedriftKontonummer("99999999999")
-        korreksjon.refusjonsgrunnlag.beregning = beregnKorreksjon(korreksjon)
+        korreksjon.refusjonsgrunnlag.beregning = beregnKorreksjon(enBeregningskontekst(), korreksjon)
         assertFeilkode(Feilkode.KORREKSJONSBELOP_NEGATIVT) { korreksjon.utbetalKorreksjon(innloggetBeslutter, "9999") }
         assertFeilkode(Feilkode.KORREKSJONSBELOP_IKKE_NULL) { korreksjon.fullførKorreksjonVedOppgjort(innloggetBeslutter) }
         korreksjon.fullførKorreksjonVedTilbakekreving(innloggetBeslutter)
@@ -194,7 +195,7 @@ class KorreksjonTest {
             )
         )
         korreksjon.oppgiBedriftKontonummer("99999999999")
-        korreksjon.refusjonsgrunnlag.beregning = beregnKorreksjon(korreksjon)
+        korreksjon.refusjonsgrunnlag.beregning = beregnKorreksjon(enBeregningskontekst(), korreksjon)
         assertFeilkode(Feilkode.KORREKSJONSBELOP_NEGATIVT) { korreksjon.utbetalKorreksjon(innloggetBeslutter, "9999") }
         assertFeilkode(Feilkode.KORREKSJONSBELOP_POSITIVT) { korreksjon.fullførKorreksjonVedTilbakekreving(innloggetBeslutter) }
         korreksjon.fullførKorreksjonVedOppgjort(innloggetBeslutter)
@@ -228,7 +229,7 @@ class KorreksjonTest {
 
         korreksjon.oppgiBedriftKontonummer("123456789")
         korreksjon.oppgiInntektsgrunnlag(inntektsgrunnlag)
-        korreksjon.refusjonsgrunnlag.beregning = beregnKorreksjon(korreksjon)
+        korreksjon.refusjonsgrunnlag.beregning = beregnKorreksjon(enBeregningskontekst(), korreksjon)
         assertThat(korreksjon.refusjonsgrunnlag.beregning?.lønn).isEqualTo(inntektslinjeOpptjentIPeriode.beløp.toInt())
     }
 }

@@ -3,8 +3,6 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.innloggetBruker
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
-import no.nav.arbeidsgiver.tiltakrefusjon.utils.forrigeÅretsG
-import no.nav.arbeidsgiver.tiltakrefusjon.utils.åretsG
 import no.nav.arbeidsgiver.tiltakrefusjon.varsling.VarslingRepository
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
@@ -17,6 +15,9 @@ import org.springframework.test.context.ActiveProfiles
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.temporal.TemporalAdjusters.lastDayOfMonth
+
+private val åretsG = 124028
+private val forrigeÅretsG = 118620
 
 @SpringBootTest(properties = ["NAIS_APP_IMAGE=test"])
 @ActiveProfiles("local")

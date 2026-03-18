@@ -2,7 +2,6 @@ package no.nav.arbeidsgiver.tiltakrefusjon.inntekt
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
-import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgang
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetArbeidsgiver

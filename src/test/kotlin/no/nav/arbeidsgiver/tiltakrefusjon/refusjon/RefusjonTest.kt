@@ -3,6 +3,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.assertFeilkode
+import no.nav.arbeidsgiver.tiltakrefusjon.enBeregningskontekst
 import no.nav.arbeidsgiver.tiltakrefusjon.enInntektslinje
 import no.nav.arbeidsgiver.tiltakrefusjon.enRefusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.etInntektsgrunnlag
@@ -98,7 +99,7 @@ internal class RefusjonTest {
 
         // Tar stilling til alle inntektslinjer
         refusjon.setInntektslinjeTilOpptjentIPeriode(enInntektslinjeIkkeTattStillingTilOpptjening.id, true)
-        refusjon.refusjonsgrunnlag.beregning = beregnRefusjon(refusjon)
+        refusjon.refusjonsgrunnlag.beregning = beregnRefusjon(enBeregningskontekst(), refusjon)
 
         refusjon.godkjennForArbeidsgiver(innloggetArbeidsgiver)
 
@@ -320,7 +321,7 @@ internal class RefusjonTest {
 
         val refusjon = enRefusjon().medBedriftKontonummer().medInntekterKunFraTiltaket()
         refusjon.oppgiInntektsgrunnlag(inntektsgrunnlag)
-        refusjon.refusjonsgrunnlag.beregning = beregnRefusjon(refusjon)
+        refusjon.refusjonsgrunnlag.beregning = beregnRefusjon(enBeregningskontekst(), refusjon)
 
         assertThat(refusjon.refusjonsgrunnlag.beregning?.lønn).isEqualTo(inntektslinjeOpptjentIPeriode.beløp.toInt())
     }

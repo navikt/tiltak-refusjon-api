@@ -2,12 +2,14 @@ package no.nav.arbeidsgiver.tiltakrefusjon.autorisering
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.arbeidsgiver.tiltakrefusjon.RessursFinnesIkkeException
+import no.nav.arbeidsgiver.tiltakrefusjon.grunnbelop.GrunnbelopService
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
 import no.nav.arbeidsgiver.tiltakrefusjon.norg.NorgService
 import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterService
 import no.nav.arbeidsgiver.tiltakrefusjon.persondata.PersondataService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.BegrensetRefusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Beregning
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Beregningskontekst
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.BrukerRolle
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.HentSaksbehandlerRefusjonerQueryParametre
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Inntektsgrunnlag
@@ -45,6 +47,7 @@ data class InnloggetSaksbehandler(
     @JsonIgnore val kontoregisterService: KontoregisterService,
     @JsonIgnore val adGruppeTilganger: AdGruppeTilganger,
     @JsonIgnore val persondataService: PersondataService,
+    @JsonIgnore val grunnbelopService: GrunnbelopService,
 ) : InnloggetBruker {
     @JsonIgnore
     val log: Logger = LoggerFactory.getLogger(javaClass)
@@ -319,7 +322,8 @@ data class InnloggetSaksbehandler(
             forrigeRefusjonMinusBeløp = minusBeløp,
             tilskuddFom = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
             harFerietrekkForSammeMåned = harFerietrekkForSammeMåned,
-            sumUtbetaltVarig = refusjon.refusjonsgrunnlag.sumUtbetaltVarig
+            sumUtbetaltVarig = refusjon.refusjonsgrunnlag.sumUtbetaltVarig,
+            beregningskontekst = Beregningskontekst(grunnbelopService.alleGrunnbelop())
         )
     }
 }

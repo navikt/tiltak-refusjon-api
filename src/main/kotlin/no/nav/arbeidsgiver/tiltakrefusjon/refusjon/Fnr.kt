@@ -1,15 +1,13 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
+import no.bekk.bekkopen.person.FodselsnummerValidator
+
 data class Fnr(val verdi: String) {
     init {
-        if (!erGyldigFnr(verdi)) {
+        if (!FodselsnummerValidator.isValid(verdi)) {
             throw FnrException()
         }
     }
 }
 
 class FnrException : IllegalArgumentException("Ugyldig fødselsnummer. Må inneholde 11 tegn.")
-
-fun erGyldigFnr(fnr: String): Boolean {
-    return fnr.matches(Regex("^[0-9]{11}$"))
-}

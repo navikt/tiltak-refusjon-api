@@ -42,7 +42,7 @@ class FnrTest {
 
     @Test
     fun `gitt gyldig fnr skal true returneres`() {
-        val gyldigFnrMed11Tall = "01234567890"
+        val gyldigFnrMed11Tall = "24128125651"
         assertThat(Fnr(gyldigFnrMed11Tall).verdi).isEqualTo(gyldigFnrMed11Tall)
     }
 }

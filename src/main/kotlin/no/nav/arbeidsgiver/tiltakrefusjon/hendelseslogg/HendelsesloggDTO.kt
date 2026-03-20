@@ -1,7 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.hendelseslogg
 
-import no.bekk.bekkopen.person.FodselsnummerValidator
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.BrukerRolle
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.erGyldigFnr
 import java.time.Instant
 
 data class HendelsesloggDTO(
@@ -33,7 +33,7 @@ private fun hendelseSkalAnonymiseres(hendelseslogg: Hendelseslogg) =
 private fun utførtAv(hendelseslogg: Hendelseslogg) =
     if (hendelseSkalAnonymiseres(hendelseslogg)) {
         hendelseslogg.utførtRolle!!.name
-    } else if (FodselsnummerValidator.isValid(hendelseslogg.utførtAv)) {
+    } else if (erGyldigFnr(hendelseslogg.utførtAv)) {
         // rolle mangler på eldre events
         ""
     } else {

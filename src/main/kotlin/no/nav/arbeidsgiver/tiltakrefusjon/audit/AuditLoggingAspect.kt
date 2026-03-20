@@ -1,7 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.audit
 
 import jakarta.servlet.http.HttpServletRequest
-import no.bekk.bekkopen.person.FodselsnummerValidator
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.erGyldigFnr
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.AuditEntry
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.EventType
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Issuer
@@ -99,7 +99,7 @@ class AuditLoggingAspect(val context: TokenValidationContextHolder, val auditLog
                 val uri = URI.create(request.requestURI)
                 val utførtTid = Now.instant()
 
-                val innloggetBrukerErPrivatperson = FodselsnummerValidator.isValid(innloggetBrukerId)
+                val innloggetBrukerErPrivatperson = erGyldigFnr(innloggetBrukerId)
                 auditelementer.forEach { auditelement ->
                     // Vi er ikke interessert i oppslag som bruker gjør på seg selv
                     if (auditelement.deltakerFnr.equals(innloggetBrukerId)) {

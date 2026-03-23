@@ -129,9 +129,8 @@ class AdminController(
         for (id in request.refusjonIder) {
             val refusjon =
                 refusjonRepository.findByIdOrNull(id) ?: throw RuntimeException("Finner ikke refusjon med id=$id")
-
             try {
-                refusjon.forlengFrist(request.nyFrist, request.årsak, ADMIN_BRUKER, request.enforce)
+                refusjon.forlengFrist(request.nyFrist, request.årsak, ADMIN_BRUKER, request.tillatForlengingUtoverMaksimalFrist)
                 refusjonRepository.save(refusjon)
             } catch (e: FeilkodeException) {
                 if (e.feilkode == Feilkode.FOR_LANG_FORLENGELSE_AV_FRIST) {
@@ -324,7 +323,7 @@ data class ForlengFristerRequest(
     val refusjonIder: List<String>,
     val nyFrist: LocalDate,
     val årsak: String,
-    val enforce: Boolean
+    val tillatForlengingUtoverMaksimalFrist: Boolean
 )
 
 data class RefusjonRequest(val refusjonId: String)

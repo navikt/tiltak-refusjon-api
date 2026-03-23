@@ -50,7 +50,8 @@ class AdminController(
     val kontoregisterService: KontoregisterServiceImpl?,
     val automatiskInnsendingService: AutomatiskInnsendingService,
     private val ubetaltRefusjonRapport: UbetaltRefusjonRapport,
-    private val grunnbelopService: GrunnbelopService
+    private val grunnbelopService: GrunnbelopService,
+    private val statusJobb: StatusJobb,
 ) {
     val logger = LoggerFactory.getLogger(javaClass)
 
@@ -145,20 +146,16 @@ class AdminController(
 
     @PostMapping("sjekk-for-klar-for-innsending")
     fun sjekkForKlarforInnsending() {
-        StatusJobb(
-            refusjonRepository,
-            leaderPodCheck,
-            automatiskInnsendingService
-        ).settForTidligTilKlarForInnsendingHvisMulig()
+        statusJobb.settForTidligTilKlarForInnsendingHvisMulig()
     }
 
     @PostMapping("sjekk-for-utgaatt")
-    fun sjekkForUtgått(@RequestParam inkluderForTidlig: Boolean = false) {
-        StatusJobb(
-            refusjonRepository,
-            leaderPodCheck,
-            automatiskInnsendingService
-        ).settKlarForInnsendingTilUtgåttHvisMulig(inkluderForTidlig)
+    fun sjekkForUtgått(@RequestParam inkluderForTidlig: Boolean = false, @RequestParam dryRun: Boolean = false): List<Refusjon> {
+        val refusjoner = statusJobb.refusjonerSomKanSettesTilUtgaatt(inkluderForTidlig)
+        if (!dryRun) {
+            statusJobb.settTilUtgaattHvisMulig(refusjoner)
+        }
+        return refusjoner
     }
 
     @PostMapping("send-utgaatt-melding-for-refusjon")

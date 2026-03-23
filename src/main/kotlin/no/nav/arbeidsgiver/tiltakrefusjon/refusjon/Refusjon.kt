@@ -292,15 +292,19 @@ class Refusjon(
      * og frist for godkjenning har passert.
      */
     fun settTilUtgåttHvisMulig(): Boolean {
-        val statusUbehandlet = status == RefusjonStatus.KLAR_FOR_INNSENDING || status == RefusjonStatus.FOR_TIDLIG
-        val harPassertFristForGodkjenning = Now.localDate().isAfter(fristForGodkjenning)
-
-        if (statusUbehandlet && harPassertFristForGodkjenning) {
+        if (kanSettesTilUtgaatt()) {
             settRefusjonUtgått()
             registerEvent(RefusjonEndretStatus(this))
             return true
         }
         return false
+    }
+
+    fun kanSettesTilUtgaatt(): Boolean {
+        val statusUbehandlet = status == RefusjonStatus.KLAR_FOR_INNSENDING || status == RefusjonStatus.FOR_TIDLIG
+        val harPassertFristForGodkjenning = Now.localDate().isAfter(fristForGodkjenning)
+
+        return statusUbehandlet && harPassertFristForGodkjenning
     }
 
     fun forkort(tilskuddTom: LocalDate, tilskuddsbeløp: Int) {

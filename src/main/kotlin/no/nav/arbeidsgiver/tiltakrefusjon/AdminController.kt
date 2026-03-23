@@ -34,6 +34,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.time.LocalDate
 
@@ -152,12 +153,12 @@ class AdminController(
     }
 
     @PostMapping("sjekk-for-utgaatt")
-    fun sjekkForUtgått() {
+    fun sjekkForUtgått(@RequestParam inkluderForTidlig: Boolean = false) {
         StatusJobb(
             refusjonRepository,
             leaderPodCheck,
             automatiskInnsendingService
-        ).settKlarForInnsendingTilUtgåttHvisMulig()
+        ).settKlarForInnsendingTilUtgåttHvisMulig(inkluderForTidlig)
     }
 
     @PostMapping("send-utgaatt-melding-for-refusjon")

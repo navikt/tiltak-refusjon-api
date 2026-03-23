@@ -47,8 +47,17 @@ class StatusJobb(
         logger.info("Endret til KLAR_FOR_INNSENDING på $antallEndretTilKlarForInnsending refusjoner")
     }
 
-    fun settKlarForInnsendingTilUtgåttHvisMulig() {
-        val refusjoner = refusjonRepository.findAllByStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
+    fun settKlarForInnsendingTilUtgåttHvisMulig(inkluderForTidlig: Boolean = false) {
+
+        val refusjoner = if (inkluderForTidlig) {
+            refusjonRepository.findAllByStatusIn(
+                setOf(
+                    RefusjonStatus.KLAR_FOR_INNSENDING,
+                    RefusjonStatus.FOR_TIDLIG
+                )
+            )
+        } else refusjonRepository.findAllByStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
+
         var antallEndretTilUtgått = 0
         refusjoner.forEach {
             try {

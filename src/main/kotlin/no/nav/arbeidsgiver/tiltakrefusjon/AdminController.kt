@@ -108,18 +108,6 @@ class AdminController(
         return korreksjoner
     }
 
-    // Kanskje ikke behov. Ble brukt ved migrering til ny datamodell
-    // @Unprotected
-    // @PostMapping("slett-korreksjoner")
-    // fun slettKorreksjoner(@RequestBody refusjonIder: List<String>) {
-    //     logger.info("Bruker AdminController for å slette korreksjon på {} refusjoner", refusjonIder.size)
-    //     for (id in refusjonIder) {
-    //         val refusjon =
-    //             refusjonRepository.findByIdOrNull(id) ?: throw RuntimeException("Finner ikke refusjon med id=$id")
-    //         service.slettKorreksjonsutkast(refusjon)
-    //     }
-    // }
-
     @PostMapping("forleng-frister")
     fun forlengFrister(@RequestBody request: ForlengFristerRequest) {
         logger.info(

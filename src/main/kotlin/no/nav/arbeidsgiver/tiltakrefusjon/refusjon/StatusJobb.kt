@@ -22,7 +22,9 @@ class StatusJobb(
             return
         }
         settForTidligTilKlarForInnsendingHvisMulig()
-        settKlarForInnsendingTilUtgåttHvisMulig()
+        settTilUtgaattHvisMulig(
+            refusjonerSomKanSettesTilUtgaatt()
+        )
         automatiskInnsendingService.utførAutomatiskInnsendingHvisMulig()
     }
 
@@ -47,8 +49,22 @@ class StatusJobb(
         logger.info("Endret til KLAR_FOR_INNSENDING på $antallEndretTilKlarForInnsending refusjoner")
     }
 
-    fun settKlarForInnsendingTilUtgåttHvisMulig(inkluderForTidlig: Boolean = false) {
+    fun settTilUtgaattHvisMulig(refusjoner: List<Refusjon>) {
+        var antallEndretTilUtgaatt = 0
+        refusjoner.forEach {
+            try {
+                if (it.settTilUtgåttHvisMulig()) {
+                    antallEndretTilUtgaatt++
+                    refusjonRepository.save(it)
+                }
+            } catch (e: Exception) {
+                logger.error("Kunne ikke endre status til UTGÅTT for refusjon ${it.id}", e)
+            }
+        }
+        logger.info("Endret status til UTGÅTT på $antallEndretTilUtgaatt refusjoner")
+    }
 
+    fun refusjonerSomKanSettesTilUtgaatt(inkluderForTidlig: Boolean = false): List<Refusjon> {
         val refusjoner = if (inkluderForTidlig) {
             refusjonRepository.findAllByStatusIn(
                 setOf(
@@ -58,17 +74,6 @@ class StatusJobb(
             )
         } else refusjonRepository.findAllByStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
 
-        var antallEndretTilUtgått = 0
-        refusjoner.forEach {
-            try {
-                if (it.settTilUtgåttHvisMulig()) {
-                    antallEndretTilUtgått++
-                    refusjonRepository.save(it)
-                }
-            } catch (e: Exception) {
-                logger.error("Kunne ikke endre status til UTGÅTT for refusjon ${it.id}", e)
-            }
-        }
-        logger.info("Endret status til UTGÅTT på $antallEndretTilUtgått refusjoner")
+        return refusjoner.filter { it.kanSettesTilUtgaatt() }
     }
 }

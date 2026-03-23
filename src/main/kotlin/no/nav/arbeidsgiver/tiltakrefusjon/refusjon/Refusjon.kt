@@ -288,11 +288,14 @@ class Refusjon(
      * Forsøk å sett refusjon til UTGÅTT.
      * Returnerer true dersom statusendring var vellykket, ellers false.
      *
-     * En refusjon kan settes til utgått dersom statusen var "klar for innsending",
+     * En refusjon kan settes til utgått dersom statusen var "klar for innsending" eller "for tidlig",
      * og frist for godkjenning har passert.
      */
     fun settTilUtgåttHvisMulig(): Boolean {
-        if (status == RefusjonStatus.KLAR_FOR_INNSENDING && Now.localDate().isAfter(fristForGodkjenning)) {
+        val statusUbehandlet = status == RefusjonStatus.KLAR_FOR_INNSENDING || status == RefusjonStatus.FOR_TIDLIG
+        val harPassertFristForGodkjenning = Now.localDate().isAfter(fristForGodkjenning)
+
+        if (statusUbehandlet && harPassertFristForGodkjenning) {
             settRefusjonUtgått()
             registerEvent(RefusjonEndretStatus(this))
             return true

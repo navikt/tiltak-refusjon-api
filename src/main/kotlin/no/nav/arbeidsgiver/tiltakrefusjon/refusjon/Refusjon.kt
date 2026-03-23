@@ -7,6 +7,7 @@ import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 import jakarta.persistence.Id
 import jakarta.persistence.OneToOne
+import no.bekk.bekkopen.banking.KidnummerValidator
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.audit.AuditerbarEntitet
@@ -26,7 +27,6 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonOpprettet
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonUtgått
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.SaksbehandlerMerketForInntekterLengerFrem
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.MidlerFrigjortÅrsak
-import no.nav.arbeidsgiver.tiltakrefusjon.utils.KidValidator
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.antallMånederEtter
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.ulid
@@ -199,8 +199,8 @@ class Refusjon(
         oppdaterStatus()
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
 
-        if (!refusjonsgrunnlag.bedriftKid?.trim().isNullOrEmpty()) {
-            KidValidator(refusjonsgrunnlag.bedriftKid)
+        if (!refusjonsgrunnlag.bedriftKid?.trim().isNullOrEmpty() && !KidnummerValidator.isValid(refusjonsgrunnlag.bedriftKid)) {
+            throw FeilkodeException(Feilkode.FEIL_BEDRIFT_KIDNUMMER)
         }
         if (this.måTaStillingTilInntekter() && (refusjonsgrunnlag.inntektsgrunnlag == null || refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.isEmpty())) {
             throw FeilkodeException(Feilkode.INGEN_INNTEKTER)
@@ -234,8 +234,8 @@ class Refusjon(
         oppdaterStatus()
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
 
-        if (!refusjonsgrunnlag.bedriftKid?.trim().isNullOrEmpty()) {
-            KidValidator(refusjonsgrunnlag.bedriftKid)
+        if (!refusjonsgrunnlag.bedriftKid?.trim().isNullOrEmpty() && !KidnummerValidator.isValid(refusjonsgrunnlag.bedriftKid)) {
+            throw FeilkodeException(Feilkode.FEIL_BEDRIFT_KIDNUMMER)
         }
         godkjentAvArbeidsgiver = Now.instant()
         status = RefusjonStatus.GODKJENT_NULLBELØP

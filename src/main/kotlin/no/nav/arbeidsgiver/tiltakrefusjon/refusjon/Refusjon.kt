@@ -87,13 +87,14 @@ class Refusjon(
     }
 
     fun finnTidligsteFristForGodkjenning(): LocalDate {
-        if (refusjonsgrunnlag.tilskuddsgrunnlag.godkjentAvBeslutterTidspunkt == null) {
+        val godkjentAvBeslutterTidspunkt = refusjonsgrunnlag.tilskuddsgrunnlag.godkjentAvBeslutterTidspunkt
+        if (godkjentAvBeslutterTidspunkt == null) {
             return antallMånederEtter(refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom, 2)
         }
-        if (refusjonsgrunnlag.tilskuddsgrunnlag.godkjentAvBeslutterTidspunkt.toLocalDate()
+        if (godkjentAvBeslutterTidspunkt.toLocalDate()
                 .isAfter(refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom)
         ) {
-            return antallMånederEtter(refusjonsgrunnlag.tilskuddsgrunnlag.godkjentAvBeslutterTidspunkt.toLocalDate(), 2)
+            return antallMånederEtter(godkjentAvBeslutterTidspunkt.toLocalDate(), 2)
         } else {
             return antallMånederEtter(refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom, 2)
         }

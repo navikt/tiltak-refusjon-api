@@ -144,8 +144,9 @@ data class InnloggetSaksbehandler(
         if (korreksjon.skalGjøreInntektsoppslag()) {
             var antallMånederSomSkalSjekkes: Long = 1
             if (korreksjon.korreksjonsgrunner.contains(Korreksjonsgrunn.HENT_INNTEKTER_TO_MÅNEDER_FREM)) {
-                if (korreksjon.unntakOmInntekterFremitid != null) {
-                    antallMånederSomSkalSjekkes = korreksjon.unntakOmInntekterFremitid.toLong()
+                val unntakOmInntekterFremitid = korreksjon.unntakOmInntekterFremitid
+                if (unntakOmInntekterFremitid != null) {
+                    antallMånederSomSkalSjekkes = unntakOmInntekterFremitid.toLong()
                 } else {
                     antallMånederSomSkalSjekkes = 2
                 }

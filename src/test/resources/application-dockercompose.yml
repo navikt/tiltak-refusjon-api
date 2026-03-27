@@ -82,4 +82,5 @@ server:
   port: 8081
 
 wiremock:
-  port: 8091
+  server:
+    port: 8091

@@ -11,7 +11,7 @@ import java.time.LocalDate
 import java.util.*
 
 @Component
-class GrunnbelopClient(@Value("\${tiltak-refusjon.grunnbelop.uri}") val url: URI, val noAuthRestTemplate: RestTemplate) {
+class GrunnbelopClient(@Value("\${tiltak-refusjon.grunnbelop.uri}") private val url: URI, val noAuthRestTemplate: RestTemplate) {
     @Retryable(value = [Exception::class], maxAttempts = 3, backoff = Backoff(delay = 1000))
     fun alleGrunnbelop(): TreeMap<LocalDate, Int> =
         noAuthRestTemplate.getForObject<Array<GrunnbelopApiResponse>>(url).associateTo(TreeMap()) { it.dato to it.grunnbeløp }

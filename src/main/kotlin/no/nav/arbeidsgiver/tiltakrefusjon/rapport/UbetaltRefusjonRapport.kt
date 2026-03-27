@@ -31,7 +31,7 @@ class UbetaltRefusjonRapport(private val leaderPodCheck: LeaderPodCheck, private
                 loggmelding.appendLine()
             }
 
-            log.error(loggmelding.toString())
+            log.warn(loggmelding.toString())
         }
     }
 }

@@ -35,7 +35,7 @@ class FnrException : IllegalArgumentException("Ugyldig fødselsnummer")
 fun erGyldigFnr(fnr: String): Boolean {
     if (FodselsnummerValidator.ALLOW_SYNTHETIC_NUMBERS) {
         return when (fnr) {
-            "12345678910", "12345678901", "00000000000", "11111111111", "99999999999", "07049223188", "07049223190" -> true
+            "15000000000", "12345678910", "12345678901", "00000000000", "11111111111", "99999999999", "07049223188", "07049223190" -> true
             else -> FodselsnummerValidator.isValid(fnr)
         }
     }

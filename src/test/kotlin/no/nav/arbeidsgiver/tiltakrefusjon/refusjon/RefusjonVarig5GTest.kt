@@ -21,7 +21,7 @@ private val forrigeÅretsG = 118620
 
 @SpringBootTest(properties = ["NAIS_APP_IMAGE=test"])
 @ActiveProfiles("local")
-@AutoConfigureWireMock(port = 8090)
+@AutoConfigureWireMock
 class RefusjonVarig5GTest(
     @Autowired
     val refusjonService: RefusjonService,

@@ -30,7 +30,7 @@ import java.time.YearMonth
 
 @SpringBootTest(properties = ["NAIS_APP_IMAGE=test"])
 @ActiveProfiles("local")
-@AutoConfigureWireMock(port = 8090)
+@AutoConfigureWireMock
 class RefusjonServiceTest(
     @Autowired
     val refusjonService: RefusjonService,

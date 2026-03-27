@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component
 
 @Profile("wiremock")
 @Component
-class IntegrasjonerMockServer(@Value("\${wiremock.port}") val wiremockPort: Int) : DisposableBean {
+class IntegrasjonerMockServer(@Value("\${wiremock.server.port}") val wiremockPort: Int) : DisposableBean {
     private val server: WireMockServer = WireMockServer(WireMockConfiguration
         .options()
         .usingFilesUnderClasspath(".")

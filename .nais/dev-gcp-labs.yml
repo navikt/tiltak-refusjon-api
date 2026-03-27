@@ -29,6 +29,8 @@ spec:
         - application: tiltak-refusjon-arbeidsgiver-labs
         - application: tiltaksgjennomforing-api-labs
     outbound:
+      external:
+        - host: "g.nav.no"
       rules:
         - application: tiltak-fakelogin
         - application: tiltak-refusjon-api-wiremock

@@ -34,6 +34,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.time.LocalDate
 
@@ -49,7 +50,8 @@ class AdminController(
     val kontoregisterService: KontoregisterServiceImpl?,
     val automatiskInnsendingService: AutomatiskInnsendingService,
     private val ubetaltRefusjonRapport: UbetaltRefusjonRapport,
-    private val grunnbelopService: GrunnbelopService
+    private val grunnbelopService: GrunnbelopService,
+    private val statusJobb: StatusJobb,
 ) {
     val logger = LoggerFactory.getLogger(javaClass)
 
@@ -108,18 +110,6 @@ class AdminController(
         return korreksjoner
     }
 
-    // Kanskje ikke behov. Ble brukt ved migrering til ny datamodell
-    // @Unprotected
-    // @PostMapping("slett-korreksjoner")
-    // fun slettKorreksjoner(@RequestBody refusjonIder: List<String>) {
-    //     logger.info("Bruker AdminController for å slette korreksjon på {} refusjoner", refusjonIder.size)
-    //     for (id in refusjonIder) {
-    //         val refusjon =
-    //             refusjonRepository.findByIdOrNull(id) ?: throw RuntimeException("Finner ikke refusjon med id=$id")
-    //         service.slettKorreksjonsutkast(refusjon)
-    //     }
-    // }
-
     @PostMapping("forleng-frister")
     fun forlengFrister(@RequestBody request: ForlengFristerRequest) {
         logger.info(
@@ -129,9 +119,8 @@ class AdminController(
         for (id in request.refusjonIder) {
             val refusjon =
                 refusjonRepository.findByIdOrNull(id) ?: throw RuntimeException("Finner ikke refusjon med id=$id")
-
             try {
-                refusjon.forlengFrist(request.nyFrist, request.årsak, ADMIN_BRUKER, request.enforce)
+                refusjon.forlengFrist(request.nyFrist, request.årsak, ADMIN_BRUKER, request.tillatForlengingUtoverMaksimalFrist)
                 refusjonRepository.save(refusjon)
             } catch (e: FeilkodeException) {
                 if (e.feilkode == Feilkode.FOR_LANG_FORLENGELSE_AV_FRIST) {
@@ -141,33 +130,6 @@ class AdminController(
                 }
             }
         }
-    }
-
-    @PostMapping("forleng-frister-til-og-med-dato")
-    fun forlengFristerTilOgMedDato(@RequestBody request: ForlengFristerTilOgMedRequest) {
-        logger.info("Bruker AdminController for å forlenge refusjoner med frist før ${request.tilDato} til ny frist: ${request.nyFrist}")
-        val refusjoner = refusjonRepository.findAllByFristForGodkjenningBeforeAndStatus(
-            request.tilDato,
-            RefusjonStatus.KLAR_FOR_INNSENDING
-        )
-        logger.info("Fant ${refusjoner.size} refusjoner som skal forlenges")
-        var fristerForlenget = 0
-
-        for (refusjon in refusjoner) {
-            try {
-                refusjon.forlengFrist(request.nyFrist, request.årsak, ADMIN_BRUKER, request.enforce)
-                refusjonRepository.save(refusjon)
-                fristerForlenget++
-            } catch (e: FeilkodeException) {
-                if (e.feilkode == Feilkode.FOR_LANG_FORLENGELSE_AV_FRIST) {
-                    logger.warn("Forlengelse av frist på refusjon med id=${refusjon.id} overskrider grensen på 1 måned")
-                } else {
-                    logger.error("Feil ved forlengelse av frist på refusjon med id=${refusjon.id}", e.stackTrace)
-                    throw e
-                }
-            }
-        }
-        logger.info("Forlenget frister på $fristerForlenget refusjoner")
     }
 
     @PostMapping("annuller-refusjon-ved-tilskuddsperiode")
@@ -184,20 +146,16 @@ class AdminController(
 
     @PostMapping("sjekk-for-klar-for-innsending")
     fun sjekkForKlarforInnsending() {
-        StatusJobb(
-            refusjonRepository,
-            leaderPodCheck,
-            automatiskInnsendingService
-        ).settForTidligTilKlarForInnsendingHvisMulig()
+        statusJobb.settForTidligTilKlarForInnsendingHvisMulig()
     }
 
     @PostMapping("sjekk-for-utgaatt")
-    fun sjekkForUtgått() {
-        StatusJobb(
-            refusjonRepository,
-            leaderPodCheck,
-            automatiskInnsendingService
-        ).settKlarForInnsendingTilUtgåttHvisMulig()
+    fun sjekkForUtgått(@RequestParam inkluderForTidlig: Boolean = false, @RequestParam dryRun: Boolean = false): List<Refusjon> {
+        val refusjoner = statusJobb.refusjonerSomKanSettesTilUtgaatt(inkluderForTidlig)
+        if (!dryRun) {
+            statusJobb.settTilUtgaattHvisMulig(refusjoner)
+        }
+        return refusjoner
     }
 
     @PostMapping("send-utgaatt-melding-for-refusjon")
@@ -351,14 +309,7 @@ data class ForlengFristerRequest(
     val refusjonIder: List<String>,
     val nyFrist: LocalDate,
     val årsak: String,
-    val enforce: Boolean
-)
-
-data class ForlengFristerTilOgMedRequest(
-    val tilDato: LocalDate,
-    val nyFrist: LocalDate,
-    val årsak: String,
-    val enforce: Boolean
+    val tillatForlengingUtoverMaksimalFrist: Boolean
 )
 
 data class RefusjonRequest(val refusjonId: String)

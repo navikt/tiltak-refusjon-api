@@ -31,20 +31,15 @@ enum class Avslagskode {
             }
 
             return when (deny.reason) {
-                "MANGLER_TILGANG_TIL_AD_GRUPPE" -> {
-                    when {
-                        deny.message.contains("0000-GA-Strengt_Fortrolig_Adresse") -> STRENGT_FORTROLIG_ADRESSE
-                        deny.message.contains("0000-GA-Fortrolig_Adresse") -> FORTROLIG_ADRESSE
-                        deny.message.contains("0000-GA-Egne_ansatte") -> EGNE_ANSATTE
-                        else -> IKKE_TILGANG_TIL_NAV_ENHET
-                    }
-                }
+                "MANGLER_TILGANG_TIL_AD_GRUPPE", "IKKE_TILGANG_TIL_NAV_ENHET" -> IKKE_TILGANG_TIL_NAV_ENHET
                 "POLICY_IKKE_IMPLEMENTERT" -> POLICY_IKKE_IMPLEMENTERT
                 "IKKE_TILGANG_FRA_ABAC" -> IKKE_TILGANG_FRA_ABAC
-                "IKKE_TILGANG_TIL_NAV_ENHET" -> IKKE_TILGANG_TIL_NAV_ENHET
                 "IKKE_TILGANG_TIL_DELTAKER" -> IKKE_TILGANG_TIL_DELTAKER
                 "UKLAR_TILGANG_MANGLENDE_INFORMASJON" -> UKLAR_TILGANG_MANGLENDE_INFORMASJON
                 "EKSTERN_BRUKER_HAR_IKKE_TILGANG" -> EKSTERN_BRUKER_HAR_IKKE_TILGANG
+                "IKKE_TILGANG_TIL_FORTROLIG_BRUKER" -> FORTROLIG_ADRESSE
+                "IKKE_TILGANG_TIL_STRENGT_FORTROLIG_BRUKER", "IKKE_TILGANG_TIL_STRENGT_FORTROLIG_UTLAND_BRUKER" -> STRENGT_FORTROLIG_ADRESSE
+                "IKKE_TILGANG_TIL_SKJERMET_PERSON" -> EGNE_ANSATTE
                 else -> UKJENT
             }
         }

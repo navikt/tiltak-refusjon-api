@@ -7,6 +7,7 @@ import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 import jakarta.persistence.Id
 import jakarta.persistence.OneToOne
+import no.bekk.bekkopen.banking.KidnummerValidator
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.audit.AuditerbarEntitet
@@ -26,7 +27,6 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonOpprettet
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonUtgått
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.SaksbehandlerMerketForInntekterLengerFrem
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.MidlerFrigjortÅrsak
-import no.nav.arbeidsgiver.tiltakrefusjon.utils.KidValidator
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.antallMånederEtter
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.ulid
@@ -87,13 +87,14 @@ class Refusjon(
     }
 
     fun finnTidligsteFristForGodkjenning(): LocalDate {
-        if (refusjonsgrunnlag.tilskuddsgrunnlag.godkjentAvBeslutterTidspunkt == null) {
+        val godkjentAvBeslutterTidspunkt = refusjonsgrunnlag.tilskuddsgrunnlag.godkjentAvBeslutterTidspunkt
+        if (godkjentAvBeslutterTidspunkt == null) {
             return antallMånederEtter(refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom, 2)
         }
-        if (refusjonsgrunnlag.tilskuddsgrunnlag.godkjentAvBeslutterTidspunkt.toLocalDate()
+        if (godkjentAvBeslutterTidspunkt.toLocalDate()
                 .isAfter(refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom)
         ) {
-            return antallMånederEtter(refusjonsgrunnlag.tilskuddsgrunnlag.godkjentAvBeslutterTidspunkt.toLocalDate(), 2)
+            return antallMånederEtter(godkjentAvBeslutterTidspunkt.toLocalDate(), 2)
         } else {
             return antallMånederEtter(refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom, 2)
         }
@@ -199,8 +200,8 @@ class Refusjon(
         oppdaterStatus()
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
 
-        if (!refusjonsgrunnlag.bedriftKid?.trim().isNullOrEmpty()) {
-            KidValidator(refusjonsgrunnlag.bedriftKid)
+        if (!refusjonsgrunnlag.bedriftKid?.trim().isNullOrEmpty() && !KidnummerValidator.isValid(refusjonsgrunnlag.bedriftKid)) {
+            throw FeilkodeException(Feilkode.FEIL_BEDRIFT_KIDNUMMER)
         }
         if (this.måTaStillingTilInntekter() && (refusjonsgrunnlag.inntektsgrunnlag == null || refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.isEmpty())) {
             throw FeilkodeException(Feilkode.INGEN_INNTEKTER)
@@ -234,8 +235,8 @@ class Refusjon(
         oppdaterStatus()
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
 
-        if (!refusjonsgrunnlag.bedriftKid?.trim().isNullOrEmpty()) {
-            KidValidator(refusjonsgrunnlag.bedriftKid)
+        if (!refusjonsgrunnlag.bedriftKid?.trim().isNullOrEmpty() && !KidnummerValidator.isValid(refusjonsgrunnlag.bedriftKid)) {
+            throw FeilkodeException(Feilkode.FEIL_BEDRIFT_KIDNUMMER)
         }
         godkjentAvArbeidsgiver = Now.instant()
         status = RefusjonStatus.GODKJENT_NULLBELØP
@@ -288,16 +289,23 @@ class Refusjon(
      * Forsøk å sett refusjon til UTGÅTT.
      * Returnerer true dersom statusendring var vellykket, ellers false.
      *
-     * En refusjon kan settes til utgått dersom statusen var "klar for innsending",
+     * En refusjon kan settes til utgått dersom statusen var "klar for innsending" eller "for tidlig",
      * og frist for godkjenning har passert.
      */
     fun settTilUtgåttHvisMulig(): Boolean {
-        if (status == RefusjonStatus.KLAR_FOR_INNSENDING && Now.localDate().isAfter(fristForGodkjenning)) {
+        if (kanSettesTilUtgaatt()) {
             settRefusjonUtgått()
             registerEvent(RefusjonEndretStatus(this))
             return true
         }
         return false
+    }
+
+    fun kanSettesTilUtgaatt(): Boolean {
+        val statusUbehandlet = status == RefusjonStatus.KLAR_FOR_INNSENDING || status == RefusjonStatus.FOR_TIDLIG
+        val harPassertFristForGodkjenning = Now.localDate().isAfter(fristForGodkjenning)
+
+        return statusUbehandlet && harPassertFristForGodkjenning
     }
 
     fun forkort(tilskuddTom: LocalDate, tilskuddsbeløp: Int) {
@@ -371,7 +379,12 @@ class Refusjon(
         ) else antallMånederEtter(tidligsteFrist, 1)
     }
 
-    fun forlengFrist(nyFrist: LocalDate, årsak: String, utførtAv: InnloggetBruker, enforce: Boolean = false) {
+    fun forlengFrist(
+        nyFrist: LocalDate,
+        årsak: String,
+        utførtAv: InnloggetBruker,
+        tillatLengerEnnMaksimalFrist: Boolean = false
+    ) {
         oppdaterStatus()
         krevStatus(RefusjonStatus.FOR_TIDLIG, RefusjonStatus.KLAR_FOR_INNSENDING)
 
@@ -382,7 +395,7 @@ class Refusjon(
 
         // Opprinnelig frist er er 2 mnd. Det er enten 2 mnd etter tilskuddTom eller 2 mnd etter godkjentAvBeslutterTidspunkt.
         // Maks forlengelse er 1 mnd hvis ikke det er markert for fravær i perioden
-        if (!enforce && (nyFrist > senestMuligeGodkjenningsfrist())) {
+        if (!tillatLengerEnnMaksimalFrist && (nyFrist > senestMuligeGodkjenningsfrist())) {
             throw FeilkodeException(Feilkode.FOR_LANG_FORLENGELSE_AV_FRIST)
         }
 

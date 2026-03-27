@@ -22,7 +22,9 @@ class StatusJobb(
             return
         }
         settForTidligTilKlarForInnsendingHvisMulig()
-        settKlarForInnsendingTilUtgåttHvisMulig()
+        settTilUtgaattHvisMulig(
+            refusjonerSomKanSettesTilUtgaatt()
+        )
         automatiskInnsendingService.utførAutomatiskInnsendingHvisMulig()
     }
 
@@ -47,19 +49,31 @@ class StatusJobb(
         logger.info("Endret til KLAR_FOR_INNSENDING på $antallEndretTilKlarForInnsending refusjoner")
     }
 
-    fun settKlarForInnsendingTilUtgåttHvisMulig() {
-        val refusjoner = refusjonRepository.findAllByStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
-        var antallEndretTilUtgått = 0
+    fun settTilUtgaattHvisMulig(refusjoner: List<Refusjon>) {
+        var antallEndretTilUtgaatt = 0
         refusjoner.forEach {
             try {
                 if (it.settTilUtgåttHvisMulig()) {
-                    antallEndretTilUtgått++
+                    antallEndretTilUtgaatt++
                     refusjonRepository.save(it)
                 }
             } catch (e: Exception) {
                 logger.error("Kunne ikke endre status til UTGÅTT for refusjon ${it.id}", e)
             }
         }
-        logger.info("Endret status til UTGÅTT på $antallEndretTilUtgått refusjoner")
+        logger.info("Endret status til UTGÅTT på $antallEndretTilUtgaatt refusjoner")
+    }
+
+    fun refusjonerSomKanSettesTilUtgaatt(inkluderForTidlig: Boolean = false): List<Refusjon> {
+        val refusjoner = if (inkluderForTidlig) {
+            refusjonRepository.findAllByStatusIn(
+                setOf(
+                    RefusjonStatus.KLAR_FOR_INNSENDING,
+                    RefusjonStatus.FOR_TIDLIG
+                )
+            )
+        } else refusjonRepository.findAllByStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
+
+        return refusjoner.filter { it.kanSettesTilUtgaatt() }
     }
 }

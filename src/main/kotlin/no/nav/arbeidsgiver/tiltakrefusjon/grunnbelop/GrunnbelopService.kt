@@ -9,7 +9,7 @@ import java.time.LocalDate
 import java.util.*
 
 @Service
-class GrunnbelopService(val grunnbelopClient: GrunnbelopClient, val cacheManager: CacheManager) {
+class GrunnbelopService(private val grunnbelopClient: GrunnbelopClient, private val cacheManager: CacheManager) {
     val logger = LoggerFactory.getLogger(GrunnbelopService::class.java)
     val cacheKey = FEM_G
 

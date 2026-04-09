@@ -1,6 +1,5 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.altinn
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.flatUtHierarki
@@ -11,18 +10,18 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
+import org.springframework.web.client.exchange
 import org.springframework.web.client.postForObject
 import org.springframework.web.util.UriComponentsBuilder
 
 @Service
 class AltinnTilgangsstyringService(
-    val altinnTilgangsstyringProperties: AltinnTilgangsstyringProperties,
-    @Qualifier("påVegneAvArbeidsgiverAltinnRestTemplate")
-    val restTemplate: RestTemplate,
-    @Qualifier("påVegneAvArbeidsgiverAltinn3RestTemplate")
-    val restTemplateAltinn3: RestTemplate
+    private val altinnTilgangsstyringProperties: AltinnTilgangsstyringProperties,
+    @param:Qualifier("påVegneAvArbeidsgiverAltinnRestTemplate")
+    private val restTemplate: RestTemplate,
+    @param:Qualifier("påVegneAvArbeidsgiverAltinn3RestTemplate")
+    private val restTemplateAltinn3: RestTemplate
 ) {
-    private val objectMapper: ObjectMapper = ObjectMapper()
     private val logger = LoggerFactory.getLogger(javaClass)
 
     // URL-strengen har to "uri-variabler": fnr og skip
@@ -125,11 +124,10 @@ class AltinnTilgangsstyringService(
         serviceEdition: Int
     ): Set<Organisasjon> {
         try {
-            return restTemplate.exchange(
+            return restTemplate.exchange<Array<Organisasjon>>(
                 altinnUrlString,
                 HttpMethod.GET,
                 getAuthHeadersForAltinn(),
-                Array<Organisasjon>::class.java,
                 mapOf(
                     "fnr" to fnr,
                     "skip" to skip,
@@ -137,7 +135,7 @@ class AltinnTilgangsstyringService(
                     "serviceEdition" to serviceEdition
                 )
             ).body?.toSet()
-                ?: return emptySet()
+                ?: emptySet()
         } catch (exception: RuntimeException) {
             logger.error("Feil med Altinn", exception)
             throw FeilkodeException(Feilkode.ALTINN)

@@ -1,6 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.audit
 
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.AuditEntry
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
@@ -9,7 +10,7 @@ import org.springframework.stereotype.Component
 @Component
 class AuditConsoleLogger: AuditLogger {
 
-    val log = LoggerFactory.getLogger(javaClass)
+    private val log: Logger = LoggerFactory.getLogger(javaClass)
 
     override fun logg(event: AuditEntry) {
         log.info("Audit-event: {}", event)

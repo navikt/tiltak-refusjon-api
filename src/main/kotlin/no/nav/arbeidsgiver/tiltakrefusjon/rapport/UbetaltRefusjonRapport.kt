@@ -2,16 +2,18 @@ package no.nav.arbeidsgiver.tiltakrefusjon.rapport
 
 import no.nav.arbeidsgiver.tiltakrefusjon.leader.LeaderPodCheck
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonRepository
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
-import kotlin.collections.count
-import kotlin.collections.isNotEmpty
 
 @Component
-class UbetaltRefusjonRapport(private val leaderPodCheck: LeaderPodCheck, private val refusjonRepository: RefusjonRepository) {
+class UbetaltRefusjonRapport(
+    private val leaderPodCheck: LeaderPodCheck,
+    private val refusjonRepository: RefusjonRepository
+) {
 
-    val log = LoggerFactory.getLogger(javaClass)
+    private val log: Logger = LoggerFactory.getLogger(javaClass)
 
 
     @Scheduled(cron = "0 30 8 * * Mon-Fri")
@@ -20,10 +22,12 @@ class UbetaltRefusjonRapport(private val leaderPodCheck: LeaderPodCheck, private
             return
         }
 
-        val ubetalteRefusjoner = refusjonRepository.hentRefusjonerSomIkkeErBetalt().map { UbetaltFaktura.fraRefusjon(it) }
+        val ubetalteRefusjoner =
+            refusjonRepository.hentRefusjonerSomIkkeErBetalt().map { UbetaltFaktura.fraRefusjon(it) }
 
         if (ubetalteRefusjoner.isNotEmpty()) {
-            val loggmelding = StringBuilder("Det fins ${ubetalteRefusjoner.count()} refusjoner som ikke har blitt utbetalt innen 7 dager:")
+            val loggmelding =
+                StringBuilder("Det fins ${ubetalteRefusjoner.count()} refusjoner som ikke har blitt utbetalt innen 7 dager:")
             loggmelding.appendLine()
 
             ubetalteRefusjoner.forEach {

@@ -172,8 +172,8 @@
 
         <dependency>
             <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-contract-stub-runner</artifactId>
-            <version>4.1.2</version>
+            <artifactId>spring-cloud-contract-wiremock</artifactId>
+            <version>4.2.3</version>
             <scope>test</scope>
         </dependency>
 

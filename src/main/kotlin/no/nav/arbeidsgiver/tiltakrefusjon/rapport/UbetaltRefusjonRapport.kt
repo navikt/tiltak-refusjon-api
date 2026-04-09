@@ -5,8 +5,6 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonRepository
 import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
-import kotlin.collections.count
-import kotlin.collections.isNotEmpty
 
 @Component
 class UbetaltRefusjonRapport(private val leaderPodCheck: LeaderPodCheck, private val refusjonRepository: RefusjonRepository) {

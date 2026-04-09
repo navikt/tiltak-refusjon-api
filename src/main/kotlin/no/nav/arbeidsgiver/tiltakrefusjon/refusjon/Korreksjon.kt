@@ -11,8 +11,8 @@ import jakarta.persistence.Id
 import jakarta.persistence.OneToOne
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
-import no.nav.arbeidsgiver.tiltakrefusjon.audit.FnrOgBedrift
 import no.nav.arbeidsgiver.tiltakrefusjon.audit.AuditerbarEntitet
+import no.nav.arbeidsgiver.tiltakrefusjon.audit.FnrOgBedrift
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBruker
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.KorreksjonMerketForOppgjort
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.KorreksjonMerketForTilbakekreving

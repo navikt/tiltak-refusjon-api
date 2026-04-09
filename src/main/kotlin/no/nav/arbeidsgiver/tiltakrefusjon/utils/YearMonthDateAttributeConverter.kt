@@ -1,7 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.utils
 
-import java.time.YearMonth
 import jakarta.persistence.AttributeConverter
+import java.time.YearMonth
 
 class YearMonthDateAttributeConverter : AttributeConverter<YearMonth, String> {
     override fun convertToDatabaseColumn(attribute: YearMonth?): String? {

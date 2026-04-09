@@ -14,8 +14,6 @@ tiltak-refusjon:
     inntektsmeldingServiceEdition: 1
     adressesperreServiceCode: 5516
     adressesperreServiceEdition: 7
-  abac-tilgangstyring:
-    uri: https://tiltak-proxy.prod-fss-pub.nais.io/application/asm-pdp/authorize
   poao-tilgang:
     url: http://poao-tilgang.poao
   unleash:

@@ -60,10 +60,6 @@ tiltak-refusjon:
     inntektsmeldingServiceEdition: 1
     adressesperreServiceCode: 5516
     adressesperreServiceEdition: 7
-  abac-tilgangstyring:
-    uri: http://localhost:${wiremock.server.port}/abac-tilgangstyring
-    username: na
-    password: na
   unleash:
     mock: true
   norg:

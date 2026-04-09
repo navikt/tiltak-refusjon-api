@@ -1,11 +1,17 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import jakarta.persistence.Column
+import jakarta.persistence.Convert
+import jakarta.persistence.Entity
+import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.ManyToOne
+import jakarta.persistence.Table
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.YearMonthDateAttributeConverter
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.ulid
 import java.time.LocalDate
 import java.time.YearMonth
-import jakarta.persistence.*
-import no.nav.arbeidsgiver.tiltakrefusjon.utils.ulid
 
 @Entity
 @Table(name = "inntektslinje")

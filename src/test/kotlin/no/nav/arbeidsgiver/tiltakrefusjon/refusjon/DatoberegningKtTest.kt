@@ -2,10 +2,10 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.antallMånederEtter
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.erMånedIPeriode
-import org.assertj.core.api.Assertions.*
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import java.time.YearMonth
 import java.time.LocalDate
+import java.time.YearMonth
 
 internal class DatoberegningKtTest {
     @Test

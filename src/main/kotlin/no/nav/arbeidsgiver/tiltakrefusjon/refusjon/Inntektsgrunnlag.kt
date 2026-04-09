@@ -1,10 +1,14 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import jakarta.persistence.CascadeType
+import jakarta.persistence.Entity
+import jakarta.persistence.FetchType
+import jakarta.persistence.Id
+import jakarta.persistence.OneToMany
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
-import java.time.LocalDateTime
-import jakarta.persistence.*
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.ulid
+import java.time.LocalDateTime
 
 @Entity
 data class Inntektsgrunnlag(

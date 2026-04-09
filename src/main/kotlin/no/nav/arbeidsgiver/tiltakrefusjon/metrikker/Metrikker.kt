@@ -6,7 +6,6 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.GodkjentAvArbeidsgiver
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
 import java.time.Duration
-import java.time.ZoneId
 
 @Component
 class Metrikker(

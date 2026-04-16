@@ -35,7 +35,7 @@ import java.time.temporal.TemporalAdjusters
 
 @SpringBootTest(properties = ["NAIS_APP_IMAGE=test"])
 @ActiveProfiles("local")
-@AutoConfigureWireMock(port = 8090)
+@AutoConfigureWireMock
 internal class InnloggetArbeidsgiverTest(
     @Autowired
     val refusjonService: RefusjonService,

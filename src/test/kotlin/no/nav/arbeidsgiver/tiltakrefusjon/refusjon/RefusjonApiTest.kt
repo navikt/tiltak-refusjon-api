@@ -56,7 +56,7 @@ data class RefusjonlistFraFlereOrgTest(
 @SpringBootTest
 @ActiveProfiles("local")
 @AutoConfigureMockMvc
-@AutoConfigureWireMock(port = 8091)
+@AutoConfigureWireMock
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DirtiesContext
 class RefusjonApiTest(

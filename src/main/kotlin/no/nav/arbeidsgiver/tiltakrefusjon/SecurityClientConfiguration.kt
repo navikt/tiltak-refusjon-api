@@ -32,9 +32,6 @@ class SecurityClientConfiguration(
     fun påVegneAvArbeidsgiverAltinn3RestTemplate() = restTemplateForRegistration("tokenx-altinn-3")
 
     @Bean
-    fun anonymProxyRestTemplate() = restTemplateForRegistration("aad-anonym")
-
-    @Bean
     fun sokosRestTemplate() = restTemplateForRegistration("sokos-kontoregister")
 
     @Bean

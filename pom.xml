@@ -17,7 +17,7 @@
         <kotlin.version>2.0.0</kotlin.version>
         <cucumber.version>7.15.0</cucumber.version>
         <token-support.version>4.1.5</token-support.version>
-        <postgres.version>42.7.2</postgres.version>
+        <postgres.version>42.7.11</postgres.version>
         <nocommons.version>0.17.0</nocommons.version>
     </properties>
 

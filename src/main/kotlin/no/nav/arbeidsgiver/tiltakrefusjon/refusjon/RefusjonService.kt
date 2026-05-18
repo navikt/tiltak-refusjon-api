@@ -98,11 +98,10 @@ class RefusjonService(
     fun settMinusBeløpFraTidligereRefusjonerTilknyttetAvtalen(refusjon: Refusjon) {
         val avtaleNr = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr
         val alleMinusbeløp = minusbelopRepository.findAllByAvtaleNr(avtaleNr = avtaleNr)
-        if (!alleMinusbeløp.isNullOrEmpty()) {
+        if (alleMinusbeløp.isNotEmpty()) {
             val sumMinusbelop = alleMinusbeløp
                 .filter { !it.gjortOpp }
-                .map { minusbelop -> minusbelop.beløp }
-                .filterNotNull()
+                .mapNotNull { minusbelop -> minusbelop.beløp }
                 .reduceOrNull { sum, beløp -> sum + beløp }
             if (sumMinusbelop != null) {
                 refusjon.refusjonsgrunnlag.oppgiForrigeRefusjonsbeløp(sumMinusbelop)
@@ -171,11 +170,12 @@ class RefusjonService(
     fun godkjennForArbeidsgiver(refusjon: Refusjon, utførtAv: InnloggetBruker) {
         val alleMinusBeløp = minusbelopRepository.findAllByAvtaleNr(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr)
         val sumMinusbelop = alleMinusBeløp
-            .filter { !it.gjortOpp }.mapNotNull { minusbelop -> minusbelop.beløp }
+            .filter { !it.gjortOpp }
+            .mapNotNull { minusbelop -> minusbelop.beløp }
             .reduceOrNull { sum, beløp -> sum + beløp }
         // Om det er et gammelt minusbeløp, men alle minusbeløp er gjort opp må refusjonen lastes på ny for å reberegnes
         if (sumMinusbelop != null && sumMinusbelop != 0 && refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp != sumMinusbelop) {
-            log.info("Arbeidsgiver prøver sende inn en refusjon hvor minusbeløp er gjort opp/endret av annen refusjon $refusjon.id")
+            log.info("Arbeidsgiver prøver å sende inn en refusjon hvor minusbeløp er gjort opp/endret av annen refusjon ${refusjon.id}")
             throw FeilkodeException(Feilkode.LAST_REFUSJONEN_PÅ_NYTT_REFUSJONSGRUNNLAG_ENDRET)
         }
         sjekkForTrukketFerietrekkForSammeMåned(refusjon)
@@ -189,6 +189,7 @@ class RefusjonService(
                 minusbelopRepository.save(it)
             }
         }
+
         // Lag en nytt minusbeløp om refusjonen er i minus
         if (refusjon.status == RefusjonStatus.GODKJENT_MINUSBELØP) {
             val minusbelop = Minusbelop(
@@ -199,8 +200,9 @@ class RefusjonService(
             refusjon.minusbelop = minusbelop
             log.info("Setter minusbeløp ${minusbelop.id} på refusjon ${refusjon.id}")
         }
+
         refusjonRepository.save(refusjon)
-        // Oppdater ikke innsendte refusjoner med data (f eks maksbløp, ferietrekk etc..)
+        // Oppdater åpne refusjoner med data (feks maksbeløp, sumUtbetalt for 5g-beregning, ferietrekk etc..)
         val alleRefusjonerSomSkalSendesInn =
             refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_AvtaleNrAndStatusIn(
                 refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr,

@@ -3,43 +3,33 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.innloggetBruker
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
-import no.nav.arbeidsgiver.tiltakrefusjon.varsling.VarslingRepository
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock
+import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.temporal.TemporalAdjusters.lastDayOfMonth
 
-private val åretsG = 124028
-private val forrigeÅretsG = 118620
+private const val åretsG = 124028
+private const val forrigeÅretsG = 118620
 
 @SpringBootTest(properties = ["NAIS_APP_IMAGE=test"])
 @ActiveProfiles("local")
 @AutoConfigureWireMock
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class RefusjonVarig5GTest(
-    @Autowired
-    val refusjonService: RefusjonService,
-    @Autowired
-    val refusjonRepository: RefusjonRepository,
-    @Autowired
-    val varslingRepository: VarslingRepository
+    @param:Autowired
+    private val refusjonService: RefusjonService,
+    @param:Autowired
+    private val refusjonRepository: RefusjonRepository,
 ) {
-    @BeforeEach
-    fun setup() {
-        varslingRepository.deleteAll()
-        refusjonRepository.deleteAll()
-    }
-
     @AfterEach
     fun teardown() {
-        varslingRepository.deleteAll()
-        refusjonRepository.deleteAll()
         Now.resetClock()
     }
 

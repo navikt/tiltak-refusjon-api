@@ -15,15 +15,12 @@ import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.REQUEST_MAPPING_INNLOGGET
 import no.nav.arbeidsgiver.tiltakrefusjon.hendelseslogg.HendelsesloggRepository
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjoner
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
-import no.nav.arbeidsgiver.tiltakrefusjon.varsling.VarslingRepository
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
@@ -51,17 +48,13 @@ data class InnloggetBrukerTest(val identifikator: String, val organisasjoner: Se
 @ActiveProfiles("local")
 @AutoConfigureMockMvc
 @AutoConfigureWireMock
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@DirtiesContext
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class RefusjonApiTest(
     @param:Autowired val refusjonRepository: RefusjonRepository,
     @param:Autowired val refusjonService: RefusjonService,
     @param:Autowired val mapper: ObjectMapper,
     @param:Autowired val mockMvc: MockMvc,
     @param:Autowired val hendelsesloggRepository: HendelsesloggRepository,
-    @param:Autowired val fristForlengetRepository: FristForlengetRepository,
-    @param:Autowired val korreksjonRepository: KorreksjonRepository,
-    @param:Autowired val varslingRepository: VarslingRepository
 ) {
     @SpykBean
     lateinit var consoleLogger: AuditConsoleLogger
@@ -83,15 +76,6 @@ class RefusjonApiTest(
         every {
             consoleLogger.logg(any())
         } returns Unit
-    }
-
-    @AfterEach
-    fun tearDown() {
-        varslingRepository.deleteAll()
-        fristForlengetRepository.deleteAll()
-        hendelsesloggRepository.deleteAll()
-        korreksjonRepository.deleteAll()
-        refusjonRepository.deleteAll()
     }
 
     @Test
@@ -124,7 +108,6 @@ class RefusjonApiTest(
         // DA
         assertEquals(List(4) { bedriftNr }, bedriftNrListe)
     }
-
 
     @Test
     fun `hentAlle refusjon for alle bedrifter arbeidsgiver har tilgang til`() {

@@ -1,5 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import jakarta.persistence.CascadeType
 import jakarta.persistence.ElementCollection
@@ -29,6 +30,7 @@ class Korreksjon(
     val korreksjonsnummer: Int,
     @OneToOne(orphanRemoval = true, cascade = [CascadeType.ALL])
     val refusjonsgrunnlag: Refusjonsgrunnlag,
+    @JsonIgnore
     val deltakerFnr: String,
     val bedriftNr: String,
     val unntakOmInntekterFremitid: Int?,
@@ -89,6 +91,7 @@ class Korreksjon(
     fun måTaStillingTilInntekter(): Boolean =
         !tiltakstype().harFastUtbetalingssum()
 
+    @JsonIgnore
     override fun getFnrOgBedrift(): FnrOgBedrift = FnrOgBedrift(deltakerFnr, bedriftNr)
 
     override fun equals(other: Any?): Boolean {

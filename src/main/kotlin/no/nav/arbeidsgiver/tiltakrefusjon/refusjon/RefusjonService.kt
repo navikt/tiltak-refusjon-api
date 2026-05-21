@@ -96,21 +96,16 @@ class RefusjonService(
      * men at vi overfører minusbeløp til neste måned dersom tiltaket fortsetter måneden etter. Hvis tiltaket avsluttes den samme måneden hvor det går i minus,
      * så går refusjonen bare i 0,-.
      */
-    fun settMinusBeløpFraTidligereRefusjonerTilknyttetAvtalen(refusjon: Refusjon) {
+    fun settMinusbeløpFraTidligereRefusjonerTilknyttetAvtalen(refusjon: Refusjon) {
         val avtaleNr = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr
-        val alleMinusbeløp = minusbelopRepository.findAllByAvtaleNr(avtaleNr = avtaleNr)
+        val alleMinusbeløp = minusbelopRepository.findAllByAvtaleNr(avtaleNr)
         if (alleMinusbeløp.isNotEmpty()) {
             val sumMinusbelop = alleMinusbeløp
                 .filter { !it.gjortOpp }
                 .mapNotNull { minusbelop -> minusbelop.beløp }
-                .reduceOrNull { sum, beløp -> sum + beløp }
-            if (sumMinusbelop != null) {
-                refusjon.refusjonsgrunnlag.oppgiForrigeRefusjonsbeløp(sumMinusbelop)
-                refusjonRepository.save(refusjon)
-            } else {
-                refusjon.refusjonsgrunnlag.oppgiForrigeRefusjonsbeløp(0)
-                refusjonRepository.save(refusjon)
-            }
+                .sum()
+            refusjon.refusjonsgrunnlag.oppgiForrigeRefusjonsbeløp(sumMinusbelop)
+            refusjonRepository.save(refusjon)
         }
     }
 
@@ -346,9 +341,9 @@ class RefusjonService(
 
     fun oppdaterRefusjon(refusjon: Refusjon, utførtAv: InnloggetBruker) {
         log.info("Oppdaterer refusjon ${refusjon.id} med data")
-        // Ikke sett minusbeløp på allerede sendt inn refusjoner
+        // Ikke oppdater tallgrunnlag på innsendte refusjoner
         if (!refusjon.status.isSendtInn()) {
-            settMinusBeløpFraTidligereRefusjonerTilknyttetAvtalen(refusjon)
+            settMinusbeløpFraTidligereRefusjonerTilknyttetAvtalen(refusjon)
             if (refusjon.tiltakstype().har5gBegrensning()) {
                 refusjon.refusjonsgrunnlag.sumUtbetaltVarig = totaltUtbetaltForTiltakMed5gBegrensning(refusjon)
             }

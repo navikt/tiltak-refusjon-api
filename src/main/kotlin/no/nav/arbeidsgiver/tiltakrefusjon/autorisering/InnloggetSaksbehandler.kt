@@ -9,7 +9,6 @@ import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterService
 import no.nav.arbeidsgiver.tiltakrefusjon.persondata.PersondataService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.BegrensetRefusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Beregning
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Beregningskontekst
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.BrukerRolle
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.HentSaksbehandlerRefusjonerQueryParametre
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Inntektsgrunnlag
@@ -324,7 +323,7 @@ data class InnloggetSaksbehandler(
             tilskuddFom = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
             harFerietrekkForSammeMåned = harFerietrekkForSammeMåned,
             sumUtbetaltVarig = refusjon.refusjonsgrunnlag.sumUtbetaltVarig,
-            beregningskontekst = Beregningskontekst(grunnbelopService.alleGrunnbelop())
+            beregningskontekst = refusjonService.hentBeregningskontekst(refusjon)
         )
     }
 }

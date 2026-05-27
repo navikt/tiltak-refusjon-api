@@ -22,7 +22,9 @@ import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
+import java.time.LocalDate
 import java.time.YearMonth
+import kotlin.time.measureTimedValue
 
 @Service
 @Observed
@@ -112,15 +114,11 @@ class RefusjonService(
      */
     fun settMinusbeløpFraTidligereRefusjonerTilknyttetAvtalen(refusjon: Refusjon) {
         val avtaleNr = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr
-        val alleMinusbeløp = minusbelopRepository.findAllByAvtaleNr(avtaleNr)
-        if (alleMinusbeløp.isNotEmpty()) {
-            val sumMinusbelop = alleMinusbeløp
-                .filter { !it.gjortOpp }
-                .mapNotNull { minusbelop -> minusbelop.beløp }
-                .sum()
-            refusjon.refusjonsgrunnlag.oppgiForrigeRefusjonsbeløp(sumMinusbelop)
-            refusjonRepository.save(refusjon)
-        }
+        val alleUoppgjorteMinusbeløp = minusbelopRepository.findAllByAvtaleNrAndGjortOppIsFalse(avtaleNr)
+        val sumMinusbelop = alleUoppgjorteMinusbeløp
+            .mapNotNull { it.beløp }
+            .sum()
+        refusjon.refusjonsgrunnlag.oppgiForrigeRefusjonsbeløp(sumMinusbelop)
     }
 
     /**
@@ -214,20 +212,16 @@ class RefusjonService(
             )
             refusjon.oppgiInntektsgrunnlag(inntektsgrunnlag, refusjon.refusjonsgrunnlag.inntektsgrunnlag)
             gjørBeregning(refusjon, utførtAv)
-            refusjonRepository.save(refusjon)
         } catch (e: Exception) {
             log.error("Feil ved henting av inntekter for refusjon ${refusjon.id}", e)
         }
     }
 
     fun godkjennForArbeidsgiver(refusjon: Refusjon, utførtAv: InnloggetBruker) {
-        val alleMinusBeløp = minusbelopRepository.findAllByAvtaleNr(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr)
-        val sumMinusbelop = alleMinusBeløp
-            .filter { !it.gjortOpp }
-            .mapNotNull { minusbelop -> minusbelop.beløp }
-            .reduceOrNull { sum, beløp -> sum + beløp }
+        val alleUoppgjorteMinusBeløp = minusbelopRepository.findAllByAvtaleNrAndGjortOppIsFalse(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr)
+        val sumMinusbelop = alleUoppgjorteMinusBeløp.mapNotNull { it.beløp }.sum()
         // Om det er et gammelt minusbeløp, men alle minusbeløp er gjort opp må refusjonen lastes på ny for å reberegnes
-        if (sumMinusbelop != null && sumMinusbelop != 0 && refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp != sumMinusbelop) {
+        if (alleUoppgjorteMinusBeløp.isNotEmpty() && sumMinusbelop != 0 && refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp != sumMinusbelop) {
             log.info("Arbeidsgiver prøver å sende inn en refusjon hvor minusbeløp er gjort opp/endret av annen refusjon ${refusjon.id}")
             throw FeilkodeException(Feilkode.LAST_REFUSJONEN_PÅ_NYTT_REFUSJONSGRUNNLAG_ENDRET)
         }
@@ -235,19 +229,21 @@ class RefusjonService(
         refusjon.godkjennForArbeidsgiver(utførtAv)
 
         // Gjør opp alle eventuelle minusbeløp
-        alleMinusBeløp.forEach {
-            if (!it.gjortOpp) {
-                it.gjortOpp = true
-                it.gjortOppAvRefusjonId = refusjon.id
-                minusbelopRepository.save(it)
-            }
+        alleUoppgjorteMinusBeløp.forEach {
+            it.gjortOpp = true
+            it.gjortOppAvRefusjonId = refusjon.id
+            minusbelopRepository.save(it)
         }
 
         // Lag en nytt minusbeløp om refusjonen er i minus
         if (refusjon.status == RefusjonStatus.GODKJENT_MINUSBELØP) {
+            val beregning = refusjon.refusjonsgrunnlag.beregning
+            if (beregning == null) {
+                throw FeilkodeException(Feilkode.INGEN_BEREGNING)
+            }
             val minusbelop = Minusbelop(
                 avtaleNr = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr,
-                beløp = refusjon.refusjonsgrunnlag.beregning?.refusjonsbeløp,
+                beløp = beregning.refusjonsbeløp,
                 løpenummer = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.løpenummer
             )
             refusjon.minusbelop = minusbelop
@@ -306,7 +302,6 @@ class RefusjonService(
             return
         }
         refusjon.oppgiBedriftKontonummer(kontoregisterService.hentBankkontonummer(refusjon.bedriftNr))
-        refusjonRepository.save(refusjon)
     }
 
     fun opprettKorreksjonsutkast(refusjon: Refusjon, korreksjonsgrunner: Set<Korreksjonsgrunn>, unntakOmInntekterFremitid: Int?, annetGrunn: String?): Korreksjon {
@@ -314,7 +309,7 @@ class RefusjonService(
         if (refusjon.tiltakstype() == Tiltakstype.VTAO) {
             // Utfør beregning umiddelbart for VTAO-korreksjoner
             korreksjonsutkast.refusjonsgrunnlag.beregning = beregnKorreksjon(
-                Beregningskontekst(grunnbelopService.alleGrunnbelop()),
+                hentBeregningskontekst(korreksjonsutkast),
                 korreksjonsutkast
             )
         }
@@ -372,7 +367,7 @@ class RefusjonService(
     }
 
     fun gjørBeregning(refusjon: Refusjon, utførtAv: InnloggetBruker) {
-        val beregning: Beregning? = beregnRefusjon(Beregningskontekst(grunnbelopService.alleGrunnbelop()), refusjon)
+        val beregning: Beregning? = beregnRefusjon(hentBeregningskontekst(refusjon), refusjon)
         if (beregning != null) {
             refusjon.refusjonsgrunnlag.beregning = beregning
             log.info("Oppdatert beregning på refusjon ${refusjon.id} til ${beregning.id}")
@@ -381,7 +376,7 @@ class RefusjonService(
     }
 
     fun gjørKorreksjonBeregning(korreksjon: Korreksjon, utførtAv: InnloggetBruker) {
-        val beregning = beregnKorreksjon(Beregningskontekst(grunnbelopService.alleGrunnbelop()), korreksjon)
+        val beregning = beregnKorreksjon(hentBeregningskontekst(korreksjon), korreksjon)
         if (beregning != null) {
             korreksjon.refusjonsgrunnlag.beregning = beregning
             applicationEventPublisher.publishEvent(KorreksjonBeregningUtført(korreksjon, utførtAv))
@@ -410,6 +405,52 @@ class RefusjonService(
         this.gjørBedriftKontonummeroppslag(refusjon)
         refusjon.godkjennForArbeidsgiver(utførtAv = SYSTEM_BRUKER)
         refusjonRepository.save(refusjon)
+    }
+
+    fun hentBeregningskontekst(refundering: Refundering): Beregningskontekst {
+        val (beregningskontekst, tid) = measureTimedValue {
+            Beregningskontekst(
+                grunnbelopService.alleGrunnbelop(),
+                hentRelaterteInnsendteRefunderinger(refundering),
+                minusbelopRepository.findAllByAvtaleNrAndGjortOppIsFalse(refundering.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr)
+            )
+        }
+        log.info("Hentet beregningskontekst, tok {} ms", tid.inWholeMilliseconds)
+        return beregningskontekst
+    }
+
+    /**
+     * En beregning trenger kunnskap om alle innsendte refusjoner og korreksjoner som:
+     * <ol>
+     *     <li>Gjelder for samme deltaker, bedrift og tiltakstype</li>
+     *     <li>For samme år (i tilfelle 5g-beregning)</li>
+     *     <li>For samme måned (for å sjekke om ferietrekk er trukket)</li>
+     *     <li>Ikke er en korrigert refusjon (fordi korreksjonene er inkludert)</li>
+     *     <li>Ikke har gitt minusbeløp (alle minusbeløp er inkludert separat)</li>
+     * </ol>
+     */
+    private fun hentRelaterteInnsendteRefunderinger(refundering: Refundering): List<Refundering> {
+        val tilskuddsaar = refundering.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom.year
+        val periodeStart = LocalDate.of(tilskuddsaar, 1, 1)
+        val periodeSlutt = LocalDate.of(tilskuddsaar, 12, 31)
+        val deltakersRefusjoner = refusjonRepository.hentDeltakersRefusjoner(
+            refundering.deltakerFnr,
+            refundering.bedriftNr,
+            refundering.tiltakstype(),
+            RefusjonStatus.entries.filter { it.ansesSomUtbetalt() },
+            periodeStart,
+            periodeSlutt
+        )
+        val deltakersKorreksjoner =
+            korreksjonRepository.hentDeltakersKorreksjoner(
+                refundering.deltakerFnr,
+                refundering.bedriftNr,
+                refundering.tiltakstype(),
+                behandledeKorreksjoner,
+                periodeStart,
+                periodeSlutt
+            )
+        return (deltakersRefusjoner + deltakersKorreksjoner)
     }
 }
 

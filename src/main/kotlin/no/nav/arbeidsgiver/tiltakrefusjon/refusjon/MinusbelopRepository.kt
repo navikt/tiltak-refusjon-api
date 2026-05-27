@@ -4,4 +4,5 @@ import org.springframework.data.jpa.repository.JpaRepository
 
 interface MinusbelopRepository : JpaRepository<Minusbelop, String> {
     fun findAllByAvtaleNr(avtaleNr: Int): List<Minusbelop>
+    fun findAllByAvtaleNrAndGjortOppIsFalse(avtaleNr: Int): List<Minusbelop>
 }

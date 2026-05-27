@@ -1,6 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
-enum class RefusjonStatus : RefunderingStatus {
+enum class RefusjonStatus: RefunderingStatus {
     KLAR_FOR_INNSENDING,
     FOR_TIDLIG,
     SENDT_KRAV,

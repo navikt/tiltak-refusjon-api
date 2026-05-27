@@ -5,7 +5,9 @@ import java.time.LocalDate
 import java.util.*
 
 class Beregningskontekst(
-    private val alleGrunnbelop: TreeMap<LocalDate, Int>
+    private val alleGrunnbelop: TreeMap<LocalDate, Int>,
+    private val innsendteRefunderinger: Collection<Refundering>,
+    private val uoppgjorteMinusbelop: Collection<Minusbelop>
 ) {
     /**
      * Hent grunnbeløpet som gjelder for en gitt dato.

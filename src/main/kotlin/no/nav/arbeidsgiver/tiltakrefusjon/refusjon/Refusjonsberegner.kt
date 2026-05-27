@@ -137,56 +137,41 @@ fun beregnRefusjonsbeløp(
     )
 }
 
-fun beregnRefusjon(beregningskontekst: Beregningskontekst, refusjon: Refusjon): Beregning? {
-    if (!refusjon.refusjonsgrunnlag.harTilstrekkeligInformasjonForBeregning()) {
+fun beregnRefusjon(beregningskontekst: Beregningskontekst, refusjon: Refusjon) =
+    beregn(beregningskontekst, refusjon)
+
+fun beregnKorreksjon(beregningskontekst: Beregningskontekst, korreksjon: Korreksjon) =
+    beregn(beregningskontekst, korreksjon)
+
+private fun beregn(beregningskontekst: Beregningskontekst, refundering: Refundering): Beregning? {
+    if (!refundering.refusjonsgrunnlag.harTilstrekkeligInformasjonForBeregning()) {
         return null
     }
 
-    return when (refusjon.tiltakstype()) {
+    return when (refundering.tiltakstype()) {
         Tiltakstype.VTAO -> fastBeløpBeregning(
-            refusjon.refusjonsgrunnlag.tilskuddsgrunnlag,
-            refusjon.refusjonsgrunnlag.tidligereUtbetalt
+            refundering.refusjonsgrunnlag.tilskuddsgrunnlag,
+            refundering.refusjonsgrunnlag.tidligereUtbetalt,
+            when (refundering) {
+                is Korreksjon -> true; is Refusjon -> false
+            }
         )
 
-        Tiltakstype.MENTOR -> mentorBeregning(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag)
+        Tiltakstype.MENTOR -> when (refundering) {
+            is Korreksjon -> null
+            is Refusjon -> mentorBeregning(refundering.refusjonsgrunnlag.tilskuddsgrunnlag)
+        }
+
         Tiltakstype.SOMMERJOBB, Tiltakstype.VARIG_LONNSTILSKUDD, Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD, Tiltakstype.FIREARIG_LONNSTILSKUDD -> beregnRefusjonsbeløp(
-            inntekter = refusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.toList() ?: emptyList(),
-            tilskuddsgrunnlag = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag,
-            tidligereUtbetalt = refusjon.refusjonsgrunnlag.tidligereUtbetalt,
-            korrigertBruttoLønn = refusjon.refusjonsgrunnlag.endretBruttoLønn,
-            fratrekkRefunderbarSum = refusjon.refusjonsgrunnlag.refunderbarBeløp,
-            forrigeRefusjonMinusBeløp = refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
-            tilskuddFom = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
-            sumUtbetaltVarig = refusjon.refusjonsgrunnlag.sumUtbetaltVarig,
-            harFerietrekkForSammeMåned = refusjon.refusjonsgrunnlag.harFerietrekkForSammeMåned,
-            beregningskontekst = beregningskontekst,
-        )
-    }
-}
-
-fun beregnKorreksjon(beregningskontekst: Beregningskontekst, korreksjon: Korreksjon): Beregning? {
-    if (!korreksjon.refusjonsgrunnlag.harTilstrekkeligInformasjonForBeregning()) {
-        return null
-    }
-
-    return when (korreksjon.tiltakstype()) {
-        Tiltakstype.VTAO -> fastBeløpBeregning(
-            korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag,
-            korreksjon.refusjonsgrunnlag.tidligereUtbetalt,
-            true
-        )
-
-        Tiltakstype.MENTOR -> null
-        Tiltakstype.SOMMERJOBB, Tiltakstype.VARIG_LONNSTILSKUDD, Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD, Tiltakstype.FIREARIG_LONNSTILSKUDD -> beregnRefusjonsbeløp(
-            inntekter = korreksjon.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
-            tilskuddsgrunnlag = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag,
-            tidligereUtbetalt = korreksjon.refusjonsgrunnlag.tidligereUtbetalt,
-            korrigertBruttoLønn = korreksjon.refusjonsgrunnlag.endretBruttoLønn,
-            fratrekkRefunderbarSum = korreksjon.refusjonsgrunnlag.refunderbarBeløp,
-            forrigeRefusjonMinusBeløp = korreksjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
-            tilskuddFom = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
-            sumUtbetaltVarig = korreksjon.refusjonsgrunnlag.sumUtbetaltVarig,
-            harFerietrekkForSammeMåned = korreksjon.refusjonsgrunnlag.harFerietrekkForSammeMåned,
+            inntekter = refundering.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.toList() ?: emptyList(),
+            tilskuddsgrunnlag = refundering.refusjonsgrunnlag.tilskuddsgrunnlag,
+            tidligereUtbetalt = refundering.refusjonsgrunnlag.tidligereUtbetalt,
+            korrigertBruttoLønn = refundering.refusjonsgrunnlag.endretBruttoLønn,
+            fratrekkRefunderbarSum = refundering.refusjonsgrunnlag.refunderbarBeløp,
+            forrigeRefusjonMinusBeløp = refundering.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
+            tilskuddFom = refundering.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
+            sumUtbetaltVarig = refundering.refusjonsgrunnlag.sumUtbetaltVarig,
+            harFerietrekkForSammeMåned = refundering.refusjonsgrunnlag.harFerietrekkForSammeMåned,
             beregningskontekst = beregningskontekst
         )
     }

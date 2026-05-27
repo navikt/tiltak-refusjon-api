@@ -103,7 +103,7 @@ class ArbeidsgiverRefusjonController(
     @Transactional
     fun settKontonummerOgInntekterPåRefusjon(@PathVariable id: String, @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant?) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
-        arbeidsgiver.settKontonummerOgInntekterPåRefusjon(id, sistEndret);
+        arbeidsgiver.settKontonummerOgInntekterPåRefusjon(id, sistEndret)
     }
 
     @PostMapping("{id}/sett-kontonummer-og-inntekter", consumes = ["application/json"])

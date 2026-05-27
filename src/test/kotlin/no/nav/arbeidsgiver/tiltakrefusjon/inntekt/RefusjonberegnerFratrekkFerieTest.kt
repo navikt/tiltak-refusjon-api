@@ -45,14 +45,13 @@ class RefusjonberegnerFratrekkFerieTest(
     val refusjonService: RefusjonService,
     @Autowired
     val refusjonRepository: RefusjonRepository,
+    @Autowired
+    val korreksjonRepository: KorreksjonRepository,
 ) {
-    val innloggetArbeidsgiver = innloggetBruker("12345678910", BrukerRolle.ARBEIDSGIVER);
+    val innloggetArbeidsgiver = innloggetBruker("12345678910", BrukerRolle.ARBEIDSGIVER)
 
     @MockkBean
     lateinit var altinnTilgangsstyringService: AltinnTilgangsstyringService
-
-    @MockkBean
-    lateinit var korreksjonRepository: KorreksjonRepository
 
     @MockkBean
     lateinit var persondataService: PersondataService

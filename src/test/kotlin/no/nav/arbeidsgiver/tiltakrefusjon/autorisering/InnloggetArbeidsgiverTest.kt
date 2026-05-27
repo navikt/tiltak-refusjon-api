@@ -42,6 +42,8 @@ internal class InnloggetArbeidsgiverTest(
     @Autowired
     val refusjonRepository: RefusjonRepository,
     @Autowired
+    val korreksjonRepository: KorreksjonRepository,
+    @Autowired
     val varslingRepository: VarslingRepository,
     @Autowired
     val minusbelopRepository: MinusbelopRepository,
@@ -59,9 +61,6 @@ internal class InnloggetArbeidsgiverTest(
 
     @MockkBean
     lateinit var persondataService: PersondataService
-
-    @MockkBean
-    lateinit var korreksjonRepository: KorreksjonRepository
 
     @BeforeEach
     fun setup() {
@@ -579,10 +578,10 @@ internal class InnloggetArbeidsgiverTest(
         )
 
         // Tre refusjoner med ulik avtalenr
-        val refusjon1 = opprettRefusjonOgGjørInntektoppslag(tilskuddMelding)!!
-        val refusjon2 = opprettRefusjonOgGjørInntektoppslag(tilskuddMelding2LittEldreMedLøpenummer2)!!
-        val refusjon3 = opprettRefusjonOgGjørInntektoppslag(tilskuddMelding3LittEldreMedLøpenummer3)!!
-        val refusjon4 = opprettRefusjonOgGjørInntektoppslag(tilskuddMelding4LittEldreMedLøpenummer4)!!
+        val refusjon1 = opprettRefusjonOgGjørInntektoppslag(tilskuddMelding)
+        val refusjon2 = opprettRefusjonOgGjørInntektoppslag(tilskuddMelding2LittEldreMedLøpenummer2)
+        val refusjon3 = opprettRefusjonOgGjørInntektoppslag(tilskuddMelding3LittEldreMedLøpenummer3)
+        val refusjon4 = opprettRefusjonOgGjørInntektoppslag(tilskuddMelding4LittEldreMedLøpenummer4)
 
         val refusjon1FunnetViaFinnRefusjon = innloggetArbeidsgiver.finnRefusjon(refusjon1.id)
         assertThat(refusjon1FunnetViaFinnRefusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp).isEqualTo(0)

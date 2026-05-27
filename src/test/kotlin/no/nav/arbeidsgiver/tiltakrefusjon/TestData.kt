@@ -34,7 +34,9 @@ val alleGrunnbelopMap = mapOf<LocalDate, Int>(
 ).toMap(TreeMap())
 
 fun enBeregningskontekst() = Beregningskontekst(
-    alleGrunnbelop = alleGrunnbelopMap
+    alleGrunnbelop = alleGrunnbelopMap,
+    innsendteRefunderinger = emptyList(),
+    uoppgjorteMinusbelop = emptyList()
 )
 
 fun innloggetBruker(identifikator: String, rolle: BrukerRolle) = object : InnloggetBruker {

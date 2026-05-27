@@ -86,5 +86,21 @@ interface RefusjonRepository : JpaRepository<Refusjon, String> {
         where r.godkjentAvArbeidsgiver between (current_date - 1 year) and (current_date - 7 day) and r.status = 'SENDT_KRAV'
     """)
     fun hentRefusjonerSomIkkeErBetalt(): List<Refusjon>
+    @Query("""
+        select r from Refusjon r
+        where r.deltakerFnr = :deltakerFnr and r.bedriftNr = :bedriftNr
+          and r.refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype = :tiltakstype
+          and r.status in (:status)
+          and r.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom >= :periodeStart
+          and r.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom <= :periodeSlutt
+    """)
+    fun hentDeltakersRefusjoner(
+        deltakerFnr: String,
+        bedriftNr: String,
+        tiltakstype: Tiltakstype,
+        status: List<RefusjonStatus>,
+        periodeStart: LocalDate,
+        periodeSlutt: LocalDate
+    ): List<Refusjon>
 
 }

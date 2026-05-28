@@ -2,6 +2,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.jayway.jsonpath.JsonPath
 import com.ninjasquad.springmockk.SpykBean
 import io.mockk.clearMocks
 import io.mockk.every
@@ -44,13 +45,6 @@ import java.net.http.HttpResponse.BodyHandlers
 import java.nio.charset.StandardCharsets
 
 data class InnloggetBrukerTest(val identifikator: String, val organisasjoner: Set<Organisasjon>)
-data class RefusjonlistFraFlereOrgTest(
-    val refusjoner: List<Refusjon>,
-    val size: Int,
-    val currentPage: Int,
-    val totalItems: Int,
-    val totalPages: Int
-)
 
 
 @SpringBootTest
@@ -60,14 +54,14 @@ data class RefusjonlistFraFlereOrgTest(
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DirtiesContext
 class RefusjonApiTest(
-    @Autowired val refusjonRepository: RefusjonRepository,
-    @Autowired val refusjonService: RefusjonService,
-    @Autowired val mapper: ObjectMapper,
-    @Autowired val mockMvc: MockMvc,
-    @Autowired val hendelsesloggRepository: HendelsesloggRepository,
-    @Autowired val fristForlengetRepository: FristForlengetRepository,
-    @Autowired val korreksjonRepository: KorreksjonRepository,
-    @Autowired val varslingRepository: VarslingRepository
+    @param:Autowired val refusjonRepository: RefusjonRepository,
+    @param:Autowired val refusjonService: RefusjonService,
+    @param:Autowired val mapper: ObjectMapper,
+    @param:Autowired val mockMvc: MockMvc,
+    @param:Autowired val hendelsesloggRepository: HendelsesloggRepository,
+    @param:Autowired val fristForlengetRepository: FristForlengetRepository,
+    @param:Autowired val korreksjonRepository: KorreksjonRepository,
+    @param:Autowired val varslingRepository: VarslingRepository
 ) {
     @SpykBean
     lateinit var consoleLogger: AuditConsoleLogger
@@ -103,14 +97,8 @@ class RefusjonApiTest(
     @Test
     fun `hentAlle() er tilgjengelig for saksbehandler`() {
         val json = sendRequest(get("$REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON?enhet=1000"), navToken)
-        val liste = mapper.readValue(json, object : TypeReference<Map<String, Any>>() {})
-        val refusjoner = liste.get("refusjoner") as List<Map<String, Any>>
+        val refusjoner: List<Any> = JsonPath.read(json, "$.refusjoner")
         assertFalse(refusjoner.isEmpty())
-        // Her er det noe timing problem. Dette endres fra gang til gang man kjører det
-        // Forventer at oppslag auditlogges, men kun én gang per unike deltaker
-        //verify(exactly = refusjoner.map { it.get("deltakerFnr") }.toSet().size) {
-        //    consoleLogger.logg(any())
-        //}
     }
 
     @Test
@@ -131,11 +119,10 @@ class RefusjonApiTest(
 
         // NÅR
         val json = sendRequest(get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON?bedriftNr=$bedriftNr"), arbGiverToken)
-        val liste = mapper.readValue(json, object : TypeReference<List<Refusjon>>() {})
+        val bedriftNrListe: List<String> = JsonPath.read(json, "$[*].bedriftNr")
 
         // DA
-        assertTrue(liste.all { it.bedriftNr == bedriftNr })
-        assertEquals(4, liste.size)
+        assertEquals(List(4) { bedriftNr }, bedriftNrListe)
     }
 
 
@@ -148,39 +135,44 @@ class RefusjonApiTest(
         // NÅR
         val brukerJson = sendRequest(get("$REQUEST_MAPPING_INNLOGGET_ARBEIDSGIVER/innlogget-bruker"), arbGiverToken)
         val bruker: InnloggetBrukerTest = mapper.readValue(brukerJson, object : TypeReference<InnloggetBrukerTest>() {})
-        val refusjonJson =
+        val orgNr = bruker.organisasjoner.map { it.organizationNumber }
+
+        val page1Json =
             sendRequest(get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/hentliste?page=0&size=3"), arbGiverToken)
-        val refusjonlist: RefusjonlistFraFlereOrgTest = mapper.readValue(refusjonJson, object : TypeReference<RefusjonlistFraFlereOrgTest>() {})
-        val refusjonJson2 =
+        val page2Json =
             sendRequest(get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/hentliste?page=1&size=3"), arbGiverToken)
-        val refusjonlist2: RefusjonlistFraFlereOrgTest = mapper.readValue(refusjonJson2, object : TypeReference<RefusjonlistFraFlereOrgTest>() {})
-        val refusjonJson3 =
+        val page3Json =
             sendRequest(get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/hentliste?page=0&size=6"), arbGiverToken)
-        val refusjonlist3: RefusjonlistFraFlereOrgTest = mapper.readValue(refusjonJson3, object : TypeReference<RefusjonlistFraFlereOrgTest>() {})
+
+        val bedrifter1: List<String> = JsonPath.read(page1Json, "$.refusjoner[*].bedriftNr")
+        val bedrifter2: List<String> = JsonPath.read(page2Json, "$.refusjoner[*].bedriftNr")
+        val bedrifter3: List<String> = JsonPath.read(page3Json, "$.refusjoner[*].bedriftNr")
 
         // SÅ
-        assertThat(refusjonlist.refusjoner).allMatch { bedrifter -> bruker.organisasjoner.any { it.organizationNumber == bedrifter.bedriftNr } }
-        assertThat(refusjonlist2.refusjoner).allMatch { bedrifter -> bruker.organisasjoner.any { it.organizationNumber == bedrifter.bedriftNr } }
-        assertThat(refusjonlist3.refusjoner).allMatch { bedrifter -> bruker.organisasjoner.any { it.organizationNumber == bedrifter.bedriftNr } }
+        assertTrue(bedrifter1.all { it in orgNr })
+        assertTrue(bedrifter2.all { it in orgNr })
+        assertTrue(bedrifter3.all { it in orgNr })
 
-        assertThat(refusjonlist.size).isEqualTo(3);
-        assertThat(refusjonlist2.size).isEqualTo(3);
-        assertThat(refusjonlist3.size).isEqualTo(6);
+        assertThat(JsonPath.read<Int>(page1Json, "$.size")).isEqualTo(3)
+        assertThat(JsonPath.read<Int>(page2Json, "$.size")).isEqualTo(3)
+        assertThat(JsonPath.read<Int>(page3Json, "$.size")).isEqualTo(6)
 
-        assertThat(refusjonlist3.refusjoner.find { ref -> ref.id == refusjonlist.refusjoner[0].id });
-        assertThat(refusjonlist3.refusjoner.find { ref -> ref.id == refusjonlist2.refusjoner[0].id })
+        val ids1: List<String> = JsonPath.read(page1Json, "$.refusjoner[*].id")
+        val ids2: List<String> = JsonPath.read(page2Json, "$.refusjoner[*].id")
+        val ids3: List<String> = JsonPath.read(page3Json, "$.refusjoner[*].id")
+        assertThat(ids3).contains(ids1[0])
+        assertThat(ids3).contains(ids2[0])
 
         // NÅR
         val json4 = sendRequest(
             get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/hentliste?bedriftNr=$BEDRIFT_NR1,$BEDRIFT_NR2&page=0&size=6"),
             arbGiverToken
         )
-
-        val refusjonlist4: RefusjonlistFraFlereOrgTest = mapper.readValue(json4, object : TypeReference<RefusjonlistFraFlereOrgTest>() {})
+        val bedrifter4: List<String> = JsonPath.read(json4, "$.refusjoner[*].bedriftNr")
 
         // SÅ
-        assertThat(refusjonlist4.refusjoner).allMatch { bedrifter -> bruker.organisasjoner.any { it.organizationNumber == bedrifter.bedriftNr } }
-        assertThat(refusjonlist4.refusjoner).allMatch { org -> org.bedriftNr == BEDRIFT_NR1 || org.bedriftNr == BEDRIFT_NR2 }
+        assertTrue(bedrifter4.all { it in orgNr })
+        assertTrue(bedrifter4.all { it == BEDRIFT_NR1 || it == BEDRIFT_NR2 })
     }
 
     @Test
@@ -188,8 +180,7 @@ class RefusjonApiTest(
         val id = refusjonRepository.findAll().find { it.deltakerFnr == "07098142678" }?.id
 
         val json = sendRequest(get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id"), arbGiverToken)
-        val refusjon = mapper.readValue(json, Refusjon::class.java)
-        assertEquals(id, refusjon.id)
+        assertEquals(id, JsonPath.read<String>(json, "$.id"))
 
         verify(exactly = 1) {
             consoleLogger.logg(any())
@@ -208,12 +199,20 @@ class RefusjonApiTest(
         val id = refusjonRepository.findAll().find { it.deltakerFnr == "28128521498" }?.id
 
         val json = sendRequest(get("$REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON/$id"), navToken)
-        val refusjon = mapper.readValue(json, Refusjon::class.java)
-        assertEquals(id, refusjon.id)
+        assertEquals(id, JsonPath.read<String>(json, "$.id"))
 
         verify(exactly = 1) {
             consoleLogger.logg(any())
         }
+    }
+
+    @Test
+    fun `hent() - refusjon-payload inneholder ikke deltakerFnr pa noe niva`() {
+        val id = refusjonRepository.findAll().find { it.deltakerFnr == "28128521498" }?.id
+
+        val json = sendRequest(get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id"), arbGiverToken)
+
+        assertTrue(mapper.readTree(json).findValues("deltakerFnr").isEmpty())
     }
 
     @Test
@@ -245,13 +244,21 @@ class RefusjonApiTest(
         // Inntektsoppslag ved henting av refusjon
         oppdaterRefusjonMedKontonrOgInntekter(id!!)
         val refusjonEtterInntektsgrunnlag = hentRefusjon(id)
-        assertThat(refusjonEtterInntektsgrunnlag.refusjonsgrunnlag.inntektsgrunnlag).isNotNull()
+        assertThat(
+            JsonPath.read<Any?>(
+                refusjonEtterInntektsgrunnlag,
+                "$.refusjonsgrunnlag.inntektsgrunnlag"
+            )
+        ).isNotNull()
 
-
-        // Huker av for at inntektene er opptjet i periode
-        refusjonEtterInntektsgrunnlag.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.forEach {
+        // Huker av for at inntektene er opptjent i periode
+        val inntektsgrunnlagJson = mapper.writeValueAsString(
+            JsonPath.read(refusjonEtterInntektsgrunnlag, "$.refusjonsgrunnlag.inntektsgrunnlag")
+        )
+        val inntektsgrunnlag = mapper.readValue(inntektsgrunnlagJson, Inntektsgrunnlag::class.java)
+        inntektsgrunnlag.inntekter.filter { it.erMedIInntektsgrunnlag() }.forEach {
             setInntektslinjeOpptjentIPeriode(
-                refusjonId = refusjonEtterInntektsgrunnlag.id,
+                refusjonId = id,
                 inntektslinjeId = it.id,
                 erOpptjentIPeriode = true
             )
@@ -263,16 +270,21 @@ class RefusjonApiTest(
             arbGiverToken,
             EndreBruttolønnRequest(true, null)
         )
-        val refusjonEtterInntektsspørsmål = hentRefusjon(id)
-        assertThat(refusjonEtterInntektsspørsmål.refusjonsgrunnlag.beregning?.refusjonsbeløp).isPositive()
+        val refusjonEtterInntektssporsmal = hentRefusjon(id)
+        assertThat(
+            JsonPath.read<Int>(
+                refusjonEtterInntektssporsmal,
+                "$.refusjonsgrunnlag.beregning.refusjonsbeløp"
+            )
+        ).isPositive()
         val harLagretHendelselogg = hendelsesloggRepository.findAll()
-            .find { it.refusjonId == refusjonEtterInntektsspørsmål.id && it.event == "BeregningUtført" && it.appImageId != null } != null
+            .find { it.refusjonId == id && it.event == "BeregningUtført" && it.appImageId != null } != null
         assertTrue(harLagretHendelselogg)
 
         // Godkjenn
         sendRequest(post("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id/godkjenn"), arbGiverToken)
         val refusjonEtterGodkjennelse = hentRefusjon(id)
-        assertThat(refusjonEtterGodkjennelse.godkjentAvArbeidsgiver).isNotNull()
+        assertThat(JsonPath.read<String?>(refusjonEtterGodkjennelse, "$.godkjentAvArbeidsgiver")).isNotNull()
     }
 
     @Test
@@ -291,17 +303,20 @@ class RefusjonApiTest(
             .andExpect(header().string("feilkode", Feilkode.INGEN_INNTEKTER.toString()))
     }
 
-    private fun setInntektslinjeOpptjentIPeriode(refusjonId: String, inntektslinjeId: String, erOpptjentIPeriode: Boolean) {
-        val json = sendRequest(
+    private fun setInntektslinjeOpptjentIPeriode(
+        refusjonId: String,
+        inntektslinjeId: String,
+        erOpptjentIPeriode: Boolean
+    ) {
+        sendRequest(
             post("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$refusjonId/set-inntektslinje-opptjent-i-periode"),
             arbGiverToken,
             EndreRefundertInntektslinjeRequest(inntektslinjeId, erOpptjentIPeriode)
         )
     }
 
-    private fun hentRefusjon(id: String?): Refusjon {
-        val json = sendRequest(get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id"), arbGiverToken)
-        return mapper.readValue(json, Refusjon::class.java)
+    private fun hentRefusjon(id: String?): String {
+        return sendRequest(get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id"), arbGiverToken)
     }
 
     private fun oppdaterRefusjonMedKontonrOgInntekter(id: String) {

@@ -1,5 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
@@ -16,6 +17,7 @@ data class Tilskuddsgrunnlag(
     val tilskuddsperiodeId: String,
     val deltakerFornavn: String,
     val deltakerEtternavn: String,
+    @JsonIgnore
     val deltakerFnr: String,
     val arbeidsgiverFornavn: String,
     val arbeidsgiverEtternavn: String,

@@ -1,5 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Entity
@@ -40,6 +41,7 @@ class Refusjon(
     @OneToOne(orphanRemoval = true, cascade = [CascadeType.ALL])
     val refusjonsgrunnlag: Refusjonsgrunnlag,
     val bedriftNr: String,
+    @JsonIgnore
     val deltakerFnr: String
 ) : AbstractAggregateRoot<Refusjon>(), AuditerbarEntitet {
     constructor(
@@ -441,6 +443,7 @@ class Refusjon(
         return innhentetTidspunkt == null || innhentetTidspunkt.isBefore(Now.localDateTime().minusMinutes(1))
     }
 
+    @JsonIgnore
     override fun getFnrOgBedrift(): FnrOgBedrift = FnrOgBedrift(deltakerFnr, bedriftNr)
 
     override fun equals(other: Any?): Boolean {

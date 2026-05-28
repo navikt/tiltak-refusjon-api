@@ -15,6 +15,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.MidlerFrigjortÅrsak
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeAnnullertMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeForkortetMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
@@ -33,7 +34,8 @@ class RefusjonService(
     private val applicationEventPublisher: ApplicationEventPublisher,
     private val grunnbelopService: GrunnbelopService,
 ) {
-    val log = LoggerFactory.getLogger(javaClass)
+    private val behandledeKorreksjoner: List<Korreksjonstype> = Korreksjonstype.entries.filter { it.isSendtInn() }
+    val log: Logger = LoggerFactory.getLogger(javaClass)
 
     fun opprettRefusjon(tilskuddsperiodeGodkjentMelding: TilskuddsperiodeGodkjentMelding): Refusjon? {
         log.info("Oppretter refusjon for tilskuddsperiodeId ${tilskuddsperiodeGodkjentMelding.tilskuddsperiodeId}")
@@ -113,23 +115,47 @@ class RefusjonService(
         }
     }
 
-    fun settTotalBeløpUtbetalteVarigLønnstilskudd(refusjon: Refusjon) {
-        if ((refusjon.status == RefusjonStatus.KLAR_FOR_INNSENDING || refusjon.status == RefusjonStatus.FOR_TIDLIG) && refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype == Tiltakstype.VARIG_LONNSTILSKUDD) {
-            val alleUtbetalteVarigeForSammeÅrSomAlleredeErGodkjent =
-                refusjonRepository.findAllByDeltakerFnrAndBedriftNrAndStatusInAndRefusjonsgrunnlag_Tilskuddsgrunnlag_Tiltakstype(
-                    refusjon.deltakerFnr,
-                    refusjon.bedriftNr,
-                    listOf(RefusjonStatus.UTBETALT, RefusjonStatus.SENDT_KRAV),
-                    Tiltakstype.VARIG_LONNSTILSKUDD
-                ).filter {
-                    // Inkluder alle tidligere refusjoner som gjelder for samme år som refusjonen vi behandler.
-                    it.fraSammeÅrSom(refusjon)
-                }
+    /**
+     * Forskrift sier at "refusjonen kan ikke overstige 5 ganger grunnbeløp per år". Dette har vi tolket til å bety
+     * at 5g-grensen gjelder for en deltaker ansatt i en spesifikk bedrift på en spesifikk type tiltak.
+     * Altså skal summen gjelde **på tvers** av avtalene som en person har i en bedrift (i normaltilfeller skal dette være bare en avtale).
+     * <p>
+     * Det betyr altså at hvis en deltaker har to varige lønnstilskudd hos en arbeidsgiver, så dekkes de av samme 5g-grense,
+     * men ikke hvis deltakeren har varig lønnstilskudd i to forskjellige bedrifter.
+     */
+    fun settTotalBeløpUtbetalteVarigLønnstilskudd(refundering: Refundering) {
+        // Litt knotete guard; skal kun oppdatere beløp for ubehandlede refunderinger på som har en 5g-grense.
+        if (refundering.status.isSendtInn() || !refundering.tiltakstype().kanIkkeOverskride5g()) {
+            return
+        }
+        val utbetalteRefusjoner =
+            refusjonRepository.findAllByDeltakerFnrAndBedriftNrAndStatusInAndRefusjonsgrunnlag_Tilskuddsgrunnlag_Tiltakstype(
+                refundering.deltakerFnr,
+                refundering.bedriftNr,
+                listOf(RefusjonStatus.UTBETALT, RefusjonStatus.SENDT_KRAV),
+                refundering.tiltakstype()
+            )
+        val utbetalteKorreksjoner =
+            korreksjonRepository.findAllByDeltakerFnrAndBedriftNrAndStatusInAndRefusjonsgrunnlag_Tilskuddsgrunnlag_Tiltakstype(
+                refundering.deltakerFnr,
+                refundering.bedriftNr,
+                behandledeKorreksjoner,
+                refundering.tiltakstype()
+            )
 
-            if (alleUtbetalteVarigeForSammeÅrSomAlleredeErGodkjent.isNotEmpty()) {
-                refusjon.refusjonsgrunnlag.sumUtbetaltVarig =
-                    alleUtbetalteVarigeForSammeÅrSomAlleredeErGodkjent.sumOf { it.refusjonsgrunnlag.beregning?.refusjonsbeløp ?: 0 }
+        val alleInnsendteRefusjonerOgKorreksjonerForTiltaket = (utbetalteRefusjoner + utbetalteKorreksjoner)
+
+        val alleUtbetalteForSammeAar = alleInnsendteRefusjonerOgKorreksjonerForTiltaket
+            .filter { utbetaltRefundering ->
+                utbetaltRefundering.fraSammeÅrSom(refundering)
             }
+
+        // Dersom ingen refunderinger eksisterer ønsker vi å beholde "null"-verdi i feltet
+        if (alleUtbetalteForSammeAar.isNotEmpty()) {
+            refundering.refusjonsgrunnlag.sumUtbetaltVarig =
+                alleUtbetalteForSammeAar.sumOf { utbetaltRefundering ->
+                    utbetaltRefundering.refusjonsgrunnlag.beregning?.refusjonsbeløp ?: 0
+                }
         }
     }
 
@@ -286,7 +312,7 @@ class RefusjonService(
     }
 
     fun settOmFerieErTrukketForSammeMåned(refusjon: Refusjon) {
-        if (refusjon.status == RefusjonStatus.KLAR_FOR_INNSENDING || refusjon.status == RefusjonStatus.FOR_TIDLIG) {
+        if (!refusjon.status.isSendtInn()) {
             val statuser = listOf(RefusjonStatus.UTBETALT, RefusjonStatus.SENDT_KRAV, RefusjonStatus.GODKJENT_MINUSBELØP, RefusjonStatus.GODKJENT_NULLBELØP)
             refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_AvtaleNrAndStatusIn(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr, statuser)
                 .filter { YearMonth.from(it.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom) == YearMonth.from(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom) }
@@ -303,7 +329,7 @@ class RefusjonService(
     fun oppdaterRefusjon(refusjon: Refusjon, utførtAv: InnloggetBruker) {
         log.info("Oppdaterer refusjon ${refusjon.id} med data")
         // Ikke sett minusbeløp på allerede sendt inn refusjoner
-        if (refusjon.status == RefusjonStatus.KLAR_FOR_INNSENDING || refusjon.status == RefusjonStatus.FOR_TIDLIG) {
+        if (!refusjon.status.isSendtInn()) {
             settMinusBeløpFraTidligereRefusjonerTilknyttetAvtalen(refusjon)
             settTotalBeløpUtbetalteVarigLønnstilskudd(refusjon)
             settOmFerieErTrukketForSammeMåned(refusjon)
@@ -358,4 +384,5 @@ class RefusjonService(
     }
 }
 
-private fun Refusjon.fraSammeÅrSom(refusjon: Refusjon): Boolean = this.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom.year.equals(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom.year)
+private fun Refundering.fraSammeÅrSom(refusjon: Refundering): Boolean =
+    this.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom.year.equals(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom.year)

@@ -29,13 +29,13 @@ class Korreksjon(
     val korrigererRefusjonId: String,
     val korreksjonsnummer: Int,
     @OneToOne(orphanRemoval = true, cascade = [CascadeType.ALL])
-    val refusjonsgrunnlag: Refusjonsgrunnlag,
+    override val refusjonsgrunnlag: Refusjonsgrunnlag,
     @JsonIgnore
-    val deltakerFnr: String,
-    val bedriftNr: String,
+    override val deltakerFnr: String,
+    override val bedriftNr: String,
     val unntakOmInntekterFremitid: Int?,
     val annenGrunn: String?
-) : AbstractAggregateRoot<Korreksjon>(), AuditerbarEntitet {
+) : AbstractAggregateRoot<Korreksjon>(), AuditerbarEntitet, Refundering {
     constructor(
         korrigererRefusjonId: String,
         korreksjonsnummer: Int,
@@ -73,7 +73,7 @@ class Korreksjon(
     val korreksjonsgrunner: MutableSet<Korreksjonsgrunn> = EnumSet.noneOf(Korreksjonsgrunn::class.java)
 
     @Enumerated(EnumType.STRING)
-    var status: Korreksjonstype = Korreksjonstype.UTKAST
+    override var status: Korreksjonstype = Korreksjonstype.UTKAST
 
     var kostnadssted: String? = null
 
@@ -126,7 +126,7 @@ class Korreksjon(
         ) ?: true
     }
 
-    fun tiltakstype(): Tiltakstype = refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype
+    override fun tiltakstype(): Tiltakstype = refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype
 
     // Ved positivt beløp, skal etterbetale
     fun utbetalKorreksjon(utførtAv: InnloggetBruker, kostnadssted: String) {

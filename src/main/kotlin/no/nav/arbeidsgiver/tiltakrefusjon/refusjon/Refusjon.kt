@@ -39,11 +39,11 @@ import java.time.LocalDateTime
 @Entity
 class Refusjon(
     @OneToOne(orphanRemoval = true, cascade = [CascadeType.ALL])
-    val refusjonsgrunnlag: Refusjonsgrunnlag,
-    val bedriftNr: String,
+    override val refusjonsgrunnlag: Refusjonsgrunnlag,
+    override val bedriftNr: String,
     @JsonIgnore
-    val deltakerFnr: String
-) : AbstractAggregateRoot<Refusjon>(), AuditerbarEntitet {
+    override val deltakerFnr: String
+) : AbstractAggregateRoot<Refusjon>(), AuditerbarEntitet, Refundering {
     constructor(
         tilskuddsgrunnlag: Tilskuddsgrunnlag,
         bedriftNr: String,
@@ -66,7 +66,7 @@ class Refusjon(
     var godkjentAvArbeidsgiver: Instant? = null
 
     @Enumerated(EnumType.STRING)
-    lateinit var status: RefusjonStatus
+    override lateinit var status: RefusjonStatus
 
     var korreksjonId: String? = null
 
@@ -111,7 +111,7 @@ class Refusjon(
     fun måTaStillingTilInntekter(): Boolean =
         !this.tiltakstype().harFastUtbetalingssum()
 
-    fun tiltakstype(): Tiltakstype = refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype
+    override fun tiltakstype(): Tiltakstype = refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype
 
     private fun krevStatus(vararg gyldigeStatuser: RefusjonStatus) {
         if (status !in gyldigeStatuser) throw FeilkodeException(Feilkode.UGYLDIG_STATUS)

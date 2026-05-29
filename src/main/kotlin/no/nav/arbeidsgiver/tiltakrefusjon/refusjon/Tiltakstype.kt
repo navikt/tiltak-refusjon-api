@@ -13,7 +13,7 @@ enum class Tiltakstype {
         VTAO, MENTOR -> true
     }
 
-    fun kanIkkeOverskride5g() = when (this) {
+    fun har5gBegrensning() = when (this) {
         VARIG_LONNSTILSKUDD, FIREARIG_LONNSTILSKUDD -> true
         MIDLERTIDIG_LONNSTILSKUDD, SOMMERJOBB, VTAO, MENTOR -> false
     }

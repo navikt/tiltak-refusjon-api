@@ -128,11 +128,7 @@ class RefusjonService(
      * Det betyr altså at hvis en deltaker har to varige lønnstilskudd hos en arbeidsgiver, så dekkes de av samme 5g-grense,
      * men ikke hvis deltakeren har varig lønnstilskudd i to forskjellige bedrifter.
      */
-    fun settTotalBeløpUtbetalteVarigLønnstilskudd(refundering: Refundering) {
-        // Litt knotete guard; skal kun oppdatere beløp for ubehandlede refunderinger på som har en 5g-grense.
-        if (refundering.status.isSendtInn() || !refundering.tiltakstype().kanIkkeOverskride5g()) {
-            return
-        }
+    fun totaltUtbetaltForTiltakMed5gBegrensning(refundering: Refundering): Int {
         val utbetalteRefusjoner =
             refusjonRepository.findAllByDeltakerFnrAndBedriftNrAndStatusInAndRefusjonsgrunnlag_Tilskuddsgrunnlag_Tiltakstype(
                 refundering.deltakerFnr,
@@ -150,23 +146,21 @@ class RefusjonService(
 
         val alleInnsendteRefusjonerOgKorreksjonerForTiltaket = (utbetalteRefusjoner + utbetalteKorreksjoner)
 
-        val alleUtbetalteForSammeAar = alleInnsendteRefusjonerOgKorreksjonerForTiltaket
+        val alleUtbetalteForSammeÅr: List<Refundering> = alleInnsendteRefusjonerOgKorreksjonerForTiltaket
             .filter { utbetaltRefundering ->
                 utbetaltRefundering.fraSammeÅrSom(refundering)
             }
 
-        val nyBeregnetSum = alleUtbetalteForSammeAar
+        val nyBeregnetSum = alleUtbetalteForSammeÅr
             .mapNotNull { it.refusjonsgrunnlag.beregning?.refusjonsbeløp }
             .sum()
 
         // Gammel sum ble beregnet av kun refusjoner, og status "utbetaling feilet" var ikke inkludert
-        val gammelBeregnetSum = alleUtbetalteForSammeAar
+        val gammelBeregnetSum = alleUtbetalteForSammeÅr
             .filterIsInstance<Refusjon>()
             .filter { it.status != RefusjonStatus.UTBETALING_FEILET }
             .mapNotNull { it.refusjonsgrunnlag.beregning?.refusjonsbeløp }
             .sum()
-
-        refundering.refusjonsgrunnlag.sumUtbetaltVarig = gammelBeregnetSum
 
         if (nyBeregnetSum != gammelBeregnetSum) {
             log.warn(
@@ -176,9 +170,11 @@ class RefusjonService(
                 refundering.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr,
                 nyBeregnetSum,
                 gammelBeregnetSum,
-                alleUtbetalteForSammeAar.any { it.status == RefusjonStatus.UTBETALING_FEILET },
-                alleUtbetalteForSammeAar.any { it is Korreksjon })
+                alleUtbetalteForSammeÅr.any { it.status == RefusjonStatus.UTBETALING_FEILET },
+                alleUtbetalteForSammeÅr.any { it is Korreksjon })
         }
+
+        return gammelBeregnetSum
     }
 
     fun gjørInntektsoppslag(refusjon: Refusjon, utførtAv: InnloggetBruker) {
@@ -353,7 +349,9 @@ class RefusjonService(
         // Ikke sett minusbeløp på allerede sendt inn refusjoner
         if (!refusjon.status.isSendtInn()) {
             settMinusBeløpFraTidligereRefusjonerTilknyttetAvtalen(refusjon)
-            settTotalBeløpUtbetalteVarigLønnstilskudd(refusjon)
+            if (refusjon.tiltakstype().har5gBegrensning()) {
+                refusjon.refusjonsgrunnlag.sumUtbetaltVarig = totaltUtbetaltForTiltakMed5gBegrensning(refusjon)
+            }
             settOmFerieErTrukketForSammeMåned(refusjon)
             oppdaterSistEndret(refusjon)
             gjørBeregning(refusjon, utførtAv)

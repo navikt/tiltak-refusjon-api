@@ -20,7 +20,7 @@ enum class RefusjonStatus : RefunderingStatus {
     fun ansesSomUtbetalt() = when (this) {
         KLAR_FOR_INNSENDING, FOR_TIDLIG, ANNULLERT, GODKJENT_MINUSBELØP, KORRIGERT, UTGÅTT -> false
         SENDT_KRAV, UTBETALT, GODKJENT_NULLBELØP -> true
-        // Feilede utbetalinger kan bli rettet opp i utenfor refusjonsløsningen og må derfor anses som utbetalt
+        // Feilede utbetalinger kan bli rettet opp i Oebs og må derfor anses som utbetalt
         UTBETALING_FEILET -> true
     }
 }

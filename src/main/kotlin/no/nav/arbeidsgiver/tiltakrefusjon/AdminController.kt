@@ -15,6 +15,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonRepository
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonStatus
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.StatusJobb
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.beregnRefusjonsbeløp
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonEndretStatus
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonUtgått
@@ -37,6 +38,8 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.time.LocalDate
+import kotlin.time.measureTime
+import kotlin.time.measureTimedValue
 
 @ProtectedWithClaims(issuer = "azure-access-token", claimMap = ["groups=fb516b74-0f2e-4b62-bad8-d70b82c3ae0b"])
 @RestController
@@ -300,6 +303,35 @@ class AdminController(
     @Transactional
     fun rapportOmUbetalteRefusjoner() {
         ubetaltRefusjonRapport.loggUbetalteRefusjoner()
+    }
+
+    @PostMapping("finn-avvik-i-ny-5g-beregning")
+    fun finnAvvikINy5gBeregning() {
+        val alleredeSjekketTiltaksdeltakelse = HashSet<Map<String, String>>()
+        val totalTid = measureTime {
+            val refusjoner = refusjonRepository.findAllByStatusInAndRefusjonsgrunnlagTilskuddsgrunnlagTiltakstypeIn(
+                RefusjonStatus.entries.filterNot { it.isSendtInn() },
+                Tiltakstype.entries.filter { it.har5gBegrensning() }
+            )
+            logger.info("Antall 5g-refusjoner som ikke er sendt inn: {}", refusjoner.size)
+            refusjoner.forEach {
+                val bleLagtTil = alleredeSjekketTiltaksdeltakelse.add(
+                    mapOf(
+                        "deltaker" to it.deltakerFnr,
+                        "bedrift" to it.bedriftNr,
+                        "tiltakstype" to it.tiltakstype().name
+                    )
+                )
+                if (bleLagtTil) {
+                    logger.info("Sjekk sum utbetalt for refusjon {}", it.id)
+                    val tidBrukt = measureTime {
+                        refusjonService.totaltUtbetaltForTiltakMed5gBegrensning(it)
+                    }
+                    logger.info("Tid brukt for beregning av refusjon {} (ms): {}", it.id, tidBrukt.inWholeMilliseconds)
+                }
+            }
+        }
+        logger.info("Total tid brukt for 5g-beregning av {} refusjoner (ms): {}", alleredeSjekketTiltaksdeltakelse.size, totalTid.inWholeMilliseconds)
     }
 }
 

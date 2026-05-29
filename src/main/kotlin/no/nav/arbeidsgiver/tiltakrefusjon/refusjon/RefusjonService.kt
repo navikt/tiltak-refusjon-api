@@ -34,7 +34,6 @@ class RefusjonService(
     private val applicationEventPublisher: ApplicationEventPublisher,
     private val grunnbelopService: GrunnbelopService,
 ) {
-    private val behandledeKorreksjoner: List<Korreksjonstype> = Korreksjonstype.entries.filter { it.isSendtInn() }
     val log: Logger = LoggerFactory.getLogger(javaClass)
 
     fun opprettRefusjon(tilskuddsperiodeGodkjentMelding: TilskuddsperiodeGodkjentMelding): Refusjon? {
@@ -116,6 +115,12 @@ class RefusjonService(
     }
 
     /**
+     * Refusjoner som går i minus skal ikke regnes med, feks ved beregning av "totalt utbetalt"
+     */
+    private val utbetalteRefusjonsstatuser: List<RefusjonStatus> = RefusjonStatus.entries.filter { it.ansesSomUtbetalt() }
+    private val behandledeKorreksjoner: List<Korreksjonstype> = Korreksjonstype.entries.filter { it.isSendtInn() }
+
+    /**
      * Forskrift sier at "refusjonen kan ikke overstige 5 ganger grunnbeløp per år". Dette har vi tolket til å bety
      * at 5g-grensen gjelder for en deltaker ansatt i en spesifikk bedrift på en spesifikk type tiltak.
      * Altså skal summen gjelde **på tvers** av avtalene som en person har i en bedrift (i normaltilfeller skal dette være bare en avtale).
@@ -132,7 +137,7 @@ class RefusjonService(
             refusjonRepository.findAllByDeltakerFnrAndBedriftNrAndStatusInAndRefusjonsgrunnlag_Tilskuddsgrunnlag_Tiltakstype(
                 refundering.deltakerFnr,
                 refundering.bedriftNr,
-                listOf(RefusjonStatus.UTBETALT, RefusjonStatus.SENDT_KRAV),
+                utbetalteRefusjonsstatuser,
                 refundering.tiltakstype()
             )
         val utbetalteKorreksjoner =
@@ -150,12 +155,29 @@ class RefusjonService(
                 utbetaltRefundering.fraSammeÅrSom(refundering)
             }
 
-        // Dersom ingen refunderinger eksisterer ønsker vi å beholde "null"-verdi i feltet
-        if (alleUtbetalteForSammeAar.isNotEmpty()) {
-            refundering.refusjonsgrunnlag.sumUtbetaltVarig =
-                alleUtbetalteForSammeAar.sumOf { utbetaltRefundering ->
-                    utbetaltRefundering.refusjonsgrunnlag.beregning?.refusjonsbeløp ?: 0
-                }
+        val nyBeregnetSum = alleUtbetalteForSammeAar
+            .mapNotNull { it.refusjonsgrunnlag.beregning?.refusjonsbeløp }
+            .sum()
+
+        // Gammel sum ble beregnet av kun refusjoner, og status "utbetaling feilet" var ikke inkludert
+        val gammelBeregnetSum = alleUtbetalteForSammeAar
+            .filterIsInstance<Refusjon>()
+            .filter { it.status != RefusjonStatus.UTBETALING_FEILET }
+            .mapNotNull { it.refusjonsgrunnlag.beregning?.refusjonsbeløp }
+            .sum()
+
+        refundering.refusjonsgrunnlag.sumUtbetaltVarig = gammelBeregnetSum
+
+        if (nyBeregnetSum != gammelBeregnetSum) {
+            log.warn(
+                "Ny beregning for totalt utbetalt for tiltak avviker fra gammel beregning. Avtalenr: {}," +
+                        "ny sum: {}, gammel sum: {}. Har feilede refusjonsutbetalinger: {}," +
+                        "har korreksjoner: {}",
+                refundering.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr,
+                nyBeregnetSum,
+                gammelBeregnetSum,
+                alleUtbetalteForSammeAar.any { it.status == RefusjonStatus.UTBETALING_FEILET },
+                alleUtbetalteForSammeAar.any { it is Korreksjon })
         }
     }
 
@@ -232,7 +254,7 @@ class RefusjonService(
         val alleRefusjonerSomSkalSendesInn =
             refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_AvtaleNrAndStatusIn(
                 refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr,
-                listOf(RefusjonStatus.FOR_TIDLIG, RefusjonStatus.KLAR_FOR_INNSENDING)
+                RefusjonStatus.entries.filterNot { it.isSendtInn() }
             )
         alleRefusjonerSomSkalSendesInn.forEach {
             if (it.id != refusjon.id) {

@@ -245,7 +245,7 @@ class RefusjonService(
         val alleRefusjonerSomSkalSendesInn =
             refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_AvtaleNrAndStatusIn(
                 refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr,
-                RefusjonStatus.entries.filterNot { it.isSendtInn() }
+                RefusjonStatus.entries.filter { it.isUbehandlet() }
             )
         alleRefusjonerSomSkalSendesInn.forEach {
             if (it.id != refusjon.id) {
@@ -325,7 +325,7 @@ class RefusjonService(
     }
 
     fun settOmFerieErTrukketForSammeMåned(refusjon: Refusjon) {
-        if (!refusjon.status.isSendtInn()) {
+        if (refusjon.status.isUbehandlet()) {
             val statuser = listOf(RefusjonStatus.UTBETALT, RefusjonStatus.SENDT_KRAV, RefusjonStatus.GODKJENT_MINUSBELØP, RefusjonStatus.GODKJENT_NULLBELØP)
             refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_AvtaleNrAndStatusIn(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr, statuser)
                 .filter { YearMonth.from(it.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom) == YearMonth.from(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom) }
@@ -342,7 +342,7 @@ class RefusjonService(
     fun oppdaterRefusjon(refusjon: Refusjon, utførtAv: InnloggetBruker) {
         log.info("Oppdaterer refusjon ${refusjon.id} med data")
         // Ikke oppdater tallgrunnlag på innsendte refusjoner
-        if (!refusjon.status.isSendtInn()) {
+        if (refusjon.status.isUbehandlet()) {
             settMinusbeløpFraTidligereRefusjonerTilknyttetAvtalen(refusjon)
             if (refusjon.tiltakstype().har5gBegrensning()) {
                 refusjon.refusjonsgrunnlag.sumUtbetaltVarig = totaltUtbetaltForTiltakMed5gBegrensning(refusjon)

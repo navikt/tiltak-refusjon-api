@@ -13,7 +13,7 @@ class PoaoTilgangServiceFake : PoaoTilgangService {
     )
 
     override fun harSkrivetilgang(beslutterAzureUUID: UUID, fnr: Fnr) = if (deny.contains(fnr)) {
-        Tilgang.Avvis(Avslagskode.entries.random(), "Ingen tilgang")
+        Tilgang.Avvis(Avslagskode.entries.random())
     } else {
         Tilgang.Tillat()
     }

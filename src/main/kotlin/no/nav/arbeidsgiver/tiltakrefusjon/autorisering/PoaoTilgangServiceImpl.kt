@@ -42,11 +42,11 @@ class PoaoTilgangServiceImpl(
             return if (decision?.isPermit == true) {
                 Tilgang.Tillat()
             } else {
-                Tilgang.Avvis(Avslagskode.parse(decision), (decision as Deny).message)
+                Tilgang.Avvis(Avslagskode.parse(decision))
             }
         } catch (e: Exception) {
             log.error("Feil ved tilgangskontroll-sjekk", e)
-            return Tilgang.Avvis(Avslagskode.INGEN_RESPONS, "Ingen respons fra POAO-tilgang")
+            return Tilgang.Avvis(Avslagskode.INGEN_RESPONS)
         }
     }
 

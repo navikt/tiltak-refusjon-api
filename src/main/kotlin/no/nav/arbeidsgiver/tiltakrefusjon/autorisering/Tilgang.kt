@@ -9,7 +9,7 @@ interface Tilgang {
         }
     }
 
-    class Avvis(val tilgangskode: Avslagskode?, val melding: String?) : Tilgang {
+    class Avvis(val tilgangskode: Avslagskode?) : Tilgang {
         override fun erTillat(): Boolean {
             return false
         }

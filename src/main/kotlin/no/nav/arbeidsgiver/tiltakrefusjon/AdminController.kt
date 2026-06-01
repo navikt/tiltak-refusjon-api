@@ -313,7 +313,7 @@ class AdminController(
                 RefusjonStatus.entries.filter { it.isUbehandlet() },
                 Tiltakstype.entries.filter { it.har5gBegrensning() }
             )
-            logger.info("Antall 5g-refusjoner som ikke er sendt inn: {}", refusjoner.size)
+            logger.info("Antall 5g-refusjoner som er ubehandlet: {}", refusjoner.size)
             refusjoner.forEach {
                 val bleLagtTil = alleredeSjekketTiltaksdeltakelse.add(
                     mapOf(

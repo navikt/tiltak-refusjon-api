@@ -14,8 +14,9 @@ import org.springframework.web.filter.OncePerRequestFilter
 class RequestDebugFilter: OncePerRequestFilter() {
     val log = LoggerFactory.getLogger(javaClass)
     override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain) {
-        if (request.getHeader("if-unmodified-since") != null) {
-            log.info("if-unmodified-since fra header: ${request.getHeader("if-unmodified-since")}")
+        val ifUnmodifiedSince = request.getHeader("if-unmodified-since")
+        if (ifUnmodifiedSince != null && ifUnmodifiedSince != "") {
+            log.info("if-unmodified-since fra header: $ifUnmodifiedSince")
         }
         filterChain.doFilter(request, response)
     }

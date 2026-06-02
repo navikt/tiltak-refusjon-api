@@ -310,10 +310,10 @@ class AdminController(
         val alleredeSjekketTiltaksdeltakelse = HashSet<Map<String, String>>()
         val totalTid = measureTime {
             val refusjoner = refusjonRepository.findAllByStatusInAndRefusjonsgrunnlagTilskuddsgrunnlagTiltakstypeIn(
-                RefusjonStatus.entries.filterNot { it.isSendtInn() },
+                RefusjonStatus.entries.filter { it.isUbehandlet() },
                 Tiltakstype.entries.filter { it.har5gBegrensning() }
             )
-            logger.info("Antall 5g-refusjoner som ikke er sendt inn: {}", refusjoner.size)
+            logger.info("Antall 5g-refusjoner som er ubehandlet: {}", refusjoner.size)
             refusjoner.forEach {
                 val bleLagtTil = alleredeSjekketTiltaksdeltakelse.add(
                     mapOf(

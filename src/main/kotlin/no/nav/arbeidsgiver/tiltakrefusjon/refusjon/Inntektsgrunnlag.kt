@@ -13,12 +13,12 @@ import java.time.LocalDateTime
 @Entity
 data class Inntektsgrunnlag(
         @OneToMany(mappedBy = "inntektsgrunnlag", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
-        val inntekter: Set<Inntektslinje>,
+        val inntekter: MutableSet<Inntektslinje>,
         @JsonIgnore
         val respons: String?,
 ) {
     val bruttoLønn: Double? = inntekter.filter { it.erMedIInntektsgrunnlag() }.sumOf { it.beløp }
-    constructor(inntekter: List<Inntektslinje>, respons: String?) : this(inntekter.toSet(), respons)
+    constructor(inntekter: List<Inntektslinje>, respons: String?) : this(inntekter.toMutableSet(), respons)
 
     @Id
     val id: String = ulid()

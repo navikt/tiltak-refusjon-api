@@ -341,7 +341,7 @@ class RefusjonService(
 
     fun oppdaterRefusjon(refusjon: Refusjon, utførtAv: InnloggetBruker) {
         log.info("Oppdaterer refusjon ${refusjon.id} med data")
-        // Skal kun mutere refusjonsgrunnalget for refusjoner som skal sendes inn
+        // Skal kun mutere refusjonsgrunnlaget for refusjoner som skal sendes inn
         if (refusjon.status.isUbehandlet()) {
             settMinusbeløpFraTidligereRefusjonerTilknyttetAvtalen(refusjon)
             if (refusjon.tiltakstype().har5gBegrensning()) {

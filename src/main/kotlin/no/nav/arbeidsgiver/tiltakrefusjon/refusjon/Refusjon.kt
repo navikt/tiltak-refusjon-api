@@ -82,6 +82,7 @@ class Refusjon(
     @OneToOne(orphanRemoval = true, cascade = [CascadeType.ALL])
     var minusbelop: Minusbelop? = null
     var sistEndret: Instant? = null
+    val opprettetTidspunkt: Instant? = Instant.now()
 
     init {
         oppdaterStatus()

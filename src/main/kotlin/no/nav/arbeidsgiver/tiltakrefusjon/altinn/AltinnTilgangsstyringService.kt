@@ -68,12 +68,6 @@ class AltinnTilgangsstyringService(
         return response
     }
 
-    private fun getAuthHeadersForAltinn(): HttpEntity<HttpHeaders?> {
-        val headers = HttpHeaders()
-        headers["APIKEY"] = altinnTilgangsstyringProperties.altinnApiKey
-        return HttpEntity(headers)
-    }
-
     fun hentAdressesperreTilganger(): Set<Organisasjon> {
         val altinnTilgangerRequest = AltinnTilgangerRequest(
             filter = Filter(

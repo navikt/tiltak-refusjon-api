@@ -9,8 +9,6 @@ import java.net.URI
 data class AltinnTilgangsstyringProperties(
     /** URI til Team Fager sitt api som støtter både Altinn 3 og 2: https://github.com/navikt/arbeidsgiver-altinn-tilganger */
     var arbeidsgiverAltinnTilgangerUri: URI = URI(""),
-    var altinnApiKey: String = "",
-    var beOmRettighetBaseUrl: String = "",
     var inntektsmeldingServiceCode: Int = 0,
     var inntektsmeldingServiceEdition: Int = 0,
     var antall: Int = 500,

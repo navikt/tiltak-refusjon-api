@@ -19,6 +19,11 @@ class CacheConfig {
                 FEM_G,
                 1,
                 Duration.ofDays(2)
+            ),
+            CacheDefinition(
+                ALTINN_3_CACHE,
+                500,
+                Duration.ofMinutes(5)
             )
         ).forEach{
             cacheManager.registerCustomCache(it.name, Caffeine.newBuilder()
@@ -37,3 +42,4 @@ class CacheConfig {
 }
 
 const val FEM_G = "fem-g-cache"
+const val ALTINN_3_CACHE = "ALTINN_3_CACHE"

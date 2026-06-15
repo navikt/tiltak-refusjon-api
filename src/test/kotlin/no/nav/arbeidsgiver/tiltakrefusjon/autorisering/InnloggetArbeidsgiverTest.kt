@@ -84,15 +84,12 @@ internal class InnloggetArbeidsgiverTest(
             organisasjon.organizationForm,
         )
         every { persondataService.hentDiskresjonskode(any()) } returns Diskresjonskode.UGRADERT
-        every { altinnTilgangsstyringService.hentAdressesperreTilganger() } returns setOf<Organisasjon>(
+        every { altinnTilgangsstyringService.hentAdressesperreTilganger(eq("16120102137")) } returns setOf<Organisasjon>(
             organisasjon
         )
         every {
-            altinnTilgangsstyringService.hentInntektsmeldingEllerRefusjonTilganger()
+            altinnTilgangsstyringService.hentInntektsmeldingEllerRefusjonTilganger(eq("16120102137"))
         } returns setOf<Organisasjon>(
-            organisasjon
-        )
-        every { altinnTilgangsstyringService.hentInntektsmeldingEllerRefusjonTilganger() } returns setOf<Organisasjon>(
             organisasjon
         )
     }
@@ -801,10 +798,10 @@ internal class InnloggetArbeidsgiverTest(
         )
         val refusjon = refusjonService.opprettRefusjon(melding)!!
 
-        every { altinnTilgangsstyringService.hentInntektsmeldingEllerRefusjonTilganger() } returns setOf(
+        every { altinnTilgangsstyringService.hentInntektsmeldingEllerRefusjonTilganger(eq("16120102137")) } returns setOf(
             Organisasjon("", "", bedriftNr, "", "")
         )
-        every { altinnTilgangsstyringService.hentAdressesperreTilganger() } returns emptySet()
+        every { altinnTilgangsstyringService.hentAdressesperreTilganger(eq("16120102137")) } returns emptySet()
         every { persondataService.hentDiskresjonskode(deltakerFnr) } returns Diskresjonskode.STRENGT_FORTROLIG
 
         val innlogget = InnloggetArbeidsgiver(
@@ -824,7 +821,7 @@ internal class InnloggetArbeidsgiverTest(
         val periode1start = Now.localDate().minusMonths(4).with(TemporalAdjusters.firstDayOfMonth());
         val periode1slutt = Now.localDate().minusMonths(4).with(TemporalAdjusters.lastDayOfMonth());
 
-        every { altinnTilgangsstyringService.hentAdressesperreTilganger() } returns setOf(
+        every { altinnTilgangsstyringService.hentAdressesperreTilganger(eq("16120102137")) } returns setOf(
             Organisasjon("", "", "999999999", "", "")
         )
         every { persondataService.hentDiskresjonskode(deltakerFnr) } returns Diskresjonskode.FORTROLIG

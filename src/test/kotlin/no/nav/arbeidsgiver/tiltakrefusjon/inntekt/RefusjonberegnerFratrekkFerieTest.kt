@@ -299,9 +299,9 @@ class RefusjonberegnerFratrekkFerieTest(
     @Test
     fun `trekk i lønn for ferie skal ikke trekkes på 2 refusjoner for samme måned`() {
         every {
-            altinnTilgangsstyringService.hentInntektsmeldingEllerRefusjonTilganger()
+            altinnTilgangsstyringService.hentInntektsmeldingEllerRefusjonTilganger(eq("12345678901"))
         } returns setOf<Organisasjon>(defaultOrg)
-        every { altinnTilgangsstyringService.hentAdressesperreTilganger() } returns setOf<Organisasjon>(defaultOrg)
+        every { altinnTilgangsstyringService.hentAdressesperreTilganger(eq("12345678901")) } returns setOf<Organisasjon>(defaultOrg)
         every { persondataService.hentDiskresjonskode(any()) } returns Diskresjonskode.UGRADERT
         val innloggetArbeidsgiver = InnloggetArbeidsgiver(
             "12345678901",
@@ -356,9 +356,9 @@ class RefusjonberegnerFratrekkFerieTest(
     @Test
     fun `feil med feriepenger_FAGSYSTEM-339222`() {
         every {
-            altinnTilgangsstyringService.hentInntektsmeldingEllerRefusjonTilganger()
+            altinnTilgangsstyringService.hentInntektsmeldingEllerRefusjonTilganger(eq("12345678901"))
         } returns setOf<Organisasjon>(defaultOrg)
-        every { altinnTilgangsstyringService.hentAdressesperreTilganger() } returns setOf(defaultOrg)
+        every { altinnTilgangsstyringService.hentAdressesperreTilganger(eq("12345678901")) } returns setOf(defaultOrg)
         val innloggetArbeidsgiver = InnloggetArbeidsgiver(
             "12345678901",
             altinnTilgangsstyringService,

@@ -16,6 +16,8 @@ class AltinnTilgangsstyringService(
     val restTemplateAltinn3: RestTemplate
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
+    private val ALTINN_2_ADRESSESPERRE = "${altinnTilgangsstyringProperties.adressesperreServiceCode}:${altinnTilgangsstyringProperties.adressesperreServiceEdition}"
+    private val ALTINN_3_ADRESSESPERRE = "nav_tiltak_adressesperre"
 
     fun hentInntektsmeldingEllerRefusjonTilganger(): Set<Organisasjon> {
         return heltAltinnTilganger().tilGammeltFormat().apply {
@@ -54,7 +56,7 @@ class AltinnTilgangsstyringService(
 
     fun hentAdressesperreTilganger(): Set<Organisasjon> {
         return heltAltinnTilganger()
-            .filter { it.altinn3Tilganger.contains("nav_tiltak_adressesperre") }
+            .filter { it.altinn3Tilganger.contains(ALTINN_3_ADRESSESPERRE) || it.altinn2Tilganger.contains(ALTINN_2_ADRESSESPERRE) }
             .tilGammeltFormat()
             .apply {
                 logger.debug("Adressesperre-tilganger for arbeidsgiver: {}", this.size)

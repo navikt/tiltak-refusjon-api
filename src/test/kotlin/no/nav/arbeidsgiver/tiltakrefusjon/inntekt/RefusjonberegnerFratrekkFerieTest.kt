@@ -298,8 +298,6 @@ class RefusjonberegnerFratrekkFerieTest(
 
     @Test
     fun `trekk i lønn for ferie skal ikke trekkes på 2 refusjoner for samme måned`() {
-        every { altinnTilgangsstyringService.altinnTilgangsstyringProperties.inntektsmeldingServiceCode } returns 4936
-        every { altinnTilgangsstyringService.altinnTilgangsstyringProperties.inntektsmeldingServiceEdition } returns 1
         every {
             altinnTilgangsstyringService.hentInntektsmeldingEllerRefusjonTilganger()
         } returns setOf<Organisasjon>(defaultOrg)
@@ -357,8 +355,6 @@ class RefusjonberegnerFratrekkFerieTest(
 
     @Test
     fun `feil med feriepenger_FAGSYSTEM-339222`() {
-        every { altinnTilgangsstyringService.altinnTilgangsstyringProperties.inntektsmeldingServiceCode } returns 4936
-        every { altinnTilgangsstyringService.altinnTilgangsstyringProperties.inntektsmeldingServiceEdition } returns 1
         every {
             altinnTilgangsstyringService.hentInntektsmeldingEllerRefusjonTilganger()
         } returns setOf<Organisasjon>(defaultOrg)

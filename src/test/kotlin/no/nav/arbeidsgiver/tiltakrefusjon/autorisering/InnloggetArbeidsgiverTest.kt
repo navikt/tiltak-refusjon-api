@@ -83,8 +83,6 @@ internal class InnloggetArbeidsgiverTest(
             organisasjon.name,
             organisasjon.organizationForm,
         )
-        every { altinnTilgangsstyringService.altinnTilgangsstyringProperties.inntektsmeldingServiceCode } returns 4936
-        every { altinnTilgangsstyringService.altinnTilgangsstyringProperties.inntektsmeldingServiceEdition } returns 1
         every { persondataService.hentDiskresjonskode(any()) } returns Diskresjonskode.UGRADERT
         every { altinnTilgangsstyringService.hentAdressesperreTilganger() } returns setOf<Organisasjon>(
             organisasjon

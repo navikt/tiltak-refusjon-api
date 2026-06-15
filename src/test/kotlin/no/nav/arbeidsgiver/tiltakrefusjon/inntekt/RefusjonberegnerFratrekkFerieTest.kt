@@ -301,13 +301,10 @@ class RefusjonberegnerFratrekkFerieTest(
         every { altinnTilgangsstyringService.altinnTilgangsstyringProperties.inntektsmeldingServiceCode } returns 4936
         every { altinnTilgangsstyringService.altinnTilgangsstyringProperties.inntektsmeldingServiceEdition } returns 1
         every {
-            altinnTilgangsstyringService.hentInntektsmeldingTilganger(
-                any()
-            )
+            altinnTilgangsstyringService.hentInntektsmeldingEllerRefusjonTilganger()
         } returns setOf<Organisasjon>(defaultOrg)
-        every { altinnTilgangsstyringService.hentAdressesperreTilganger(any()) } returns setOf<Organisasjon>(defaultOrg)
+        every { altinnTilgangsstyringService.hentAdressesperreTilganger() } returns setOf<Organisasjon>(defaultOrg)
         every { persondataService.hentDiskresjonskode(any()) } returns Diskresjonskode.UGRADERT
-        every { altinnTilgangsstyringService.hentInntektsmeldingEllerRefusjonTilganger() } returns setOf<Organisasjon>(defaultOrg)
         val innloggetArbeidsgiver = InnloggetArbeidsgiver(
             "12345678901",
             altinnTilgangsstyringService,
@@ -363,12 +360,9 @@ class RefusjonberegnerFratrekkFerieTest(
         every { altinnTilgangsstyringService.altinnTilgangsstyringProperties.inntektsmeldingServiceCode } returns 4936
         every { altinnTilgangsstyringService.altinnTilgangsstyringProperties.inntektsmeldingServiceEdition } returns 1
         every {
-            altinnTilgangsstyringService.hentInntektsmeldingTilganger(
-                any()
-            )
+            altinnTilgangsstyringService.hentInntektsmeldingEllerRefusjonTilganger()
         } returns setOf<Organisasjon>(defaultOrg)
-        every { altinnTilgangsstyringService.hentAdressesperreTilganger(any()) } returns setOf(defaultOrg)
-        every { altinnTilgangsstyringService.hentInntektsmeldingEllerRefusjonTilganger() } returns setOf<Organisasjon>(defaultOrg)
+        every { altinnTilgangsstyringService.hentAdressesperreTilganger() } returns setOf(defaultOrg)
         val innloggetArbeidsgiver = InnloggetArbeidsgiver(
             "12345678901",
             altinnTilgangsstyringService,

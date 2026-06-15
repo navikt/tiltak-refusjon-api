@@ -1,89 +1,37 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.altinn
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.flatUtHierarki
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpMethod
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.postForObject
-import org.springframework.web.util.UriComponentsBuilder
 
 @Service
 class AltinnTilgangsstyringService(
     val altinnTilgangsstyringProperties: AltinnTilgangsstyringProperties,
-    @Qualifier("påVegneAvArbeidsgiverAltinnRestTemplate")
-    val restTemplate: RestTemplate,
     @Qualifier("påVegneAvArbeidsgiverAltinn3RestTemplate")
     val restTemplateAltinn3: RestTemplate
 ) {
-    private val objectMapper: ObjectMapper = ObjectMapper()
     private val logger = LoggerFactory.getLogger(javaClass)
-
-    // URL-strengen har to "uri-variabler": fnr og skip
-    private val altinnUrlString: String = UriComponentsBuilder.fromUri(altinnTilgangsstyringProperties.uri)
-        .queryParam("ForceEIAuthentication")
-        .queryParam("subject", "{fnr}")
-        .queryParam("serviceCode", "{serviceCode}")
-        .queryParam("serviceEdition", "{serviceEdition}")
-        .queryParam("\$top", altinnTilgangsstyringProperties.antall)
-        .queryParam("\$skip", "{skip}")
-        .queryParam("\$filter", "Type+ne+'Person'+and+Status+eq+'Active'")
-        .build()
-        .toUriString()
-
-    private fun hentTilganger(
-        fnr: String,
-        serviceCode: Int,
-        serviceEdition: Int
-    ): Set<Organisasjon> {
-        val organisasjoner = HashSet<Organisasjon>()
-        var merÅHente = true
-        var i = 0;
-        while (merÅHente) {
-            val skip = altinnTilgangsstyringProperties.antall * i++
-            val nyeOrg = hentFraAltinn(fnr, skip, serviceCode, serviceEdition)
-            organisasjoner.addAll(nyeOrg)
-            merÅHente = nyeOrg.size >= altinnTilgangsstyringProperties.antall
-        }
-        return organisasjoner
-    }
+    private val ALTINN_2_ADRESSESPERRE = "${altinnTilgangsstyringProperties.adressesperreServiceCode}:${altinnTilgangsstyringProperties.adressesperreServiceEdition}"
+    private val ALTINN_3_ADRESSESPERRE = "nav_tiltak_adressesperre"
 
     fun hentInntektsmeldingEllerRefusjonTilganger(): Set<Organisasjon> {
+        return heltAltinnTilganger().tilGammeltFormat()
+    }
+
+    fun heltAltinnTilganger(): List<AltinnTilgang> {
         val altinnTilgangerRequest = AltinnTilgangerRequest(
             filter = Filter(
                 altinn3Tilganger = setOf("nav_tiltak_tiltaksrefusjon"),
                 inkluderSlettede = false
             )
         )
-
         val response = kallAltinn3(altinnTilgangerRequest)
-        val løvnoderOgParents = flatUtHierarki(response)
-        val organisasjonerPåGammeltFormat = løvnoderOgParents.flatMap { org ->
-            listOf(Organisasjon(
-                organizationNumber = org.orgnr,
-                name = org.navn,
-                organizationForm = org.organisasjonsform,
-                type = "Enterprise",
-                status = if (org.erSlettet) "Inactive" else "Active",
-                parentOrganizationNumber = null
-            )) + org.underenheter.map { underenhet ->
-                Organisasjon(
-                    organizationNumber = underenhet.orgnr,
-                    name = underenhet.navn,
-                    organizationForm = underenhet.organisasjonsform,
-                    type = "Business",
-                    status = if (underenhet.erSlettet) "Inactive" else "Active",
-                    parentOrganizationNumber = org.orgnr
-                )
-            }
-        }
-        return organisasjonerPåGammeltFormat.toSet()
+        return flatUtHierarki(response)
     }
 
     fun kallAltinn3(altinnTilgangerRequest: AltinnTilgangerRequest): List<AltinnTilgang> {
@@ -99,55 +47,32 @@ class AltinnTilgangsstyringService(
         return response
     }
 
-    fun hentInntektsmeldingTilganger(fnr: String): Set<Organisasjon> {
-        val organisasjoner = hentTilganger(
-            fnr,
-            serviceCode = altinnTilgangsstyringProperties.inntektsmeldingServiceCode,
-            serviceEdition = altinnTilgangsstyringProperties.inntektsmeldingServiceEdition
-        )
-        return organisasjoner
+    fun hentAdressesperreTilganger(): Set<Organisasjon> {
+        return heltAltinnTilganger()
+            .filter { it.altinn3Tilganger.contains(ALTINN_3_ADRESSESPERRE) || it.altinn2Tilganger.contains(ALTINN_2_ADRESSESPERRE) }
+            .tilGammeltFormat()
     }
-
-
-    fun hentAdressesperreTilganger(fnr: String): Set<Organisasjon> {
-        val organisasjoner = hentTilganger(
-            fnr,
-            serviceCode = altinnTilgangsstyringProperties.adressesperreServiceCode,
-            serviceEdition = altinnTilgangsstyringProperties.adressesperreServiceEdition
-        )
-        return organisasjoner
-    }
-
-    private fun hentFraAltinn(
-        fnr: String,
-        skip: Int,
-        serviceCode: Int,
-        serviceEdition: Int
-    ): Set<Organisasjon> {
-        try {
-            return restTemplate.exchange(
-                altinnUrlString,
-                HttpMethod.GET,
-                getAuthHeadersForAltinn(),
-                Array<Organisasjon>::class.java,
-                mapOf(
-                    "fnr" to fnr,
-                    "skip" to skip,
-                    "serviceCode" to serviceCode,
-                    "serviceEdition" to serviceEdition
-                )
-            ).body?.toSet()
-                ?: return emptySet()
-        } catch (exception: RuntimeException) {
-            logger.error("Feil med Altinn", exception)
-            throw FeilkodeException(Feilkode.ALTINN)
-        }
-    }
-
-    private fun getAuthHeadersForAltinn(): HttpEntity<HttpHeaders?> {
-        val headers = HttpHeaders()
-        headers["APIKEY"] = altinnTilgangsstyringProperties.altinnApiKey
-        return HttpEntity(headers)
-    }
-
 }
+
+private fun List<AltinnTilgang>.tilGammeltFormat(): Set<Organisasjon> =
+    this.flatMap { org ->
+        listOf(
+            Organisasjon(
+                organizationNumber = org.orgnr,
+                name = org.navn,
+                organizationForm = org.organisasjonsform,
+                type = "Enterprise",
+                status = if (org.erSlettet) "Inactive" else "Active",
+                parentOrganizationNumber = null
+            )
+        ) + org.underenheter.map { underenhet ->
+            Organisasjon(
+                organizationNumber = underenhet.orgnr,
+                name = underenhet.navn,
+                organizationForm = underenhet.organisasjonsform,
+                type = "Business",
+                status = if (underenhet.erSlettet) "Inactive" else "Active",
+                parentOrganizationNumber = org.orgnr
+            )
+        }
+    }.toSet()

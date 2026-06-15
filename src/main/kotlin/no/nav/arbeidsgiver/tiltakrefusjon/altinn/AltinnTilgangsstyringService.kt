@@ -20,8 +20,8 @@ class AltinnTilgangsstyringService(
     private val ALTINN_3_ADRESSESPERRE = "nav_tiltak_adressesperre"
 
     fun hentInntektsmeldingEllerRefusjonTilganger(): Set<Organisasjon> {
-        return heltAltinnTilganger().tilGammeltFormat().apply {
-            logger.debug("Refusjon-tilganger for arbeidsgiver: {}", this.size)
+        return heltAltinnTilganger().tilGammeltFormat().also {
+            logger.debug("Refusjon-tilganger for arbeidsgiver: {}", it.size)
         }
     }
 
@@ -35,8 +35,8 @@ class AltinnTilgangsstyringService(
         val response = kallAltinn3(altinnTilgangerRequest)
         logger.debug("Respons fra altinn: {}", response)
         val løvnoderOgParents = flatUtHierarki(response)
-        return løvnoderOgParents.apply {
-            logger.debug("Altinn-tilganger for arbeidsgiver: {}", this.size)
+        return løvnoderOgParents.also {
+            logger.debug("Altinn-tilganger for arbeidsgiver: {}", it.size)
         }
     }
 
@@ -57,8 +57,8 @@ class AltinnTilgangsstyringService(
         return heltAltinnTilganger()
             .filter { it.altinn3Tilganger.contains(ALTINN_3_ADRESSESPERRE) || it.altinn2Tilganger.contains(ALTINN_2_ADRESSESPERRE) }
             .tilGammeltFormat()
-            .apply {
-                logger.debug("Adressesperre-tilganger for arbeidsgiver: {}", this.size)
+            .also {
+                logger.debug("Adressesperre-tilganger for arbeidsgiver: {}", it.size)
             }
     }
 

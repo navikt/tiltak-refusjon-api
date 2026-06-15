@@ -31,7 +31,6 @@ class AltinnTilgangsstyringService(
             )
         )
         val response = kallAltinn3(altinnTilgangerRequest)
-        logger.debug("Respons fra altinn: {}", response)
         return flatUtHierarki(response)
     }
 

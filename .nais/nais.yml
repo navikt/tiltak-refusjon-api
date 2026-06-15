@@ -39,7 +39,6 @@ spec:
         - host: "{{this}}"
       {{/each}}
       rules:
-        - application: altinn-rettigheter-proxy
         - application: tiltak-dokgen
         - application: poao-tilgang
           namespace: poao

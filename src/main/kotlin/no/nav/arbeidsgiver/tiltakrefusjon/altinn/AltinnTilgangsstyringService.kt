@@ -30,7 +30,10 @@ class AltinnTilgangsstyringService(
                 inkluderSlettede = false
             )
         )
+        return heltAltinnTilganger(altinnTilgangerRequest)
+    }
 
+    fun heltAltinnTilganger(altinnTilgangerRequest: AltinnTilgangerRequest): Set<Organisasjon> {
         val response = kallAltinn3(altinnTilgangerRequest)
         val løvnoderOgParents = flatUtHierarki(response)
         val organisasjonerPåGammeltFormat = løvnoderOgParents.flatMap { org ->
@@ -75,29 +78,7 @@ class AltinnTilgangsstyringService(
                 inkluderSlettede = false
             )
         )
-
-        val response = kallAltinn3(altinnTilgangerRequest)
-        val løvnoderOgParents = flatUtHierarki(response)
-        val organisasjonerPåGammeltFormat = løvnoderOgParents.flatMap { org ->
-            listOf(Organisasjon(
-                organizationNumber = org.orgnr,
-                name = org.navn,
-                organizationForm = org.organisasjonsform,
-                type = "Enterprise",
-                status = if (org.erSlettet) "Inactive" else "Active",
-                parentOrganizationNumber = null
-            )) + org.underenheter.map { underenhet ->
-                Organisasjon(
-                    organizationNumber = underenhet.orgnr,
-                    name = underenhet.navn,
-                    organizationForm = underenhet.organisasjonsform,
-                    type = "Business",
-                    status = if (underenhet.erSlettet) "Inactive" else "Active",
-                    parentOrganizationNumber = org.orgnr
-                )
-            }
-        }
-        return organisasjonerPåGammeltFormat.toSet()
+        return heltAltinnTilganger(altinnTilgangerRequest)
     }
 
 }

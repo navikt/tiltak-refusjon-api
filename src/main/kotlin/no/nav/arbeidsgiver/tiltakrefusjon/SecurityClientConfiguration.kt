@@ -26,9 +26,6 @@ class SecurityClientConfiguration(
     private val environment: Environment? = null
 
     @Bean
-    fun påVegneAvArbeidsgiverAltinnRestTemplate() = restTemplateForRegistration("tokenx-altinn")
-
-    @Bean
     fun påVegneAvArbeidsgiverAltinn3RestTemplate() = restTemplateForRegistration("tokenx-altinn-3")
 
     @Bean

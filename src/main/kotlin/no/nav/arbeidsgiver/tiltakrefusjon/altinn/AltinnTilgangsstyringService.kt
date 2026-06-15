@@ -35,6 +35,7 @@ class AltinnTilgangsstyringService(
 
     fun heltAltinnTilganger(altinnTilgangerRequest: AltinnTilgangerRequest): Set<Organisasjon> {
         val response = kallAltinn3(altinnTilgangerRequest)
+        logger.debug("Respons fra altinn: {}", response)
         val løvnoderOgParents = flatUtHierarki(response)
         val organisasjonerPåGammeltFormat = løvnoderOgParents.flatMap { org ->
             listOf(Organisasjon(
@@ -55,6 +56,7 @@ class AltinnTilgangsstyringService(
                 )
             }
         }
+        logger.debug("Altinn-tilganger for arbeidsgiver: {}", organisasjonerPåGammeltFormat)
         return organisasjonerPåGammeltFormat.toSet()
     }
 

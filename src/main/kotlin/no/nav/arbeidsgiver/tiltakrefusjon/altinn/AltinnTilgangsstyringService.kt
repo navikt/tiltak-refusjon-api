@@ -35,7 +35,6 @@ class AltinnTilgangsstyringService(
         val response = kallAltinn3(altinnTilgangerRequest)
         logger.debug("Respons fra altinn: {}", response)
         val løvnoderOgParents = flatUtHierarki(response)
-        løvnoderOgParents.filter { it.altinn3Tilganger.contains("nav_tiltak_adressesperre") }
         return løvnoderOgParents.apply {
             logger.debug("Altinn-tilganger for arbeidsgiver: {}", this.size)
         }

@@ -17,6 +17,9 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.fail
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.MethodSource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock
@@ -387,7 +390,7 @@ class RefusjonServiceTest(
     }
 
     @Test
-    internal fun `inntektsoppslag skal ta hensyn til unntaksregel`() {
+    fun `inntektsoppslag skal ta hensyn til unntaksregel`() {
         val deltakerFnr = "00000000000"
         val tilskuddMelding = TilskuddsperiodeGodkjentMelding(
             avtaleId = "2",
@@ -447,7 +450,7 @@ class RefusjonServiceTest(
     }
 
     @Test
-    internal fun `inntektsoppslag skal ta hensyn til at arbeidsgiver klikker på knapp for å hente neste måneds inntekter`() {
+    fun `inntektsoppslag skal ta hensyn til at arbeidsgiver klikker på knapp for å hente neste måneds inntekter`() {
         val deltakerFnr = "00000000000"
         val tilskuddMelding = TilskuddsperiodeGodkjentMelding(
             avtaleId = "2",
@@ -494,7 +497,6 @@ class RefusjonServiceTest(
         }
 
         Now.fixedDate(LocalDate.now().plusDays(1))
-        //refusjon.merkForUnntakOmInntekterToMånederFrem(true, "")
         refusjon.merkForHentInntekterFrem(true, innloggetSaksbehandler)
         refusjonService.gjørInntektsoppslag(refusjon, innloggetArbeidsgiver)
         verify {
@@ -620,45 +622,59 @@ class RefusjonServiceTest(
         assertThat(lagretRefusjon.status).isNotEqualTo(RefusjonStatus.ANNULLERT)
     }
 
-    @Test
-    fun `godkjenner etterregistrert VTAO tilskuddsperiode gir refusjon med status for tidlig`() {
-        val deltakerFnr = "00000000000"
-        val tilskuddMelding = TilskuddsperiodeGodkjentMelding(
-            avtaleId = "1",
-            tilskuddsbeløp = 5000,
-            tiltakstype = Tiltakstype.VTAO,
-            deltakerEtternavn = "Mus",
-            deltakerFornavn = "Mikke",
-            arbeidsgiverFornavn = "Arne",
-            arbeidsgiverEtternavn = "Arbeidsgiver",
-            arbeidsgiverTlf = "41111111",
-            arbeidsgiveravgiftSats = 0.0,
-            avtaleInnholdId = "1",
-            bedriftNavn = "Bedriften AS",
-            bedriftNr = "999999999",
-            deltakerFnr = deltakerFnr,
-            feriepengerSats = 0.0,
-            otpSats = 0.0,
-            tilskuddFom = Now.localDate().minusWeeks(4),
-            tilskuddTom = Now.localDate().minusDays(1),
-            tilskuddsperiodeId = "1",
-            veilederNavIdent = "X123456",
-            lønnstilskuddsprosent = 0,
-            avtaleNr = 3456,
-            løpenummer = 1,
-            resendingsnummer = null,
-            enhet = "1000",
-            godkjentTidspunkt = LocalDateTime.now(),
-            arbeidsgiverKontonummer = "12345678908",
-            arbeidsgiverKid = null,
-            mentorTimelonn = null,
-            mentorAntallTimer = null,
-        )
-        val refusjon = refusjonService.opprettRefusjon(tilskuddMelding)!!
+    @ParameterizedTest(name = "{0} blir {1}")
+    @MethodSource("no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonServiceTestKt#parameterargumenterTiltakstypeTilRefusjonsstatusVedEtterregistrering")
+fun `tilskuddsperioder som er ettersendt men ikke utgått får riktig status ved opprettelse`(
+        tiltakstype: Tiltakstype,
+        refusjonStatus: RefusjonStatus,
+    ) {
+        val refusjon = refusjonService.opprettRefusjon(
+            eldreTilskuddsmeldingBase.copy(
+                tiltakstype = tiltakstype,
+                tilskuddFom = YearMonth.from(Now.localDate().minusMonths(1)).atDay(1),
+                tilskuddTom = YearMonth.from(Now.localDate().minusMonths(1)).atEndOfMonth(),
+                godkjentTidspunkt = LocalDateTime.now().minusMonths(2),
+            )
+        )!!
+
+        val lagretRefusjon = requireNotNull(refusjonRepository.findByIdOrNull(refusjon.id))
+        assertThat(lagretRefusjon.status).isEqualTo(refusjonStatus)
+    }
+
+    @ParameterizedTest(name = "{0} blir UTGÅTT")
+    @MethodSource("no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonServiceTestKt#parameterargumenterTiltakstypeTilRefusjonsstatusVedEtterregistrering")
+    fun `tilskuddsperioder som ble godkjent for lenge siden blir utgått ved opprettelse`(
+        tiltakstype: Tiltakstype
+    ) {
+        val refusjon = refusjonService.opprettRefusjon(
+            eldreTilskuddsmeldingBase.copy(
+                tiltakstype = tiltakstype,
+                tilskuddFom = YearMonth.from(Now.localDate().minusMonths(6)).atDay(1),
+                tilskuddTom = YearMonth.from(Now.localDate().minusMonths(6)).atEndOfMonth(),
+                godkjentTidspunkt = LocalDateTime.now().minusMonths(5),
+                )
+        )!!
+
+        val lagretRefusjon = requireNotNull(refusjonRepository.findByIdOrNull(refusjon.id))
+        assertThat(lagretRefusjon.status).isEqualTo(RefusjonStatus.UTGÅTT)
+    }
+
+    @ParameterizedTest
+    @MethodSource("no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonServiceTestKt#parameterargumenterTiltakstypeTilRefusjonsstatusVedEtterregistrering")
+    fun `resendte tilskuddsperioder som ble godkjent for lenge siden teller som etterregistrert`(
+        tiltakstype: Tiltakstype,
+        forventetStatus: RefusjonStatus
+    ) {
+        val refusjon = refusjonService.opprettRefusjon(
+            eldreTilskuddsmeldingBase.copy(
+                tiltakstype = tiltakstype,
+                resendingsnummer = 1
+            )
+        )!!
 
         val lagretRefusjon = refusjonRepository.findByIdOrNull(refusjon.id)
         if (lagretRefusjon != null) {
-            assertThat(lagretRefusjon.status).isEqualTo(RefusjonStatus.FOR_TIDLIG)
+            assertThat(lagretRefusjon.status).isEqualTo(forventetStatus)
         }
     }
 
@@ -671,4 +687,47 @@ class RefusjonServiceTest(
         refusjonService.gjørBeregning(refusjon, innloggetArbeidsgiver)
     }
 
+}
+
+private val eldreTilskuddsmeldingBase = TilskuddsperiodeGodkjentMelding(
+    avtaleId = "1",
+    tilskuddsbeløp = 5000,
+    tiltakstype = Tiltakstype.VTAO,
+    deltakerEtternavn = "Mus",
+    deltakerFornavn = "Mikke",
+    arbeidsgiverFornavn = "Arne",
+    arbeidsgiverEtternavn = "Arbeidsgiver",
+    arbeidsgiverTlf = "41111111",
+    arbeidsgiveravgiftSats = 0.0,
+    avtaleInnholdId = "1",
+    bedriftNavn = "Bedriften AS",
+    bedriftNr = "999999999",
+    deltakerFnr = "00000000000",
+    feriepengerSats = 0.0,
+    otpSats = 0.0,
+    tilskuddFom = Now.localDate().minusMonths(6).withDayOfMonth(1),
+    tilskuddTom = YearMonth.from(Now.localDate().minusMonths(6)).atEndOfMonth(),
+    tilskuddsperiodeId = "1",
+    veilederNavIdent = "X123456",
+    lønnstilskuddsprosent = 0,
+    avtaleNr = 3456,
+    løpenummer = 1,
+    resendingsnummer = null,
+    enhet = "1000",
+    // Etterregistrert, men for lenge siden
+    godkjentTidspunkt = LocalDateTime.now().minusMonths(5),
+    arbeidsgiverKontonummer = "12345678908",
+    arbeidsgiverKid = null,
+    mentorTimelonn = null,
+    mentorAntallTimer = null,
+)
+
+private fun statusVedEtterregistrering(tiltakstype: Tiltakstype): RefusjonStatus =
+    when (tiltakstype) {
+        Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD, Tiltakstype.VARIG_LONNSTILSKUDD, Tiltakstype.SOMMERJOBB, Tiltakstype.FIREARIG_LONNSTILSKUDD -> RefusjonStatus.KLAR_FOR_INNSENDING
+        Tiltakstype.VTAO, Tiltakstype.MENTOR -> RefusjonStatus.FOR_TIDLIG
+    }
+
+private fun parameterargumenterTiltakstypeTilRefusjonsstatusVedEtterregistrering() = Tiltakstype.entries.map {
+    Arguments.of(it, statusVedEtterregistrering(it))
 }

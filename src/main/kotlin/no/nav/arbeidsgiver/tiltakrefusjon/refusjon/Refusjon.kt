@@ -84,7 +84,7 @@ class Refusjon(
     var sistEndret: Instant? = null
 
     init {
-        oppdaterStatus()
+        oppdaterStatus(tillatUtgaatt = false)
         registerEvent(RefusjonOpprettet(this, SYSTEM_BRUKER))
     }
 
@@ -137,13 +137,18 @@ class Refusjon(
         registerEvent(RefusjonUtgått(this))
     }
 
-    fun oppdaterStatus() {
+    /**
+     * Oppdaterer statusen til refusjonen. Når en refusjon opprettes ønsker vi å unngå at man setter status til
+     * utgått umiddelbart; det er noen tilfeller hvor vi feks utsetter fristen, og da er vi avhengig av at refusjonen
+     * fortsatt har en "åpen" status.
+     */
+    fun oppdaterStatus(tillatUtgaatt: Boolean = true) {
         val statuserSomIkkeKanEndres =
             listOf(RefusjonStatus.SENDT_KRAV, RefusjonStatus.ANNULLERT, RefusjonStatus.UTBETALT, RefusjonStatus.UTGÅTT)
         if (::status.isInitialized && status in statuserSomIkkeKanEndres) return
 
         val today = Now.localDate()
-        if (today.isAfter(fristForGodkjenning)) {
+        if (today.isAfter(fristForGodkjenning) && tillatUtgaatt) {
             settRefusjonUtgått()
             return
         }
@@ -381,13 +386,23 @@ class Refusjon(
         ) else antallMånederEtter(tidligsteFrist, 1)
     }
 
+    /**
+     * Dersom refusjoner ikke har gått ut på frist enda kan vi tillate forlenging inntil en maks dato. Kan overstyres
+     * ved et bool-flagg.
+     * <p>
+     * OBS: I et særtilfelle der vi resender utgåtte refusjoner er vi nødt til å unngå at status oppdateres FØR vi
+     * får forlenget! Derfor har vi et bool-flagg som gjør at vi skipper "oppdaterStatus"-kallet i denne metoden.
+     */
     fun forlengFrist(
         nyFrist: LocalDate,
         årsak: String,
         utførtAv: InnloggetBruker,
-        tillatLengerEnnMaksimalFrist: Boolean = false
+        tillatLengerEnnMaksimalFrist: Boolean = false,
+        oppdaterStatusPaaForhaand: Boolean = true
     ) {
-        oppdaterStatus()
+        if (oppdaterStatusPaaForhaand) {
+            oppdaterStatus()
+        }
         krevStatus(RefusjonStatus.FOR_TIDLIG, RefusjonStatus.KLAR_FOR_INNSENDING)
 
         if (nyFrist <= fristForGodkjenning) {

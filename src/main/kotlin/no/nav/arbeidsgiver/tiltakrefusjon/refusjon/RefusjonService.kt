@@ -15,6 +15,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.MidlerFrigjortÅrsak
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeAnnullertMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeForkortetMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
+import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationEventPublisher
@@ -83,9 +84,22 @@ class RefusjonService(
             deltakerFnr = tilskuddsperiodeGodkjentMelding.deltakerFnr,
             bedriftNr = tilskuddsperiodeGodkjentMelding.bedriftNr
         )
+        val toMndFraDagensDato = Now.localDate().plusMonths(2)
+        if (tilskuddsperiodeGodkjentMelding.resendingsnummer != null &&
+            toMndFraDagensDato.isAfter(refusjon.finnTidligsteFristForGodkjenning())
+        ) {
+            refusjon.forlengFrist(
+                toMndFraDagensDato,
+                "Ekstraordinær forlengelse i forbindelse med resending",
+                SYSTEM_BRUKER,
+                true,
+                false
+            )
+        }
 
         refusjon.refusjonsgrunnlag.bedriftKid = tilskuddsperiodeGodkjentMelding.arbeidsgiverKid
 
+        refusjon.oppdaterStatus()
         oppdaterRefusjon(refusjon, SYSTEM_BRUKER)
 
         return refusjonRepository.save(refusjon)

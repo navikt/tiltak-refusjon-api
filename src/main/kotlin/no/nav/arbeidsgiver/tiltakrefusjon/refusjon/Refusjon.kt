@@ -143,8 +143,8 @@ class Refusjon(
      * fortsatt har en "åpen" status.
      */
     fun oppdaterStatus(tillatUtgaatt: Boolean = true) {
-        val statuserSomIkkeKanEndres =
-            listOf(RefusjonStatus.SENDT_KRAV, RefusjonStatus.ANNULLERT, RefusjonStatus.UTBETALT, RefusjonStatus.UTGÅTT)
+        val statuserSomIkkeKanEndres = RefusjonStatus.entries
+            .filterNot { it.isUbehandlet() }
         if (::status.isInitialized && status in statuserSomIkkeKanEndres) return
 
         val today = Now.localDate()

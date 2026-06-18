@@ -15,6 +15,7 @@ Content-Type: application/json
 ### Tving annullering av refusjon
 POST http://localhost:12345/internal/admin/annuller-refusjon-ved-tilskuddsperiode
 Content-Type: application/json
+Authorization: Bearer <TOKEN>
 
 {
   "tilskuddsperiodeId": "<TILSKUDDSPERIODE_ID>"

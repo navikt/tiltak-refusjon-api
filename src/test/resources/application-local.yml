@@ -65,9 +65,8 @@ tiltak-refusjon:
     fake: true
   kontoregister:
     fake: true
-  dokgen:
-    uri: http://localhost:5913/template/tiltak-refusjon/create-pdf
-    #uri: http://tiltak-dokgen.arbeidsgiver.svc.nais.local/template/tiltak-refusjon/create-pdf
+  pdfgen:
+    uri: http://localhost:9001/api/v1/genpdf
   inntektskomponenten:
     fake: true
     uri: http://localhost:${wiremock.server.port}/inntektskomponenten

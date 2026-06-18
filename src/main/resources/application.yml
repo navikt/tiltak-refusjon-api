@@ -64,7 +64,7 @@ tiltak-refusjon:
     consumer-id: tiltak-refusjon-api
   altinn-tilgangstyring:
     antall: 500
-  dokgen:
-    uri: "http://tiltak-dokgen/template/tiltak-refusjon/create-pdf"
+  pdfgen:
+    uri: http://tiltak-pdfgen/api/v1/genpdf
   grunnbelop:
     uri: "https://g.nav.no/api/v1/historikk/grunnbel%C3%B8p"

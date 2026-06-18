@@ -5,5 +5,5 @@ import org.springframework.stereotype.Component
 import java.net.URI
 
 @Component
-@ConfigurationProperties(prefix = "tiltak-refusjon.dokgen")
-data class DokgenProperties (var uri: URI? = null)
+@ConfigurationProperties(prefix = "tiltak-refusjon.pdfgen")
+data class PdfgenProperties (var uri: URI? = null)

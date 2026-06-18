@@ -3,7 +3,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.UgyldigRequestException
 import no.nav.arbeidsgiver.tiltakrefusjon.audit.AuditLogging
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBrukerService
-import no.nav.arbeidsgiver.tiltakrefusjon.dokgen.DokgenService
+import no.nav.arbeidsgiver.tiltakrefusjon.dokgen.PdfgenService
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.SortingOrder
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.slf4j.Logger
@@ -41,7 +41,7 @@ data class HentArbeidsgiverRefusjonerQueryParametre(
 @ProtectedWithClaims(issuer = "tokenx")
 class ArbeidsgiverRefusjonController(
     val innloggetBrukerService: InnloggetBrukerService,
-    val dokgenService: DokgenService
+    val pdfgenService: PdfgenService
 ) {
     var logger: Logger = LoggerFactory.getLogger(javaClass)
 
@@ -61,7 +61,7 @@ class ArbeidsgiverRefusjonController(
         if(id.trim().isEmpty()) return HttpEntity.EMPTY as HttpEntity<ByteArray>
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
         val refusjon = arbeidsgiver.finnRefusjon(id)
-        val pdfDataAsByteArray: ByteArray = dokgenService.refusjonPdf(refusjon)
+        val pdfDataAsByteArray: ByteArray = pdfgenService.refusjonPdf(refusjon)
 
         val header = HttpHeaders()
         header.contentType = MediaType.APPLICATION_PDF

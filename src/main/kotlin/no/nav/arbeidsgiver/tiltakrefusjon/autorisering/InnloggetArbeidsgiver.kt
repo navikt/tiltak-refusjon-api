@@ -222,12 +222,12 @@ data class InnloggetArbeidsgiver(
 
     private fun sjekkHarTilgangTilRefusjonerForBedrift(bedriftNr: String, deltakerFnr: String) {
         if (organisasjoner.none { it.organizationNumber == bedriftNr }) {
-            throw TilgangskontrollException()
+            throw TilgangskontrollException(Feilkode.IKKE_TILGANG_TIL_REFUSJON)
         }
 
         val diskresjonskode = persondataService.hentDiskresjonskode(deltakerFnr)
         if (diskresjonskode.erKode6Eller7() && adresseSperretilganger.none { it.organizationNumber == bedriftNr }) {
-            throw TilgangskontrollException()
+            throw TilgangskontrollException(Feilkode.IKKE_TILGANG_TIL_REFUSJON)
         }
     }
 

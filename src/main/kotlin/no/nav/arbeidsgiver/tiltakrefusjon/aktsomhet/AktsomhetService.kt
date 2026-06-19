@@ -1,5 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.aktsomhet
 
+import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
+import no.nav.arbeidsgiver.tiltakrefusjon.RessursFinnesIkkeException
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBrukerService
 import no.nav.arbeidsgiver.tiltakrefusjon.persondata.PersondataService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
@@ -20,7 +22,9 @@ class AktsomhetService(
             val diskresjonskode = persondataService.hentDiskresjonskode(refusjon.deltakerFnr)
             return Aktsomhet.av(diskresjonskode, isArbeidsgiver)
         } catch (e: Exception) {
-            log.error("Feil ved henting av Aktsomhet på refusjon med id $id", e)
+            if (e !is FeilkodeException && e !is RessursFinnesIkkeException) {
+                log.error("Feil ved henting av Aktsomhet på refusjon med id $id", e)
+            }
             return Aktsomhet.tom()
         }
     }

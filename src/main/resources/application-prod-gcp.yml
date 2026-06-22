@@ -8,8 +8,6 @@ tiltak-refusjon:
     consumer-id: tiltak-refusjon-api
   altinn-tilgangstyring:
     arbeidsgiverAltinnTilgangerUri: http://arbeidsgiver-altinn-tilganger.fager/altinn-tilganger
-    inntektsmeldingServiceCode: 4936
-    inntektsmeldingServiceEdition: 1
     adressesperreServiceCode: 5516
     adressesperreServiceEdition: 7
   poao-tilgang:

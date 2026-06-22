@@ -46,8 +46,6 @@ tiltak-refusjon:
     fake: true
   altinn-tilgangstyring:
     arbeidsgiverAltinnTilgangerUri: http://tiltak-refusjon-api-wiremock/altinn-tilganger
-    inntektsmeldingServiceCode: 4936
-    inntektsmeldingServiceEdition: 1
     adressesperreServiceCode: 5516
     adressesperreServiceEdition: 7
   unleash:

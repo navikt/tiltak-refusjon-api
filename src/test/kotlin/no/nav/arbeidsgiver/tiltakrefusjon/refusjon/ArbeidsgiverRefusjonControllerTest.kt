@@ -6,7 +6,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.RessursFinnesIkkeException
 import no.nav.arbeidsgiver.tiltakrefusjon.`Suzanna Hansen`
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetArbeidsgiver
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBrukerService
-import no.nav.arbeidsgiver.tiltakrefusjon.dokgen.DokgenService
+import no.nav.arbeidsgiver.tiltakrefusjon.dokgen.PdfgenService
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.ulid
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
@@ -20,11 +20,11 @@ class ArbeidsgiverRefusjonControllerTest{
 
     lateinit var controller: ArbeidsgiverRefusjonController
     var innlogetServiceMock = mockk<InnloggetBrukerService>()
-    var dokgenService =    mockk<DokgenService>()
+    var pdfgenService =    mockk<PdfgenService>()
     var innloggetArbeidsgiver =    mockk<InnloggetArbeidsgiver>()
     @Before
     fun setup(){
-        controller = ArbeidsgiverRefusjonController(innlogetServiceMock,dokgenService)
+        controller = ArbeidsgiverRefusjonController(innlogetServiceMock,pdfgenService)
     }
 
     @Test
@@ -36,7 +36,7 @@ class ArbeidsgiverRefusjonControllerTest{
 
         every{innlogetServiceMock.hentInnloggetArbeidsgiver()} returns innloggetArbeidsgiver
         every{innloggetArbeidsgiver.finnRefusjon(any())} returns `Suzanna Hansen`()
-        every{dokgenService.refusjonPdf(any())} returns ByteArray(1)
+        every{pdfgenService.refusjonPdf(any())} returns ByteArray(1)
 
 
         val forventetHeaders = HttpHeaders()

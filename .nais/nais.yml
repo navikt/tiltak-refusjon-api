@@ -40,7 +40,7 @@ spec:
       {{/each}}
       rules:
         - application: altinn-rettigheter-proxy
-        - application: tiltak-dokgen
+        - application: tiltak-pdfgen
         - application: poao-tilgang
           namespace: poao
         - application: arbeidsgiver-altinn-tilganger

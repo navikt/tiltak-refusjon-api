@@ -69,8 +69,8 @@ tiltak-refusjon:
     strengt-fortrolig-adresse: 1a1d2745-952f-4a0f-839f-9530145b1d4a
   pdl-api:
     uri: http://localhost:${wiremock.server.port}/persondata
-  dokgen:
-    uri: http://localhost:5913/template/tiltak-refusjon/create-pdf
+  pdfgen:
+    uri: http://localhost:9001/api/v1/genpdf
 server:
   port: 8081
 

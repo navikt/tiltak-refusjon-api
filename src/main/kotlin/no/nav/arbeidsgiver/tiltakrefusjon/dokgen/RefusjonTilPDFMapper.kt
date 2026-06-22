@@ -10,26 +10,22 @@ import java.time.format.DateTimeFormatter
 object RefusjonTilPDFMapper {
     fun tilPDFdata(refusjon : Refusjon) : RefusjonTilPDF {
         val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+
         var godkjentArbeidsgiverDato =  ""
         var utbetaltDato = ""
         var bedriftKid = ""
+        val tilskuddFom = formatter.format(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom)
+        val tilskuddTom = formatter.format(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom)
 
-        if(refusjon.godkjentAvArbeidsgiver != null)   godkjentArbeidsgiverDato = formatter.format(LocalDate.ofInstant(refusjon.godkjentAvArbeidsgiver,ZoneId.systemDefault()))
-        if(refusjon.utbetaltTidspunkt != null)   utbetaltDato =
-            formatter.format(LocalDate.ofInstant(refusjon.utbetaltTidspunkt,ZoneId.systemDefault()))
+        if (refusjon.godkjentAvArbeidsgiver != null) godkjentArbeidsgiverDato = formatter.format(LocalDate.ofInstant(refusjon.godkjentAvArbeidsgiver, ZoneId.systemDefault()))
+        if (refusjon.utbetaltTidspunkt != null) utbetaltDato = formatter.format(LocalDate.ofInstant(refusjon.utbetaltTidspunkt, ZoneId.systemDefault()))
 
-        if(refusjon.refusjonsgrunnlag.bedriftKid != null){
+        if (refusjon.refusjonsgrunnlag.bedriftKid != null){
             bedriftKid = refusjon.refusjonsgrunnlag.bedriftKid!!
         }
 
-        val tilskuddFom =
-            formatter.format(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom)
-
-        val tilskuddTom =
-            formatter.format(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom)
-
-        if(refusjon.refusjonsgrunnlag.beregning == null){
-            if(refusjon.status != RefusjonStatus.GODKJENT_NULLBELØP) {
+        if (refusjon.refusjonsgrunnlag.beregning == null){
+            if (refusjon.status != RefusjonStatus.GODKJENT_NULLBELØP) {
                 throw RuntimeException("Beregning er null")
             }
             return RefusjonTilPDF(

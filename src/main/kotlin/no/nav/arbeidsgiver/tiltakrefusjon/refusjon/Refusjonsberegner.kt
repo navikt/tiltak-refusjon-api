@@ -1,8 +1,12 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.grunnbelop.Grunnbelop
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.time.LocalDate
 import kotlin.math.roundToInt
+
+val logger: Logger = LoggerFactory.getLogger(RefusjonService::class.java)
 
 fun fastBeløpBeregning(
     tilskuddsgrunnlag: Tilskuddsgrunnlag,
@@ -110,6 +114,16 @@ fun beregnRefusjonsbeløp(
     var overFemGrunnbeløp = false
     if (tilskuddsgrunnlag.tiltakstype.har5gBegrensning()) {
         val resultat = beregningskontekst.gjenståendeEtterMaks5G(tilskuddFom, sumUtbetaltVarig, refusjonsbeløp)
+        val nyttResultat = beregningskontekst.gjenståendeEtterMaks5GNy(tilskuddFom, refusjonsbeløp)
+
+        if (resultat != nyttResultat) {
+            logger.warn(
+                "Obs! Ny 5g-logikk ville gitt annet resultat. Gammel: {}, ny: {}. Har korreksjoner? {}",
+                resultat,
+                nyttResultat,
+                if (beregningskontekst.innsendteRefunderinger.any { it is Korreksjon }) "ja" else "nei"
+            )
+        }
 
         if (resultat is Maks5GResultat.OverMaks) {
             refusjonsbeløp = resultat.maksbelop

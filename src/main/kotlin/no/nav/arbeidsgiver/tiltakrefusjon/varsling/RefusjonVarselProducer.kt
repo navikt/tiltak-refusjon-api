@@ -22,14 +22,22 @@ class RefusjonVarselProducer(
         refusjonId: String,
         tilskuddsperiodeId: String,
         avtaleId: String,
-        fristForGodkjenning: LocalDate?
+        fristForGodkjenning: LocalDate?,
+        avtaleNr: Int,
+        løpenummer: Int,
+        tilskuddFom: LocalDate,
+        tilskuddTom: LocalDate,
     ) {
         log.info("Prosesserer $varselType melding for sending på topic ${Topics.TILTAK_VARSEL}")
         val melding = RefusjonVarselMelding(
             avtaleId = avtaleId,
             tilskuddsperiodeId = tilskuddsperiodeId,
             varselType = varselType,
-            fristForGodkjenning = fristForGodkjenning
+            fristForGodkjenning = fristForGodkjenning,
+            avtaleNr = avtaleNr,
+            løpenummer = løpenummer,
+            tilskuddFom = tilskuddFom,
+            tilskuddTom = tilskuddTom
 
         )
         val meldingId = "${refusjonId}-$varselType"

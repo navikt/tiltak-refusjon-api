@@ -35,7 +35,11 @@ class RefusjonKorrigertLytter(
             refusjonId = korreksjon.korrigererRefusjonId,
             tilskuddsperiodeId = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId,
             avtaleId = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleId,
-            fristForGodkjenning = null
+            fristForGodkjenning = null,
+            avtaleNr = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr,
+            løpenummer = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.løpenummer,
+            tilskuddFom = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
+            tilskuddTom = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom
         )
     }
 }

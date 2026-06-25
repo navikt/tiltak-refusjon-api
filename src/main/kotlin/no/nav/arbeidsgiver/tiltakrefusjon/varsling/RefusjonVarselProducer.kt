@@ -41,7 +41,8 @@ class RefusjonVarselProducer(
             løpenummer = løpenummer,
             tilskuddFom = tilskuddFom,
             tilskuddTom = tilskuddTom,
-            refusjonsnummer = lagId(avtaleNr, løpenummer, null, resendingsnummer)
+            refusjonsnummer = lagId(avtaleNr, løpenummer, null, resendingsnummer),
+            resendingsnummer = resendingsnummer
 
         )
         val meldingId = "${refusjonId}-$varselType"

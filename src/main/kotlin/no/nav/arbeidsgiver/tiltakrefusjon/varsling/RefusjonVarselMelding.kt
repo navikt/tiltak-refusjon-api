@@ -11,6 +11,7 @@ data class RefusjonVarselMelding(
     val avtaleNr: Int,
     val løpenummer: Int,
     val refusjonsnummer: String,
+    val resendingsnummer: Int?,
     val tilskuddFom: LocalDate,
     val tilskuddTom: LocalDate,
 )

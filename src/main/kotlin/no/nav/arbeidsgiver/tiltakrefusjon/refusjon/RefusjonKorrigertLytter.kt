@@ -39,7 +39,8 @@ class RefusjonKorrigertLytter(
             avtaleNr = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr,
             løpenummer = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.løpenummer,
             tilskuddFom = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
-            tilskuddTom = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom
+            tilskuddTom = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom,
+            resendingsnummer = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.resendingsnummer
         )
     }
 }

@@ -9,6 +9,7 @@ data class RefusjonVarselMelding(
     val fristForGodkjenning: LocalDate?,
     val avtaleNr: Int,
     val løpenummer: Int,
+    val refusjonsnummer: String,
     val tilskuddFom: LocalDate,
     val tilskuddTom: LocalDate,
 )

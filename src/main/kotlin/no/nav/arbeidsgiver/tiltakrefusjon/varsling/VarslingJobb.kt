@@ -51,7 +51,8 @@ class VarslingJobb(
                     avtaleNr = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr,
                     løpenummer = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.løpenummer,
                     tilskuddFom = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
-                    tilskuddTom = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom
+                    tilskuddTom = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom,
+                    resendingsnummer = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.resendingsnummer
                 )
             }
         }
@@ -86,7 +87,8 @@ class VarslingJobb(
                     avtaleNr = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr,
                     løpenummer = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.løpenummer,
                     tilskuddFom = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
-                    tilskuddTom = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom
+                    tilskuddTom = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom,
+                    resendingsnummer = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.resendingsnummer
                 )
                 antallSendteVarsler++
                 continue;

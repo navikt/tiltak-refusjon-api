@@ -28,7 +28,8 @@ class RefusjonVarselProducer(
         løpenummer: Int,
         tilskuddFom: LocalDate,
         tilskuddTom: LocalDate,
-        resendingsnummer: Int?
+        resendingsnummer: Int?,
+        korreksjonsnummer: Int?
     ) {
         log.info("Prosesserer $varselType melding for sending på topic ${Topics.TILTAK_VARSEL}")
         val melding = RefusjonVarselMelding(
@@ -41,8 +42,8 @@ class RefusjonVarselProducer(
             løpenummer = løpenummer,
             tilskuddFom = tilskuddFom,
             tilskuddTom = tilskuddTom,
-            refusjonsnummer = lagId(avtaleNr, løpenummer, null, resendingsnummer),
-            resendingsnummer = resendingsnummer
+            refusjonsnummer = lagId(avtaleNr, løpenummer, korreksjonsnummer, resendingsnummer),
+            resendingsnummer = resendingsnummer,
 
         )
         val meldingId = "${refusjonId}-$varselType"

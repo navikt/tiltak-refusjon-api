@@ -35,6 +35,7 @@ class FristForlengetLytter(
             tilskuddFom = event.refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
             tilskuddTom = event.refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom,
             resendingsnummer = event.refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.resendingsnummer,
+            korreksjonsnummer = null
         )
     }
 }

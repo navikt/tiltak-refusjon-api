@@ -4,6 +4,7 @@ import java.time.LocalDate
 
 data class RefusjonVarselMelding(
     val avtaleId: String,
+    val refusjonId: String,
     val tilskuddsperiodeId: String,
     val varselType: VarselType,
     val fristForGodkjenning: LocalDate?,

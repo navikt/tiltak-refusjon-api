@@ -33,6 +33,7 @@ class RefusjonVarselProducer(
         log.info("Prosesserer $varselType melding for sending på topic ${Topics.TILTAK_VARSEL}")
         val melding = RefusjonVarselMelding(
             avtaleId = avtaleId,
+            refusjonId = refusjonId,
             tilskuddsperiodeId = tilskuddsperiodeId,
             varselType = varselType,
             fristForGodkjenning = fristForGodkjenning,

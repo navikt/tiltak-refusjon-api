@@ -29,7 +29,13 @@ class FristForlengetLytter(
             refusjonId = event.refusjon.id,
             tilskuddsperiodeId = event.refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId,
             avtaleId = event.refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleId,
-            fristForGodkjenning = event.refusjon.fristForGodkjenning
+            fristForGodkjenning = event.refusjon.fristForGodkjenning,
+            avtaleNr = event.refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr,
+            løpenummer = event.refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.løpenummer,
+            tilskuddFom = event.refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
+            tilskuddTom = event.refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom,
+            resendingsnummer = event.refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.resendingsnummer,
+            korreksjonsnummer = null
         )
     }
 }

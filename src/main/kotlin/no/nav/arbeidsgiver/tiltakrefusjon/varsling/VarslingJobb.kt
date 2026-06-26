@@ -42,7 +42,19 @@ class VarslingJobb(
             val finnesIngenFerskVarsling = dagerSidenForrigeVarsel(varslerForRefusjon) > 3
 
             if (kortTidTilRefusjonenGårUt && finnesIngenRevarslerForRefusjon && finnesIngenFerskVarsling) {
-                refusjonVarselProducer.sendVarsel(VarselType.REVARSEL, refusjon.id, refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId, refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleId, refusjon.fristForGodkjenning)
+                refusjonVarselProducer.sendVarsel(
+                    varselType = VarselType.REVARSEL,
+                    refusjonId = refusjon.id,
+                    tilskuddsperiodeId = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId,
+                    avtaleId = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleId,
+                    fristForGodkjenning = refusjon.fristForGodkjenning,
+                    avtaleNr = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr,
+                    løpenummer = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.løpenummer,
+                    tilskuddFom = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
+                    tilskuddTom = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom,
+                    resendingsnummer = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.resendingsnummer,
+                    korreksjonsnummer = null
+                )
             }
         }
     }
@@ -67,7 +79,19 @@ class VarslingJobb(
             val varslerForRefusjon = varslingRepository.findAllByRefusjonId(refusjon.id)
 
             if (varslerForRefusjon.none { it.varselType === VarselType.KLAR} && forrigeMåned.equals(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom.month)) {
-                refusjonVarselProducer.sendVarsel(VarselType.KLAR, refusjon.id, refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId, refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleId, refusjon.fristForGodkjenning)
+                refusjonVarselProducer.sendVarsel(
+                    varselType = VarselType.KLAR,
+                    refusjonId = refusjon.id,
+                    tilskuddsperiodeId = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsperiodeId,
+                    avtaleId = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleId,
+                    fristForGodkjenning = refusjon.fristForGodkjenning,
+                    avtaleNr = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr,
+                    løpenummer = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.løpenummer,
+                    tilskuddFom = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
+                    tilskuddTom = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom,
+                    resendingsnummer = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.resendingsnummer,
+                    korreksjonsnummer = null
+                )
                 antallSendteVarsler++
                 continue;
             }

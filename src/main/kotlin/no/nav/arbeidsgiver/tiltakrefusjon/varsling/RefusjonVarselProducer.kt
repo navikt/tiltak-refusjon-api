@@ -1,6 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.varsling
 
 import no.nav.arbeidsgiver.tiltakrefusjon.Topics
+import no.nav.arbeidsgiver.tiltakrefusjon.rapport.lagId
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -22,14 +23,27 @@ class RefusjonVarselProducer(
         refusjonId: String,
         tilskuddsperiodeId: String,
         avtaleId: String,
-        fristForGodkjenning: LocalDate?
+        fristForGodkjenning: LocalDate?,
+        avtaleNr: Int,
+        løpenummer: Int,
+        tilskuddFom: LocalDate,
+        tilskuddTom: LocalDate,
+        resendingsnummer: Int?,
+        korreksjonsnummer: Int?
     ) {
         log.info("Prosesserer $varselType melding for sending på topic ${Topics.TILTAK_VARSEL}")
         val melding = RefusjonVarselMelding(
             avtaleId = avtaleId,
+            refusjonId = refusjonId,
             tilskuddsperiodeId = tilskuddsperiodeId,
             varselType = varselType,
-            fristForGodkjenning = fristForGodkjenning
+            fristForGodkjenning = fristForGodkjenning,
+            avtaleNr = avtaleNr,
+            løpenummer = løpenummer,
+            tilskuddFom = tilskuddFom,
+            tilskuddTom = tilskuddTom,
+            refusjonsnummer = lagId(avtaleNr, løpenummer, korreksjonsnummer, resendingsnummer),
+            resendingsnummer = resendingsnummer,
 
         )
         val meldingId = "${refusjonId}-$varselType"

@@ -279,6 +279,7 @@ data class InnloggetSaksbehandler(
     }
 
     fun settFratrekkRefunderbarBeløp(id: String, fratrekkRefunderbarBeløp: Boolean, refunderbarBeløp: Int?) {
+        sjekkKorreksjonTilgang()
         val korreksjon: Korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(korreksjon)
         korreksjon.settFratrekkRefunderbarBeløp(fratrekkRefunderbarBeløp, refunderbarBeløp)
@@ -288,17 +289,19 @@ data class InnloggetSaksbehandler(
     }
 
     fun overstyrMinusbeløp(id: String, minusBeløp: Int) {
+        sjekkKorreksjonTilgang()
         val korreksjon: Korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(korreksjon)
         korreksjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp = minusBeløp
-        refusjonService.gjørKorreksjonBeregning(korreksjon, this);
+        refusjonService.gjørKorreksjonBeregning(korreksjon, this)
     }
 
     fun overstyrHarFerietrekkForSammeMåned(id: String, harFerietrekkForSammeMåned: Boolean) {
+        sjekkKorreksjonTilgang()
         val korreksjon: Korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(korreksjon)
         korreksjon.refusjonsgrunnlag.harFerietrekkForSammeMåned = harFerietrekkForSammeMåned
-        refusjonService.gjørKorreksjonBeregning(korreksjon, this);
+        refusjonService.gjørKorreksjonBeregning(korreksjon, this)
     }
 
     fun hentEnhet(enhet: String): String? {

@@ -81,6 +81,7 @@ class Korreksjon(
     var godkjentTidspunkt: Instant? = null
     var besluttetAvNavIdent: String? = null
     var besluttetTidspunkt: Instant? = null
+    var sistEndret: Instant? = null
 
     @JsonProperty
     fun harTattStillingTilAlleInntektslinjer(): Boolean =

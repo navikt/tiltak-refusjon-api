@@ -2,6 +2,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.automatisk_utbetaling.AutomatiskInnsendingService
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.ADMIN_BRUKER
+import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.SYSTEM_BRUKER
 import no.nav.arbeidsgiver.tiltakrefusjon.grunnbelop.GrunnbelopService
 import no.nav.arbeidsgiver.tiltakrefusjon.leader.LeaderPodCheck
 import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterServiceImpl
@@ -107,7 +108,13 @@ class AdminController(
         for (id in korreksjonRequest.refusjonIder) {
             val refusjon =
                 refusjonRepository.findByIdOrNull(id) ?: throw RuntimeException("Finner ikke refusjon med id=$id")
-            service.opprettKorreksjonsutkast(refusjon, korreksjonRequest.korreksjonsgrunner, 2, annetGrunn = null)
+            service.opprettKorreksjonsutkast(
+                refusjon,
+                korreksjonRequest.korreksjonsgrunner,
+                2,
+                annetGrunn = null,
+                SYSTEM_BRUKER
+            )
             // korreksjoner.add(korreksjon.id)
         }
         return korreksjoner

@@ -121,6 +121,13 @@ class RefusjonService(
         refusjon.refusjonsgrunnlag.oppgiForrigeRefusjonsbeløp(sumMinusbelop)
     }
 
+    fun settMinusbelopFraTidligereRefunderingerTilknyttetAvtale(refundering: Refundering) {
+        when (refundering) {
+            is Korreksjon -> return // Korreksjoner baserer seg på minusbeløpet til refusjonen som ble korrigert
+            is Refusjon -> settMinusbeløpFraTidligereRefusjonerTilknyttetAvtalen(refundering)
+        }
+    }
+
     /**
      * Refusjoner som går i minus skal ikke regnes med, feks ved beregning av "totalt utbetalt"
      */
@@ -304,17 +311,12 @@ class RefusjonService(
         refusjon.oppgiBedriftKontonummer(kontoregisterService.hentBankkontonummer(refusjon.bedriftNr))
     }
 
-    fun opprettKorreksjonsutkast(refusjon: Refusjon, korreksjonsgrunner: Set<Korreksjonsgrunn>, unntakOmInntekterFremitid: Int?, annetGrunn: String?): Korreksjon {
+    fun opprettKorreksjonsutkast(refusjon: Refusjon, korreksjonsgrunner: Set<Korreksjonsgrunn>, unntakOmInntekterFremitid: Int?, annetGrunn: String?, utfortAv: InnloggetBruker): Korreksjon {
         val korreksjonsutkast = refusjon.opprettKorreksjonsutkast(korreksjonsgrunner, unntakOmInntekterFremitid, annetGrunn)
-        if (refusjon.tiltakstype() == Tiltakstype.VTAO) {
-            // Utfør beregning umiddelbart for VTAO-korreksjoner
-            korreksjonsutkast.refusjonsgrunnlag.beregning = beregnKorreksjon(
-                hentBeregningskontekst(korreksjonsutkast),
-                korreksjonsutkast
-            )
-        }
         korreksjonRepository.save(korreksjonsutkast)
         refusjonRepository.save(refusjon)
+        oppdaterRefundering(korreksjonsutkast, utfortAv)
+        korreksjonRepository.save(korreksjonsutkast)
         return korreksjonsutkast
     }
 
@@ -348,6 +350,13 @@ class RefusjonService(
         }
     }
 
+    fun settOmFerieErTrukketForSammeMåned(refundering: Refundering) {
+        when (refundering) {
+            is Korreksjon -> return
+            is Refusjon -> settOmFerieErTrukketForSammeMåned(refundering)
+        }
+    }
+
     fun oppdaterRefusjon(refusjon: Refusjon, utførtAv: InnloggetBruker) {
         log.info("Oppdaterer refusjon ${refusjon.id} med data")
         // Skal kun mutere refusjonsgrunnlaget for refusjoner som skal sendes inn
@@ -362,8 +371,29 @@ class RefusjonService(
         }
     }
 
-    fun oppdaterSistEndret(refusjon: Refusjon) {
-        refusjon.sistEndret = Instant.now()
+    fun oppdaterRefundering(refundering: Refundering, utførtAv: InnloggetBruker) {
+        val (type, id) = when (refundering) {
+            is Refusjon -> Pair("refusjon", refundering.id)
+            is Korreksjon -> Pair("korreksjon", refundering.id)
+        }
+        log.info("Oppdaterer ${type} ${id} med data")
+        // Skal kun mutere refunderingsgrunnlaget for refunderinger som skal sendes inn
+        if (refundering.status.isUbehandlet()) {
+            settMinusbelopFraTidligereRefunderingerTilknyttetAvtale(refundering)
+            if (refundering.tiltakstype().har5gBegrensning()) {
+                refundering.refusjonsgrunnlag.sumUtbetaltVarig = totaltUtbetaltForTiltakMed5gBegrensning(refundering)
+            }
+            settOmFerieErTrukketForSammeMåned(refundering)
+            oppdaterSistEndret(refundering)
+            gjorBeregning(refundering, utførtAv)
+        }
+    }
+
+    fun oppdaterSistEndret(refundering: Refundering) {
+        when (refundering) {
+            is Korreksjon -> refundering.sistEndret = Instant.now()
+            is Refusjon -> refundering.sistEndret = Instant.now()
+        }
     }
 
     fun gjørBeregning(refusjon: Refusjon, utførtAv: InnloggetBruker) {
@@ -380,6 +410,13 @@ class RefusjonService(
         if (beregning != null) {
             korreksjon.refusjonsgrunnlag.beregning = beregning
             applicationEventPublisher.publishEvent(KorreksjonBeregningUtført(korreksjon, utførtAv))
+        }
+    }
+
+    fun gjorBeregning(refundering: Refundering, utfortAv: InnloggetBruker) {
+        when (refundering) {
+            is Korreksjon -> gjørKorreksjonBeregning(refundering, utfortAv)
+            is Refusjon -> gjørBeregning(refundering, utfortAv)
         }
     }
 
@@ -450,7 +487,7 @@ class RefusjonService(
                 periodeStart,
                 periodeSlutt
             )
-        return (deltakersRefusjoner + deltakersKorreksjoner)
+        return deltakersRefusjoner + deltakersKorreksjoner
     }
 }
 

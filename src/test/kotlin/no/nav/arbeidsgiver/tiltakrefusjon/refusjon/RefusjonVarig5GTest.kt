@@ -237,7 +237,7 @@ class RefusjonVarig5GTest(
     private fun godkjennKorreksjonNullbelopMedJustertTid(korreksjon: Korreksjon): Korreksjon {
         val oppdatertKorreksjon = korreksjonRepository.findById(korreksjon.id).get()
         refusjonService.gjørBedriftKontonummeroppslag(oppdatertKorreksjon)
-        refusjonService.gjørInntektsoppslag(oppdatertKorreksjon, innloggetArbeidsgiver)
+        refusjonService.gjørInntektsoppslag(oppdatertKorreksjon, innloggetSaksbehandler)
         gjørInntektoppslagForRefundering(oppdatertKorreksjon, innloggetSaksbehandler)
         val oppdatertKorreksjonIgjen = korreksjonRepository.findById(oppdatertKorreksjon.id).get()
         refusjonService.gjørBeregning(oppdatertKorreksjonIgjen, innloggetSaksbehandler)

@@ -3,9 +3,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon.autorisering
 import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.arbeidsgiver.tiltakrefusjon.RessursFinnesIkkeException
 import no.nav.arbeidsgiver.tiltakrefusjon.grunnbelop.GrunnbelopService
-import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
 import no.nav.arbeidsgiver.tiltakrefusjon.norg.NorgService
-import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterService
 import no.nav.arbeidsgiver.tiltakrefusjon.persondata.PersondataService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.BegrensetRefusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Beregning
@@ -32,6 +30,7 @@ import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import java.time.LocalDate
 import java.util.*
+
 data class InnloggetSaksbehandler(
     override val identifikator: String,
     val azureOid: UUID,

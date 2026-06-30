@@ -1,8 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.varsling
 
 import no.nav.arbeidsgiver.tiltakrefusjon.Topics
-import no.nav.arbeidsgiver.tiltakrefusjon.rapport.lagId
-import no.nav.arbeidsgiver.tiltakrefusjon.rapport.lagIdV2
+import no.nav.arbeidsgiver.tiltakrefusjon.rapport.lagRefusjonsnummer
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -43,7 +42,7 @@ class RefusjonVarselProducer(
             løpenummer = løpenummer,
             tilskuddFom = tilskuddFom,
             tilskuddTom = tilskuddTom,
-            refusjonsnummer = lagIdV2(avtaleNr, løpenummer, korreksjonsnummer, resendingsnummer),
+            refusjonsnummer = lagRefusjonsnummer(avtaleNr, løpenummer, korreksjonsnummer, resendingsnummer),
             resendingsnummer = resendingsnummer,
 
         )

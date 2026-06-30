@@ -1,11 +1,14 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
+import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBruker
 import no.nav.arbeidsgiver.tiltakrefusjon.innloggetBruker
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertNotNull
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock
@@ -27,13 +30,17 @@ class RefusjonVarig5GTest(
     private val refusjonService: RefusjonService,
     @param:Autowired
     private val refusjonRepository: RefusjonRepository,
+    @param:Autowired
+    private val korreksjonRepository: KorreksjonRepository,
 ) {
     @AfterEach
     fun teardown() {
         Now.resetClock()
     }
 
-    val innloggetArbeidsgiver = innloggetBruker("12345678901", BrukerRolle.ARBEIDSGIVER);
+    val innloggetArbeidsgiver = innloggetBruker("12345678901", BrukerRolle.ARBEIDSGIVER)
+    val innloggetSaksbehandler = innloggetBruker("X123456", BrukerRolle.BESLUTTER)
+
 
     @Test
     fun `refusjon som overskrider 5g fører til redusert utbetaling`() {
@@ -118,13 +125,102 @@ class RefusjonVarig5GTest(
         assertThat(alleRefusjoner.tilskuddsperiode("juni").refusjonsbeløp()).isEqualTo(0)
     }
 
-    private fun gjørInntektoppslagForRefusjon(refusjon: Refusjon) {
+    @Test
+    fun `en 5g-korreksjon arver samme sumUtbetaltVarig som refusjonen den korrigerer`() {
+        listOf(
+            tilskuddsmelding,
+            tilskuddsmelding.medNyId("februar").medNyPeriode(2024, 2),
+            tilskuddsmelding.medNyId("mars").medNyPeriode(2024, 3),
+            tilskuddsmelding.medNyId("april").medNyPeriode(2024, 4),
+            tilskuddsmelding.medNyId("mai").medNyPeriode(2024, 5),
+            tilskuddsmelding.medNyId("juni").medNyPeriode(2024, 6)
+        ).map { it.opprettRefusjonMedJustertTid() }.forEach { godkjennRefusjonMedJustertTid(it) }
+
+        val alleRefusjoner = refusjonRepository.findAll()
+        val maiKorreksjonsutkast = refusjonService.opprettKorreksjonsutkast(
+            alleRefusjoner.tilskuddsperiode("mai"),
+            setOf(Korreksjonsgrunn.ANNEN_GRUNN),
+            null,
+            null,
+            innloggetSaksbehandler
+        )
+
+        assertEquals(
+            alleRefusjoner.tilskuddsperiode("mai").refusjonsgrunnlag.sumUtbetaltVarig,
+            maiKorreksjonsutkast.refusjonsgrunnlag.sumUtbetaltVarig
+        )
+
+        val juniKorreksjonsutkast = refusjonService.opprettKorreksjonsutkast(
+            alleRefusjoner.tilskuddsperiode("juni"),
+            setOf(Korreksjonsgrunn.ANNEN_GRUNN),
+            null,
+            null,
+            innloggetSaksbehandler
+        )
+
+        assertEquals(
+            alleRefusjoner.tilskuddsperiode("juni").refusjonsgrunnlag.sumUtbetaltVarig,
+            juniKorreksjonsutkast.refusjonsgrunnlag.sumUtbetaltVarig
+        )
+    }
+
+    @Test
+    fun `en 5g-korrigering vil resultere i samme sum som refusjonen`() {
+        listOf(
+            tilskuddsmelding,
+            tilskuddsmelding.medNyId("februar").medNyPeriode(2024, 2),
+            tilskuddsmelding.medNyId("mars").medNyPeriode(2024, 3),
+            tilskuddsmelding.medNyId("april").medNyPeriode(2024, 4),
+            tilskuddsmelding.medNyId("mai").medNyPeriode(2024, 5),
+            tilskuddsmelding.medNyId("juni").medNyPeriode(2024, 6)
+        ).map { it.opprettRefusjonMedJustertTid() }.forEach { godkjennRefusjonMedJustertTid(it) }
+
+        val alleRefusjoner = refusjonRepository.findAll()
+        val maiKorreksjonsutkast = refusjonService.opprettKorreksjonsutkast(
+            alleRefusjoner.tilskuddsperiode("mai"),
+            setOf(Korreksjonsgrunn.ANNEN_GRUNN),
+            null,
+            null,
+            innloggetSaksbehandler
+        )
+
+        val godkjentMaiKorreksjon = godkjennKorreksjonNullbelopMedJustertTid(maiKorreksjonsutkast)
+        val maiBeregning = godkjentMaiKorreksjon.refusjonsgrunnlag.beregning
+
+        assertNotNull(maiBeregning)
+        assertEquals(
+            alleRefusjoner.tilskuddsperiode("mai").refusjonsgrunnlag.beregning?.refusjonsbeløp,
+            maiBeregning.refusjonsbeløp + godkjentMaiKorreksjon.refusjonsgrunnlag.tidligereUtbetalt
+        )
+
+        val juniKorreksjonsutkast = refusjonService.opprettKorreksjonsutkast(
+            alleRefusjoner.tilskuddsperiode("juni"),
+            setOf(Korreksjonsgrunn.ANNEN_GRUNN),
+            null,
+            null,
+            innloggetSaksbehandler
+        )
+
+        val godkjentJuniKorreksjon = godkjennKorreksjonNullbelopMedJustertTid(juniKorreksjonsutkast)
+        val godkjentJuniBeregning = godkjentJuniKorreksjon.refusjonsgrunnlag.beregning
+
+        assertNotNull(godkjentJuniBeregning)
+
+        assertEquals(
+            alleRefusjoner.tilskuddsperiode("juni").refusjonsgrunnlag.beregning?.refusjonsbeløp,
+            godkjentJuniBeregning.refusjonsbeløp + godkjentJuniKorreksjon.refusjonsgrunnlag.tidligereUtbetalt
+        )
+    }
+
+    private fun gjørInntektoppslagForRefundering(refundering: Refundering, utfortAv: InnloggetBruker) {
         // Sett innhentede inntekter til opptjent i periode
-        refusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.forEach { it.erOpptjentIPeriode = true }
+        refundering.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.forEach { it.erOpptjentIPeriode = true }
         // Bekreft at alle inntektene kun er fra tiltaket
-        refusjonService.endreBruttolønn(refusjon, true, null)
-        refusjonService.gjørBeregning(refusjon, innloggetArbeidsgiver)
-        refusjonRepository.save(refusjon)
+        refusjonService.endreBruttolønn(refundering, true, null, utfortAv)
+        when (refundering) {
+            is Korreksjon -> korreksjonRepository.save(refundering)
+            is Refusjon -> refusjonRepository.save(refundering)
+        }
     }
 
     private fun godkjennRefusjonMedJustertTid(refusjon: Refusjon) {
@@ -132,10 +228,21 @@ class RefusjonVarig5GTest(
         val oppdatertRefusjon = refusjonRepository.findById(refusjon.id).get()
         refusjonService.gjørBedriftKontonummeroppslag(oppdatertRefusjon)
         refusjonService.gjørInntektsoppslag(oppdatertRefusjon, innloggetArbeidsgiver)
-        gjørInntektoppslagForRefusjon(oppdatertRefusjon)
+        gjørInntektoppslagForRefundering(oppdatertRefusjon, innloggetArbeidsgiver)
         val oppdatertRefusjonIgjen = refusjonRepository.findById(oppdatertRefusjon.id).get()
         refusjonService.godkjennForArbeidsgiver(oppdatertRefusjonIgjen, innloggetArbeidsgiver)
         refusjonRepository.save(oppdatertRefusjonIgjen)
+    }
+
+    private fun godkjennKorreksjonNullbelopMedJustertTid(korreksjon: Korreksjon): Korreksjon {
+        val oppdatertKorreksjon = korreksjonRepository.findById(korreksjon.id).get()
+        refusjonService.gjørBedriftKontonummeroppslag(oppdatertKorreksjon)
+        refusjonService.gjørInntektsoppslag(oppdatertKorreksjon, innloggetArbeidsgiver)
+        gjørInntektoppslagForRefundering(oppdatertKorreksjon, innloggetSaksbehandler)
+        val oppdatertKorreksjonIgjen = korreksjonRepository.findById(oppdatertKorreksjon.id).get()
+        refusjonService.gjørBeregning(oppdatertKorreksjonIgjen, innloggetSaksbehandler)
+        oppdatertKorreksjonIgjen.fullførKorreksjonVedOppgjort(innloggetSaksbehandler)
+        return korreksjonRepository.save(oppdatertKorreksjonIgjen)
     }
 
     private fun TilskuddsperiodeGodkjentMelding.opprettRefusjonMedJustertTid(): Refusjon {

@@ -176,14 +176,14 @@ data class InnloggetSaksbehandler(
         }
     }
 
-    private fun sjekkKorreksjonTilgang() {
+    private fun sjekkSkrivetilgang() {
         if (!harKorreksjonTilgang) {
             throw TilgangskontrollException()
         }
     }
 
     fun opprettKorreksjonsutkast(id: String, korreksjonsgrunner: Set<Korreksjonsgrunn>, unntakOmInntekterFremitid: Int?, annetGrunn: String?): Refusjon {
-        sjekkKorreksjonTilgang()
+        sjekkSkrivetilgang()
         val refusjonSomSkalKorrigeres = finnRefusjon(id)
         log.info("Oppretter korreksjonsutkast fra refusjon med id ${refusjonSomSkalKorrigeres.id} og status ${refusjonSomSkalKorrigeres.status}")
         refusjonService.opprettKorreksjonsutkast(refusjonSomSkalKorrigeres, korreksjonsgrunner, unntakOmInntekterFremitid, annetGrunn)
@@ -191,7 +191,7 @@ data class InnloggetSaksbehandler(
     }
 
     fun slettKorreksjonsutkast(id: String) {
-        sjekkKorreksjonTilgang()
+        sjekkSkrivetilgang()
         val korreksjon = finnKorreksjon(id)
         sjekkLesetilgang(korreksjon)
         val refusjon = finnRefusjon(korreksjon.korrigererRefusjonId)
@@ -204,7 +204,7 @@ data class InnloggetSaksbehandler(
     }
 
     fun utbetalKorreksjon(id: String) {
-        sjekkKorreksjonTilgang()
+        sjekkSkrivetilgang()
         val korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(korreksjon)
         val refusjon = finnRefusjon(korreksjon.korrigererRefusjonId)
@@ -218,7 +218,7 @@ data class InnloggetSaksbehandler(
     }
 
     fun fullførKorreksjonVedOppgjort(id: String) {
-        sjekkKorreksjonTilgang()
+        sjekkSkrivetilgang()
         val korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(korreksjon)
         val refusjon = finnRefusjon(korreksjon.korrigererRefusjonId)
@@ -232,7 +232,7 @@ data class InnloggetSaksbehandler(
     }
 
     fun fullførKorreksjonVedTilbakekreving(id: String) {
-        sjekkKorreksjonTilgang()
+        sjekkSkrivetilgang()
         val korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(korreksjon)
         val refusjon = finnRefusjon(korreksjon.korrigererRefusjonId)
@@ -246,7 +246,7 @@ data class InnloggetSaksbehandler(
     }
 
     fun endreBruttolønn(id: String, inntekterKunFraTiltaket: Boolean?, endretBruttoLønn: Int?) {
-        sjekkKorreksjonTilgang()
+        sjekkSkrivetilgang()
         val korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(korreksjon)
         korreksjon.endreBruttolønn(inntekterKunFraTiltaket, endretBruttoLønn)
@@ -269,7 +269,7 @@ data class InnloggetSaksbehandler(
     }
 
     fun setInntektslinjeTilOpptjentIPeriode(korreksjonId: String, inntekslinjeId: String, erOpptjentIPeriode: Boolean) {
-        sjekkKorreksjonTilgang()
+        sjekkSkrivetilgang()
         val korreksjon = korreksjonRepository.findByIdOrNull(korreksjonId) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(korreksjon)
         korreksjon.setInntektslinjeTilOpptjentIPeriode(inntekslinjeId, erOpptjentIPeriode)
@@ -279,7 +279,7 @@ data class InnloggetSaksbehandler(
     }
 
     fun settFratrekkRefunderbarBeløp(id: String, fratrekkRefunderbarBeløp: Boolean, refunderbarBeløp: Int?) {
-        sjekkKorreksjonTilgang()
+        sjekkSkrivetilgang()
         val korreksjon: Korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(korreksjon)
         korreksjon.settFratrekkRefunderbarBeløp(fratrekkRefunderbarBeløp, refunderbarBeløp)
@@ -289,7 +289,7 @@ data class InnloggetSaksbehandler(
     }
 
     fun overstyrMinusbeløp(id: String, minusBeløp: Int) {
-        sjekkKorreksjonTilgang()
+        sjekkSkrivetilgang()
         val korreksjon: Korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(korreksjon)
         korreksjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp = minusBeløp
@@ -297,7 +297,7 @@ data class InnloggetSaksbehandler(
     }
 
     fun overstyrHarFerietrekkForSammeMåned(id: String, harFerietrekkForSammeMåned: Boolean) {
-        sjekkKorreksjonTilgang()
+        sjekkSkrivetilgang()
         val korreksjon: Korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(korreksjon)
         korreksjon.refusjonsgrunnlag.harFerietrekkForSammeMåned = harFerietrekkForSammeMåned

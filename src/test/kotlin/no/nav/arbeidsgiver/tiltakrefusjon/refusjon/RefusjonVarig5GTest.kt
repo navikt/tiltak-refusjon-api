@@ -212,7 +212,7 @@ class RefusjonVarig5GTest(
         )
     }
 
-    private fun gjørInntektoppslagForRefundering(refundering: Refundering, utfortAv: InnloggetBruker) {
+    private fun velgAlleInntektslinjer(refundering: Refundering, utfortAv: InnloggetBruker) {
         // Sett innhentede inntekter til opptjent i periode
         refundering.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.forEach { it.erOpptjentIPeriode = true }
         // Bekreft at alle inntektene kun er fra tiltaket
@@ -228,7 +228,7 @@ class RefusjonVarig5GTest(
         val oppdatertRefusjon = refusjonRepository.findById(refusjon.id).get()
         refusjonService.gjørBedriftKontonummeroppslag(oppdatertRefusjon)
         refusjonService.gjørInntektsoppslag(oppdatertRefusjon, innloggetArbeidsgiver)
-        gjørInntektoppslagForRefundering(oppdatertRefusjon, innloggetArbeidsgiver)
+        velgAlleInntektslinjer(oppdatertRefusjon, innloggetArbeidsgiver)
         val oppdatertRefusjonIgjen = refusjonRepository.findById(oppdatertRefusjon.id).get()
         refusjonService.godkjennForArbeidsgiver(oppdatertRefusjonIgjen, innloggetArbeidsgiver)
         refusjonRepository.save(oppdatertRefusjonIgjen)
@@ -238,7 +238,7 @@ class RefusjonVarig5GTest(
         val oppdatertKorreksjon = korreksjonRepository.findById(korreksjon.id).get()
         refusjonService.gjørBedriftKontonummeroppslag(oppdatertKorreksjon)
         refusjonService.gjørInntektsoppslag(oppdatertKorreksjon, innloggetSaksbehandler)
-        gjørInntektoppslagForRefundering(oppdatertKorreksjon, innloggetSaksbehandler)
+        velgAlleInntektslinjer(oppdatertKorreksjon, innloggetSaksbehandler)
         val oppdatertKorreksjonIgjen = korreksjonRepository.findById(oppdatertKorreksjon.id).get()
         refusjonService.gjørBeregning(oppdatertKorreksjonIgjen, innloggetSaksbehandler)
         oppdatertKorreksjonIgjen.fullførKorreksjonVedOppgjort(innloggetSaksbehandler)

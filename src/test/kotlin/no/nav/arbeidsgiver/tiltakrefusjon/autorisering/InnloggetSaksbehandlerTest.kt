@@ -50,8 +50,6 @@ class InnloggetSaksbehandlerTest(
         refusjonRepository,
         korreksjonRepository,
         refusjonService,
-        inntektskomponentService,
-        kontoregisterService,
         AdGruppeTilganger(
             beslutter = true,
             korreksjon = true,

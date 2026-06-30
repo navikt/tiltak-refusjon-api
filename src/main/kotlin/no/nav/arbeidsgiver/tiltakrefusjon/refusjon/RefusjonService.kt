@@ -184,6 +184,36 @@ class RefusjonService(
         return gammelBeregnetSum
     }
 
+    fun gjørInntektsoppslag(korreksjon: Korreksjon, utfortAv: InnloggetBruker) {
+        if (!korreksjon.skalGjøreInntektsoppslag()) {
+            return
+        }
+        var antallMånederSomSkalSjekkes: Long = 1
+        if (korreksjon.korreksjonsgrunner.contains(Korreksjonsgrunn.HENT_INNTEKTER_TO_MÅNEDER_FREM)) {
+            val unntakOmInntekterFremitid = korreksjon.unntakOmInntekterFremitid
+            if (unntakOmInntekterFremitid != null) {
+                antallMånederSomSkalSjekkes = unntakOmInntekterFremitid.toLong()
+            } else {
+                antallMånederSomSkalSjekkes = 2
+            }
+        }
+
+        val inntektsoppslag = inntektskomponentService.hentInntekter(
+            fnr = korreksjon.deltakerFnr,
+            bedriftnummerDetSøkesPå = korreksjon.bedriftNr,
+            datoFra = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
+            datoTil = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom.plusMonths(
+                antallMånederSomSkalSjekkes
+            )
+        )
+        val inntektsgrunnlag = Inntektsgrunnlag(
+            inntekter = inntektsoppslag.first,
+            respons = inntektsoppslag.second
+        )
+        korreksjon.oppgiInntektsgrunnlag(inntektsgrunnlag)
+        gjørKorreksjonBeregning(korreksjon, utfortAv)
+    }
+
     fun gjørInntektsoppslag(refusjon: Refusjon, utførtAv: InnloggetBruker) {
         if (!refusjon.skalGjøreInntektsoppslag()) {
             return
@@ -295,6 +325,14 @@ class RefusjonService(
             } ?: run {
             log.warn("Kunne ikke forkorte refusjon med tilskuddsperiodeId ${melding.tilskuddsperiodeId}, fant ikke refusjonen")
         }
+    }
+
+    fun gjørBedriftKontonummeroppslag(korreksjon: Korreksjon) {
+        if (!korreksjon.skalGjøreKontonummerOppslag()) {
+            return
+        }
+        val kontonummer = kontoregisterService.hentBankkontonummer(korreksjon.bedriftNr)
+        korreksjon.refusjonsgrunnlag.oppgiBedriftKontonummer(kontonummer)
     }
 
     fun gjørBedriftKontonummeroppslag(refusjon: Refusjon) {

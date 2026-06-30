@@ -11,7 +11,6 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.BegrensetRefusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Beregning
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.BrukerRolle
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.HentSaksbehandlerRefusjonerQueryParametre
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Inntektsgrunnlag
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Korreksjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.KorreksjonRepository
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Korreksjonsgrunn
@@ -42,8 +41,6 @@ data class InnloggetSaksbehandler(
     @JsonIgnore val refusjonRepository: RefusjonRepository,
     @JsonIgnore val korreksjonRepository: KorreksjonRepository,
     @JsonIgnore val refusjonService: RefusjonService,
-    @JsonIgnore val inntektskomponentService: InntektskomponentService,
-    @JsonIgnore val kontoregisterService: KontoregisterService,
     @JsonIgnore val adGruppeTilganger: AdGruppeTilganger,
     @JsonIgnore val persondataService: PersondataService,
     @JsonIgnore val grunnbelopService: GrunnbelopService,
@@ -135,38 +132,21 @@ data class InnloggetSaksbehandler(
     fun finnKorreksjon(id: String): Korreksjon {
         val korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(korreksjon)
+        var erOppdatert = false
         if (korreksjon.skalGjøreKontonummerOppslag()) {
-            val kontonummer = kontoregisterService.hentBankkontonummer(korreksjon.bedriftNr)
-            korreksjon.refusjonsgrunnlag.oppgiBedriftKontonummer(kontonummer)
-            korreksjonRepository.save(korreksjon)
+            refusjonService.gjørBedriftKontonummeroppslag(korreksjon)
+            erOppdatert = true
         }
         if (korreksjon.skalGjøreInntektsoppslag()) {
-            var antallMånederSomSkalSjekkes: Long = 1
-            if (korreksjon.korreksjonsgrunner.contains(Korreksjonsgrunn.HENT_INNTEKTER_TO_MÅNEDER_FREM)) {
-                val unntakOmInntekterFremitid = korreksjon.unntakOmInntekterFremitid
-                if (unntakOmInntekterFremitid != null) {
-                    antallMånederSomSkalSjekkes = unntakOmInntekterFremitid.toLong()
-                } else {
-                    antallMånederSomSkalSjekkes = 2
-                }
-            }
-
-            val inntektsoppslag = inntektskomponentService.hentInntekter(
-                fnr = korreksjon.deltakerFnr,
-                bedriftnummerDetSøkesPå = korreksjon.bedriftNr,
-                datoFra = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
-                datoTil = korreksjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom.plusMonths(antallMånederSomSkalSjekkes)
-            )
-            val inntektsgrunnlag = Inntektsgrunnlag(
-                inntekter = inntektsoppslag.first,
-                respons = inntektsoppslag.second
-            )
-            korreksjon.oppgiInntektsgrunnlag(inntektsgrunnlag)
-            refusjonService.gjørKorreksjonBeregning(korreksjon, this)
-            korreksjonRepository.save(korreksjon)
+            refusjonService.gjørInntektsoppslag(korreksjon, this)
+            erOppdatert = true
         }
-        return korreksjon
-    }
+        return if (erOppdatert) {
+            korreksjonRepository.save(korreksjon)
+        } else {
+            korreksjon
+        }
+     }
 
     private fun sjekkLesetilgang(refusjon: Refusjon) {
         val tilgang = tilgangskontrollService.harLeseTilgang(internIdentifikatorer, refusjon.deltakerFnr)

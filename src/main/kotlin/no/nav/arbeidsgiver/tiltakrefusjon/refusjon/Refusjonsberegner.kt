@@ -108,7 +108,7 @@ fun beregnRefusjonsbeløp(
 
     val overTilskuddsbeløp = avrundetBeregnetBeløp > tilskuddsgrunnlag.tilskuddsbeløp
     var refusjonsbeløp: Int =
-        (if (overTilskuddsbeløp) tilskuddsgrunnlag.tilskuddsbeløp else avrundetBeregnetBeløp) - tidligereUtbetalt + forrigeRefusjonMinusBeløp
+        (if (overTilskuddsbeløp) tilskuddsgrunnlag.tilskuddsbeløp else avrundetBeregnetBeløp) + forrigeRefusjonMinusBeløp
     val grunnbelopForPerioden: Grunnbelop = beregningskontekst.grunnbelopForPerioden(tilskuddFom)
 
     var overFemGrunnbeløp = false
@@ -130,6 +130,9 @@ fun beregnRefusjonsbeløp(
             overFemGrunnbeløp = true
         }
     }
+
+    // Hvis vi korrigerer vil det være et utbetalt beløp på den korrigerte refusjonen som vi må trekke fra til sist
+    refusjonsbeløp = refusjonsbeløp - tidligereUtbetalt
 
     return Beregning(
         lønn = lønn,

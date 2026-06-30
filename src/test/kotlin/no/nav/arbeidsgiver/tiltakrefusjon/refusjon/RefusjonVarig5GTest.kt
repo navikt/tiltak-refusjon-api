@@ -126,45 +126,6 @@ class RefusjonVarig5GTest(
     }
 
     @Test
-    fun `en 5g-korreksjon arver samme sumUtbetaltVarig som refusjonen den korrigerer`() {
-        listOf(
-            tilskuddsmelding,
-            tilskuddsmelding.medNyId("februar").medNyPeriode(2024, 2),
-            tilskuddsmelding.medNyId("mars").medNyPeriode(2024, 3),
-            tilskuddsmelding.medNyId("april").medNyPeriode(2024, 4),
-            tilskuddsmelding.medNyId("mai").medNyPeriode(2024, 5),
-            tilskuddsmelding.medNyId("juni").medNyPeriode(2024, 6)
-        ).map { it.opprettRefusjonMedJustertTid() }.forEach { godkjennRefusjonMedJustertTid(it) }
-
-        val alleRefusjoner = refusjonRepository.findAll()
-        val maiKorreksjonsutkast = refusjonService.opprettKorreksjonsutkast(
-            alleRefusjoner.tilskuddsperiode("mai"),
-            setOf(Korreksjonsgrunn.ANNEN_GRUNN),
-            null,
-            null,
-            innloggetSaksbehandler
-        )
-
-        assertEquals(
-            alleRefusjoner.tilskuddsperiode("mai").refusjonsgrunnlag.sumUtbetaltVarig,
-            maiKorreksjonsutkast.refusjonsgrunnlag.sumUtbetaltVarig
-        )
-
-        val juniKorreksjonsutkast = refusjonService.opprettKorreksjonsutkast(
-            alleRefusjoner.tilskuddsperiode("juni"),
-            setOf(Korreksjonsgrunn.ANNEN_GRUNN),
-            null,
-            null,
-            innloggetSaksbehandler
-        )
-
-        assertEquals(
-            alleRefusjoner.tilskuddsperiode("juni").refusjonsgrunnlag.sumUtbetaltVarig,
-            juniKorreksjonsutkast.refusjonsgrunnlag.sumUtbetaltVarig
-        )
-    }
-
-    @Test
     fun `en 5g-korrigering vil resultere i samme sum som refusjonen`() {
         listOf(
             tilskuddsmelding,
@@ -187,6 +148,10 @@ class RefusjonVarig5GTest(
         val godkjentMaiKorreksjon = godkjennKorreksjonNullbelopMedJustertTid(maiKorreksjonsutkast)
         val maiBeregning = godkjentMaiKorreksjon.refusjonsgrunnlag.beregning
 
+        assertEquals(
+            alleRefusjoner.tilskuddsperiode("mai").refusjonsgrunnlag.sumUtbetaltVarig,
+            maiKorreksjonsutkast.refusjonsgrunnlag.sumUtbetaltVarig
+        )
         assertNotNull(maiBeregning)
         assertEquals(
             alleRefusjoner.tilskuddsperiode("mai").refusjonsgrunnlag.beregning?.refusjonsbeløp,
@@ -204,8 +169,11 @@ class RefusjonVarig5GTest(
         val godkjentJuniKorreksjon = godkjennKorreksjonNullbelopMedJustertTid(juniKorreksjonsutkast)
         val godkjentJuniBeregning = godkjentJuniKorreksjon.refusjonsgrunnlag.beregning
 
+        assertEquals(
+            alleRefusjoner.tilskuddsperiode("juni").refusjonsgrunnlag.sumUtbetaltVarig,
+            juniKorreksjonsutkast.refusjonsgrunnlag.sumUtbetaltVarig
+        )
         assertNotNull(godkjentJuniBeregning)
-
         assertEquals(
             alleRefusjoner.tilskuddsperiode("juni").refusjonsgrunnlag.beregning?.refusjonsbeløp,
             godkjentJuniBeregning.refusjonsbeløp + godkjentJuniKorreksjon.refusjonsgrunnlag.tidligereUtbetalt

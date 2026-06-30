@@ -42,12 +42,12 @@ fun lagId(avtaleNr: Int, løpenummer: Int, korreksjonsnummer: Int?, resendingsnu
 /** Erstatter forhåpentligvis lagId når oeBs er klare for det **/
 fun lagRefusjonsnummer(avtaleNr: Int, løpenummer: Int, korreksjonsnummer: Int?, resendingsnummer: Int?): String {
     return if (korreksjonsnummer != null && resendingsnummer != null) {
-        "${avtaleNr}-$løpenummer-K$korreksjonsnummer-R$resendingsnummer"
+        "$avtaleNr-$løpenummer-K$korreksjonsnummer-R$resendingsnummer"
     } else if (korreksjonsnummer != null) {
-        "${avtaleNr}-$løpenummer-K$korreksjonsnummer"
+        "$avtaleNr-$løpenummer-K$korreksjonsnummer"
     } else if (resendingsnummer != null) {
-        "${avtaleNr}-$løpenummer-R$resendingsnummer"
+        "$avtaleNr-$løpenummer-R$resendingsnummer"
     } else {
-        "${avtaleNr}-$løpenummer"
+        "$avtaleNr-$løpenummer"
     }
 }

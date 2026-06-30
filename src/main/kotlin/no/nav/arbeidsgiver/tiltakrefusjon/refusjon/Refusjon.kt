@@ -329,7 +329,7 @@ class Refusjon(
             return refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsbeløp
         } else {
             if (refusjonsgrunnlag.beregning == null) {
-                return 0;
+                return 0
             } else {
                 return refusjonsgrunnlag.beregning!!.refusjonsbeløp
             }

@@ -113,7 +113,6 @@ class AdminController(
                 annetGrunn = null,
                 SYSTEM_BRUKER
             )
-            // korreksjoner.add(korreksjon.id)
         }
         return korreksjoner
     }

@@ -114,7 +114,7 @@ class Korreksjon(
     }
 
     fun skalGjøreInntektsoppslag(): Boolean {
-        if (status != Korreksjonstype.UTKAST) {
+        if (status.isSendtInn()) {
             return false
         }
         if (this.tiltakstype().harFastUtbetalingssum())

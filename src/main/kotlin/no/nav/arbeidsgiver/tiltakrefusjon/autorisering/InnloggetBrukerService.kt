@@ -97,8 +97,6 @@ class InnloggetBrukerService(
                     refusjonRepository = refusjonRepository,
                     korreksjonRepository = korreksjonRepository,
                     refusjonService = refusjonService,
-                    inntektskomponentService = inntektskomponentService,
-                    kontoregisterService = kontoregisterService,
                     adGruppeTilganger = AdGruppeTilganger.av(adGrupperConfig, context),
                     norgeService = norgService,
                     persondataService = persondataService,

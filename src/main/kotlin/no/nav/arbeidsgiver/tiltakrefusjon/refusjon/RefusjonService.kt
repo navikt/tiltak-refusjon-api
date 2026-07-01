@@ -332,7 +332,9 @@ class RefusjonService(
             return
         }
         val kontonummer = kontoregisterService.hentBankkontonummer(korreksjon.bedriftNr)
-        korreksjon.refusjonsgrunnlag.oppgiBedriftKontonummer(kontonummer)
+        if (kontonummer !== null) {
+            korreksjon.oppgiBedriftKontonummer(kontonummer)
+        }
     }
 
     fun gjørBedriftKontonummeroppslag(refusjon: Refusjon) {

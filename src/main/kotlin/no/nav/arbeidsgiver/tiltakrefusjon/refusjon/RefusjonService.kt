@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.Instant
 import java.time.LocalDate
 import java.time.YearMonth
 import kotlin.time.measureTimedValue
@@ -112,13 +111,18 @@ class RefusjonService(
      * men at vi overfører minusbeløp til neste måned dersom tiltaket fortsetter måneden etter. Hvis tiltaket avsluttes den samme måneden hvor det går i minus,
      * så går refusjonen bare i 0,-.
      */
-    fun settMinusbeløpFraTidligereRefusjonerTilknyttetAvtalen(refusjon: Refusjon) {
-        val avtaleNr = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr
-        val alleUoppgjorteMinusbeløp = minusbelopRepository.findAllByAvtaleNrAndGjortOppIsFalse(avtaleNr)
-        val sumMinusbelop = alleUoppgjorteMinusbeløp
-            .mapNotNull { it.beløp }
-            .sum()
-        refusjon.refusjonsgrunnlag.oppgiForrigeRefusjonsbeløp(sumMinusbelop)
+    fun settMinusbeløpFraTidligereRefusjonerTilknyttetAvtalen(refundering: Refundering) {
+        when (refundering) {
+            is Korreksjon -> return // Korreksjoner baserer seg på minusbeløpet til refusjonen som ble korrigert
+            is Refusjon -> {
+                val avtaleNr = refundering.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr
+                val alleUoppgjorteMinusbeløp = minusbelopRepository.findAllByAvtaleNrAndGjortOppIsFalse(avtaleNr)
+                val sumMinusbelop = alleUoppgjorteMinusbeløp
+                    .mapNotNull { it.beløp }
+                    .sum()
+                refundering.refusjonsgrunnlag.oppgiForrigeRefusjonsbeløp(sumMinusbelop)
+            }
+        }
     }
 
     /**
@@ -142,7 +146,13 @@ class RefusjonService(
                 refundering.bedriftNr,
                 utbetalteRefusjonsstatuser,
                 refundering.tiltakstype()
-            )
+            ).let { refusjoner ->
+                when (refundering) {
+                    // Ikke tell med refusjonen som korreksjonen er basert på - da vil summen bli for høy
+                    is Korreksjon -> refusjoner.filter { it.korreksjonId != refundering.id }
+                    is Refusjon -> refusjoner
+                }
+            }
         val utbetalteKorreksjoner =
             korreksjonRepository.findAllByDeltakerFnrAndBedriftNrAndStatusInAndRefusjonsgrunnlag_Tilskuddsgrunnlag_Tiltakstype(
                 refundering.deltakerFnr,
@@ -344,17 +354,19 @@ class RefusjonService(
         refusjon.oppgiBedriftKontonummer(kontoregisterService.hentBankkontonummer(refusjon.bedriftNr))
     }
 
-    fun opprettKorreksjonsutkast(refusjon: Refusjon, korreksjonsgrunner: Set<Korreksjonsgrunn>, unntakOmInntekterFremitid: Int?, annetGrunn: String?): Korreksjon {
-        val korreksjonsutkast = refusjon.opprettKorreksjonsutkast(korreksjonsgrunner, unntakOmInntekterFremitid, annetGrunn)
-        if (refusjon.tiltakstype() == Tiltakstype.VTAO) {
-            // Utfør beregning umiddelbart for VTAO-korreksjoner
-            korreksjonsutkast.refusjonsgrunnlag.beregning = beregnKorreksjon(
-                hentBeregningskontekst(korreksjonsutkast),
-                korreksjonsutkast
-            )
-        }
+    fun opprettOgLagreKorreksjonsutkast(
+        refusjon: Refusjon,
+        korreksjonsgrunner: Set<Korreksjonsgrunn>,
+        unntakOmInntekterFremitid: Int?,
+        annetGrunn: String?,
+        utfortAv: InnloggetBruker
+    ): Korreksjon {
+        val korreksjonsutkast =
+            refusjon.opprettKorreksjonsutkast(korreksjonsgrunner, unntakOmInntekterFremitid, annetGrunn)
         korreksjonRepository.save(korreksjonsutkast)
         refusjonRepository.save(refusjon)
+        oppdaterRefundering(korreksjonsutkast, utfortAv)
+        korreksjonRepository.save(korreksjonsutkast)
         return korreksjonsutkast
     }
 
@@ -388,6 +400,13 @@ class RefusjonService(
         }
     }
 
+    fun settOmFerieErTrukketForSammeMåned(refundering: Refundering) {
+        when (refundering) {
+            is Korreksjon -> return
+            is Refusjon -> settOmFerieErTrukketForSammeMåned(refundering)
+        }
+    }
+
     fun oppdaterRefusjon(refusjon: Refusjon, utførtAv: InnloggetBruker) {
         log.info("Oppdaterer refusjon ${refusjon.id} med data")
         // Skal kun mutere refusjonsgrunnlaget for refusjoner som skal sendes inn
@@ -402,8 +421,29 @@ class RefusjonService(
         }
     }
 
-    fun oppdaterSistEndret(refusjon: Refusjon) {
-        refusjon.sistEndret = Instant.now()
+    fun oppdaterRefundering(refundering: Refundering, utførtAv: InnloggetBruker) {
+        when (refundering) {
+            is Refusjon -> log.info("Oppdaterer refusjon ${refundering.id} med data")
+            is Korreksjon -> log.info("Oppdaterer korreksjon ${refundering.id} med data")
+        }
+
+        // Skal kun mutere refunderingsgrunnlaget for refunderinger som skal sendes inn
+        if (refundering.status.isUbehandlet()) {
+            settMinusbeløpFraTidligereRefusjonerTilknyttetAvtalen(refundering)
+            if (refundering.tiltakstype().har5gBegrensning()) {
+                refundering.refusjonsgrunnlag.sumUtbetaltVarig = totaltUtbetaltForTiltakMed5gBegrensning(refundering)
+            }
+            settOmFerieErTrukketForSammeMåned(refundering)
+            gjørBeregning(refundering, utførtAv)
+            oppdaterSistEndret(refundering)
+        }
+    }
+
+    fun oppdaterSistEndret(refundering: Refundering) {
+        when (refundering) {
+            is Korreksjon -> Unit
+            is Refusjon -> refundering.sistEndret = Now.instant()
+        }
     }
 
     private fun gjørRefusjonsberegning(refusjon: Refusjon, utførtAv: InnloggetBruker) {
@@ -430,8 +470,18 @@ class RefusjonService(
         }
     }
 
-    fun endreBruttolønn(refusjon: Refusjon, inntekterKunFraTiltaket: Boolean?, bruttoLønn: Int?) {
-        refusjon.endreBruttolønn(inntekterKunFraTiltaket, bruttoLønn)
+    fun endreBruttolønn(
+        refundering: Refundering,
+        inntekterKunFraTiltaket: Boolean?,
+        bruttoLønn: Int?,
+        utfortAv: InnloggetBruker
+    ) {
+        when (refundering) {
+            is Refusjon -> refundering.endreBruttolønn(inntekterKunFraTiltaket, bruttoLønn)
+            is Korreksjon -> refundering.endreBruttolønn(inntekterKunFraTiltaket, bruttoLønn)
+        }
+        gjørBeregning(refundering, utfortAv)
+        oppdaterSistEndret(refundering)
     }
 
     @Transactional

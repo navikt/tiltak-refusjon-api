@@ -683,8 +683,7 @@ fun `tilskuddsperioder som er ettersendt men ikke utgått får riktig status ved
         refusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }
             ?.forEach { it.erOpptjentIPeriode = true }
         // Bekreft at alle inntektene kun er fra tiltaket
-        refusjonService.endreBruttolønn(refusjon, true, null)
-        refusjonService.gjørBeregning(refusjon, innloggetArbeidsgiver)
+        refusjonService.endreBruttolønn(refusjon, true, null, innloggetArbeidsgiver)
     }
 
 }

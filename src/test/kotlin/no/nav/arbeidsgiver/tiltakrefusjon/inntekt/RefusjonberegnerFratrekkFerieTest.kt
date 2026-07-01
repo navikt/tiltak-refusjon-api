@@ -114,11 +114,9 @@ class RefusjonberegnerFratrekkFerieTest(
         refusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }
             ?.forEach { it.erOpptjentIPeriode = true }
         // Bekreft at alle inntektene kun er fra tiltaket
-        //refusjonService.oppdaterRefusjon(refusjon)
-        refusjonService.endreBruttolønn(refusjon, true, null)
-        refusjonService.gjørBeregning(refusjon, innloggetArbeidsgiver);
+        refusjonService.endreBruttolønn(refusjon, true, null, innloggetArbeidsgiver)
 
-        return refusjon;
+        return refusjon
     }
 
     fun `vis utregning med feriefratrekk`(refusjon: Refusjon, TREKKFORFERIEGRUNNLAG: Int): Int {

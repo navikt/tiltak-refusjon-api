@@ -758,11 +758,9 @@ internal class InnloggetArbeidsgiverTest(
         refusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }
             ?.forEach { it.erOpptjentIPeriode = true }
         // Bekreft at alle inntektene kun er fra tiltaket
-        refusjonService.endreBruttolønn(refusjon, true, null)
-        refusjonService.gjørBeregning(refusjon, innloggetArbeidsgiverBruker)
+        refusjonService.endreBruttolønn(refusjon, true, null, innloggetArbeidsgiverBruker)
 
-        refusjonRepository.save(refusjon)
-        return refusjon;
+        return refusjonRepository.save(refusjon)
     }
 
     @Test

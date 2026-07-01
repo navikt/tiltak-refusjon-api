@@ -158,9 +158,7 @@ data class InnloggetArbeidsgiver(
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr, refusjon.deltakerFnr)
         sjekkSistEndret(refusjon, sistEndret)
-        refusjonService.endreBruttolønn(refusjon, inntekterKunFraTiltaket, bruttoLønn)
-        refusjonService.gjørBeregning(refusjon, this)
-        refusjonService.oppdaterSistEndret(refusjon)
+        refusjonService.endreBruttolønn(refusjon, inntekterKunFraTiltaket, bruttoLønn, this)
         refusjonRepository.save(refusjon)
     }
 

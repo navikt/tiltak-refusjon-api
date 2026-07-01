@@ -148,7 +148,7 @@ class RefusjonService(
                 refundering.tiltakstype()
             ).let { refusjoner ->
                 when (refundering) {
-                    // Hvis refunderingen er en korreksjon må vi ignorere refusjonen som er i ferd med å korrigeres
+                    // Ikke tell med refusjonen som korreksjonen er basert på - da vil summen bli for høy
                     is Korreksjon -> refusjoner.filter { it.korreksjonId != refundering.id }
                     is Refusjon -> refusjoner
                 }

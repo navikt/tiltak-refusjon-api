@@ -211,7 +211,7 @@ class RefusjonService(
             respons = inntektsoppslag.second
         )
         korreksjon.oppgiInntektsgrunnlag(inntektsgrunnlag)
-        gjørKorreksjonBeregning(korreksjon, utfortAv)
+        gjørKorreksjonsberegning(korreksjon, utfortAv)
     }
 
     fun gjørInntektsoppslag(refusjon: Refusjon, utførtAv: InnloggetBruker) {
@@ -406,7 +406,7 @@ class RefusjonService(
         refusjon.sistEndret = Instant.now()
     }
 
-    fun gjørBeregning(refusjon: Refusjon, utførtAv: InnloggetBruker) {
+    private fun gjørRefusjonsberegning(refusjon: Refusjon, utførtAv: InnloggetBruker) {
         val beregning: Beregning? = beregnRefusjon(hentBeregningskontekst(refusjon), refusjon)
         if (beregning != null) {
             refusjon.refusjonsgrunnlag.beregning = beregning
@@ -415,11 +415,18 @@ class RefusjonService(
         }
     }
 
-    fun gjørKorreksjonBeregning(korreksjon: Korreksjon, utførtAv: InnloggetBruker) {
+    private fun gjørKorreksjonsberegning(korreksjon: Korreksjon, utførtAv: InnloggetBruker) {
         val beregning = beregnKorreksjon(hentBeregningskontekst(korreksjon), korreksjon)
         if (beregning != null) {
             korreksjon.refusjonsgrunnlag.beregning = beregning
             applicationEventPublisher.publishEvent(KorreksjonBeregningUtført(korreksjon, utførtAv))
+        }
+    }
+
+    fun gjørBeregning(refundering: Refundering, utfortAv: InnloggetBruker) {
+        when (refundering) {
+            is Korreksjon -> gjørKorreksjonsberegning(refundering, utfortAv)
+            is Refusjon -> gjørRefusjonsberegning(refundering, utfortAv)
         }
     }
 
@@ -490,7 +497,7 @@ class RefusjonService(
                 periodeStart,
                 periodeSlutt
             )
-        return (deltakersRefusjoner + deltakersKorreksjoner)
+        return deltakersRefusjoner + deltakersKorreksjoner
     }
 }
 

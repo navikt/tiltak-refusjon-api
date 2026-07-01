@@ -229,7 +229,7 @@ data class InnloggetSaksbehandler(
         val korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(korreksjon)
         korreksjon.endreBruttolønn(inntekterKunFraTiltaket, endretBruttoLønn)
-        refusjonService.gjørKorreksjonBeregning(korreksjon, this)
+        refusjonService.gjørBeregning(korreksjon, this)
 
         korreksjonRepository.save(korreksjon)
     }
@@ -252,7 +252,7 @@ data class InnloggetSaksbehandler(
         val korreksjon = korreksjonRepository.findByIdOrNull(korreksjonId) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(korreksjon)
         korreksjon.setInntektslinjeTilOpptjentIPeriode(inntekslinjeId, erOpptjentIPeriode)
-        refusjonService.gjørKorreksjonBeregning(korreksjon, this)
+        refusjonService.gjørBeregning(korreksjon, this)
 
         korreksjonRepository.save(korreksjon)
     }
@@ -261,7 +261,7 @@ data class InnloggetSaksbehandler(
         val korreksjon: Korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(korreksjon)
         korreksjon.settFratrekkRefunderbarBeløp(fratrekkRefunderbarBeløp, refunderbarBeløp)
-        refusjonService.gjørKorreksjonBeregning(korreksjon, this)
+        refusjonService.gjørBeregning(korreksjon, this)
 
         korreksjonRepository.save(korreksjon)
     }
@@ -270,14 +270,14 @@ data class InnloggetSaksbehandler(
         val korreksjon: Korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(korreksjon)
         korreksjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp = minusBeløp
-        refusjonService.gjørKorreksjonBeregning(korreksjon, this);
+        refusjonService.gjørBeregning(korreksjon, this)
     }
 
     fun overstyrHarFerietrekkForSammeMåned(id: String, harFerietrekkForSammeMåned: Boolean) {
         val korreksjon: Korreksjon = korreksjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(korreksjon)
         korreksjon.refusjonsgrunnlag.harFerietrekkForSammeMåned = harFerietrekkForSammeMåned
-        refusjonService.gjørKorreksjonBeregning(korreksjon, this);
+        refusjonService.gjørBeregning(korreksjon, this)
     }
 
     fun hentEnhet(enhet: String): String? {

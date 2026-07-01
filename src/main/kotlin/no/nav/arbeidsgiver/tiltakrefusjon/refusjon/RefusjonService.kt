@@ -434,8 +434,8 @@ class RefusjonService(
                 refundering.refusjonsgrunnlag.sumUtbetaltVarig = totaltUtbetaltForTiltakMed5gBegrensning(refundering)
             }
             settOmFerieErTrukketForSammeMåned(refundering)
-            oppdaterSistEndret(refundering)
             gjørBeregning(refundering, utførtAv)
+            oppdaterSistEndret(refundering)
         }
     }
 

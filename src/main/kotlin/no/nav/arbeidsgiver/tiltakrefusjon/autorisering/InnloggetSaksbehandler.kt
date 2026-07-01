@@ -15,6 +15,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Inntektsgrunnlag
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Korreksjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.KorreksjonRepository
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Korreksjonsgrunn
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refundering
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonRepository
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonService
@@ -168,15 +169,8 @@ data class InnloggetSaksbehandler(
         return korreksjon
     }
 
-    private fun sjekkLesetilgang(refusjon: Refusjon) {
-        val tilgang = tilgangskontrollService.harLeseTilgang(internIdentifikatorer, refusjon.deltakerFnr)
-        if (tilgang is Tilgang.Avvis) {
-            throw TilgangskontrollException.fraAvvisning(tilgang)
-        }
-    }
-
-    private fun sjekkLesetilgang(korreksjon: Korreksjon) {
-        val tilgang = tilgangskontrollService.harLeseTilgang(internIdentifikatorer, korreksjon.deltakerFnr)
+    private fun sjekkLesetilgang(refundering: Refundering) {
+        val tilgang = tilgangskontrollService.harLeseTilgang(internIdentifikatorer, refundering.deltakerFnr)
         if (tilgang is Tilgang.Avvis) {
             throw TilgangskontrollException.fraAvvisning(tilgang)
         }

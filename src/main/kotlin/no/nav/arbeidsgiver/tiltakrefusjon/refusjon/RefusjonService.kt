@@ -354,7 +354,7 @@ class RefusjonService(
         refusjon.oppgiBedriftKontonummer(kontoregisterService.hentBankkontonummer(refusjon.bedriftNr))
     }
 
-    fun opprettKorreksjonsutkast(
+    fun opprettOgLagreKorreksjonsutkast(
         refusjon: Refusjon,
         korreksjonsgrunner: Set<Korreksjonsgrunn>,
         unntakOmInntekterFremitid: Int?,

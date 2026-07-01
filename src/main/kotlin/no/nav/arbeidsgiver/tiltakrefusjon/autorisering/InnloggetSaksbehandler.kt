@@ -165,7 +165,7 @@ data class InnloggetSaksbehandler(
         sjekkKorreksjonTilgang()
         val refusjonSomSkalKorrigeres = finnRefusjon(id)
         log.info("Oppretter korreksjonsutkast fra refusjon med id ${refusjonSomSkalKorrigeres.id} og status ${refusjonSomSkalKorrigeres.status}")
-        refusjonService.opprettKorreksjonsutkast(refusjonSomSkalKorrigeres, korreksjonsgrunner, unntakOmInntekterFremitid, annetGrunn, this)
+        refusjonService.opprettOgLagreKorreksjonsutkast(refusjonSomSkalKorrigeres, korreksjonsgrunner, unntakOmInntekterFremitid, annetGrunn, this)
         return refusjonSomSkalKorrigeres
     }
 

@@ -137,7 +137,7 @@ class RefusjonVarig5GTest(
         ).map { it.opprettRefusjonMedJustertTid() }.forEach { godkjennRefusjonMedJustertTid(it) }
 
         val alleRefusjoner = refusjonRepository.findAll()
-        val maiKorreksjonsutkast = refusjonService.opprettKorreksjonsutkast(
+        val maiKorreksjonsutkast = refusjonService.opprettOgLagreKorreksjonsutkast(
             alleRefusjoner.tilskuddsperiode("mai"),
             setOf(Korreksjonsgrunn.ANNEN_GRUNN),
             null,
@@ -158,7 +158,7 @@ class RefusjonVarig5GTest(
             maiBeregning.refusjonsbeløp + godkjentMaiKorreksjon.refusjonsgrunnlag.tidligereUtbetalt
         )
 
-        val juniKorreksjonsutkast = refusjonService.opprettKorreksjonsutkast(
+        val juniKorreksjonsutkast = refusjonService.opprettOgLagreKorreksjonsutkast(
             alleRefusjoner.tilskuddsperiode("juni"),
             setOf(Korreksjonsgrunn.ANNEN_GRUNN),
             null,

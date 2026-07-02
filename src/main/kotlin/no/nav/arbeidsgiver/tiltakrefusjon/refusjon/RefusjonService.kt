@@ -487,46 +487,11 @@ class RefusjonService(
         val (beregningskontekst, tid) = measureTimedValue {
             Beregningskontekst(
                 grunnbelopService.alleGrunnbelop(),
-                hentRelaterteInnsendteRefunderinger(refundering),
                 minusbelopRepository.findAllByAvtaleNrAndGjortOppIsFalse(refundering.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr)
             )
         }
         log.info("Hentet beregningskontekst, tok {} ms", tid.inWholeMilliseconds)
         return beregningskontekst
-    }
-
-    /**
-     * En beregning trenger kunnskap om alle innsendte refusjoner og korreksjoner som:
-     * <ol>
-     *     <li>Gjelder for samme deltaker, bedrift og tiltakstype</li>
-     *     <li>For samme år (i tilfelle 5g-beregning)</li>
-     *     <li>For samme måned (for å sjekke om ferietrekk er trukket)</li>
-     *     <li>Ikke er en korrigert refusjon (fordi korreksjonene er inkludert)</li>
-     *     <li>Ikke har gitt minusbeløp (alle minusbeløp er inkludert separat)</li>
-     * </ol>
-     */
-    private fun hentRelaterteInnsendteRefunderinger(refundering: Refundering): List<Refundering> {
-        val tilskuddsaar = refundering.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom.year
-        val periodeStart = LocalDate.of(tilskuddsaar, 1, 1)
-        val periodeSlutt = LocalDate.of(tilskuddsaar, 12, 31)
-        val deltakersRefusjoner = refusjonRepository.hentDeltakersRefusjoner(
-            refundering.deltakerFnr,
-            refundering.bedriftNr,
-            refundering.tiltakstype(),
-            RefusjonStatus.entries.filter { it.ansesSomUtbetalt() },
-            periodeStart,
-            periodeSlutt
-        )
-        val deltakersKorreksjoner =
-            korreksjonRepository.hentDeltakersKorreksjoner(
-                refundering.deltakerFnr,
-                refundering.bedriftNr,
-                refundering.tiltakstype(),
-                behandledeKorreksjoner,
-                periodeStart,
-                periodeSlutt
-            )
-        return deltakersRefusjoner + deltakersKorreksjoner
     }
 }
 

@@ -35,7 +35,6 @@ val alleGrunnbelopMap = mapOf<LocalDate, Int>(
 
 fun enBeregningskontekst() = Beregningskontekst(
     alleGrunnbelop = alleGrunnbelopMap,
-    innsendteRefunderinger = emptyList(),
     uoppgjorteMinusbelop = emptyList()
 )
 

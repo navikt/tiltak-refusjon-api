@@ -6,10 +6,6 @@ import java.util.*
 
 class Beregningskontekst(
     private val alleGrunnbelop: TreeMap<LocalDate, Int>,
-    /**
-     * Skal gjøres private når vi migrerer vekk fra gammel 5g-beregning
-     */
-    public val innsendteRefunderinger: Collection<Refundering>,
     private val uoppgjorteMinusbelop: Collection<Minusbelop>
 ) {
     /**
@@ -26,23 +22,6 @@ class Beregningskontekst(
         val grunnbelopForPeriode = grunnbelopForPerioden(tilskuddFom)
         val gjenstående = 0.coerceAtLeast(5 * grunnbelopForPeriode.belop - sumUtbetaltSaaLangtIAaret)
         
-        return if (belopSomSkalUtbetales > gjenstående) {
-            Maks5GResultat.OverMaks(gjenstående)
-        } else {
-            Maks5GResultat.InnenforMaks()
-        }
-    }
-
-    /**
-     * Skal ta over for gammel beregningslogikk. Kjøres side om side midlertidig for å sammenligne resultater.
-     */
-    fun gjenståendeEtterMaks5GNy(tilskuddFom: LocalDate, belopSomSkalUtbetales: Int): Maks5GResultat {
-        val sumUtbetaltSaaLangtIAaret = this.innsendteRefunderinger
-            .mapNotNull { it.refusjonsgrunnlag.beregning?.refusjonsbeløp }
-            .sum()
-        val grunnbelopForPeriode = grunnbelopForPerioden(tilskuddFom)
-        val gjenstående = 0.coerceAtLeast(5 * grunnbelopForPeriode.belop - sumUtbetaltSaaLangtIAaret)
-
         return if (belopSomSkalUtbetales > gjenstående) {
             Maks5GResultat.OverMaks(gjenstående)
         } else {

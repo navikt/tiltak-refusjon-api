@@ -161,37 +161,16 @@ class RefusjonService(
                 refundering.tiltakstype()
             )
 
-        val alleInnsendteRefusjonerOgKorreksjonerForTiltaket = (utbetalteRefusjoner + utbetalteKorreksjoner)
+        val alleInnsendteRefusjonerOgKorreksjonerForTiltaket = utbetalteRefusjoner + utbetalteKorreksjoner
 
         val alleUtbetalteForSammeÅr: List<Refundering> = alleInnsendteRefusjonerOgKorreksjonerForTiltaket
             .filter { utbetaltRefundering ->
                 utbetaltRefundering.fraSammeÅrSom(refundering)
             }
 
-        val nyBeregnetSum = alleUtbetalteForSammeÅr
+        return alleUtbetalteForSammeÅr
             .mapNotNull { it.refusjonsgrunnlag.beregning?.refusjonsbeløp }
             .sum()
-
-        // Gammel sum ble beregnet av kun refusjoner, og status "utbetaling feilet" var ikke inkludert
-        val gammelBeregnetSum = alleUtbetalteForSammeÅr
-            .filterIsInstance<Refusjon>()
-            .filter { it.status != RefusjonStatus.UTBETALING_FEILET }
-            .mapNotNull { it.refusjonsgrunnlag.beregning?.refusjonsbeløp }
-            .sum()
-
-        if (nyBeregnetSum != gammelBeregnetSum) {
-            log.warn(
-                "Ny beregning for totalt utbetalt for tiltak avviker fra gammel beregning. Avtalenr: {}," +
-                        "ny sum: {}, gammel sum: {}. Har feilede refusjonsutbetalinger: {}," +
-                        "har korreksjoner: {}",
-                refundering.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr,
-                nyBeregnetSum,
-                gammelBeregnetSum,
-                alleUtbetalteForSammeÅr.any { it.status == RefusjonStatus.UTBETALING_FEILET },
-                alleUtbetalteForSammeÅr.any { it is Korreksjon })
-        }
-
-        return gammelBeregnetSum
     }
 
     fun gjørInntektsoppslag(korreksjon: Korreksjon, utfortAv: InnloggetBruker) {

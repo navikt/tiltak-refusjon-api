@@ -145,7 +145,7 @@ class RefusjonVarig5GTest(
             innloggetSaksbehandler
         )
 
-        val godkjentMaiKorreksjon = godkjennKorreksjonNullbelopMedJustertTid(maiKorreksjonsutkast)
+        val godkjentMaiKorreksjon = godkjennKorreksjonNullbelopMedJustertTid(maiKorreksjonsutkast, alleRefusjoner.tilskuddsperiode("mai"))
         val maiBeregning = godkjentMaiKorreksjon.refusjonsgrunnlag.beregning
 
         assertEquals(
@@ -166,7 +166,7 @@ class RefusjonVarig5GTest(
             innloggetSaksbehandler
         )
 
-        val godkjentJuniKorreksjon = godkjennKorreksjonNullbelopMedJustertTid(juniKorreksjonsutkast)
+        val godkjentJuniKorreksjon = godkjennKorreksjonNullbelopMedJustertTid(juniKorreksjonsutkast, alleRefusjoner.tilskuddsperiode("juni"))
         val godkjentJuniBeregning = godkjentJuniKorreksjon.refusjonsgrunnlag.beregning
 
         assertEquals(
@@ -202,7 +202,7 @@ class RefusjonVarig5GTest(
         refusjonRepository.save(oppdatertRefusjonIgjen)
     }
 
-    private fun godkjennKorreksjonNullbelopMedJustertTid(korreksjon: Korreksjon): Korreksjon {
+    private fun godkjennKorreksjonNullbelopMedJustertTid(korreksjon: Korreksjon, refusjon: Refusjon): Korreksjon {
         val oppdatertKorreksjon = korreksjonRepository.findById(korreksjon.id).get()
         refusjonService.gjørBedriftKontonummeroppslag(oppdatertKorreksjon)
         refusjonService.gjørInntektsoppslag(oppdatertKorreksjon, innloggetSaksbehandler)
@@ -210,6 +210,8 @@ class RefusjonVarig5GTest(
         val oppdatertKorreksjonIgjen = korreksjonRepository.findById(oppdatertKorreksjon.id).get()
         refusjonService.gjørBeregning(oppdatertKorreksjonIgjen, innloggetSaksbehandler)
         oppdatertKorreksjonIgjen.fullførKorreksjonVedOppgjort(innloggetSaksbehandler)
+        refusjon.status = RefusjonStatus.KORRIGERT
+        refusjonRepository.save(refusjon)
         return korreksjonRepository.save(oppdatertKorreksjonIgjen)
     }
 

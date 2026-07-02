@@ -167,10 +167,21 @@ class RefusjonService(
             .filter { utbetaltRefundering ->
                 utbetaltRefundering.fraSammeÅrSom(refundering)
             }
+        val nyAlleUtbetalteForSammeÅr = hentRelaterteInnsendteRefunderinger(refundering)
 
-        return alleUtbetalteForSammeÅr
+        val totaltUtbetaltGammel = alleUtbetalteForSammeÅr
             .mapNotNull { it.refusjonsgrunnlag.beregning?.refusjonsbeløp }
             .sum()
+
+        val totaltUtbetaltNy = nyAlleUtbetalteForSammeÅr
+            .mapNotNull { it.refusjonsgrunnlag.beregning?.refusjonsbeløp }
+            .sum()
+
+        if (totaltUtbetaltGammel != totaltUtbetaltNy) {
+            log.warn("Avvik mellom ny og gammel 5G-beregning. Gammel: $totaltUtbetaltGammel, ny: $totaltUtbetaltNy")
+        }
+
+        return totaltUtbetaltGammel
     }
 
     fun gjørInntektsoppslag(korreksjon: Korreksjon, utfortAv: InnloggetBruker) {
@@ -492,6 +503,46 @@ class RefusjonService(
         }
         log.info("Hentet beregningskontekst, tok {} ms", tid.inWholeMilliseconds)
         return beregningskontekst
+    }
+
+    /**
+     * En beregning trenger kunnskap om alle innsendte refusjoner og korreksjoner som:
+     * <ol>
+     *     <li>Gjelder for samme deltaker, bedrift og tiltakstype</li>
+     *     <li>For samme år (i tilfelle 5g-beregning)</li>
+     *     <li>For samme måned (for å sjekke om ferietrekk er trukket)</li>
+     *     <li>Ikke er en korrigert refusjon (fordi korreksjonene er inkludert)</li>
+     *     <li>Ikke har gitt minusbeløp (alle minusbeløp er inkludert separat)</li>
+     * </ol>
+     */
+    private fun hentRelaterteInnsendteRefunderinger(refundering: Refundering): List<Refundering> {
+        val tilskuddsaar = refundering.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom.year
+        val periodeStart = LocalDate.of(tilskuddsaar, 1, 1)
+        val periodeSlutt = LocalDate.of(tilskuddsaar, 12, 31)
+        val deltakersRefusjoner = refusjonRepository.hentDeltakersRefusjoner(
+            refundering.deltakerFnr,
+            refundering.bedriftNr,
+            refundering.tiltakstype(),
+            RefusjonStatus.entries.filter { it.ansesSomUtbetalt() },
+            periodeStart,
+            periodeSlutt
+        ).let { refusjoner ->
+            when (refundering) {
+                // Ikke tell med refusjonen som korreksjonen er basert på - da vil summen bli for høy
+                is Korreksjon -> refusjoner.filter { it.korreksjonId != refundering.id }
+                is Refusjon -> refusjoner
+            }
+        }
+        val deltakersKorreksjoner =
+            korreksjonRepository.hentDeltakersKorreksjoner(
+                refundering.deltakerFnr,
+                refundering.bedriftNr,
+                refundering.tiltakstype(),
+                behandledeKorreksjoner,
+                periodeStart,
+                periodeSlutt
+            )
+        return deltakersRefusjoner + deltakersKorreksjoner
     }
 }
 

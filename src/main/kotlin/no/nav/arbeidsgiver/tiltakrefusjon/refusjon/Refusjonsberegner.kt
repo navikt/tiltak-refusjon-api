@@ -4,7 +4,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.grunnbelop.Grunnbelop
 import java.time.LocalDate
 import kotlin.math.roundToInt
 
-fun fastBeløpBeregning(
+private fun fastBeløpBeregning(
     tilskuddsgrunnlag: Tilskuddsgrunnlag,
     tidligereUtbetalt: Int,
     korriger: Boolean = false

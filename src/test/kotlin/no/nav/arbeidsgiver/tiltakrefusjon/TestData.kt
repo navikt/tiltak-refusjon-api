@@ -311,7 +311,18 @@ fun gamleUtbetalteRefusjonerOgEnNy(tiltakstype: Tiltakstype): List<Refusjon> {
             veilederNavIdent = "X123456"
         ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnrMedMasseUtbetalt
     )
-    return listOf(refusjon1, refusjon2, refusjon3, refusjon4, refusjon5, refusjon6, refusjon7, refusjon8, refusjon9, refusjon10)
+    return listOf(
+        refusjon1,
+        refusjon2,
+        refusjon3,
+        refusjon4,
+        refusjon5,
+        refusjon6,
+        refusjon7,
+        refusjon8,
+        refusjon9,
+        refusjon10
+    )
 }
 
 fun refusjoner(): List<Refusjon> {
@@ -1057,8 +1068,7 @@ fun Refusjon.medInntektsgrunnlag(
     return this
 }
 
-fun <T : Refundering> T.medBeregning(
-): T {
+fun <T : Refundering> T.medBeregning(): T {
     this.refusjonsgrunnlag.beregning = beregn(enBeregningskontekst(), this)
     return this
 }
@@ -1110,20 +1120,21 @@ fun etInntektsgrunnlag(måned: YearMonth = YearMonth.of(2020, 10), opptjentIPeri
     respons = ""
 )
 
-fun etStortInntektsgrunnlag(måned: YearMonth = YearMonth.of(2020, 10), opptjentIPeriode: Boolean = true) = Inntektsgrunnlag(
-    inntekter = listOf(
-        Inntektslinje(
-            inntektType = "LOENNSINNTEKT",
-            beskrivelse = "timeloenn",
-            måned = måned,
-            beløp = 200000.0,
-            opptjeningsperiodeTom = null,
-            opptjeningsperiodeFom = null,
-            erOpptjentIPeriode = opptjentIPeriode
-        )
-    ),
-    respons = ""
-)
+fun etStortInntektsgrunnlag(måned: YearMonth = YearMonth.of(2020, 10), opptjentIPeriode: Boolean = true) =
+    Inntektsgrunnlag(
+        inntekter = listOf(
+            Inntektslinje(
+                inntektType = "LOENNSINNTEKT",
+                beskrivelse = "timeloenn",
+                måned = måned,
+                beløp = 200000.0,
+                opptjeningsperiodeTom = null,
+                opptjeningsperiodeFom = null,
+                erOpptjentIPeriode = opptjentIPeriode
+            )
+        ),
+        respons = ""
+    )
 
 fun enInntektslinje(måned: YearMonth = YearMonth.of(2020, 10), opptjentIPeriode: Boolean = true): Inntektslinje =
     Inntektslinje(

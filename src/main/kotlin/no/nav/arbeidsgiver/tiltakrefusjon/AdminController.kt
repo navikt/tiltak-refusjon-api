@@ -15,7 +15,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonStatus
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.StatusJobb
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.beregnRefusjonsbeløp
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.tilskuddsberegning
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonEndretStatus
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonUtgått
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.MidlerFrigjortÅrsak
@@ -177,7 +177,7 @@ class AdminController(
     @PostMapping("reberegn-dry/{id}")
     fun reberegnDryRun(@PathVariable id: String, @RequestBody request: ReberegnRequest): Beregning {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
-        return beregnRefusjonsbeløp(
+        return tilskuddsberegning(
             inntekter = refusjon.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
             tilskuddsgrunnlag = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag,
             tidligereUtbetalt = 0,
@@ -196,7 +196,7 @@ class AdminController(
     @Transactional
     fun reberegn(@PathVariable id: String, @RequestBody request: ReberegnRequest): Beregning {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
-        val beregning = beregnRefusjonsbeløp(
+        val beregning = tilskuddsberegning(
             inntekter = refusjon.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
             tilskuddsgrunnlag = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag,
             tidligereUtbetalt = 0,

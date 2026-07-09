@@ -6,7 +6,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Inntektsgrunnlag
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Inntektslinje
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tilskuddsgrunnlag
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.beregnRefusjonsbeløp
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.tilskuddsberegning
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.ulid
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -125,7 +125,7 @@ class RefusjonsberegnerTest {
             Tiltakstype.SOMMERJOBB,
             40000
         )
-        val beregning = beregnRefusjonsbeløp(
+        val beregning = tilskuddsberegning(
             inntektsgrunnlag.inntekter.toList(),
             tilskuddsgrunnlagSommerJobb,
             0,
@@ -147,7 +147,7 @@ class RefusjonsberegnerTest {
             Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
             40000
         )
-        val beregning = beregnRefusjonsbeløp(
+        val beregning = tilskuddsberegning(
             inntektsgrunnlagUregelmessig.inntekter.toList(),
             tilskuddsgrunnlagLønnstilskudd,
             0,
@@ -169,7 +169,7 @@ class RefusjonsberegnerTest {
             Tiltakstype.VARIG_LONNSTILSKUDD,
             100000
         )
-        val beregning = beregnRefusjonsbeløp(
+        val beregning = tilskuddsberegning(
             inntektsgrunnlagUregelmessig.inntekter.toList(),
             tilskuddsgrunnlagLønnstilskudd,
             0,
@@ -179,7 +179,7 @@ class RefusjonsberegnerTest {
             harFerietrekkForSammeMåned = false,
             beregningskontekst = enBeregningskontekst()
         )
-        val beregning2 = beregnRefusjonsbeløp(
+        val beregning2 = tilskuddsberegning(
             inntektsgrunnlagUregelmessig.inntekter.toList(),
             tilskuddsgrunnlagLønnstilskudd.copy(tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD),
             0,
@@ -206,7 +206,7 @@ class RefusjonsberegnerTest {
             10000
         )
 
-        val beregning = beregnRefusjonsbeløp(
+        val beregning = tilskuddsberegning(
             enInntektslinje.inntekter.toList(),
             tilskuddsgrunnlagLønnstilskudd,
             0,
@@ -232,7 +232,7 @@ class RefusjonsberegnerTest {
 
         val inntektslinje = lagEnInntektslinje(19493.00, YearMonth.of(2023, 9), LocalDate.of(2023, 9, 1), LocalDate.of(2023, 9, 30))
 
-        val beregning = beregnRefusjonsbeløp(
+        val beregning = tilskuddsberegning(
             listOf(inntektslinje),
             tilskuddsgrunnlagLønnstilskudd,
             0,

@@ -31,16 +31,6 @@ Content-Type: application/json
   "enforce": false
 }
 
-### Fikse kvitteringen (reberegn)
-POST http://localhost:12345/internal/admin/reberegn-dry/{id}
-Content-Type: application/json
-
-{
-  "harFerietrekkForSammeMåned": false,
-  "minusBeløp": -3796,
-  "ferieTrekk": 0
-}
-
 ### Resend refusjon-godkjent-melding
 # Burde kun brukes i tilfeller hvor en refusjon ble godkjent, men meldingen ble
 # ikke publisert på Kafka.

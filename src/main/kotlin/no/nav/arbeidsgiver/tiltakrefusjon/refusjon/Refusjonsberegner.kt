@@ -62,7 +62,20 @@ private fun mentorBeregning(tilskuddsgrunnlag: Tilskuddsgrunnlag): Beregning {
     )
 }
 
-fun beregnRefusjonsbeløp(
+/**
+ * Utfør en beregning på refusjon (eller korreksjon). Forskjellen på en korreksjon og refusjon er at en
+ * refusjon alltid har 0 for "tidligereUtbetalt".
+ *
+ * ## Viktige detaljer
+ * 1. Vi trekker fra minusbeløp ETTER reduksjon ned til maks tilskuddsbeløp. Hensikten er at minusbeløpet
+ * skal trekkes fra det som normalt vil være en sluttsum. Minusbeløp trekkes _før_ 5G fordi 5G-grensen skal være
+ * en absolutt grense på utbetalinger på tvers av tiltaket.
+ * 2. Tidligere refusjonsbeløp trekkes helt til sist, etter 5G-reduksjon! Poenget her er at beløpet som ligger i
+ * `tidligereUtbetalt`-feltet er den absolutt endelige summen som ble beregnet for en refusjon, som også betyr
+ * at eventuelle 5G-grenser gjaldt for den refusjonen også. Ved å trekke fra helt til sist kan vi også fange opp
+ * eventuelle avvik der feks refusjonen ble beregnet med feil grunnbeløp (vil dermed få litt mer utbetalt i korreksjonen).
+ */
+fun tilskuddsberegning(
     inntekter: List<Inntektslinje>,
     tilskuddsgrunnlag: Tilskuddsgrunnlag,
     tidligereUtbetalt: Int,
@@ -165,7 +178,7 @@ private fun beregn(beregningskontekst: Beregningskontekst, refundering: Refunder
             is Refusjon -> mentorBeregning(refundering.refusjonsgrunnlag.tilskuddsgrunnlag)
         }
 
-        Tiltakstype.SOMMERJOBB, Tiltakstype.VARIG_LONNSTILSKUDD, Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD, Tiltakstype.FIREARIG_LONNSTILSKUDD -> beregnRefusjonsbeløp(
+        Tiltakstype.SOMMERJOBB, Tiltakstype.VARIG_LONNSTILSKUDD, Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD, Tiltakstype.FIREARIG_LONNSTILSKUDD -> tilskuddsberegning(
             inntekter = refundering.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.toList() ?: emptyList(),
             tilskuddsgrunnlag = refundering.refusjonsgrunnlag.tilskuddsgrunnlag,
             tidligereUtbetalt = refundering.refusjonsgrunnlag.tidligereUtbetalt,

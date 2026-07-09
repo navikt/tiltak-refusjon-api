@@ -101,7 +101,7 @@ class RefusjonsberegningSteps {
 
     @Så("beregnes refusjon til {int} kr for periode")
     fun så(refusjon: Int) {
-        val beregnet = beregnRefusjonsbeløp(
+        val beregnet = tilskuddsberegning(
             inntekter = inntekstlinjer,
             tilskuddsgrunnlag = tilskuddsgrunnlag,
             tidligereUtbetalt,

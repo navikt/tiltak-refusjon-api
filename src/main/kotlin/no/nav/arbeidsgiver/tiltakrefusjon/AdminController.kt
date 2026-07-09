@@ -293,7 +293,6 @@ class AdminController(
     }
 }
 
-data class ReberegnRequest(val harFerietrekkForSammeMåned: Boolean, val minusBeløp: Int, val ferieTrekk: Int)
 data class KorreksjonRequest(val refusjonIder: List<String>, val korreksjonsgrunner: Set<Korreksjonsgrunn>)
 data class ForlengFristerRequest(
     val refusjonIder: List<String>,

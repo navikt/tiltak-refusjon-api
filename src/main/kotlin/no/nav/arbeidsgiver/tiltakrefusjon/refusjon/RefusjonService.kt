@@ -437,7 +437,7 @@ class RefusjonService(
     }
 
     private fun gjørRefusjonsberegning(refusjon: Refusjon, utførtAv: InnloggetBruker) {
-        val beregning: Beregning? = beregnRefusjon(hentBeregningskontekst(refusjon), refusjon)
+        val beregning: Beregning? = beregn(hentBeregningskontekst(refusjon), refusjon)
         if (beregning != null) {
             refusjon.refusjonsgrunnlag.beregning = beregning
             log.info("Oppdatert beregning på refusjon ${refusjon.id} til ${beregning.id}")
@@ -446,7 +446,7 @@ class RefusjonService(
     }
 
     private fun gjørKorreksjonsberegning(korreksjon: Korreksjon, utførtAv: InnloggetBruker) {
-        val beregning = beregnKorreksjon(hentBeregningskontekst(korreksjon), korreksjon)
+        val beregning = beregn(hentBeregningskontekst(korreksjon), korreksjon)
         if (beregning != null) {
             korreksjon.refusjonsgrunnlag.beregning = beregning
             applicationEventPublisher.publishEvent(KorreksjonBeregningUtført(korreksjon, utførtAv))

@@ -100,7 +100,7 @@ internal class RefusjonTest {
 
         // Tar stilling til alle inntektslinjer
         refusjon.setInntektslinjeTilOpptjentIPeriode(enInntektslinjeIkkeTattStillingTilOpptjening.id, true)
-        refusjon.refusjonsgrunnlag.beregning = beregnRefusjon(enBeregningskontekst(), refusjon)
+        refusjon.refusjonsgrunnlag.beregning = beregn(enBeregningskontekst(), refusjon)
 
         refusjon.godkjennForArbeidsgiver(innloggetArbeidsgiver)
 
@@ -322,7 +322,7 @@ internal class RefusjonTest {
 
         val refusjon = enRefusjon().medBedriftKontonummer().medInntekterKunFraTiltaket()
         refusjon.oppgiInntektsgrunnlag(inntektsgrunnlag)
-        refusjon.refusjonsgrunnlag.beregning = beregnRefusjon(enBeregningskontekst(), refusjon)
+        refusjon.refusjonsgrunnlag.beregning = beregn(enBeregningskontekst(), refusjon)
 
         assertThat(refusjon.refusjonsgrunnlag.beregning?.lønn).isEqualTo(inntektslinjeOpptjentIPeriode.beløp.toInt())
     }

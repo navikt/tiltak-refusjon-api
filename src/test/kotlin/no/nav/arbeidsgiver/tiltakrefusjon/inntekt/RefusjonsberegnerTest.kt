@@ -175,7 +175,7 @@ class RefusjonsberegnerTest {
             0,
             null,
             tilskuddFom = LocalDate.of(2023,6,1),
-            sumUtbetaltVarig = 590000,
+            sumUtbetaltForTiltaketIÅr = 590000,
             harFerietrekkForSammeMåned = false,
             beregningskontekst = enBeregningskontekst()
         )
@@ -185,7 +185,7 @@ class RefusjonsberegnerTest {
             0,
             null,
             tilskuddFom = LocalDate.of(2023,6,1),
-            sumUtbetaltVarig = 590000,
+            sumUtbetaltForTiltaketIÅr = 590000,
             harFerietrekkForSammeMåned = false,
             beregningskontekst = enBeregningskontekst(),
         )
@@ -212,7 +212,7 @@ class RefusjonsberegnerTest {
             0,
             null,
             tilskuddFom = LocalDate.of(2023,9,1),
-            sumUtbetaltVarig = 16666,
+            sumUtbetaltForTiltaketIÅr = 16666,
             harFerietrekkForSammeMåned = false,
             beregningskontekst = enBeregningskontekst(),
         )
@@ -238,7 +238,7 @@ class RefusjonsberegnerTest {
             0,
             null,
             tilskuddFom = LocalDate.of(2023,9,1),
-            sumUtbetaltVarig = 16666,
+            sumUtbetaltForTiltaketIÅr = 16666,
             harFerietrekkForSammeMåned = false,
             beregningskontekst = enBeregningskontekst(),
         )

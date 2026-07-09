@@ -507,13 +507,11 @@ class RefusjonService(
 
     /**
      * En beregning trenger kunnskap om alle innsendte refusjoner og korreksjoner som:
-     * <ol>
-     *     <li>Gjelder for samme deltaker, bedrift og tiltakstype</li>
-     *     <li>For samme år (i tilfelle 5g-beregning)</li>
-     *     <li>For samme måned (for å sjekke om ferietrekk er trukket)</li>
-     *     <li>Ikke er en korrigert refusjon (fordi korreksjonene er inkludert)</li>
-     *     <li>Ikke har gitt minusbeløp (alle minusbeløp er inkludert separat)</li>
-     * </ol>
+     * 1. Gjelder for samme deltaker, bedrift og tiltakstype
+     * 2. For samme år (i tilfelle 5g-beregning)
+     * 3. For samme måned (for å sjekke om ferietrekk er trukket)
+     * 4. Ikke er en korrigert refusjon (fordi korreksjonene er inkludert)
+     * 5. Ikke har gitt minusbeløp (alle minusbeløp er inkludert separat)
      */
     private fun hentRelaterteInnsendteRefunderinger(refundering: Refundering): List<Refundering> {
         val tilskuddsaar = refundering.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom.year

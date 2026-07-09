@@ -8,23 +8,26 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 object RefusjonTilPDFMapper {
-    fun tilPDFdata(refusjon : Refusjon) : RefusjonTilPDF {
+    fun tilPDFdata(refusjon: Refusjon): RefusjonTilPDF {
         val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
 
-        var godkjentArbeidsgiverDato =  ""
+        var godkjentArbeidsgiverDato = ""
         var utbetaltDato = ""
         var bedriftKid = ""
         val tilskuddFom = formatter.format(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom)
         val tilskuddTom = formatter.format(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom)
 
-        if (refusjon.godkjentAvArbeidsgiver != null) godkjentArbeidsgiverDato = formatter.format(LocalDate.ofInstant(refusjon.godkjentAvArbeidsgiver, ZoneId.systemDefault()))
-        if (refusjon.utbetaltTidspunkt != null) utbetaltDato = formatter.format(LocalDate.ofInstant(refusjon.utbetaltTidspunkt, ZoneId.systemDefault()))
+        if (refusjon.godkjentAvArbeidsgiver != null) godkjentArbeidsgiverDato =
+            formatter.format(LocalDate.ofInstant(refusjon.godkjentAvArbeidsgiver, ZoneId.systemDefault()))
+        if (refusjon.utbetaltTidspunkt != null) utbetaltDato =
+            formatter.format(LocalDate.ofInstant(refusjon.utbetaltTidspunkt, ZoneId.systemDefault()))
 
-        if (refusjon.refusjonsgrunnlag.bedriftKid != null){
+        if (refusjon.refusjonsgrunnlag.bedriftKid != null) {
             bedriftKid = refusjon.refusjonsgrunnlag.bedriftKid!!
         }
+        val beregning = refusjon.refusjonsgrunnlag.beregning
 
-        if (refusjon.refusjonsgrunnlag.beregning == null){
+        if (beregning == null) {
             if (refusjon.status != RefusjonStatus.GODKJENT_NULLBELØP) {
                 throw RuntimeException("Beregning er null")
             }
@@ -53,6 +56,7 @@ object RefusjonTilPDFMapper {
                 refusjonsbeløp = 0,
                 beregnetBeløp = 0,
                 overTilskuddsbeløp = false,
+                overFemGrunnbeløp = false,
                 sumUtgifter = 0,
                 tidligereUtbetalt = 0,
                 fratrekkLønnFerie = 0,
@@ -60,7 +64,7 @@ object RefusjonTilPDFMapper {
                 tidligereRefundertBeløp = 0,
                 tilskuddsbeløp = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsbeløp,
                 forrigeRefusjonMinusBeløp = refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
-                forrigeRefusjonsnummer = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr.toString() + "-" + (refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.løpenummer -1),
+                forrigeRefusjonsnummer = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr.toString() + "-" + (refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.løpenummer - 1),
                 sumUtgifterFratrukketRefundertBeløp = 0,
                 mentorTimelonn = 0,
                 mentorAntallTimer = 0.0,
@@ -82,29 +86,30 @@ object RefusjonTilPDFMapper {
             tilskuddTom = tilskuddTom,
             kontonummer = refusjon.refusjonsgrunnlag.bedriftKontonummer!!,
             bedriftKid = bedriftKid,
-            lønn = refusjon.refusjonsgrunnlag.beregning!!.lønn,
+            lønn = beregning.lønn,
             feriepengerSats = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag!!.feriepengerSats,
-            feriepenger = refusjon.refusjonsgrunnlag.beregning!!.feriepenger,
+            feriepenger = beregning.feriepenger,
             otpSats = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag!!.otpSats,
-            tjenestepensjon = refusjon.refusjonsgrunnlag.beregning!!.tjenestepensjon,
+            tjenestepensjon = beregning.tjenestepensjon,
             arbeidsgiveravgiftSats = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.arbeidsgiveravgiftSats,
-            arbeidsgiveravgift = refusjon.refusjonsgrunnlag.beregning!!.arbeidsgiveravgift,
+            arbeidsgiveravgift = beregning.arbeidsgiveravgift,
             lønnstilskuddsprosent = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.lønnstilskuddsprosent,
-            refusjonsbeløp = refusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp,
-            beregnetBeløp = refusjon.refusjonsgrunnlag.beregning!!.beregnetBeløp,
-            overTilskuddsbeløp = refusjon.refusjonsgrunnlag.beregning!!.overTilskuddsbeløp,
-            sumUtgifter = refusjon.refusjonsgrunnlag.beregning!!.sumUtgifter,
-            tidligereUtbetalt = refusjon.refusjonsgrunnlag.beregning!!.tidligereUtbetalt,
-            fratrekkLønnFerie = refusjon.refusjonsgrunnlag.beregning!!.fratrekkLønnFerie,
-            lønnFratrukketFerie = refusjon.refusjonsgrunnlag.beregning!!.lønnFratrukketFerie,
-            tidligereRefundertBeløp = refusjon.refusjonsgrunnlag.beregning!!.tidligereRefundertBeløp,
+            refusjonsbeløp = beregning.refusjonsbeløp,
+            beregnetBeløp = beregning.beregnetBeløp,
+            overTilskuddsbeløp = beregning.overTilskuddsbeløp,
+            overFemGrunnbeløp = beregning.overFemGrunnbeløp,
+            sumUtgifter = beregning.sumUtgifter,
+            tidligereUtbetalt = beregning.tidligereUtbetalt,
+            fratrekkLønnFerie = beregning.fratrekkLønnFerie,
+            lønnFratrukketFerie = beregning.lønnFratrukketFerie,
+            tidligereRefundertBeløp = beregning.tidligereRefundertBeløp,
             tilskuddsbeløp = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsbeløp,
             forrigeRefusjonMinusBeløp = refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
-            forrigeRefusjonsnummer = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr.toString() + "-" + (refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.løpenummer -1),
-            sumUtgifterFratrukketRefundertBeløp = refusjon.refusjonsgrunnlag.beregning!!.sumUtgifterFratrukketRefundertBeløp,
+            forrigeRefusjonsnummer = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr.toString() + "-" + (refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.løpenummer - 1),
+            sumUtgifterFratrukketRefundertBeløp = beregning.sumUtgifterFratrukketRefundertBeløp,
             mentorTimelonn = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.mentorTimelonn,
             mentorAntallTimer = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.mentorAntallTimer,
-            reduksjonForDelvisPeriode = (refusjon.refusjonsgrunnlag.beregning!!.sumUtgifter - refusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp)
+            reduksjonForDelvisPeriode = (beregning.sumUtgifter - beregning.refusjonsbeløp)
 
         )
     }

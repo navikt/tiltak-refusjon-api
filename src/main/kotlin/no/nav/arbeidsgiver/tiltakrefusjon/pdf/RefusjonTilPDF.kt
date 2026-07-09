@@ -27,6 +27,7 @@ data class RefusjonTilPDF(
     val refusjonsbeløp: Int,
     val beregnetBeløp: Int,
     val overTilskuddsbeløp: Boolean,
+    val overFemGrunnbeløp: Boolean?,
     val sumUtgifter: Int,
     val tidligereUtbetalt: Int,
     val fratrekkLønnFerie: Int,

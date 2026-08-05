@@ -1,7 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.automatisk_utbetaling.AutomatiskInnsendingService
-import no.nav.arbeidsgiver.tiltakrefusjon.leader.LeaderPodCheck
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock
 import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
@@ -9,18 +9,18 @@ import org.springframework.stereotype.Component
 @Component
 class StatusJobb(
     val refusjonRepository: RefusjonRepository,
-    val leaderPodCheck: LeaderPodCheck,
     private val automatiskInnsendingService: AutomatiskInnsendingService,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     // Kjør to ganger på natten, kl 1 og kl 3
     @Scheduled(cron = "0 0 1,3 * * *")
+    @SchedulerLock(
+        name = "tiltak-refusjon-api-status-endring",
+        lockAtMostFor = "PT110M",
+        lockAtLeastFor = "PT1M"
+    )
     fun sjekkForStatusEndring() {
-        if (!leaderPodCheck.isLeaderPod()) {
-            logger.info("Pod er ikke leader, så kjører ikke jobb for å finne refusjoner med statusendring")
-            return
-        }
         settForTidligTilKlarForInnsendingHvisMulig()
         settTilUtgaattHvisMulig(
             refusjonerSomKanSettesTilUtgaatt()

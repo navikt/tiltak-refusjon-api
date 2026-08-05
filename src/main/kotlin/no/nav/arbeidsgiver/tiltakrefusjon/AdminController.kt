@@ -4,7 +4,6 @@ import no.nav.arbeidsgiver.tiltakrefusjon.automatisk_utbetaling.AutomatiskInnsen
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.ADMIN_BRUKER
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.SYSTEM_BRUKER
 import no.nav.arbeidsgiver.tiltakrefusjon.grunnbelop.GrunnbelopService
-import no.nav.arbeidsgiver.tiltakrefusjon.leader.LeaderPodCheck
 import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterServiceImpl
 import no.nav.arbeidsgiver.tiltakrefusjon.rapport.UbetaltRefusjonRapport
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Beregning
@@ -47,7 +46,6 @@ class AdminController(
     val service: RefusjonService,
     val refusjonRepository: RefusjonRepository,
     val refusjonService: RefusjonService,
-    val leaderPodCheck: LeaderPodCheck,
     val refusjonKafkaProducer: RefusjonKafkaProducer?,
     val kontoregisterService: KontoregisterServiceImpl?,
     val automatiskInnsendingService: AutomatiskInnsendingService,

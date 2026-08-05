@@ -7,7 +7,6 @@ import io.mockk.verify
 import no.nav.arbeidsgiver.tiltakrefusjon.Topics
 import no.nav.arbeidsgiver.tiltakrefusjon.enRefusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.enVarsling
-import no.nav.arbeidsgiver.tiltakrefusjon.leader.LeaderPodCheck
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonRepository
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonStatus
 import org.junit.jupiter.api.BeforeEach
@@ -36,9 +35,6 @@ class VarslingJobbTest {
 
     lateinit var refusjonVarselProducer: RefusjonVarselProducer
 
-    @Autowired
-    lateinit var leaderPodCheck: LeaderPodCheck
-
     @BeforeEach
     fun init() {
         refusjonVarselProducer = RefusjonVarselProducer(kafkaTemplate, varslingRepositoryMock)
@@ -47,7 +43,7 @@ class VarslingJobbTest {
     @Test
     fun `testing av at varsling ikke blir sendt`() {
         val varslingJobb =
-            VarslingJobb(refusjonRepositoryMock, varslingRepositoryMock, refusjonVarselProducer, leaderPodCheck)
+            VarslingJobb(refusjonRepositoryMock, varslingRepositoryMock, refusjonVarselProducer)
 
 
         val enRefusjon = enRefusjon()
@@ -70,7 +66,7 @@ class VarslingJobbTest {
     @Test
     fun `testing av at varsling klar blir sendt`() {
         val varslingJobb =
-            VarslingJobb(refusjonRepositoryMock, varslingRepositoryMock, refusjonVarselProducer, leaderPodCheck)
+            VarslingJobb(refusjonRepositoryMock, varslingRepositoryMock, refusjonVarselProducer)
 
         val enRefusjon = enRefusjon()
         enRefusjon.status = RefusjonStatus.KLAR_FOR_INNSENDING

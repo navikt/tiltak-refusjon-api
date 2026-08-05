@@ -65,7 +65,6 @@ spec:
           - NAVident
   tokenx:
     enabled: true
-  leaderElection: true
   gcp:
     sqlInstances:
       - type: POSTGRES_16

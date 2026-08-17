@@ -17,8 +17,9 @@
         <kotlin.version>2.0.0</kotlin.version>
         <cucumber.version>7.15.0</cucumber.version>
         <token-support.version>4.1.5</token-support.version>
-        <postgres.version>42.7.11</postgres.version>
+        <postgres.version>42.7.12</postgres.version>
         <nocommons.version>0.17.0</nocommons.version>
+        <shedlock.version>7.7.0</shedlock.version>
     </properties>
 
     <repositories>
@@ -64,6 +65,16 @@
         <dependency>
             <groupId>org.springframework.retry</groupId>
             <artifactId>spring-retry</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.javacrumbs.shedlock</groupId>
+            <artifactId>shedlock-spring</artifactId>
+            <version>${shedlock.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.javacrumbs.shedlock</groupId>
+            <artifactId>shedlock-provider-jdbc-template</artifactId>
+            <version>${shedlock.version}</version>
         </dependency>
 
         <dependency>

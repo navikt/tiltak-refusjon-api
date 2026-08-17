@@ -1,6 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.varsling
 
-import no.nav.arbeidsgiver.tiltakrefusjon.leader.LeaderPodCheck
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonRepository
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonStatus
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
@@ -17,18 +17,17 @@ class VarslingJobb(
     val refusjonRepository: RefusjonRepository,
     val varslingRepository: VarslingRepository,
     val refusjonVarselProducer: RefusjonVarselProducer,
-    val leaderPodCheck: LeaderPodCheck,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
+    // Maks låsetid må være kortere enn to timer, slik at reservekjøringen kan ta over etter en krasj.
     @Scheduled(cron = "0 0 2,4 * * *")
+    @SchedulerLock(
+        name = "tiltak-refusjon-api-revarsling",
+        lockAtMostFor = "PT110M",
+        lockAtLeastFor = "PT1M"
+    )
     fun sjekkForRevarsling() {
-
-        if (!leaderPodCheck.isLeaderPod()) {
-            logger.info("Pod er ikke leader, så kjører ikke jobb for å finne refusjoner som skal varsles")
-            return
-        }
-
         val refusjoner = refusjonRepository.findAllByStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
         for (refusjon in refusjoner) {
             if (refusjon.tiltakstype().utbetalesAutomatisk()) {
@@ -61,13 +60,12 @@ class VarslingJobb(
 
     // Cronjobb kjører kl 07:00 den 5 hver måned.
     @Scheduled(cron = "\${tiltak-refusjon.varsling.varsling-klar-cron}")
+    @SchedulerLock(
+        name = "tiltak-refusjon-api-varsling-klar",
+        lockAtMostFor = "PT2H",
+        lockAtLeastFor = "PT1M"
+    )
     fun sjekkForVarslingKlar() {
-
-        if (!leaderPodCheck.isLeaderPod()) {
-            logger.info("Pod er ikke leader, så kjører ikke jobb for å finne refusjoner som skal varsles")
-            return
-        }
-
         val forrigeMåned = LocalDate.now().minusMonths(1).month;
         val refusjoner = refusjonRepository.findAllByStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
         var antallSendteVarsler = 0

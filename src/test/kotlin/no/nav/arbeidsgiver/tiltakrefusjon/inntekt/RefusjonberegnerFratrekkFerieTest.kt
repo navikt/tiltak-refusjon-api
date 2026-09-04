@@ -56,7 +56,7 @@ class RefusjonberegnerFratrekkFerieTest(
     @MockkBean
     lateinit var persondataService: PersondataService
 
-    val WIREMOCK_IDENT: String = "08098613316"
+    val WIREMOCK_IDENT: String = "10517741103"
     val WIREMOCK_VIRKSOMHET_IDENTIFIKATOR: String = "972674818"
     private val defaultOrg =
         Organisasjon("Bedrift AS", "Bedrift type", WIREMOCK_VIRKSOMHET_IDENTIFIKATOR, "Org form", "Status")
@@ -230,7 +230,7 @@ class RefusjonberegnerFratrekkFerieTest(
         Now.fixedDate(LocalDate.of(2023, 7, 1))
         val TREKKFORFERIEGRUNNLAG1: Int = -7500 // trekk grunnlag fra inntektoppslag
         val TREKKFORFERIEGRUNNLAG2: Int = 5000 // trekk grunnlag fra inntektoppslag
-        val fnrMedFerieTrekkIWireMock = "26089638754"
+        val fnrMedFerieTrekkIWireMock = "23506130735"
 
         val tilskuddsperiodeGodkjentMelding: TilskuddsperiodeGodkjentMelding = lagEnTilskuddsperiodeGodkjentMelding(
             tilskuddFom = LocalDate.of(2023, 6, 1),
@@ -255,7 +255,7 @@ class RefusjonberegnerFratrekkFerieTest(
     fun `hent inntektsoppslag som har kun plussbeløp på feriefratrekk og beregn`() {
         Now.fixedDate(LocalDate.of(2023, 7, 1))
         val TREKKFORFERIEGRUNNLAG: Int = 5000 // trekk grunnlag fra inntektoppslag
-        val fnrMedFerieTrekkIWireMock = "23039648083"
+        val fnrMedFerieTrekkIWireMock = "06412323694"
 
         val tilskuddsperiodeGodkjentMelding: TilskuddsperiodeGodkjentMelding = lagEnTilskuddsperiodeGodkjentMelding(
             tilskuddFom = LocalDate.of(2023, 6, 1),
@@ -315,7 +315,7 @@ class RefusjonberegnerFratrekkFerieTest(
         //Now.fixedDate(LocalDate.of(2023, 7, 1))
         Now.fixedDateTime(LocalDateTime.of(2023, 7, 1, 0, 0, 0))
         val TREKKFORFERIEGRUNNLAG: Int = 5000 // trekk grunnlag fra inntektoppslag
-        val fnrMedFerieTrekkIWireMock = "23039648083"
+        val fnrMedFerieTrekkIWireMock = "06412323694"
 
         val tilskuddsperiodeGodkjentMelding1: TilskuddsperiodeGodkjentMelding = lagEnTilskuddsperiodeGodkjentMelding(
             tilskuddFom = LocalDate.of(2023, 6, 1),
@@ -370,7 +370,7 @@ class RefusjonberegnerFratrekkFerieTest(
         )
 
         Now.fixedDateTime(LocalDateTime.of(2024, 7, 1, 0, 0, 0))
-        val fnrMedFerieTrekkIWireMock = "29047497068"
+        val fnrMedFerieTrekkIWireMock = "18479696639"
 
         val tilskuddsperiodeGodkjentMelding1: TilskuddsperiodeGodkjentMelding = lagEnTilskuddsperiodeGodkjentMelding(
             tilskuddFom = LocalDate.of(2024, 6, 1),

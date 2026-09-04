@@ -9,7 +9,7 @@ import java.util.*
 @Profile(value = ["local", "test", "dockercompose", "dev-gcp-labs"])
 class PoaoTilgangServiceFake : PoaoTilgangService {
     val deny = listOf(
-        Fnr("07098142678")
+        Fnr("25515104456")
     )
 
     override fun harSkrivetilgang(beslutterAzureUUID: UUID, fnr: Fnr) = if (deny.contains(fnr)) {

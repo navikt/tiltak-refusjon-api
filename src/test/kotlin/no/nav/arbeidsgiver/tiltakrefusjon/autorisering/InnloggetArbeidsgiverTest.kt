@@ -49,7 +49,7 @@ internal class InnloggetArbeidsgiverTest(
     val minusbelopRepository: MinusbelopRepository,
 ) {
     val innloggetArbeidsgiverBruker = innloggetBruker(
-        "16120102137",
+        "04511349341",
         BrukerRolle.ARBEIDSGIVER
     )
 
@@ -168,7 +168,7 @@ internal class InnloggetArbeidsgiverTest(
         val refusjon2 = refusjonService.opprettRefusjon(tilskuddMelding2LittEldreMedLøpenummer2)!!
 
         val innloggetArbeidsgiver = InnloggetArbeidsgiver(
-            "16120102137",
+            "04511349341",
             altinnTilgangsstyringService,
             refusjonRepository,
             korreksjonRepository,
@@ -184,11 +184,11 @@ internal class InnloggetArbeidsgiverTest(
 
     @Test
     fun lagEnRefusjonMedMinusbeløp() {
-        val deltakerFnr = "08098613316"
+        val deltakerFnr = "10517741103"
         val periode2start = Now.localDate().minusMonths(3).with(TemporalAdjusters.firstDayOfMonth());
         val periode2slutt = Now.localDate().minusMonths(3).with(TemporalAdjusters.lastDayOfMonth());
         val innloggetArbeidsgiver = InnloggetArbeidsgiver(
-            "16120102137",
+            "04511349341",
             altinnTilgangsstyringService,
             refusjonRepository,
             korreksjonRepository,
@@ -240,7 +240,7 @@ internal class InnloggetArbeidsgiverTest(
 
     @Test
     fun finnRefusjonMedMinusBeløpFraTidligereRefusjon() {
-        val deltakerFnr = "08098613316"
+        val deltakerFnr = "10517741103"
 
         val periode1start = Now.localDate().minusMonths(4).with(TemporalAdjusters.firstDayOfMonth());
         val periode1slutt = Now.localDate().minusMonths(4).with(TemporalAdjusters.lastDayOfMonth());
@@ -380,7 +380,7 @@ internal class InnloggetArbeidsgiverTest(
         )
 
         val innloggetArbeidsgiver = InnloggetArbeidsgiver(
-            "16120102137",
+            "04511349341",
             altinnTilgangsstyringService,
             refusjonRepository,
             korreksjonRepository,
@@ -428,7 +428,7 @@ internal class InnloggetArbeidsgiverTest(
 
     @Test
     fun finnRefusjonMedMinusBeløpFraForrigeRefusjonSidenDetErUlikAvtaleNrSkalMinusBeløpetIkkeTasMedIAndreRefusjoner() {
-        val deltakerFnr = "08098613316"
+        val deltakerFnr = "10517741103"
 
         val periode1start = Now.localDate().minusMonths(4).with(TemporalAdjusters.firstDayOfMonth());
         val periode1slutt = Now.localDate().minusMonths(4).with(TemporalAdjusters.lastDayOfMonth());
@@ -569,7 +569,7 @@ internal class InnloggetArbeidsgiverTest(
         )
 
         val innloggetArbeidsgiver = InnloggetArbeidsgiver(
-            "16120102137",
+            "04511349341",
             altinnTilgangsstyringService,
             refusjonRepository,
             korreksjonRepository,
@@ -643,7 +643,7 @@ internal class InnloggetArbeidsgiverTest(
 
 
         val innloggetArbeidsgiver = InnloggetArbeidsgiver(
-            "16120102137",
+            "04511349341",
             altinnTilgangsstyringService,
             refusjonRepository,
             korreksjonRepository,
@@ -664,7 +664,7 @@ internal class InnloggetArbeidsgiverTest(
         val periode3start = Now.localDate().minusMonths(2).with(TemporalAdjusters.firstDayOfMonth());
         val periode3slutt = Now.localDate().minusMonths(2).with(TemporalAdjusters.lastDayOfMonth());
 
-        val deltakerFnr = "08098613316"
+        val deltakerFnr = "10517741103"
         val tilskuddMelding2LittEldreMedLøpenummer2 = TilskuddsperiodeGodkjentMelding(
             avtaleId = "1",
             tilskuddsbeløp = 1000,
@@ -707,7 +707,7 @@ internal class InnloggetArbeidsgiverTest(
         )
 
         val innloggetArbeidsgiver = InnloggetArbeidsgiver(
-            "16120102137",
+            "04511349341",
             altinnTilgangsstyringService,
             refusjonRepository,
             korreksjonRepository,
@@ -766,7 +766,7 @@ internal class InnloggetArbeidsgiverTest(
     @Test
     fun `finnRefusjon feiler når strengt fortrolig og ingen adressesperre tilgang`() {
         val bedriftNr = "999999999"
-        val deltakerFnr = "08098613316"
+        val deltakerFnr = "10517741103"
         val melding = TilskuddsperiodeGodkjentMelding(
             avtaleId = "1",
             tilskuddsbeløp = 1000,
@@ -807,7 +807,7 @@ internal class InnloggetArbeidsgiverTest(
         every { persondataService.hentDiskresjonskode(deltakerFnr) } returns Diskresjonskode.STRENGT_FORTROLIG
 
         val innlogget = InnloggetArbeidsgiver(
-            identifikator = "16120102137",
+            identifikator = "04511349341",
             altinnTilgangsstyringService = altinnTilgangsstyringService,
             refusjonRepository = refusjonRepository,
             korreksjonRepository = korreksjonRepository,
@@ -819,7 +819,7 @@ internal class InnloggetArbeidsgiverTest(
 
     @Test
     fun `finnRefusjon lykkes når strengt fortrolig og har adressesperre tilgang`() {
-        val deltakerFnr = "08098613316"
+        val deltakerFnr = "10517741103"
         val periode1start = Now.localDate().minusMonths(4).with(TemporalAdjusters.firstDayOfMonth());
         val periode1slutt = Now.localDate().minusMonths(4).with(TemporalAdjusters.lastDayOfMonth());
 
@@ -860,7 +860,7 @@ internal class InnloggetArbeidsgiverTest(
             mentorAntallTimer = null,
         )
         val innlogget = InnloggetArbeidsgiver(
-            identifikator = "16120102137",
+            identifikator = "04511349341",
             altinnTilgangsstyringService = altinnTilgangsstyringService,
             refusjonRepository = refusjonRepository,
             korreksjonRepository = korreksjonRepository,

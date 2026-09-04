@@ -28,7 +28,7 @@ class InntektskomponentServiceImplTest {
     @Test
     fun `kall OK`() {
         val inntekter = inntektskomponentService.hentInntekter(
-            "28128521498",
+            "25522617728",
             "999999999",
             LocalDate.of(2020, 9, 1),
             LocalDate.of(2020, 10, 1)
@@ -40,7 +40,7 @@ class InntektskomponentServiceImplTest {
     @Test
     fun `kall med respons uten inntekt`() {
         val inntekter = inntektskomponentService.hentInntekter(
-            "25119525430",
+            "22488604671",
             "999999999",
             LocalDate.of(2020, 9, 1),
             LocalDate.of(2020, 10, 1)
@@ -52,13 +52,13 @@ class InntektskomponentServiceImplTest {
     @Test
     fun `kall med respons uten a-melding`() {
         val inntekter = inntektskomponentService.hentInntekter(
-            fnr = "18019623862",
+            fnr = "06518900968",
             bedriftnummerDetSøkesPå = "999999999",
             datoFra = LocalDate.of(2020, 9, 1),
             datoTil = LocalDate.of(2020, 10, 1)
         )
         assertThat(inntekter.first).isEmpty()
-        assertThat(inntekter.second).contains("18019623862")
+        assertThat(inntekter.second).contains("06518900968")
     }
 
     @Test

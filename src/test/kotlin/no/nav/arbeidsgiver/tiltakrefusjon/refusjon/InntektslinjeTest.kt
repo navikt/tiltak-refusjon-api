@@ -1,10 +1,12 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
+import no.nav.arbeidsgiver.tiltakrefusjon.SyntetiskeFnr
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.time.YearMonth
 
+@SyntetiskeFnr
 internal class InntektslinjeTest() {
 
     @Test

@@ -1,6 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
+import no.nav.arbeidsgiver.tiltakrefusjon.SyntetiskeFnr
 import no.nav.arbeidsgiver.tiltakrefusjon.assertFeilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.enBeregningskontekst
 import no.nav.arbeidsgiver.tiltakrefusjon.enInntektslinje
@@ -13,7 +14,9 @@ import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.time.YearMonth
 
+@SyntetiskeFnr
 class KorreksjonTest {
+
     val innloggetBeslutter = innloggetBruker("X123456", BrukerRolle.BESLUTTER)
 
     @Test

@@ -27,7 +27,7 @@
             "equalToJson": {
               "query": "query($ident: ID!) { hentPerson(ident: $ident) { navn { fornavn mellomnavn etternavn } adressebeskyttelse { gradering } } hentIdenter(ident: $ident, grupper: [AKTORID]) { identer { ident gruppe historisk } } hentGeografiskTilknytning(ident: $ident){ gtType gtKommune gtBydel gtLand regel } }",
               "variables": {
-                "ident": "28128521498"
+                "ident": "25522617728"
               }
             }
           }
@@ -55,7 +55,7 @@
             "equalToJson": {
               "query": "query($ident: ID!) { hentPerson(ident: $ident) { navn { fornavn mellomnavn etternavn } adressebeskyttelse { gradering } } hentIdenter(ident: $ident, grupper: [AKTORID]) { identer { ident gruppe historisk } } hentGeografiskTilknytning(ident: $ident){ gtType gtKommune gtBydel gtLand regel } }",
               "variables": {
-                "ident": "28033114267"
+                "ident": "27485100070"
               }
             }
           }
@@ -83,7 +83,7 @@
             "equalToJson": {
               "query": "query($ident: ID!) { hentPerson(ident: $ident) { navn { fornavn mellomnavn etternavn } adressebeskyttelse { gradering } } hentIdenter(ident: $ident, grupper: [AKTORID]) { identer { ident gruppe historisk } } hentGeografiskTilknytning(ident: $ident){ gtType gtKommune gtBydel gtLand regel } }",
               "variables": {
-                "ident": "23119409195"
+                "ident": "14514604755"
               }
             }
           }
@@ -112,7 +112,7 @@
             "equalToJson": {
               "query": "query($ident: ID!) { hentPerson(ident: $ident) { navn { fornavn mellomnavn etternavn } adressebeskyttelse { gradering } } hentIdenter(ident: $ident, grupper: [AKTORID]) { identer { ident gruppe historisk } } hentGeografiskTilknytning(ident: $ident){ gtType gtKommune gtBydel gtLand regel } }",
               "variables": {
-                "ident": "23097010706"
+                "ident": "27433812145"
               }
             }
           }
@@ -173,7 +173,7 @@
       },
       "response": {
         "status": 200,
-        "body": "{ \"data\": { \"hentPersonBolk\": [ { \"ident\": \"28128521498\", \"code\": \"ok\", \"person\": { \"adressebeskyttelse\": [ { \"gradering\": \"STRENGT_FORTROLIG\" } ] } }, { \"ident\": \"28033114267\", \"code\": \"ok\", \"person\": { \"adressebeskyttelse\": [ { \"gradering\": \"STRENGT_FORTROLIG_UTLAND\" } ] } }, { \"ident\": \"23119409195\", \"code\": \"ok\", \"person\": { \"adressebeskyttelse\": [ { \"gradering\": \"FORTROLIG\" } ] } } ] } }",
+        "body": "{ \"data\": { \"hentPersonBolk\": [ { \"ident\": \"25522617728\", \"code\": \"ok\", \"person\": { \"adressebeskyttelse\": [ { \"gradering\": \"STRENGT_FORTROLIG\" } ] } }, { \"ident\": \"27485100070\", \"code\": \"ok\", \"person\": { \"adressebeskyttelse\": [ { \"gradering\": \"STRENGT_FORTROLIG_UTLAND\" } ] } }, { \"ident\": \"14514604755\", \"code\": \"ok\", \"person\": { \"adressebeskyttelse\": [ { \"gradering\": \"FORTROLIG\" } ] } } ] } }",
         "headers": {
           "Content-Type": "application/json"
         }

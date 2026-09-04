@@ -2,6 +2,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
+import no.nav.arbeidsgiver.tiltakrefusjon.SyntetiskeFnr
 import no.nav.arbeidsgiver.tiltakrefusjon.assertFeilkode
 import no.nav.arbeidsgiver.tiltakrefusjon.enBeregningskontekst
 import no.nav.arbeidsgiver.tiltakrefusjon.enInntektslinje
@@ -25,6 +26,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
 
+@SyntetiskeFnr
 internal class RefusjonTest {
 
     val innloggetArbeidsgiver = innloggetBruker("12345678901", BrukerRolle.ARBEIDSGIVER);
@@ -70,7 +72,6 @@ internal class RefusjonTest {
 
         assertThat(refusjon.status).isNotEqualTo(RefusjonStatus.UTBETALT)
     }
-
 
     // Godkjennelse arbeidsgiver
     @Test

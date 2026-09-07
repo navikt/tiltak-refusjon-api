@@ -1,34 +1,35 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.utils;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static no.nav.arbeidsgiver.tiltakrefusjon.utils.UtilsKt.erIkkeTomme;
 import static no.nav.arbeidsgiver.tiltakrefusjon.utils.UtilsKt.erNoenTomme;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class UtilsTest {
   @Test
   public void erIkkeTomme__med_null() {
-    assertThat(erIkkeTomme(1, "k", null)).isFalse();
+    assertFalse(erIkkeTomme(1, "k", null));
   }
 
   @Test
   public void erIkkeTomme__med_tom_streng() {
-    assertThat(erIkkeTomme(1, "k", "")).isFalse();
+    assertFalse(erIkkeTomme(1, "k", ""));
   }
 
   @Test
   public void erIkkeTomme__uten_null() {
-    assertThat(erIkkeTomme(1, "k", new Object())).isTrue();
+    assertTrue(erIkkeTomme(1, "k", new Object()));
   }
 
   @Test
-  public void erNoenTomme_med_gyldig_objekter(){
-    assertThat(erNoenTomme(1, "k", new Object())).isFalse();
+  public void erNoenTomme_med_gyldig_objekter() {
+    assertFalse(erNoenTomme(1, "k", new Object()));
   }
 
   @Test
-  public void erNoenTomme_med_delvis_tomme_objekter(){
-    assertThat(erNoenTomme(1, "k", new Object(),"")).isTrue();
+  public void erNoenTomme_med_delvis_tomme_objekter() {
+    assertTrue(erNoenTomme(1, "k", new Object(), ""));
   }
 }

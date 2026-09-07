@@ -20,16 +20,16 @@ import org.springframework.http.MediaType
 class ArbeidsgiverRefusjonControllerTest {
 
     private lateinit var controller: ArbeidsgiverRefusjonController
-    private lateinit var innlogetServiceMock: InnloggetBrukerService
+    private lateinit var innloggetServiceMock: InnloggetBrukerService
     private lateinit var pdfgenService: PdfgenService
     private lateinit var innloggetArbeidsgiver: InnloggetArbeidsgiver
 
     @BeforeEach
     fun setup() {
-        innlogetServiceMock = mockk()
+        innloggetServiceMock = mockk()
         pdfgenService = mockk()
         innloggetArbeidsgiver = mockk()
-        controller = ArbeidsgiverRefusjonController(innlogetServiceMock, pdfgenService)
+        controller = ArbeidsgiverRefusjonController(innloggetServiceMock, pdfgenService)
     }
 
     @Test
@@ -39,7 +39,7 @@ class ArbeidsgiverRefusjonControllerTest {
 
     @Test
     fun `test at pdf controller endepunkt returnerer pdf som bytearray`() {
-        every { innlogetServiceMock.hentInnloggetArbeidsgiver() } returns innloggetArbeidsgiver
+        every { innloggetServiceMock.hentInnloggetArbeidsgiver() } returns innloggetArbeidsgiver
         every { innloggetArbeidsgiver.finnRefusjon(any()) } returns `Suzanna Hansen`()
         every { pdfgenService.refusjonPdf(any()) } returns ByteArray(1)
 
@@ -55,7 +55,7 @@ class ArbeidsgiverRefusjonControllerTest {
 
     @Test
     fun `test at pdf controller endepunkt ikke finner refusjon`() {
-        every { innlogetServiceMock.hentInnloggetArbeidsgiver() } returns innloggetArbeidsgiver
+        every { innloggetServiceMock.hentInnloggetArbeidsgiver() } returns innloggetArbeidsgiver
         every { innloggetArbeidsgiver.finnRefusjon(any()) } throws RessursFinnesIkkeException()
 
         assertThrows<RessursFinnesIkkeException> { controller.hentPDF(ulid()) }

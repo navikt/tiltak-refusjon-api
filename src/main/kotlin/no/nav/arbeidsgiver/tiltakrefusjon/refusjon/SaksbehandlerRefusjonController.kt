@@ -1,6 +1,5 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
-import no.nav.arbeidsgiver.tiltakrefusjon.ReberegnRequest
 import no.nav.arbeidsgiver.tiltakrefusjon.audit.AuditLogging
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetBrukerService
 import no.nav.arbeidsgiver.tiltakrefusjon.hendelseslogg.HendelsesloggDTO
@@ -86,3 +85,5 @@ class SaksbehandlerRefusjonController(
         return saksbehandler.reberegnDryRun(id, request.harFerietrekkForSammeMåned, request.minusBeløp)
     }
 }
+
+data class ReberegnRequest(val harFerietrekkForSammeMåned: Boolean, val minusBeløp: Int)

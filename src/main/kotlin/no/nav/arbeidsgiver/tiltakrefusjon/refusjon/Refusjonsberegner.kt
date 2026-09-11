@@ -4,9 +4,9 @@ import no.nav.arbeidsgiver.tiltakrefusjon.grunnbelop.Grunnbelop
 import java.time.LocalDate
 import kotlin.math.roundToInt
 
-fun fastBeløpBeregning(
+private fun fastBeløpBeregning(
     tilskuddsgrunnlag: Tilskuddsgrunnlag,
-    tidligereUtbetalt: Int,
+    utbetaltIRefusjonSomSkalKorrigeres: Int,
     korriger: Boolean = false
 ): Beregning {
     val beregnetBeløp = if (korriger) 0 else tilskuddsgrunnlag.tilskuddsbeløp
@@ -19,9 +19,9 @@ fun fastBeløpBeregning(
         arbeidsgiveravgift = 0,
         sumUtgifter = 0,
         beregnetBeløp = beregnetBeløp,
-        refusjonsbeløp = beregnetBeløp - tidligereUtbetalt,
+        refusjonsbeløp = beregnetBeløp - utbetaltIRefusjonSomSkalKorrigeres,
         overTilskuddsbeløp = false,
-        tidligereUtbetalt = tidligereUtbetalt,
+        tidligereUtbetalt = utbetaltIRefusjonSomSkalKorrigeres,
         fratrekkLønnFerie = 0,
         tidligereRefundertBeløp = 0,
         overFemGrunnbeløp = false,
@@ -62,33 +62,45 @@ private fun mentorBeregning(tilskuddsgrunnlag: Tilskuddsgrunnlag): Beregning {
     )
 }
 
-fun beregnRefusjonsbeløp(
+/**
+ * Utfør en beregning på refusjon (eller korreksjon). Forskjellen på en korreksjon og refusjon er at en
+ * refusjon alltid har 0 for "utbetaltIRefusjonSomSkalKorrigeres".
+ *
+ * ## Viktige detaljer
+ * 1. Vi trekker fra minusbeløp ETTER reduksjon ned til maks tilskuddsbeløp. Hensikten er at minusbeløpet
+ * skal trekkes fra det som normalt vil være en sluttsum. Minusbeløp trekkes _før_ 5G fordi 5G-grensen skal være
+ * en absolutt grense på utbetalinger på tvers av tiltaket.
+ * 2. Tidligere refusjonsbeløp trekkes helt til sist, etter 5G-reduksjon! Poenget her er at beløpet som ligger i
+ * `utbetaltIRefusjonSomSkalKorrigeres`-feltet er den absolutt endelige summen som ble beregnet for en refusjon, som
+ * også betyr at eventuelle 5G-grenser gjaldt for den refusjonen også. Ved å trekke fra helt til sist kan vi også fange opp
+ * eventuelle avvik der feks refusjonen ble beregnet med feil grunnbeløp (vil dermed få litt mer utbetalt i korreksjonen).
+ */
+fun tilskuddsberegning(
     inntekter: List<Inntektslinje>,
     tilskuddsgrunnlag: Tilskuddsgrunnlag,
-    tidligereUtbetalt: Int,
-    korrigertBruttoLønn: Int? = null,
+    utbetaltIRefusjonSomSkalKorrigeres: Int,
+    manueltJustertBruttolønn: Int? = null,
     fratrekkRefunderbarSum: Int? = null,
     forrigeRefusjonMinusBeløp: Int = 0,
     tilskuddFom: LocalDate,
-    sumUtbetaltVarig: Int = 0,
+    sumUtbetaltForTiltaketIÅr: Int = 0,
     harFerietrekkForSammeMåned: Boolean,
-    ekstraFerietrekk: Int? = null,
     beregningskontekst: Beregningskontekst,
 ): Beregning {
     val kalkulertBruttoLønn = kalkulerBruttoLønn(inntekter).roundToInt()
-    val lønn = if (korrigertBruttoLønn != null) minOf(korrigertBruttoLønn, kalkulertBruttoLønn) else kalkulertBruttoLønn
-    val trekkgrunnlagFerie = if (harFerietrekkForSammeMåned) 0 else leggSammenTrekkGrunnlag(
-        inntekter,
-        tilskuddFom,
-        ekstraFerietrekk
-    ).roundToInt()
-    val fratrekkRefunderbarBeløp = fratrekkRefunderbarSum ?: 0
+    val lønn = if (manueltJustertBruttolønn != null) minOf(
+        manueltJustertBruttolønn,
+        kalkulertBruttoLønn
+    ) else kalkulertBruttoLønn
+    val trekkgrunnlagFerie =
+        if (harFerietrekkForSammeMåned) 0 else leggSammenTrekkGrunnlag(inntekter, tilskuddFom).roundToInt()
     val lønnFratrukketFerie = lønn + trekkgrunnlagFerie
     val feriepenger = lønnFratrukketFerie * tilskuddsgrunnlag.feriepengerSats
     val tjenestepensjon = (lønnFratrukketFerie + feriepenger) * tilskuddsgrunnlag.otpSats
     val arbeidsgiveravgift =
         (lønnFratrukketFerie + tjenestepensjon + feriepenger) * tilskuddsgrunnlag.arbeidsgiveravgiftSats
     val sumUtgifter = lønnFratrukketFerie + tjenestepensjon + feriepenger + arbeidsgiveravgift
+    val fratrekkRefunderbarBeløp = fratrekkRefunderbarSum ?: 0
     val sumUtgifterFratrukketRefundertBeløp = sumUtgifter - fratrekkRefunderbarBeløp
     val beregnetBeløpUtenFratrukketRefundertBeløp = sumUtgifter * (tilskuddsgrunnlag.lønnstilskuddsprosent / 100.0)
     var beregnetBeløp = sumUtgifterFratrukketRefundertBeløp * (tilskuddsgrunnlag.lønnstilskuddsprosent / 100.0)
@@ -109,7 +121,7 @@ fun beregnRefusjonsbeløp(
 
     var overFemGrunnbeløp = false
     if (tilskuddsgrunnlag.tiltakstype.har5gBegrensning()) {
-        val resultat = beregningskontekst.gjenståendeEtterMaks5G(tilskuddFom, sumUtbetaltVarig, refusjonsbeløp)
+        val resultat = beregningskontekst.gjenståendeEtterMaks5G(tilskuddFom, sumUtbetaltForTiltaketIÅr, refusjonsbeløp)
 
         if (resultat is Maks5GResultat.OverMaks) {
             refusjonsbeløp = resultat.maksbelop
@@ -118,7 +130,7 @@ fun beregnRefusjonsbeløp(
     }
 
     // Hvis vi korrigerer vil det være et utbetalt beløp på den korrigerte refusjonen som vi må trekke fra til sist
-    refusjonsbeløp = refusjonsbeløp - tidligereUtbetalt
+    refusjonsbeløp = refusjonsbeløp - utbetaltIRefusjonSomSkalKorrigeres
 
     return Beregning(
         lønn = lønn,
@@ -130,7 +142,7 @@ fun beregnRefusjonsbeløp(
         beregnetBeløp = avrundetBeregnetBeløp,
         refusjonsbeløp = refusjonsbeløp,
         overTilskuddsbeløp = overTilskuddsbeløp,
-        tidligereUtbetalt = tidligereUtbetalt,
+        tidligereUtbetalt = utbetaltIRefusjonSomSkalKorrigeres,
         fratrekkLønnFerie = trekkgrunnlagFerie,
         tidligereRefundertBeløp = fratrekkRefunderbarBeløp,
         overFemGrunnbeløp = overFemGrunnbeløp,
@@ -140,13 +152,7 @@ fun beregnRefusjonsbeløp(
     )
 }
 
-fun beregnRefusjon(beregningskontekst: Beregningskontekst, refusjon: Refusjon) =
-    beregn(beregningskontekst, refusjon)
-
-fun beregnKorreksjon(beregningskontekst: Beregningskontekst, korreksjon: Korreksjon) =
-    beregn(beregningskontekst, korreksjon)
-
-private fun beregn(beregningskontekst: Beregningskontekst, refundering: Refundering): Beregning? {
+fun beregn(beregningskontekst: Beregningskontekst, refundering: Refundering): Beregning? {
     if (!refundering.refusjonsgrunnlag.harTilstrekkeligInformasjonForBeregning()) {
         return null
     }
@@ -165,15 +171,15 @@ private fun beregn(beregningskontekst: Beregningskontekst, refundering: Refunder
             is Refusjon -> mentorBeregning(refundering.refusjonsgrunnlag.tilskuddsgrunnlag)
         }
 
-        Tiltakstype.SOMMERJOBB, Tiltakstype.VARIG_LONNSTILSKUDD, Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD, Tiltakstype.FIREARIG_LONNSTILSKUDD -> beregnRefusjonsbeløp(
+        Tiltakstype.SOMMERJOBB, Tiltakstype.VARIG_LONNSTILSKUDD, Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD, Tiltakstype.FIREARIG_LONNSTILSKUDD -> tilskuddsberegning(
             inntekter = refundering.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.toList() ?: emptyList(),
             tilskuddsgrunnlag = refundering.refusjonsgrunnlag.tilskuddsgrunnlag,
-            tidligereUtbetalt = refundering.refusjonsgrunnlag.tidligereUtbetalt,
-            korrigertBruttoLønn = refundering.refusjonsgrunnlag.endretBruttoLønn,
+            utbetaltIRefusjonSomSkalKorrigeres = refundering.refusjonsgrunnlag.tidligereUtbetalt,
+            manueltJustertBruttolønn = refundering.refusjonsgrunnlag.endretBruttoLønn,
             fratrekkRefunderbarSum = refundering.refusjonsgrunnlag.refunderbarBeløp,
             forrigeRefusjonMinusBeløp = refundering.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
             tilskuddFom = refundering.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
-            sumUtbetaltVarig = refundering.refusjonsgrunnlag.sumUtbetaltVarig,
+            sumUtbetaltForTiltaketIÅr = refundering.refusjonsgrunnlag.sumUtbetaltVarig,
             harFerietrekkForSammeMåned = refundering.refusjonsgrunnlag.harFerietrekkForSammeMåned,
             beregningskontekst = beregningskontekst
         )
@@ -183,16 +189,8 @@ private fun beregn(beregningskontekst: Beregningskontekst, refundering: Refunder
 
 fun leggSammenTrekkGrunnlag(
     inntekter: List<Inntektslinje>,
-    tilskuddFom: LocalDate,
-    ekstraFerietrekk: Int? = null
-): Double {
-    var ferieTrekkGrunnlag = inntekter.filter { it.skalTrekkesIfraInntektsgrunnlag(tilskuddFom) }
-        .sumOf { it.beløp }
-    if (ekstraFerietrekk != null) {
-        ferieTrekkGrunnlag += ekstraFerietrekk
-    }
-    return ferieTrekkGrunnlag
-}
+    tilskuddFom: LocalDate
+): Double = inntekter.filter { it.skalTrekkesIfraInntektsgrunnlag(tilskuddFom) }.sumOf { it.beløp }
 
 fun kalkulerBruttoLønn(
     inntekter: List<Inntektslinje>,

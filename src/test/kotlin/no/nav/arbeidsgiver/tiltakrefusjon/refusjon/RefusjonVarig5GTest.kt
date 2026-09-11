@@ -221,7 +221,7 @@ class RefusjonVarig5GTest(
     }
 }
 
-private val deltakerFnr = "08098138758"
+private val deltakerFnr = "06435607002"
 
 private val tilskuddsmelding = TilskuddsperiodeGodkjentMelding(
     avtaleId = "1",

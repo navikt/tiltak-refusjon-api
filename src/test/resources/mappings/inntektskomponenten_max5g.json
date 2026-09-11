@@ -9,7 +9,7 @@
           {
             "equalToJson": {
               "ident": {
-                "identifikator": "08098138758",
+                "identifikator": "06435607002",
                 "aktoerType": "NATURLIG_IDENT"
               },
               "maanedFom": "2023-06",
@@ -48,7 +48,7 @@
                       "aktoerType": "ORGANISASJON"
                     },
                     "inntektsmottaker": {
-                      "identifikator": "08098138758",
+                      "identifikator": "06435607002",
                       "aktoerType": "NATURLIG_IDENT"
                     },
                     "inngaarIGrunnlagForTrekk": true,
@@ -82,7 +82,7 @@
                       "kategori": "NorskKontinentalsokkel"
                     },
                     "inntektsmottaker": {
-                      "identifikator": "08098138758",
+                      "identifikator": "06435607002",
                       "aktoerType": "NATURLIG_IDENT"
                     },
                     "inngaarIGrunnlagForTrekk": true,
@@ -115,7 +115,7 @@
                       "kategori": "NorskKontinentalsokkel"
                     },
                     "inntektsmottaker": {
-                      "identifikator": "08098138758",
+                      "identifikator": "06435607002",
                       "aktoerType": "NATURLIG_IDENT"
                     },
                     "inngaarIGrunnlagForTrekk": true,
@@ -128,7 +128,7 @@
             }
           ],
           "ident": {
-            "identifikator": "08098138758",
+            "identifikator": "06435607002",
             "aktoerType": "NATURLIG_IDENT"
           }
         },
@@ -149,7 +149,7 @@
           {
             "equalToJson": {
               "ident": {
-                "identifikator": "08098138758",
+                "identifikator": "06435607002",
                 "aktoerType": "NATURLIG_IDENT"
               },
               "maanedFom": "2023-06",
@@ -188,7 +188,7 @@
                       "aktoerType": "ORGANISASJON"
                     },
                     "inntektsmottaker": {
-                      "identifikator": "08098138758",
+                      "identifikator": "06435607002",
                       "aktoerType": "NATURLIG_IDENT"
                     },
                     "inngaarIGrunnlagForTrekk": true,
@@ -222,7 +222,7 @@
                       "kategori": "NorskKontinentalsokkel"
                     },
                     "inntektsmottaker": {
-                      "identifikator": "08098138758",
+                      "identifikator": "06435607002",
                       "aktoerType": "NATURLIG_IDENT"
                     },
                     "inngaarIGrunnlagForTrekk": true,
@@ -235,7 +235,7 @@
             }
           ],
           "ident": {
-            "identifikator": "08098138758",
+            "identifikator": "06435607002",
             "aktoerType": "NATURLIG_IDENT"
           }
         },

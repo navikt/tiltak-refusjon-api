@@ -1,5 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.inntekt
 
+import no.nav.arbeidsgiver.tiltakrefusjon.SyntetiskeFnr
 import no.nav.arbeidsgiver.tiltakrefusjon.enBeregningskontekst
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Inntektsgrunnlag
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Inntektslinje
@@ -14,6 +15,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
 
+@SyntetiskeFnr
 class RefusjonsberegnerTest {
 
     lateinit var juni: Inntektslinje

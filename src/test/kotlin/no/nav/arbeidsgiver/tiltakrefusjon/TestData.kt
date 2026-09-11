@@ -46,7 +46,7 @@ fun innloggetBruker(identifikator: String, rolle: BrukerRolle) = object : Innlog
 }
 
 fun enRefusjon(tilskuddsgrunnlag: Tilskuddsgrunnlag = etTilskuddsgrunnlag()): Refusjon {
-    val deltakerFnr = "07098142678"
+    val deltakerFnr = "25515104456"
     val bedriftNr = "999999999"
     return Refusjon(
         tilskuddsgrunnlag = tilskuddsgrunnlag,
@@ -62,7 +62,7 @@ fun enVarsling(varselType: VarselType = VarselType.KLAR): Varsling {
 }
 
 fun refusjonerMedFerietrekk(): List<Refusjon> {
-    val deltakerFnrMedMinusOgPlussFerietrekk = "26089638754"
+    val deltakerFnrMedMinusOgPlussFerietrekk = "23506130735"
     val bedriftNr = "999999999"
     val refusjon1 = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
@@ -75,7 +75,7 @@ fun refusjonerMedFerietrekk(): List<Refusjon> {
             veilederNavIdent = "X123456"
         ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnrMedMinusOgPlussFerietrekk
     )
-    val deltakerFnrMedPlussFerietrekk = "23039648083"
+    val deltakerFnrMedPlussFerietrekk = "06412323694"
     val refusjon2 = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
             tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
@@ -92,7 +92,7 @@ fun refusjonerMedFerietrekk(): List<Refusjon> {
 }
 
 fun gamleUtbetalteRefusjonerOgEnNy(tiltakstype: Tiltakstype): List<Refusjon> {
-    val deltakerFnrMedMasseUtbetalt = "08098138758"
+    val deltakerFnrMedMasseUtbetalt = "06435607002"
     val bedriftNr = "999999999"
     val refusjon1 = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
@@ -357,7 +357,7 @@ fun refusjoner(): List<Refusjon> {
     val SnorreKorreksjonLønnEtterDødsfallMedIngenInntekt = `Snorre Sturlason`().let {
         val tilskuddFom = Now.localDate().withDayOfMonth(1);
         it.copy(
-            deltakerFnr = "09078349333",
+            deltakerFnr = "23506328829",
             tilskuddsgrunnlag = it.refusjonsgrunnlag.tilskuddsgrunnlag.copy(
                 avtaleId = `Snorre Sturlason`().refusjonsgrunnlag.tilskuddsgrunnlag.avtaleId,
                 tilskuddFom = tilskuddFom,
@@ -373,7 +373,7 @@ fun refusjoner(): List<Refusjon> {
     }
 
     fun `Jon Janson Ferietrekk minus beløp 1`(): Refusjon {
-        val deltakerFnr = "08124521514"
+        val deltakerFnr = "19524104221"
         val bedriftNr = "910712306"
         return Refusjon(
             tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
@@ -394,7 +394,7 @@ fun refusjoner(): List<Refusjon> {
     }
 
     fun `Jon Janson Ferietrekk minus beløp 2`(): Refusjon {
-        val deltakerFnr = "08124521514"
+        val deltakerFnr = "19524104221"
         val bedriftNr = "910712306"
         return Refusjon(
             tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
@@ -415,7 +415,7 @@ fun refusjoner(): List<Refusjon> {
     }
 
     fun `Jon Janson Ferietrekk minus beløp 3`(): Refusjon {
-        val deltakerFnr = "08124521514"
+        val deltakerFnr = "19524104221"
         val bedriftNr = "910712306"
         return Refusjon(
             tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
@@ -436,7 +436,7 @@ fun refusjoner(): List<Refusjon> {
     }
 
     fun `Jon Janson Ferietrekk minus beløp 4`(): Refusjon {
-        val deltakerFnr = "08124521514"
+        val deltakerFnr = "19524104221"
         val bedriftNr = "910712306"
         return Refusjon(
             tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
@@ -545,7 +545,7 @@ fun etTilskuddsgrunnlag(tiltakstype: Tiltakstype = Tiltakstype.SOMMERJOBB) = Til
 )
 
 fun `Jonas Lie`(): Refusjon {
-    val deltakerFnr = "07098142678"
+    val deltakerFnr = "25515104456"
     val bedriftNr = "910712306"
     return Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
@@ -560,7 +560,7 @@ fun `Jonas Lie`(): Refusjon {
 }
 
 fun `Henrik Wergeland`(): Refusjon {
-    val deltakerFnr = "07098142678"
+    val deltakerFnr = "25515104456"
     val bedriftNr = "990000000"
     return Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
@@ -575,7 +575,7 @@ fun `Henrik Wergeland`(): Refusjon {
 }
 
 fun `Sigrid Undset`(): Refusjon {
-    val deltakerFnr = "07098142678"
+    val deltakerFnr = "25515104456"
     val bedriftNr = "990000000"
     return Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
@@ -590,7 +590,7 @@ fun `Sigrid Undset`(): Refusjon {
 }
 
 fun `Snorre Sturlason`(): Refusjon {
-    val deltakerFnr = "09078349333"
+    val deltakerFnr = "23506328829"
     val bedriftNr = "999999999"
     return Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
@@ -605,7 +605,7 @@ fun `Snorre Sturlason`(): Refusjon {
 }
 
 fun `Formye Ferietrekksen`(): Refusjon {
-    val deltakerFnr = "28061827902"
+    val deltakerFnr = "04449696803"
     val bedriftNr = "999999999"
     return Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
@@ -620,7 +620,7 @@ fun `Formye Ferietrekksen`(): Refusjon {
 }
 
 fun `Camilla Collett`(): Refusjon {
-    val deltakerFnr = "07098142678"
+    val deltakerFnr = "25515104456"
     val bedriftNr = "990000000"
     return Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
@@ -635,7 +635,7 @@ fun `Camilla Collett`(): Refusjon {
 }
 
 fun `Alexander Kielland`(): Refusjon {
-    val deltakerFnr = "07098142678"
+    val deltakerFnr = "25515104456"
     val bedriftNr = "999999999"
     return Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
@@ -650,7 +650,7 @@ fun `Alexander Kielland`(): Refusjon {
 }
 
 fun `Geir Geirsen`(): Refusjon {
-    val deltakerFnr = "18079238011"
+    val deltakerFnr = "09498011826"
     val bedriftNr = "999999999"
     return Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
@@ -666,7 +666,7 @@ fun `Geir Geirsen`(): Refusjon {
 }
 
 fun `Bjørnstjerne Bjørnson`(): Refusjon {
-    val deltakerFnr = "28128521498"
+    val deltakerFnr = "25522617728"
     val bedriftNr = "999999999"
     return Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
@@ -681,7 +681,7 @@ fun `Bjørnstjerne Bjørnson`(): Refusjon {
 }
 
 fun `Bjørnstjerne Bjørnson unntak`(): Refusjon {
-    val deltakerFnr = "28128521498"
+    val deltakerFnr = "25522617728"
     val bedriftNr = "999999999"
     val refusjon = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
@@ -713,7 +713,7 @@ fun `Nils Nilsen`(): Refusjon {
 }
 
 fun `Inger Hagerup`(): Refusjon {
-    val deltakerFnr = "07049223190"
+    val deltakerFnr = "17446603280"
     val bedriftNr = "998877665"
     return Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
@@ -728,7 +728,7 @@ fun `Inger Hagerup`(): Refusjon {
 }
 
 fun `Amalie Skram`(): Refusjon {
-    val deltakerFnr = "23119409195"
+    val deltakerFnr = "14514604755"
     val bedriftNr = "955555555"
     return Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
@@ -745,7 +745,7 @@ fun `Amalie Skram`(): Refusjon {
 }
 
 fun `Amanda Skram`(): Refusjon {
-    val deltakerFnr = "23119409195"
+    val deltakerFnr = "14514604755"
     val bedriftNr = "910712306"
     return Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
@@ -762,7 +762,7 @@ fun `Amanda Skram`(): Refusjon {
 }
 
 fun `Suzanna Hansen`(): Refusjon {
-    val deltakerFnr = "23119409195"
+    val deltakerFnr = "14514604755"
     val bedriftNr = "999999999"
     val refusjon = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
@@ -791,7 +791,7 @@ fun `Suzanna Hansen`(): Refusjon {
 }
 
 fun `Siri Hansen`(): Refusjon {
-    val deltakerFnr = "23119409195"
+    val deltakerFnr = "14514604755"
     val bedriftNr = "999999999"
     val refusjon = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
@@ -822,7 +822,7 @@ fun `Siri Hansen`(): Refusjon {
 }
 
 fun `Vidar Fortidlig`(): Refusjon {
-    val deltakerFnr = "23119409195"
+    val deltakerFnr = "14514604755"
     val bedriftNr = "999999999"
     val refusjon = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
@@ -848,7 +848,7 @@ fun `Vidar Fortidlig`(): Refusjon {
 }
 
 fun `Vidar SendKrav`(): Refusjon {
-    val deltakerFnr = "23119409195"
+    val deltakerFnr = "14514604755"
     val bedriftNr = "999999999"
     val refusjon = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
@@ -881,7 +881,7 @@ fun `Vidar SendKrav`(): Refusjon {
 }
 
 fun `Vidar Utbetalt`(): Refusjon {
-    val deltakerFnr = "23119409195"
+    val deltakerFnr = "14514604755"
     val bedriftNr = "999999999"
     val refusjon = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
@@ -919,7 +919,7 @@ fun `Vidar Utbetalt`(): Refusjon {
 }
 
 fun `Ole-Johnny Fortidlig`(): Refusjon {
-    val deltakerFnr = "23119409195"
+    val deltakerFnr = "14514604755"
     val bedriftNr = "999999999"
     val refusjon = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
@@ -950,7 +950,7 @@ fun `Ole-Johnny Fortidlig`(): Refusjon {
 }
 
 fun `Ole-Johnny SendtKrav`(): Refusjon {
-    val deltakerFnr = "23119409195"
+    val deltakerFnr = "14514604755"
     val bedriftNr = "999999999"
     val refusjon = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
@@ -988,7 +988,7 @@ fun `Ole-Johnny SendtKrav`(): Refusjon {
 }
 
 fun `Ole-Johnny Utbetalt`(): Refusjon {
-    val deltakerFnr = "23119409195"
+    val deltakerFnr = "14514604755"
     val bedriftNr = "999999999"
     val refusjon = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
@@ -1031,7 +1031,7 @@ fun `Ole-Johnny Utbetalt`(): Refusjon {
 }
 
 fun dodsfallUnderTiltakRefusjon(): Refusjon {
-    val deltakerFnrMedMasseUtbetalt = "30038738743"
+    val deltakerFnrMedMasseUtbetalt = "23473111500"
     val bedriftNr = "999999999"
     val refusjon = Refusjon(
         tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(

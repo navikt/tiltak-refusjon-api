@@ -1,9 +1,11 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
+import no.nav.arbeidsgiver.tiltakrefusjon.SyntetiskeFnr
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
+@SyntetiskeFnr
 class FnrTest {
     @Test
     fun `gitt et tom fnr skal det kastes en exception`() {
@@ -42,7 +44,7 @@ class FnrTest {
 
     @Test
     fun `gitt gyldig fnr skal true returneres`() {
-        val gyldigFnrMed11Tall = "24128125651"
+        val gyldigFnrMed11Tall = "29504805628"
         assertThat(Fnr(gyldigFnrMed11Tall).verdi).isEqualTo(gyldigFnrMed11Tall)
     }
 }

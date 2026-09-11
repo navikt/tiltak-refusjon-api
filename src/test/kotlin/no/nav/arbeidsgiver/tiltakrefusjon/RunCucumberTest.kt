@@ -1,13 +1,15 @@
 package no.nav.arbeidsgiver.tiltakrefusjon
 
-import io.cucumber.junit.Cucumber
-import io.cucumber.junit.CucumberOptions
-import org.junit.runner.RunWith
-import org.springframework.test.context.TestPropertySource
+import org.junit.platform.suite.api.ConfigurationParameter
+import org.junit.platform.suite.api.IncludeEngines
+import org.junit.platform.suite.api.SelectClasspathResource
+import org.junit.platform.suite.api.Suite
 
-@RunWith(Cucumber::class)
-@CucumberOptions(
-    features = ["src/test/resources/features"]
+@Suite
+@IncludeEngines("cucumber")
+@SelectClasspathResource("features")
+@ConfigurationParameter(
+    key = "cucumber.glue",
+    value = "no.nav.arbeidsgiver.tiltakrefusjon"
 )
-@TestPropertySource(properties = ["cucumber.reporting.config.file=src/test/resources/cucumber-reporting.properties"])
 class RunCucumberTest

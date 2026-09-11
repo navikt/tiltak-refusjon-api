@@ -9,6 +9,16 @@ spec:
   env:
     - name: MILJO
       value: dev-gcp-labs
+    - name: FAKE_LOGIN_URI
+      value: http://tiltak-fakelogin
+    - name: LOG_LEVEL
+      value: INFO
+    - name: SERVER_PORT
+      value: "8080"
+    - name: TILTAK_PDFGEN_URI
+      value: http://tiltak-pdfgen
+    - name: WIREMOCK_SERVER_PORT
+      value: "9090"
   image: {{image}}
   resources:
     limits:
@@ -33,7 +43,7 @@ spec:
         - host: "g.nav.no"
       rules:
         - application: tiltak-fakelogin
-        - application: tiltak-refusjon-api-wiremock
+        - application: tiltak-pdfgen
   observability:
     logging:
       destinations:

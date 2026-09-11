@@ -60,7 +60,7 @@ class RefusjonApiTest(
     lateinit var consoleLogger: AuditConsoleLogger
 
     val navToken = lagTokenForNavId("Z123456", "550e8400-e29b-41d4-a716-446655440000")
-    val arbGiverToken = lagTokenForFnr("16120102137")
+    val arbGiverToken = lagTokenForFnr("04511349341")
 
     @BeforeEach
     fun setUp() {
@@ -160,7 +160,7 @@ class RefusjonApiTest(
 
     @Test
     fun `hent() - Arbeidsgiver henter refusjon med id`() {
-        val id = refusjonRepository.findAll().find { it.deltakerFnr == "07098142678" }?.id
+        val id = refusjonRepository.findAll().find { it.deltakerFnr == "25515104456" }?.id
 
         val json = sendRequest(get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id"), arbGiverToken)
         assertEquals(id, JsonPath.read<String>(json, "$.id"))
@@ -172,14 +172,14 @@ class RefusjonApiTest(
 
     @Test
     fun `hent() - Arbeidsgiver mangler tilgang til refusjon med id`() {
-        val id = refusjonRepository.findAll().find { it.deltakerFnr == "23119409195" }?.id
+        val id = refusjonRepository.findAll().find { it.deltakerFnr == "14514604755" }?.id
 
         sendRequest(get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id"), arbGiverToken, status().isForbidden)
     }
 
     @Test
     fun `hent() - Saksbehandler henter refusjon med id`() {
-        val id = refusjonRepository.findAll().find { it.deltakerFnr == "28128521498" }?.id
+        val id = refusjonRepository.findAll().find { it.deltakerFnr == "25522617728" }?.id
 
         val json = sendRequest(get("$REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON/$id"), navToken)
         assertEquals(id, JsonPath.read<String>(json, "$.id"))
@@ -191,7 +191,7 @@ class RefusjonApiTest(
 
     @Test
     fun `hent() - refusjon-payload inneholder ikke deltakerFnr pa noe niva`() {
-        val id = refusjonRepository.findAll().find { it.deltakerFnr == "28128521498" }?.id
+        val id = refusjonRepository.findAll().find { it.deltakerFnr == "25522617728" }?.id
 
         val json = sendRequest(get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id"), arbGiverToken)
 
@@ -200,7 +200,7 @@ class RefusjonApiTest(
 
     @Test
     fun `hent() - Saksbehandler mangler tilgang til henter refusjon med id`() {
-        val id = refusjonRepository.findAll().find { it.deltakerFnr == "07098142678" }?.id
+        val id = refusjonRepository.findAll().find { it.deltakerFnr == "25515104456" }?.id
         sendRequest(get("$REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON/$id"), navToken, status().isForbidden)
     }
 
@@ -222,7 +222,7 @@ class RefusjonApiTest(
 
     @Test
     fun `Arbeidsgiver kan gjøre inntektsoppslag, og hente refusjon med inntektsgrunnlag, og godkjenne`() {
-        val id = refusjonRepository.findAll().find { it.deltakerFnr == "28128521498" }?.id
+        val id = refusjonRepository.findAll().find { it.deltakerFnr == "25522617728" }?.id
 
         // Inntektsoppslag ved henting av refusjon
         oppdaterRefusjonMedKontonrOgInntekter(id!!)
@@ -272,7 +272,7 @@ class RefusjonApiTest(
 
     @Test
     fun `feilkode setter riktig header og gir statuskode 400`() {
-        val id = refusjonRepository.findAll().find { it.deltakerFnr == "28128521498" }?.id
+        val id = refusjonRepository.findAll().find { it.deltakerFnr == "25522617728" }?.id
 
         // Godkjenn
         mockMvc.perform(

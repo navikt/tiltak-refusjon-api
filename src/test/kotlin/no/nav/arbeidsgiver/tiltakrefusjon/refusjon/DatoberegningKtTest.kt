@@ -1,5 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
+import no.nav.arbeidsgiver.tiltakrefusjon.SyntetiskeFnr
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.antallMånederEtter
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.erMånedIPeriode
 import org.assertj.core.api.Assertions.assertThat
@@ -7,7 +8,9 @@ import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.time.YearMonth
 
+@SyntetiskeFnr
 internal class DatoberegningKtTest {
+
     @Test
     internal fun `er i periode`() {
         assertThat(erMånedIPeriode(YearMonth.of(2021, 7), LocalDate.of(2021, 7, 1), LocalDate.of(2021, 7, 2))).isTrue()

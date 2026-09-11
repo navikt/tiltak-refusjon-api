@@ -97,7 +97,7 @@ object RefusjonTilPDFMapper {
             refusjonsbeløp = beregning.refusjonsbeløp,
             beregnetBeløp = beregning.beregnetBeløp,
             overTilskuddsbeløp = beregning.overTilskuddsbeløp,
-            overFemGrunnbeløp = beregning.overFemGrunnbeløp,
+            overFemGrunnbeløp = beregning.overFemGrunnbeløp ?: false,
             sumUtgifter = beregning.sumUtgifter,
             tidligereUtbetalt = beregning.tidligereUtbetalt,
             fratrekkLønnFerie = beregning.fratrekkLønnFerie,

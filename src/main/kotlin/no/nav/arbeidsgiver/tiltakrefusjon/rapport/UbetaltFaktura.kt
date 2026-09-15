@@ -1,5 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.rapport
 
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Korreksjon
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refundering
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonStatus
 import java.time.Instant
@@ -39,6 +41,7 @@ fun lagId(avtaleNr: Int, løpenummer: Int, korreksjonsnummer: Int?, resendingsnu
         "T-${avtaleNr}-$løpenummer"
     }
 }
+
 /** Erstatter forhåpentligvis lagId når oeBs er klare for det **/
 fun lagRefusjonsnummer(avtaleNr: Int, løpenummer: Int, korreksjonsnummer: Int?, resendingsnummer: Int?): String {
     return if (korreksjonsnummer != null && resendingsnummer != null) {
@@ -50,4 +53,16 @@ fun lagRefusjonsnummer(avtaleNr: Int, løpenummer: Int, korreksjonsnummer: Int?,
     } else {
         "$avtaleNr-$løpenummer"
     }
+}
+
+fun lagRefusjonsnummer(refundering: Refundering): String {
+    val tilskuddsgrunnlag = refundering.refusjonsgrunnlag.tilskuddsgrunnlag
+    val erKorreksjon = refundering is Korreksjon
+
+    return lagRefusjonsnummer(
+        tilskuddsgrunnlag.avtaleNr,
+        tilskuddsgrunnlag.løpenummer,
+        if (erKorreksjon) refundering.korreksjonsnummer else null,
+        tilskuddsgrunnlag.resendingsnummer
+    )
 }

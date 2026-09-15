@@ -18,7 +18,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonRepository
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonStatus
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.beregnRefusjonsbeløp
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.tilskuddsberegning
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.sortPageable
 import no.nav.team_tiltak.felles.persondata.pdl.domene.Diskresjonskode
 import org.slf4j.Logger
@@ -284,16 +284,16 @@ data class InnloggetSaksbehandler(
 
     fun reberegnDryRun(id: String, harFerietrekkForSammeMåned: Boolean, minusBeløp: Int): Beregning {
         val refusjon = finnRefusjon(id)
-        return beregnRefusjonsbeløp(
+        return tilskuddsberegning(
             inntekter = refusjon.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
             tilskuddsgrunnlag = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag,
-            tidligereUtbetalt = 0,
-            korrigertBruttoLønn = refusjon.refusjonsgrunnlag.endretBruttoLønn,
+            utbetaltIRefusjonSomSkalKorrigeres = 0,
+            manueltJustertBruttolønn = refusjon.refusjonsgrunnlag.endretBruttoLønn,
             fratrekkRefunderbarSum = refusjon.refusjonsgrunnlag.refunderbarBeløp,
             forrigeRefusjonMinusBeløp = minusBeløp,
             tilskuddFom = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
             harFerietrekkForSammeMåned = harFerietrekkForSammeMåned,
-            sumUtbetaltVarig = refusjon.refusjonsgrunnlag.sumUtbetaltVarig,
+            sumUtbetaltForTiltaketIÅr = refusjon.refusjonsgrunnlag.sumUtbetaltVarig,
             beregningskontekst = refusjonService.hentBeregningskontekst(refusjon)
         )
     }

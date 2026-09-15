@@ -9,7 +9,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonStatus
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tilskuddsgrunnlag
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.beregnRefusjon
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.beregn
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.ulid
 import no.nav.arbeidsgiver.tiltakrefusjon.varsling.VarselType
@@ -1057,7 +1057,7 @@ fun Refusjon.medInntektsgrunnlag(
 
 fun Refusjon.medBeregning(
 ): Refusjon {
-    this.refusjonsgrunnlag.beregning = beregnRefusjon(enBeregningskontekst(), this)
+    this.refusjonsgrunnlag.beregning = beregn(enBeregningskontekst(), this)
     return this
 }
 

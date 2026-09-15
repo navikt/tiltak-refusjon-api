@@ -6,7 +6,6 @@ import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.SYSTEM_BRUKER
 import no.nav.arbeidsgiver.tiltakrefusjon.grunnbelop.GrunnbelopService
 import no.nav.arbeidsgiver.tiltakrefusjon.okonomi.KontoregisterServiceImpl
 import no.nav.arbeidsgiver.tiltakrefusjon.rapport.UbetaltRefusjonRapport
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Beregning
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Korreksjonsgrunn
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonKafkaProducer
@@ -15,7 +14,6 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonStatus
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.StatusJobb
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.beregnRefusjonsbeløp
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonEndretStatus
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.RefusjonUtgått
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.MidlerFrigjortÅrsak
@@ -174,48 +172,6 @@ class AdminController(
         }
     }
 
-    @PostMapping("reberegn-dry/{id}")
-    fun reberegnDryRun(@PathVariable id: String, @RequestBody request: ReberegnRequest): Beregning {
-        val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
-        return beregnRefusjonsbeløp(
-            inntekter = refusjon.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
-            tilskuddsgrunnlag = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag,
-            tidligereUtbetalt = 0,
-            korrigertBruttoLønn = refusjon.refusjonsgrunnlag.endretBruttoLønn,
-            fratrekkRefunderbarSum = refusjon.refusjonsgrunnlag.refunderbarBeløp,
-            forrigeRefusjonMinusBeløp = request.minusBeløp,
-            tilskuddFom = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
-            harFerietrekkForSammeMåned = request.harFerietrekkForSammeMåned,
-            sumUtbetaltVarig = refusjon.refusjonsgrunnlag.sumUtbetaltVarig,
-            ekstraFerietrekk = request.ferieTrekk,
-            beregningskontekst = refusjonService.hentBeregningskontekst(refusjon)
-        )
-    }
-
-    @PostMapping("reberegn-lagre/{id}")
-    @Transactional
-    fun reberegn(@PathVariable id: String, @RequestBody request: ReberegnRequest): Beregning {
-        val refusjon: Refusjon = refusjonRepository.findByIdOrNull(id) ?: throw RessursFinnesIkkeException()
-        val beregning = beregnRefusjonsbeløp(
-            inntekter = refusjon.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
-            tilskuddsgrunnlag = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag,
-            tidligereUtbetalt = 0,
-            korrigertBruttoLønn = refusjon.refusjonsgrunnlag.endretBruttoLønn,
-            fratrekkRefunderbarSum = refusjon.refusjonsgrunnlag.refunderbarBeløp,
-            forrigeRefusjonMinusBeløp = request.minusBeløp,
-            tilskuddFom = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
-            harFerietrekkForSammeMåned = request.harFerietrekkForSammeMåned,
-            sumUtbetaltVarig = refusjon.refusjonsgrunnlag.sumUtbetaltVarig,
-            ekstraFerietrekk = request.ferieTrekk,
-            beregningskontekst = refusjonService.hentBeregningskontekst(refusjon)
-        )
-        refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp = request.minusBeløp
-        refusjon.refusjonsgrunnlag.beregning = beregning
-        logger.info("Har oppdatert beregning på refusjon ${refusjon.id} fra admin-endepunkt")
-        refusjonRepository.save(refusjon)
-        return beregning
-    }
-
     @GetMapping("hent-refusjoner-med-status-sendt")
     fun hentRefusjonerMedStatusSendtKrav() = refusjonRepository.findAllByStatus(RefusjonStatus.SENDT_KRAV)
 
@@ -337,7 +293,6 @@ class AdminController(
     }
 }
 
-data class ReberegnRequest(val harFerietrekkForSammeMåned: Boolean, val minusBeløp: Int, val ferieTrekk: Int)
 data class KorreksjonRequest(val refusjonIder: List<String>, val korreksjonsgrunner: Set<Korreksjonsgrunn>)
 data class ForlengFristerRequest(
     val refusjonIder: List<String>,

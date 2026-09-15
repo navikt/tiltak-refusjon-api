@@ -68,12 +68,6 @@ object RefusjonTilPDFMapper {
                 tidligereRefundertBeløp = 0,
                 tilskuddsbeløp = tilskuddsgrunnlag.tilskuddsbeløp,
                 forrigeRefusjonMinusBeløp = refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
-                forrigeRefusjonsnummer = lagRefusjonsnummer(
-                    tilskuddsgrunnlag.avtaleNr,
-                    tilskuddsgrunnlag.løpenummer - 1,
-                    null,
-                    null
-                ),
                 sumUtgifterFratrukketRefundertBeløp = 0,
                 mentorTimelonn = 0,
                 mentorAntallTimer = 0.0,
@@ -115,12 +109,6 @@ object RefusjonTilPDFMapper {
             tidligereRefundertBeløp = beregning.tidligereRefundertBeløp,
             tilskuddsbeløp = tilskuddsgrunnlag.tilskuddsbeløp,
             forrigeRefusjonMinusBeløp = refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
-            forrigeRefusjonsnummer = lagRefusjonsnummer(
-                tilskuddsgrunnlag.avtaleNr,
-                tilskuddsgrunnlag.løpenummer - 1,
-                null,
-                null
-            ),
             sumUtgifterFratrukketRefundertBeløp = beregning.sumUtgifterFratrukketRefundertBeløp,
             mentorTimelonn = tilskuddsgrunnlag.mentorTimelonn,
             mentorAntallTimer = tilskuddsgrunnlag.mentorAntallTimer,

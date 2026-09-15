@@ -35,7 +35,6 @@ data class RefusjonTilPDF(
     val tidligereRefundertBeløp: Int,
     val tilskuddsbeløp: Int,
     val forrigeRefusjonMinusBeløp: Int,
-    val forrigeRefusjonsnummer: String,
     val sumUtgifterFratrukketRefundertBeløp: Int,
     val mentorTimelonn: Int?,
     val mentorAntallTimer: Double?,

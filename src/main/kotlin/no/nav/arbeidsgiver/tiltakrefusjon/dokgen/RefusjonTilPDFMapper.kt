@@ -1,6 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.dokgen
 
 import no.nav.arbeidsgiver.tiltakrefusjon.pdf.RefusjonTilPDF
+import no.nav.arbeidsgiver.tiltakrefusjon.rapport.lagRefusjonsnummer
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonStatus
 import java.time.LocalDate
@@ -26,19 +27,21 @@ object RefusjonTilPDFMapper {
             bedriftKid = refusjon.refusjonsgrunnlag.bedriftKid!!
         }
         val beregning = refusjon.refusjonsgrunnlag.beregning
+        val tilskuddsgrunnlag = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag
 
         if (beregning == null) {
             if (refusjon.status != RefusjonStatus.GODKJENT_NULLBELØP) {
                 throw RuntimeException("Beregning er null")
             }
+
             return RefusjonTilPDF(
-                type = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype,
-                avtaleNr = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr.toString() + "-" + refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.løpenummer,
-                deltakerFornavn = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.deltakerFornavn,
-                deltakerEtternavn = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.deltakerEtternavn,
-                arbeidsgiverFornavn = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.arbeidsgiverFornavn,
-                arbeidsgiverEtternavn = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.arbeidsgiverEtternavn,
-                arbeidsgiverTlf = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.arbeidsgiverTlf,
+                type = tilskuddsgrunnlag.tiltakstype,
+                avtaleNr = lagRefusjonsnummer(refusjon),
+                deltakerFornavn = tilskuddsgrunnlag.deltakerFornavn,
+                deltakerEtternavn = tilskuddsgrunnlag.deltakerEtternavn,
+                arbeidsgiverFornavn = tilskuddsgrunnlag.arbeidsgiverFornavn,
+                arbeidsgiverEtternavn = tilskuddsgrunnlag.arbeidsgiverEtternavn,
+                arbeidsgiverTlf = tilskuddsgrunnlag.arbeidsgiverTlf,
                 sendtKravDato = godkjentArbeidsgiverDato,
                 utbetaltKravDato = utbetaltDato,
                 tilskuddFom = tilskuddFom,
@@ -46,13 +49,13 @@ object RefusjonTilPDFMapper {
                 kontonummer = refusjon.refusjonsgrunnlag.bedriftKontonummer!!,
                 bedriftKid = bedriftKid,
                 lønn = 0,
-                feriepengerSats = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag!!.feriepengerSats,
+                feriepengerSats = tilskuddsgrunnlag.feriepengerSats,
                 feriepenger = 0,
-                otpSats = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag!!.otpSats,
+                otpSats = tilskuddsgrunnlag.otpSats,
                 tjenestepensjon = 0,
-                arbeidsgiveravgiftSats = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.arbeidsgiveravgiftSats,
+                arbeidsgiveravgiftSats = tilskuddsgrunnlag.arbeidsgiveravgiftSats,
                 arbeidsgiveravgift = 0,
-                lønnstilskuddsprosent = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.lønnstilskuddsprosent,
+                lønnstilskuddsprosent = tilskuddsgrunnlag.lønnstilskuddsprosent,
                 refusjonsbeløp = 0,
                 beregnetBeløp = 0,
                 overTilskuddsbeløp = false,
@@ -62,9 +65,8 @@ object RefusjonTilPDFMapper {
                 fratrekkLønnFerie = 0,
                 lønnFratrukketFerie = 0,
                 tidligereRefundertBeløp = 0,
-                tilskuddsbeløp = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsbeløp,
+                tilskuddsbeløp = tilskuddsgrunnlag.tilskuddsbeløp,
                 forrigeRefusjonMinusBeløp = refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
-                forrigeRefusjonsnummer = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr.toString() + "-" + (refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.løpenummer - 1),
                 sumUtgifterFratrukketRefundertBeløp = 0,
                 mentorTimelonn = 0,
                 mentorAntallTimer = 0.0,
@@ -73,13 +75,13 @@ object RefusjonTilPDFMapper {
         }
 
         return RefusjonTilPDF(
-            type = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype,
-            avtaleNr = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr.toString() + "-" + refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.løpenummer,
-            deltakerFornavn = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.deltakerFornavn,
-            deltakerEtternavn = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.deltakerEtternavn,
-            arbeidsgiverFornavn = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.arbeidsgiverFornavn,
-            arbeidsgiverEtternavn = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.arbeidsgiverEtternavn,
-            arbeidsgiverTlf = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.arbeidsgiverTlf,
+            type = tilskuddsgrunnlag.tiltakstype,
+            avtaleNr = lagRefusjonsnummer(refusjon),
+            deltakerFornavn = tilskuddsgrunnlag.deltakerFornavn,
+            deltakerEtternavn = tilskuddsgrunnlag.deltakerEtternavn,
+            arbeidsgiverFornavn = tilskuddsgrunnlag.arbeidsgiverFornavn,
+            arbeidsgiverEtternavn = tilskuddsgrunnlag.arbeidsgiverEtternavn,
+            arbeidsgiverTlf = tilskuddsgrunnlag.arbeidsgiverTlf,
             sendtKravDato = godkjentArbeidsgiverDato,
             utbetaltKravDato = utbetaltDato,
             tilskuddFom = tilskuddFom,
@@ -87,13 +89,13 @@ object RefusjonTilPDFMapper {
             kontonummer = refusjon.refusjonsgrunnlag.bedriftKontonummer!!,
             bedriftKid = bedriftKid,
             lønn = beregning.lønn,
-            feriepengerSats = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag!!.feriepengerSats,
+            feriepengerSats = tilskuddsgrunnlag.feriepengerSats,
             feriepenger = beregning.feriepenger,
-            otpSats = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag!!.otpSats,
+            otpSats = tilskuddsgrunnlag.otpSats,
             tjenestepensjon = beregning.tjenestepensjon,
-            arbeidsgiveravgiftSats = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.arbeidsgiveravgiftSats,
+            arbeidsgiveravgiftSats = tilskuddsgrunnlag.arbeidsgiveravgiftSats,
             arbeidsgiveravgift = beregning.arbeidsgiveravgift,
-            lønnstilskuddsprosent = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.lønnstilskuddsprosent,
+            lønnstilskuddsprosent = tilskuddsgrunnlag.lønnstilskuddsprosent,
             refusjonsbeløp = beregning.refusjonsbeløp,
             beregnetBeløp = beregning.beregnetBeløp,
             overTilskuddsbeløp = beregning.overTilskuddsbeløp,
@@ -103,14 +105,12 @@ object RefusjonTilPDFMapper {
             fratrekkLønnFerie = beregning.fratrekkLønnFerie,
             lønnFratrukketFerie = beregning.lønnFratrukketFerie,
             tidligereRefundertBeløp = beregning.tidligereRefundertBeløp,
-            tilskuddsbeløp = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddsbeløp,
+            tilskuddsbeløp = tilskuddsgrunnlag.tilskuddsbeløp,
             forrigeRefusjonMinusBeløp = refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
-            forrigeRefusjonsnummer = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr.toString() + "-" + (refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.løpenummer - 1),
             sumUtgifterFratrukketRefundertBeløp = beregning.sumUtgifterFratrukketRefundertBeløp,
-            mentorTimelonn = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.mentorTimelonn,
-            mentorAntallTimer = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.mentorAntallTimer,
+            mentorTimelonn = tilskuddsgrunnlag.mentorTimelonn,
+            mentorAntallTimer = tilskuddsgrunnlag.mentorAntallTimer,
             reduksjonForDelvisPeriode = (beregning.sumUtgifter - beregning.refusjonsbeløp)
-
         )
     }
 }

@@ -5,6 +5,8 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Beregningskontekst
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.BrukerRolle
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Inntektsgrunnlag
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Inntektslinje
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Korreksjon
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refundering
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonStatus
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tilskuddsgrunnlag
@@ -31,6 +33,7 @@ val alleGrunnbelopMap = mapOf<LocalDate, Int>(
     LocalDate.of(2023, 5, 1) to 118620,
     LocalDate.of(2024, 5, 1) to 124028,
     LocalDate.of(2025, 5, 1) to 130160,
+    LocalDate.of(2026, 5, 1) to 136549
 ).toMap(TreeMap())
 
 fun enBeregningskontekst() = Beregningskontekst(
@@ -312,6 +315,26 @@ fun gamleUtbetalteRefusjonerOgEnNy(tiltakstype: Tiltakstype): List<Refusjon> {
     return listOf(refusjon1, refusjon2, refusjon3, refusjon4, refusjon5, refusjon6, refusjon7, refusjon8, refusjon9, refusjon10)
 }
 
+fun minusbelop5Gsen(): Refusjon {
+    val deltakerFnr = "14514604755"
+    val bedriftNr = "999999999"
+    val tiltakstype = Tiltakstype.VARIG_LONNSTILSKUDD
+    val refusjon = Refusjon(
+        tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
+            tiltakstype = tiltakstype,
+            deltakerFnr = deltakerFnr,
+            bedriftNr = bedriftNr,
+            deltakerFornavn = "Minus",
+            deltakerEtternavn = "5gsen",
+            tilskuddsbeløp = 55000,
+            veilederNavIdent = "X123456"
+        ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
+    )
+    refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp = -5_000
+    refusjon.refusjonsgrunnlag.sumUtbetaltVarig = (alleGrunnbelopMap.floorEntry(Now.localDate()).component2() * 5) - 2_000
+    return refusjon
+}
+
 fun refusjoner(): List<Refusjon> {
     val kiellandNy = `Alexander Kielland`()
     val kiellandGammel = `Alexander Kielland`().let {
@@ -481,6 +504,7 @@ fun refusjoner(): List<Refusjon> {
         `Vidar Fortidlig`(),
         `Vidar SendKrav`(),
         `Vidar Utbetalt`(),
+        minusbelop5Gsen(),
         `Ole-Johnny Fortidlig`(),
         `Ole-Johnny SendtKrav`(),
         `Ole-Johnny Utbetalt`(),
@@ -931,7 +955,7 @@ fun `Ole-Johnny Fortidlig`(): Refusjon {
             deltakerEtternavn = "Person",
             deltakerFnr = deltakerFnr,
             bedriftNr = bedriftNr,
-            tilskuddsbeløp = 3369,
+            tilskuddsbeløp = 3370,
             mentorTimelonn = 250,
             mentorAntallTimer = 10.5,
             arbeidsgiveravgiftSats = 0.102,
@@ -962,7 +986,7 @@ fun `Ole-Johnny SendtKrav`(): Refusjon {
             deltakerEtternavn = "Person",
             deltakerFnr = deltakerFnr,
             bedriftNr = bedriftNr,
-            tilskuddsbeløp = 3369,
+            tilskuddsbeløp = 3370,
             mentorTimelonn = 250,
             mentorAntallTimer = 10.5,
             arbeidsgiveravgiftSats = 0.102,
@@ -1000,13 +1024,15 @@ fun `Ole-Johnny Utbetalt`(): Refusjon {
             deltakerEtternavn = "Person",
             deltakerFnr = deltakerFnr,
             bedriftNr = bedriftNr,
-            tilskuddsbeløp = 3369,
+            tilskuddsbeløp = 2247,
             mentorTimelonn = 250,
             mentorAntallTimer = 10.5,
             arbeidsgiveravgiftSats = 0.102,
             otpSats = 0.02,
             feriepengerSats = 0.142,
             veilederNavIdent = "X123456",
+            tilskuddFom = Now.localDate().minusMonths(3).withDayOfMonth(10),
+            tilskuddTom = YearMonth.from(Now.localDate()).minusMonths(3).atEndOfMonth(),
             avtaleFom = Now.localDate().minusMonths(3).withDayOfMonth(1),
             avtaleTom = Now.localDate().plusYears(2).withDayOfMonth(1),
         ), bedriftNr = bedriftNr, deltakerFnr = deltakerFnr
@@ -1047,11 +1073,14 @@ fun dodsfallUnderTiltakRefusjon(): Refusjon {
     return refusjon
 }
 
-fun Refusjon.medInntektsgrunnlag(
+fun <T : Refundering> T.medInntektsgrunnlag(
     måned: YearMonth = Now.yearMonth(),
     inntektsgrunnlag: Inntektsgrunnlag = etInntektsgrunnlag(måned = måned),
-): Refusjon {
-    this.oppgiInntektsgrunnlag(inntektsgrunnlag)
+): T {
+    when (this) {
+        is Refusjon -> this.oppgiInntektsgrunnlag(inntektsgrunnlag)
+        is Korreksjon -> this.oppgiInntektsgrunnlag(inntektsgrunnlag)
+    }
     return this
 }
 
@@ -1108,20 +1137,21 @@ fun etInntektsgrunnlag(måned: YearMonth = YearMonth.of(2020, 10), opptjentIPeri
     respons = ""
 )
 
-fun etStortInntektsgrunnlag(måned: YearMonth = YearMonth.of(2020, 10), opptjentIPeriode: Boolean = true) = Inntektsgrunnlag(
-    inntekter = listOf(
-        Inntektslinje(
-            inntektType = "LOENNSINNTEKT",
-            beskrivelse = "timeloenn",
-            måned = måned,
-            beløp = 200000.0,
-            opptjeningsperiodeTom = null,
-            opptjeningsperiodeFom = null,
-            erOpptjentIPeriode = opptjentIPeriode
-        )
-    ),
-    respons = ""
-)
+fun etStortInntektsgrunnlag(måned: YearMonth = YearMonth.of(2020, 10), opptjentIPeriode: Boolean = true) =
+    Inntektsgrunnlag(
+        inntekter = listOf(
+            Inntektslinje(
+                inntektType = "LOENNSINNTEKT",
+                beskrivelse = "timeloenn",
+                måned = måned,
+                beløp = 200000.0,
+                opptjeningsperiodeTom = null,
+                opptjeningsperiodeFom = null,
+                erOpptjentIPeriode = opptjentIPeriode
+            )
+        ),
+        respons = ""
+    )
 
 fun enInntektslinje(måned: YearMonth = YearMonth.of(2020, 10), opptjentIPeriode: Boolean = true): Inntektslinje =
     Inntektslinje(

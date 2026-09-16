@@ -20,6 +20,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.KorreksjonMerketForTil
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.events.KorreksjonSendtTilUtbetaling
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.ulid
+import no.nav.arbeidsgiver.tiltakrefusjon.utregning.Utregning
 import org.springframework.data.domain.AbstractAggregateRoot
 import java.time.Instant
 import java.util.*
@@ -90,6 +91,9 @@ class Korreksjon(
     @JsonProperty
     fun måTaStillingTilInntekter(): Boolean =
         !tiltakstype().harFastUtbetalingssum()
+
+    @JsonProperty
+    fun utregning() = Utregning.from(this)
 
     @JsonIgnore
     override fun getFnrOgBedrift(): FnrOgBedrift = FnrOgBedrift(deltakerFnr, bedriftNr)

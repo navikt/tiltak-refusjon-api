@@ -70,7 +70,7 @@ object RefusjonTilPDFMapper {
                 mentorTimelonn = 0,
                 mentorAntallTimer = 0.0,
                 reduksjonForDelvisPeriode = 0,
-                Utregning.from(refusjon)
+                utregning = Utregning.from(refusjon)
             )
         }
 
@@ -112,7 +112,7 @@ object RefusjonTilPDFMapper {
             mentorTimelonn = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.mentorTimelonn,
             mentorAntallTimer = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.mentorAntallTimer,
             reduksjonForDelvisPeriode = (beregning.sumUtgifter - beregning.refusjonsbeløp),
-            Utregning.from(refusjon)
+            utregning = Utregning.from(refusjon)
         )
     }
 }

@@ -166,7 +166,7 @@ private fun tilskuddsutregning(refundering: Refundering): Utregning? {
                     (BEREGNET_BELOP_ETTER_RESTTREKK erLik (beregning.beregnetBeløp + minusbeløp).kroner).apply { utgår = true }
                 } else null,
                 if (over5g) {
-                    AVTALT_BELOP_REST_5G tilsvarer (beregning.refusjonsbeløp - tidligereUtbetalt).kroner
+                    AVTALT_BELOP_REST_5G tilsvarer (beregning.refusjonsbeløp + tidligereUtbetalt).kroner
                 } else null,
                 if (beregning.tidligereUtbetalt != 0) {
                     pluss(TIDLIGERE_UTBETALT, (-tidligereUtbetalt).kroner)

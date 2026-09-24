@@ -86,7 +86,8 @@ internal class RefusjonTest {
             erOpptjentIPeriode = null
         )
         val enInntektslinjeOpptjentIPeriode = enInntektslinje()
-        val inntektsgrunnlag = Inntektsgrunnlag(listOf(enInntektslinjeIkkeTattStillingTilOpptjening, enInntektslinjeOpptjentIPeriode), "")
+        val inntektsgrunnlag =
+            Inntektsgrunnlag(listOf(enInntektslinjeIkkeTattStillingTilOpptjening, enInntektslinjeOpptjentIPeriode), "")
 
         val refusjon = enRefusjon().medBedriftKontonummer().medInntektsgrunnlag(inntektsgrunnlag = inntektsgrunnlag)
         refusjon.endreBruttolønn(true, null)
@@ -121,7 +122,8 @@ internal class RefusjonTest {
 
     @Test
     fun `kan ikke godkjenne for invalid KID`() {
-        val refusjon = enRefusjon().medBedriftKontonummer().medInntekterKunFraTiltaket().medInntektsgrunnlag().medBeregning()
+        val refusjon =
+            enRefusjon().medBedriftKontonummer().medInntekterKunFraTiltaket().medInntektsgrunnlag().medBeregning()
         refusjon.refusjonsgrunnlag.bedriftKid = "INVALID KID"
         assertThrows<FeilkodeException> { refusjon.godkjennForArbeidsgiver(innloggetArbeidsgiver) }
 
@@ -129,7 +131,8 @@ internal class RefusjonTest {
 
     @Test
     fun `kan godkjenne med TOM KID`() {
-        val refusjon = enRefusjon().medBedriftKontonummer().medInntekterKunFraTiltaket().medInntektsgrunnlag().medBeregning()
+        val refusjon =
+            enRefusjon().medBedriftKontonummer().medInntekterKunFraTiltaket().medInntektsgrunnlag().medBeregning()
         refusjon.refusjonsgrunnlag.bedriftKid = ""
         assertDoesNotThrow { refusjon.godkjennForArbeidsgiver(innloggetArbeidsgiver) }
 
@@ -137,7 +140,8 @@ internal class RefusjonTest {
 
     @Test
     fun `kan godkjenne for ag med beregning`() {
-        val refusjon = enRefusjon().medBedriftKontonummer().medInntekterKunFraTiltaket().medInntektsgrunnlag().medBeregning()
+        val refusjon =
+            enRefusjon().medBedriftKontonummer().medInntekterKunFraTiltaket().medInntektsgrunnlag().medBeregning()
         refusjon.godkjennForArbeidsgiver(innloggetArbeidsgiver)
 
         assertThat(refusjon.godkjentAvArbeidsgiver).isNotNull
@@ -146,7 +150,9 @@ internal class RefusjonTest {
 
     @Test
     fun `kan ikke godkjenne for ag to ganger`() {
-        val refusjon = enRefusjon().medInntekterKunFraTiltaket().medBedriftKontonummer().medInntektsgrunnlag().medBeregning().medSendtKravFraArbeidsgiver()
+        val refusjon =
+            enRefusjon().medInntekterKunFraTiltaket().medBedriftKontonummer().medInntektsgrunnlag().medBeregning()
+                .medSendtKravFraArbeidsgiver()
         assertFeilkode(Feilkode.UGYLDIG_STATUS) { refusjon.godkjennForArbeidsgiver(innloggetArbeidsgiver) }
 
     }
@@ -330,14 +336,22 @@ internal class RefusjonTest {
     @Test
     internal fun `korreksjon av uriktig status`() {
         val refusjon = enRefusjon().medInntektsgrunnlag().medBedriftKontonummer()
-        assertFeilkode(Feilkode.UGYLDIG_STATUS) { refusjon.opprettKorreksjonsutkast(setOf(Korreksjonsgrunn.UTBETALT_HELE_TILSKUDDSBELØP), 1, annenGrunn = null) }
+        assertFeilkode(Feilkode.UGYLDIG_STATUS) {
+            refusjon.opprettKorreksjonsutkast(
+                setOf(Korreksjonsgrunn.UTBETALT_HELE_TILSKUDDSBELØP),
+                1,
+                0,
+                annenGrunn = null
+            )
+        }
     }
 
     @Test
     internal fun `forleng frist`() {
         val refusjon = enRefusjon().medInntektsgrunnlag().medBedriftKontonummer()
         val opprinneligFrist = refusjon.fristForGodkjenning
-        val sisteDagDetErMuligÅForlengeTil = antallMånederEtter(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom, 3)
+        val sisteDagDetErMuligÅForlengeTil =
+            antallMånederEtter(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom, 3)
 
         // Positiv test
         refusjon.forlengFrist(sisteDagDetErMuligÅForlengeTil, "", innloggetArbeidsgiver)
@@ -364,7 +378,8 @@ internal class RefusjonTest {
                 godkjentAvBeslutterTidspunkt = Now.localDateTime()
             )
         )
-        val godkjentAvBeslutterTidspunkt = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.godkjentAvBeslutterTidspunkt!!.toLocalDate()
+        val godkjentAvBeslutterTidspunkt =
+            refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.godkjentAvBeslutterTidspunkt!!.toLocalDate()
         val sisteDagDetErMuligÅForlengeTil = antallMånederEtter(godkjentAvBeslutterTidspunkt, 3)
 
         assertFeilkode(Feilkode.FOR_LANG_FORLENGELSE_AV_FRIST) {
@@ -374,7 +389,12 @@ internal class RefusjonTest {
         // Positiv test
         refusjon.forlengFrist(sisteDagDetErMuligÅForlengeTil, "", innloggetArbeidsgiver)
         assertThat(refusjon.fristForGodkjenning).isEqualTo(sisteDagDetErMuligÅForlengeTil)
-        assertThat(refusjon.forrigeFristForGodkjenning).isEqualTo(antallMånederEtter(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.godkjentAvBeslutterTidspunkt!!.toLocalDate(), 2))
+        assertThat(refusjon.forrigeFristForGodkjenning).isEqualTo(
+            antallMånederEtter(
+                refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.godkjentAvBeslutterTidspunkt!!.toLocalDate(),
+                2
+            )
+        )
     }
 
     @Test

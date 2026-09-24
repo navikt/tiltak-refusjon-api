@@ -1,5 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.utregning
 
+import no.nav.arbeidsgiver.tiltakrefusjon.alleGrunnbelopMap
 import no.nav.arbeidsgiver.tiltakrefusjon.enBeregningskontekst
 import no.nav.arbeidsgiver.tiltakrefusjon.enRefusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.etInntektsgrunnlag
@@ -251,6 +252,7 @@ class UtregningTest {
         val korreksjonsutkast = refusjon.opprettKorreksjonsutkast(
             setOf(Korreksjonsgrunn.DELTAKER_HAR_IKKE_VÆRT_TILSTEDE_I_PERIODEN),
             null,
+            0,
             null
         ).medInntektsgrunnlag(mnd, inntektsgrunnlag)
 
@@ -339,6 +341,43 @@ class UtregningTest {
         )
 
         assertEquals(forventetResultat, Utregning.from(refusjon))
+
+        refusjon.status = RefusjonStatus.UTBETALT
+        val korreksjonsutkast = refusjon.opprettKorreksjonsutkast(
+            setOf(Korreksjonsgrunn.DELTAKER_HAR_IKKE_VÆRT_TILSTEDE_I_PERIODEN),
+            null,
+            refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
+            null
+        ).medInntektsgrunnlag(mnd, inntektsgrunnlag)
+
+        korreksjonsutkast.refusjonsgrunnlag.sumUtbetaltVarig = (alleGrunnbelopMap.floorEntry(Now.localDate()).component2() * 5) - 2_000
+        korreksjonsutkast.refusjonsgrunnlag.beregning = beregn(enBeregningskontekst(), korreksjonsutkast)
+
+        val forventetKorreksjonsresultat = utregning(
+            gruppe(
+                BRUTTOLONN_I_PERIODEN tilsvarer 22_423.kroner,
+                FERIETREKK minus 1_200.kroner,
+                FERIEPENGER medSats 0.12.prosent pluss 2_547.kroner,
+                OBLIGATORISK_TJENESTEPENSJON medSats 0.02.prosent pluss 475.kroner,
+                ARBEIDSGIVERAVGIFT medSats 0.141.prosent pluss 3_419.kroner
+            ),
+            gruppe(
+                REFUSJONSGRUNNLAG erLik 27_664.kroner,
+                TILSKUDDSPROSENT multiplisert 0.4.prosent
+            ),
+            gruppe(
+                BEREGNET_BELOP erLik 11_065.kroner,
+                RESTERENDE_FRATREKK_FOR_FERIE_FRA_TIDLIGERE_REFUSJONER minus 5_000.kroner,
+                (BEREGNET_BELOP_ETTER_RESTTREKK erLik 6_065.kroner).apply {utgår = true },
+                AVTALT_BELOP_REST_5G tilsvarer 2_000.kroner,
+                TIDLIGERE_UTBETALT minus 2_000.kroner
+            ),
+            gruppe(
+                REFUSJONSBELØP_TIL_UTBETALING erLik 0.kroner
+            )
+        )
+
+        assertEquals(forventetKorreksjonsresultat, Utregning.from(korreksjonsutkast))
     }
 }
 

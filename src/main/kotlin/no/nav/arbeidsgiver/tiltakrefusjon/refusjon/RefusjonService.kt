@@ -128,7 +128,8 @@ class RefusjonService(
     /**
      * Refusjoner som går i minus skal ikke regnes med, feks ved beregning av "totalt utbetalt"
      */
-    private val utbetalteRefusjonsstatuser: List<RefusjonStatus> = RefusjonStatus.entries.filter { it.ansesSomUtbetalt() }
+    private val utbetalteRefusjonsstatuser: List<RefusjonStatus> =
+        RefusjonStatus.entries.filter { it.ansesSomUtbetalt() }
     private val behandledeKorreksjoner: List<Korreksjonstype> = Korreksjonstype.entries.filter { it.isSendtInn() }
 
     /**
@@ -234,7 +235,9 @@ class RefusjonService(
                 fnr = refusjon.deltakerFnr,
                 bedriftnummerDetSøkesPå = refusjon.bedriftNr,
                 datoFra = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
-                datoTil = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom.plusMonths(antallEkstraMånederSomSkalSjekkes.toLong())
+                datoTil = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom.plusMonths(
+                    antallEkstraMånederSomSkalSjekkes.toLong()
+                )
             )
             val inntektsgrunnlag = Inntektsgrunnlag(
                 inntekter = inntektsoppslag.first,
@@ -248,7 +251,8 @@ class RefusjonService(
     }
 
     fun godkjennForArbeidsgiver(refusjon: Refusjon, utførtAv: InnloggetBruker) {
-        val alleUoppgjorteMinusBeløp = minusbelopRepository.findAllByAvtaleNrAndGjortOppIsFalse(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr)
+        val alleUoppgjorteMinusBeløp =
+            minusbelopRepository.findAllByAvtaleNrAndGjortOppIsFalse(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr)
         val sumMinusbelop = alleUoppgjorteMinusBeløp.mapNotNull { it.beløp }.sum()
         // Om det er et gammelt minusbeløp, men alle minusbeløp er gjort opp må refusjonen lastes på ny for å reberegnes
         if (alleUoppgjorteMinusBeløp.isNotEmpty() && sumMinusbelop != 0 && refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp != sumMinusbelop) {
@@ -352,7 +356,12 @@ class RefusjonService(
         utfortAv: InnloggetBruker
     ): Korreksjon {
         val korreksjonsutkast =
-            refusjon.opprettKorreksjonsutkast(korreksjonsgrunner, unntakOmInntekterFremitid, annetGrunn)
+            refusjon.opprettKorreksjonsutkast(
+                korreksjonsgrunner,
+                unntakOmInntekterFremitid,
+                refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
+                annetGrunn
+            )
         korreksjonRepository.save(korreksjonsutkast)
         refusjonRepository.save(refusjon)
         oppdaterRefundering(korreksjonsutkast, utfortAv)
@@ -364,8 +373,16 @@ class RefusjonService(
         if (refusjon.refusjonsgrunnlag.beregning?.fratrekkLønnFerie == 0) {
             return
         }
-        val statuser = listOf(RefusjonStatus.UTBETALT, RefusjonStatus.SENDT_KRAV, RefusjonStatus.GODKJENT_MINUSBELØP, RefusjonStatus.GODKJENT_NULLBELØP)
-        refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_AvtaleNrAndStatusIn(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr, statuser)
+        val statuser = listOf(
+            RefusjonStatus.UTBETALT,
+            RefusjonStatus.SENDT_KRAV,
+            RefusjonStatus.GODKJENT_MINUSBELØP,
+            RefusjonStatus.GODKJENT_NULLBELØP
+        )
+        refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_AvtaleNrAndStatusIn(
+            refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr,
+            statuser
+        )
             .filter { YearMonth.from(it.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom) == YearMonth.from(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom) }
             .forEach {
                 if (it.refusjonsgrunnlag.beregning?.fratrekkLønnFerie != 0) {
@@ -377,8 +394,16 @@ class RefusjonService(
 
     fun settOmFerieErTrukketForSammeMåned(refusjon: Refusjon) {
         if (refusjon.status.isUbehandlet()) {
-            val statuser = listOf(RefusjonStatus.UTBETALT, RefusjonStatus.SENDT_KRAV, RefusjonStatus.GODKJENT_MINUSBELØP, RefusjonStatus.GODKJENT_NULLBELØP)
-            refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_AvtaleNrAndStatusIn(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr, statuser)
+            val statuser = listOf(
+                RefusjonStatus.UTBETALT,
+                RefusjonStatus.SENDT_KRAV,
+                RefusjonStatus.GODKJENT_MINUSBELØP,
+                RefusjonStatus.GODKJENT_NULLBELØP
+            )
+            refusjonRepository.findAllByRefusjonsgrunnlag_Tilskuddsgrunnlag_AvtaleNrAndStatusIn(
+                refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.avtaleNr,
+                statuser
+            )
                 .filter { YearMonth.from(it.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom) == YearMonth.from(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom) }
                 .forEach {
                     if (it.refusjonsgrunnlag.beregning?.fratrekkLønnFerie != 0 && !refusjon.refusjonsgrunnlag.harFerietrekkForSammeMåned) {

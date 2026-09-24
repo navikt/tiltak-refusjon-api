@@ -1,12 +1,10 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.inntekt
 
-import tools.jackson.databind.ObjectMapper
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringProperties
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.InnloggetArbeidsgiver
 import no.nav.arbeidsgiver.tiltakrefusjon.etInntektsgrunnlag
-import no.nav.arbeidsgiver.tiltakrefusjon.grunnbelop.GrunnbelopClient
 import no.nav.arbeidsgiver.tiltakrefusjon.innloggetBruker
 import no.nav.arbeidsgiver.tiltakrefusjon.persondata.PersondataService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Beregning
@@ -37,7 +35,6 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.whenever
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.TreeMap
 
 
 @DirtiesContext
@@ -58,12 +55,6 @@ class RefusjonberegnerFratrekkFerieTest(
 
     @MockitoBean
     lateinit var persondataService: PersondataService
-
-    @MockitoBean
-    lateinit var grunnbelopClient: GrunnbelopClient
-
-    @Autowired
-    lateinit var objectMapper: ObjectMapper
 
     val WIREMOCK_IDENT: String = "10517741103"
     val WIREMOCK_VIRKSOMHET_IDENTIFIKATOR: String = "972674818"
@@ -139,18 +130,6 @@ class RefusjonberegnerFratrekkFerieTest(
     @BeforeEach
     fun slettAlt() {
         refusjonRepository.deleteAll()
-        whenever(grunnbelopClient.alleGrunnbelop()).thenReturn(loadGrunnbelop())
-    }
-
-    private fun loadGrunnbelop(): TreeMap<LocalDate, Int> {
-        val root = objectMapper.readTree(
-            requireNotNull(javaClass.getResource("/mappings/grunnbelop.json")).readText()
-        )
-        return root["mappings"]
-            .flatMap { mapping -> mapping["response"]["jsonBody"].values() }
-            .associateTo(TreeMap()) { entry ->
-                LocalDate.parse(entry["dato"].asString()) to entry["grunnbeløp"].asInt()
-            }
     }
 
     @Test

@@ -15,15 +15,17 @@ object WireMockServerHolder {
         })
     }
 
-    fun port(): Int = server().port()
+    /** Starter serveren ved første kall. `preferredPort` 0 gir en tilfeldig ledig port. */
+    fun port(preferredPort: Int = 0): Int = server(preferredPort).port()
 
-    private fun server(): WireMockServer = serverRef.get()?.takeIf { it.isRunning } ?: synchronized(this) {
-        serverRef.get()?.takeIf { it.isRunning } ?: startServer().also { serverRef.set(it) }
+    private fun server(preferredPort: Int): WireMockServer = serverRef.get()?.takeIf { it.isRunning } ?: synchronized(this) {
+        serverRef.get()?.takeIf { it.isRunning } ?: startServer(preferredPort).also { serverRef.set(it) }
     }
 
-    private fun startServer(): WireMockServer {
-        repeat(5) { attempt ->
-            val port = selectFreePort()
+    private fun startServer(preferredPort: Int): WireMockServer {
+        val attempts = if (preferredPort > 0) 1 else 5
+        repeat(attempts) { attempt ->
+            val port = if (preferredPort > 0) preferredPort else selectFreePort()
             val candidate = WireMockServer(
                 WireMockConfiguration.options()
                     .port(port)
@@ -36,7 +38,7 @@ object WireMockServerHolder {
                 return candidate
             } catch (exception: RuntimeException) {
                 candidate.stop()
-                if (attempt == 4) {
+                if (attempt == attempts - 1) {
                     throw exception
                 }
             }

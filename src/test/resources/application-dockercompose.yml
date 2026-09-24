@@ -75,7 +75,7 @@ tiltak-refusjon:
   pdl-api:
     uri: http://127.0.0.1:${wiremock.server.port}/persondata
   grunnbelop:
-    uri: file:${user.dir}/src/test/resources/grunnbelop-response.json
+    uri: http://127.0.0.1:${wiremock.server.port}/grunnbelop
   pdfgen:
     uri: http://localhost:9001/api/v1/genpdf
 server:

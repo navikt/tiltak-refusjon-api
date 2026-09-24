@@ -18,7 +18,8 @@ spring:
     init:
       platform: postgres
   kafka:
-    bootstrap-servers: ${spring.embedded.kafka.brokers}
+    # tiltak-refusjon.kafka.enabled er false, så ingen bønner kobler til denne adressen
+    bootstrap-servers: localhost:9092
     properties:
       security.protocol: PLAINTEXT
       ssl:

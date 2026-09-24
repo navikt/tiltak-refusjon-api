@@ -38,7 +38,7 @@ import java.time.LocalDateTime
 
 
 @DirtiesContext
-@SpringBootTest(properties = ["NAIS_APP_IMAGE=test"])
+@SpringBootTest(properties = ["NAIS_APP_IMAGE=test", "tiltak-refusjon.inntektskomponenten.fake=false"])
 @ActiveProfiles("local")
 class RefusjonberegnerFratrekkFerieTest(
     @Autowired
@@ -146,8 +146,9 @@ class RefusjonberegnerFratrekkFerieTest(
         )
         val refusjon = opprettRefusjonOgGjørInntektoppslag(tilskuddsperiodeGodkjentMelding)
 
-        assertThat(refusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp).isNotNull
-        assertThat(refusjon.refusjonsgrunnlag.beregning!!.fratrekkLønnFerie).isGreaterThanOrEqualTo(0)
+        assertThat(refusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp)
+            .isEqualTo(`vis utregning med feriefratrekk`(refusjon, TREKKFORFERIEGRUNNLAG))
+        assertThat(refusjon.refusjonsgrunnlag.beregning!!.fratrekkLønnFerie).isEqualTo(TREKKFORFERIEGRUNNLAG)
     }
 
     @Disabled("Håndtering av ferietrekk med kun plussbeløp er ikke avklart")
@@ -165,8 +166,9 @@ class RefusjonberegnerFratrekkFerieTest(
         )
         val refusjon = opprettRefusjonOgGjørInntektoppslag(tilskuddsperiodeGodkjentMelding)
 
-        assertThat(refusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp).isNotNull
-        assertThat(refusjon.refusjonsgrunnlag.beregning!!.fratrekkLønnFerie).isGreaterThanOrEqualTo(0)
+        assertThat(refusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp)
+            .isEqualTo(`vis utregning med feriefratrekk`(refusjon, TREKKFORFERIEGRUNNLAG))
+        assertThat(refusjon.refusjonsgrunnlag.beregning!!.fratrekkLønnFerie).isEqualTo(TREKKFORFERIEGRUNNLAG)
     }
 
     @Test
@@ -183,8 +185,9 @@ class RefusjonberegnerFratrekkFerieTest(
         )
         val refusjon = opprettRefusjonOgGjørInntektoppslag(tilskuddsperiodeGodkjentMelding)
 
-        assertThat(refusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp).isNotNull
-        assertThat(refusjon.refusjonsgrunnlag.beregning!!.fratrekkLønnFerie).isGreaterThanOrEqualTo(0)
+        assertThat(refusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp)
+            .isEqualTo(`vis utregning med feriefratrekk`(refusjon, TREKKFORFERIEGRUNNLAG))
+        assertThat(refusjon.refusjonsgrunnlag.beregning!!.fratrekkLønnFerie).isEqualTo(TREKKFORFERIEGRUNNLAG)
     }
 
     @Test
@@ -201,8 +204,9 @@ class RefusjonberegnerFratrekkFerieTest(
         )
         val refusjon = opprettRefusjonOgGjørInntektoppslag(tilskuddsperiodeGodkjentMelding)
 
-        assertThat(refusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp).isNotNull
-        assertThat(refusjon.refusjonsgrunnlag.beregning!!.fratrekkLønnFerie).isGreaterThanOrEqualTo(0)
+        assertThat(refusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp)
+            .isEqualTo(`vis utregning med feriefratrekk`(refusjon, TREKKFORFERIEGRUNNLAG))
+        assertThat(refusjon.refusjonsgrunnlag.beregning!!.fratrekkLønnFerie).isEqualTo(TREKKFORFERIEGRUNNLAG)
     }
 
     @Test
@@ -374,8 +378,8 @@ class RefusjonberegnerFratrekkFerieTest(
         // Send inn
         refusjonService.godkjennForArbeidsgiver(refusjon, innloggetArbeidsgiver)
         assertEquals(-52700, refusjon.refusjonsgrunnlag.beregning!!.fratrekkLønnFerie)
-        assertEquals(60000, refusjon.refusjonsgrunnlag.beregning!!.lønn)
-        assertEquals(3806, refusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp)
+        assertEquals(45863, refusjon.refusjonsgrunnlag.beregning!!.lønn)
+        assertEquals(-3565, refusjon.refusjonsgrunnlag.beregning!!.refusjonsbeløp)
         Now.resetClock()
     }
 }

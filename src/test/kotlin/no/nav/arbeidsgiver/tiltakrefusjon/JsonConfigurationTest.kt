@@ -41,6 +41,26 @@ class JsonConfigurationTest {
     }
 
     @Test
+    fun `REST-mapper respekterer JsonIgnore og JsonProperty fra jackson-annotations`() {
+        val refusjon = enRefusjon().medInntektsgrunnlag()
+
+        val json = restMapper.readTree(restMapper.writeValueAsString(refusjon))
+
+        assertThat(json.has("deltakerFnr")).isFalse()
+        assertThat(json.has("fnrOgBedrift")).isFalse()
+        assertThat(json["refusjonsgrunnlag"]["tilskuddsgrunnlag"].has("deltakerFnr")).isFalse()
+        assertThat(json["refusjonsgrunnlag"]["inntektsgrunnlag"].has("respons")).isFalse()
+        assertThat(json.toString()).doesNotContain(refusjon.deltakerFnr)
+
+        assertThat(json["harTattStillingTilAlleInntektslinjer"].isBoolean).isTrue()
+        assertThat(json["måTaStillingTilInntekter"].isBoolean).isTrue()
+        assertThat(json["senestMuligeGodkjenningsfrist"].asString())
+            .isEqualTo(refusjon.senestMuligeGodkjenningsfrist().toString())
+        assertThat(json["refusjonsgrunnlag"]["inntektsgrunnlag"]["inntekter"][0]["erMedIInntektsgrunnlag"].asBoolean())
+            .isTrue()
+    }
+
+    @Test
     fun `REST-mapper skriver datoer som ISO-strenger`() {
         val json = restMapper.readTree(restMapper.writeValueAsString(mapOf("dato" to LocalDate.of(2026, 8, 1))))
 

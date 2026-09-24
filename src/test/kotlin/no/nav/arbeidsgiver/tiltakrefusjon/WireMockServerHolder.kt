@@ -30,6 +30,8 @@ object WireMockServerHolder {
                 WireMockConfiguration.options()
                     .port(port)
                     .bindAddress("127.0.0.1")
+                    // JDK HttpClient (RestTemplate i Boot 4) ber om h2c-oppgradering, og Jetty mister da POST-bodyen
+                    .http2PlainDisabled(true)
                     .usingFilesUnderClasspath(".")
                     .notifier(ConsoleNotifier(false))
             )

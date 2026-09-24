@@ -18,7 +18,9 @@ import org.junit.jupiter.api.fail
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
-import org.mockito.kotlin.atLeastOnce
+import org.mockito.kotlin.any
+import org.mockito.kotlin.clearInvocations
+import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -50,13 +52,16 @@ class RefusjonServiceTest(
         refusjonRepository.deleteAll()
     }
 
+    /** Verifiserer at inntektsoppslaget ble gjort nøyaktig én gang med riktig periode, og nullstiller for neste fase. */
     private fun verifyHentInntekterTilOgMed(melding: TilskuddsperiodeGodkjentMelding, datoTil: LocalDate) {
-        verify(inntektskomponentService, atLeastOnce()).hentInntekter(
+        verify(inntektskomponentService, times(1)).hentInntekter(any(), any(), any(), any())
+        verify(inntektskomponentService, times(1)).hentInntekter(
             melding.deltakerFnr,
             melding.bedriftNr,
             melding.tilskuddFom,
             datoTil
         )
+        clearInvocations(inntektskomponentService)
     }
 
     val innloggetArbeidsgiver = innloggetBruker("12345678901", BrukerRolle.ARBEIDSGIVER);

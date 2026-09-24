@@ -3,6 +3,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon.dokgen
 import no.nav.arbeidsgiver.tiltakrefusjon.pdf.RefusjonTilPDF
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonStatus
+import no.nav.arbeidsgiver.tiltakrefusjon.utregning.Utregning
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -68,7 +69,8 @@ object RefusjonTilPDFMapper {
                 sumUtgifterFratrukketRefundertBeløp = 0,
                 mentorTimelonn = 0,
                 mentorAntallTimer = 0.0,
-                reduksjonForDelvisPeriode = 0
+                reduksjonForDelvisPeriode = 0,
+                utregning = Utregning.from(refusjon)
             )
         }
 
@@ -109,8 +111,8 @@ object RefusjonTilPDFMapper {
             sumUtgifterFratrukketRefundertBeløp = beregning.sumUtgifterFratrukketRefundertBeløp,
             mentorTimelonn = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.mentorTimelonn,
             mentorAntallTimer = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.mentorAntallTimer,
-            reduksjonForDelvisPeriode = (beregning.sumUtgifter - beregning.refusjonsbeløp)
-
+            reduksjonForDelvisPeriode = (beregning.sumUtgifter - beregning.refusjonsbeløp),
+            utregning = Utregning.from(refusjon)
         )
     }
 }

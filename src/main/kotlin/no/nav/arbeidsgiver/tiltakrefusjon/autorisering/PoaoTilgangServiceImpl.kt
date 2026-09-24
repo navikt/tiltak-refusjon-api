@@ -31,7 +31,7 @@ class PoaoTilgangServiceImpl(
     private var klient: PoaoTilgangClient = PoaoTilgangCachedClient.createDefaultCacheClient(
         PoaoTilgangHttpClient(
             poaoTilgangUrl,
-            { oAuth2AccessTokenService.getAccessToken(clientConfigurationProperties.registration["poao-tilgang"]!!).accessToken!! },
+            { oAuth2AccessTokenService.getAccessToken(clientConfigurationProperties.registration["poao-tilgang"]!!).access_token!! },
             RestClient.baseClient()
         )
     )

@@ -16,7 +16,11 @@ class ShedLockConfiguration {
         JdbcTemplateLockProvider(
             JdbcTemplateLockProvider.Configuration.builder()
                 .withJdbcTemplate(JdbcTemplate(dataSource))
-                .usingDbTime()
+                .apply {
+                    if (!dataSource.connection.use { it.metaData.url }.startsWith("jdbc:h2:")) {
+                        usingDbTime()
+                    }
+                }
                 .build()
         )
 }

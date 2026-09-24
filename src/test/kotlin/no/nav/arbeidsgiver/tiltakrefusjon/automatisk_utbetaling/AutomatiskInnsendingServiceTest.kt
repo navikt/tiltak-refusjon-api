@@ -10,14 +10,12 @@ import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import java.time.LocalDate
 
 @ActiveProfiles("local")
 @SpringBootTest
-@AutoConfigureWireMock
 class AutomatiskInnsendingServiceTest {
     @Autowired
     private lateinit var statusJobb: StatusJobb
@@ -28,7 +26,10 @@ class AutomatiskInnsendingServiceTest {
     @Test
     @DirtiesContext
     fun `vtao-avtale utbetales automatisk`() {
-        val vtaoRefusjon = refusjonRepository.save(`Vidar Fortidlig`())
+        val vtaoRefusjon = `Vidar Fortidlig`().apply {
+            refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddTom = Now.localDate().minusDays(1)
+        }
+        refusjonRepository.save(vtaoRefusjon)
 
         assertEquals(RefusjonStatus.FOR_TIDLIG, vtaoRefusjon.status)
         assertNull(vtaoRefusjon.refusjonsgrunnlag.beregning)

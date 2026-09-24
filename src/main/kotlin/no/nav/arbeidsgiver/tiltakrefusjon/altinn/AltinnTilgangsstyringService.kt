@@ -39,7 +39,7 @@ class AltinnTilgangsstyringService(
             restTemplateAltinn3.postForObject<AltinnTilgangerResponse>(
                 altinnTilgangsstyringProperties.arbeidsgiverAltinnTilgangerUri,
                 altinnTilgangerRequest
-            ).hierarki
+            )?.hierarki ?: emptyList()
         } catch (exception: RuntimeException) {
             logger.error("Feil ved henting av Altinn-tilganger fra arbeidsgiver-altinn-tilganger", exception)
             throw FeilkodeException(Feilkode.ALTINN)

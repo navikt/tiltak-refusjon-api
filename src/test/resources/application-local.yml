@@ -26,10 +26,13 @@ spring:
         truststore: null
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JacksonJsonSerializer
     consumer:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+  task:
+    scheduling:
+      enabled: false
 
 no.nav.security.jwt:
   tokenvalidationfilter:
@@ -61,15 +64,17 @@ tiltak-refusjon:
   kafka:
     enabled: false
     fake: true
+  scheduling:
+    enabled: false
   kontoregister:
     fake: true
   pdfgen:
     uri: ${TILTAK_PDFGEN_URI:http://localhost:9001}/api/v1/genpdf
   inntektskomponenten:
     fake: true
-    uri: http://localhost:${wiremock.server.port}/inntektskomponenten
+    uri: http://127.0.0.1:${wiremock.server.port}/inntektskomponenten
   altinn-tilgangstyring:
-    arbeidsgiverAltinnTilgangerUri: http://localhost:${wiremock.server.port}/altinn-tilganger
+    arbeidsgiverAltinnTilgangerUri: http://127.0.0.1:${wiremock.server.port}/altinn-tilganger
     inntektsmeldingServiceCode: 4936
     inntektsmeldingServiceEdition: 1
     adressesperreServiceCode: 5516
@@ -85,9 +90,9 @@ tiltak-refusjon:
   norg:
     fake: true
   pdl-api:
-    uri: http://localhost:${wiremock.server.port}/persondata
+    uri: http://127.0.0.1:${wiremock.server.port}/persondata
   grunnbelop:
-    uri: http://localhost:${wiremock.server.port}/grunnbelop
+    uri: file:${user.dir}/src/test/resources/grunnbelop-response.json
 server:
   port: ${SERVER_PORT:8081}
 

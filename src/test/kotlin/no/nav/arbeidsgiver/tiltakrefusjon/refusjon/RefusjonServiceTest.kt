@@ -1,7 +1,5 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
-import com.ninjasquad.springmockk.SpykBean
-import io.mockk.verify
 import no.nav.arbeidsgiver.tiltakrefusjon.FeilkodeException
 import no.nav.arbeidsgiver.tiltakrefusjon.innloggetBruker
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
@@ -20,20 +18,21 @@ import org.junit.jupiter.api.fail
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
+import org.mockito.kotlin.atLeastOnce
+import org.mockito.kotlin.verify
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
 
 @SpringBootTest(properties = ["NAIS_APP_IMAGE=test"])
 @ActiveProfiles("local")
-@AutoConfigureWireMock
 class RefusjonServiceTest(
     @Autowired
     val refusjonService: RefusjonService,
@@ -42,13 +41,22 @@ class RefusjonServiceTest(
     @Autowired
     val varslingRepository: VarslingRepository
 ) {
-    @SpykBean
+    @MockitoSpyBean
     lateinit var inntektskomponentService: InntektskomponentService
 
     @BeforeEach
     fun setup() {
         varslingRepository.deleteAll()
         refusjonRepository.deleteAll()
+    }
+
+    private fun verifyHentInntekterTilOgMed(melding: TilskuddsperiodeGodkjentMelding, datoTil: LocalDate) {
+        verify(inntektskomponentService, atLeastOnce()).hentInntekter(
+            melding.deltakerFnr,
+            melding.bedriftNr,
+            melding.tilskuddFom,
+            datoTil
+        )
     }
 
     val innloggetArbeidsgiver = innloggetBruker("12345678901", BrukerRolle.ARBEIDSGIVER);
@@ -426,26 +434,12 @@ class RefusjonServiceTest(
         val refusjon = refusjonService.opprettRefusjon(tilskuddMelding) ?: fail("Skulle kunne opprette refusjon")
 
         refusjonService.gjørInntektsoppslag(refusjon, innloggetArbeidsgiver)
-        verify {
-            inntektskomponentService.hentInntekter(
-                tilskuddMelding.deltakerFnr,
-                tilskuddMelding.bedriftNr,
-                tilskuddMelding.tilskuddFom,
-                tilskuddMelding.tilskuddTom.plusMonths(1)
-            )
-        }
+        verifyHentInntekterTilOgMed(tilskuddMelding, tilskuddMelding.tilskuddTom.plusMonths(1))
 
         Now.fixedDate(LocalDate.now().plusDays(1))
         refusjon.merkForUnntakOmInntekterFremITid(2, innloggetSaksbehandler)
         refusjonService.gjørInntektsoppslag(refusjon, innloggetArbeidsgiver)
-        verify {
-            inntektskomponentService.hentInntekter(
-                tilskuddMelding.deltakerFnr,
-                tilskuddMelding.bedriftNr,
-                tilskuddMelding.tilskuddFom,
-                tilskuddMelding.tilskuddTom.plusMonths(2)
-            )
-        }
+        verifyHentInntekterTilOgMed(tilskuddMelding, tilskuddMelding.tilskuddTom.plusMonths(2))
         Now.resetClock()
     }
 
@@ -487,26 +481,11 @@ class RefusjonServiceTest(
         val refusjon = refusjonService.opprettRefusjon(tilskuddMelding) ?: fail("Skulle kunne opprette refusjon")
 
         refusjonService.gjørInntektsoppslag(refusjon, innloggetArbeidsgiver)
-        verify {
-            inntektskomponentService.hentInntekter(
-                tilskuddMelding.deltakerFnr,
-                tilskuddMelding.bedriftNr,
-                tilskuddMelding.tilskuddFom,
-                tilskuddMelding.tilskuddTom.plusMonths(0)
-            )
-        }
-
+        verifyHentInntekterTilOgMed(tilskuddMelding, tilskuddMelding.tilskuddTom.plusMonths(0))
         Now.fixedDate(LocalDate.now().plusDays(1))
         refusjon.merkForHentInntekterFrem(true, innloggetSaksbehandler)
         refusjonService.gjørInntektsoppslag(refusjon, innloggetArbeidsgiver)
-        verify {
-            inntektskomponentService.hentInntekter(
-                tilskuddMelding.deltakerFnr,
-                tilskuddMelding.bedriftNr,
-                tilskuddMelding.tilskuddFom,
-                tilskuddMelding.tilskuddTom.plusMonths(1)
-            )
-        }
+        verifyHentInntekterTilOgMed(tilskuddMelding, tilskuddMelding.tilskuddTom.plusMonths(1))
         Now.resetClock()
     }
 
@@ -546,25 +525,11 @@ class RefusjonServiceTest(
         )
         val refusjon = refusjonService.opprettRefusjon(tilskuddMelding) ?: fail("Skulle kunne opprette refusjon")
         refusjonService.gjørInntektsoppslag(refusjon, innloggetArbeidsgiver)
-        verify {
-            inntektskomponentService.hentInntekter(
-                tilskuddMelding.deltakerFnr,
-                tilskuddMelding.bedriftNr,
-                tilskuddMelding.tilskuddFom,
-                tilskuddMelding.tilskuddTom.plusMonths(0)
-            )
-        }
+        verifyHentInntekterTilOgMed(tilskuddMelding, tilskuddMelding.tilskuddTom.plusMonths(0))
         Now.fixedDate(LocalDate.now().plusDays(1))
         refusjon.merkForUnntakOmInntekterFremITid(2, innloggetSaksbehandler)
         refusjonService.gjørInntektsoppslag(refusjon, innloggetArbeidsgiver)
-        verify {
-            inntektskomponentService.hentInntekter(
-                tilskuddMelding.deltakerFnr,
-                tilskuddMelding.bedriftNr,
-                tilskuddMelding.tilskuddFom,
-                tilskuddMelding.tilskuddTom.plusMonths(2)
-            )
-        }
+        verifyHentInntekterTilOgMed(tilskuddMelding, tilskuddMelding.tilskuddTom.plusMonths(2))
         Now.resetClock()
     }
 

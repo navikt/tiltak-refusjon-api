@@ -20,13 +20,13 @@ class FakeInntektskomponentService : InntektskomponentService {
     ): Pair<List<Inntektslinje>, String> {
         if (fnr == "25515104456") {
             return Pair(emptyList(), "")
-        }else if (fnr == "10517741103"){
+        } else if (fnr == "10517741103") {
             // Simulerer minus beløp for (Jon Janson Minus Beløp) i test data
             val inntektslinjer = ArrayList<Inntektslinje>()
             val måned = YearMonth.of(datoFra.year, datoFra.month)
-            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "fastloenn", 20000.0,  måned, datoTil, måned.atEndOfMonth()))
-            // Kan ikke ha minus på alle. Må kunne teste positivt. Så kun minus på en inntekt to måneder bak
-            if(Period.between(datoFra, Now.localDate().with(TemporalAdjusters.firstDayOfMonth())).months == 3) {
+            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "fastloenn", 20000.0, måned, datoTil, måned.atEndOfMonth()))
+            // Kan ikke ha minus på alle. Må kunne teste positivt. Så kun minus på en inntekt tre måneder bak
+            if (datoFra == Now.localDate().minusMonths(3).with(TemporalAdjusters.firstDayOfMonth())) {
                 inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "trekkILoennForFerie", -25000.0,  måned, datoTil, måned.atEndOfMonth()))
             }
             return Pair(inntektslinjer, "fake respons med minus")
@@ -54,17 +54,24 @@ class FakeInntektskomponentService : InntektskomponentService {
             // Ferietrekk både pluss og minus
             val inntektslinjer = ArrayList<Inntektslinje>()
             val måned = YearMonth.of(datoFra.year, datoFra.month)
-            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "fastloenn", 20000.0,  måned, datoTil, måned.atEndOfMonth()))
-            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "trekkILoennForFerie",-25000.0,  måned, datoTil, måned.atEndOfMonth()))
-            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "trekkILoennForFerie",20000.0,  måned, datoTil, måned.atEndOfMonth()))
+            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "fastloenn", 60000.0,  måned, datoTil, måned.atEndOfMonth()))
+            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "trekkILoennForFerie",-7500.0,  måned, datoTil, måned.atEndOfMonth()))
+            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "trekkILoennForFerie",5000.0,  måned, datoTil, måned.atEndOfMonth()))
             return Pair(inntektslinjer, "fake respons med inntekter og ferietrekk både minus og pluss")
 
         } else if (fnr == "06412323694") {
             val inntektslinjer = ArrayList<Inntektslinje>()
             val måned = YearMonth.of(datoFra.year, datoFra.month)
-            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "fastloenn", 20000.0,  måned, datoTil, måned.atEndOfMonth()))
-            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "trekkILoennForFerie",20000.0,  måned, datoTil, måned.atEndOfMonth()))
+            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "fastloenn", 60000.0,  måned, datoTil, måned.atEndOfMonth()))
+            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "trekkILoennForFerie",5000.0,  måned, datoTil, måned.atEndOfMonth()))
             return Pair(inntektslinjer, "fake respons med inntekter og ferietrekk bare pluss")
+
+        } else if (fnr == "18479696639") {
+            val inntektslinjer = ArrayList<Inntektslinje>()
+            val måned = YearMonth.of(datoFra.year, datoFra.month)
+            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "fastloenn", 60000.0,  måned, datoTil, måned.atEndOfMonth()))
+            inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "trekkILoennForFerie", -52700.0, måned, datoTil, måned.atEndOfMonth()))
+            return Pair(inntektslinjer, "fake respons med stort ferietrekk")
 
         } else if (fnr == "06435607002") {
             val inntektslinjer = ArrayList<Inntektslinje>()
@@ -114,4 +121,3 @@ class FakeInntektskomponentService : InntektskomponentService {
         return Pair(inntektslinjer, "fake respons")
     }
 }
-

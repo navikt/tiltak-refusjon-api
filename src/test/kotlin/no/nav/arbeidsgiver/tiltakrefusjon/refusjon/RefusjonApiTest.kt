@@ -1,33 +1,32 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
-import com.fasterxml.jackson.core.type.TypeReference
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import com.jayway.jsonpath.JsonPath
-import com.ninjasquad.springmockk.SpykBean
-import io.mockk.clearMocks
-import io.mockk.every
-import io.mockk.verify
 import no.nav.arbeidsgiver.tiltakrefusjon.Feilkode
+import no.nav.arbeidsgiver.tiltakrefusjon.alleGrunnbelopMap
+import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
 import no.nav.arbeidsgiver.tiltakrefusjon.audit.AuditConsoleLogger
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.ADMIN_BRUKER
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.REQUEST_MAPPING_INNLOGGET_ARBEIDSGIVER
 import no.nav.arbeidsgiver.tiltakrefusjon.hendelseslogg.HendelsesloggRepository
+import no.nav.arbeidsgiver.tiltakrefusjon.grunnbelop.GrunnbelopService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjoner
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock
 import org.springframework.http.MediaType
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.ResultMatcher
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder
@@ -40,14 +39,17 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse.BodyHandlers
 import java.nio.charset.StandardCharsets
-
-data class InnloggetBrukerTest(val identifikator: String, val organisasjoner: Set<Organisasjon>)
-
+import no.nav.arbeidsgiver.tiltakrefusjon.persondata.PersondataService
+import no.nav.team_tiltak.felles.persondata.pdl.domene.Diskresjonskode
+import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringProperties
+import org.mockito.Mockito.clearInvocations
+import org.mockito.kotlin.any
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 
 @SpringBootTest
 @ActiveProfiles("local")
 @AutoConfigureMockMvc
-@AutoConfigureWireMock
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class RefusjonApiTest(
     @param:Autowired val refusjonRepository: RefusjonRepository,
@@ -56,7 +58,16 @@ class RefusjonApiTest(
     @param:Autowired val mockMvc: MockMvc,
     @param:Autowired val hendelsesloggRepository: HendelsesloggRepository,
 ) {
-    @SpykBean
+    @MockitoBean
+    lateinit var persondataService: PersondataService
+
+    @MockitoBean
+    lateinit var grunnbelopService: GrunnbelopService
+
+    @MockitoBean
+    lateinit var altinnTilgangsstyringService: AltinnTilgangsstyringService
+
+    @MockitoBean
     lateinit var consoleLogger: AuditConsoleLogger
 
     val navToken = lagTokenForNavId("Z123456", "550e8400-e29b-41d4-a716-446655440000")
@@ -64,6 +75,18 @@ class RefusjonApiTest(
 
     @BeforeEach
     fun setUp() {
+        val bedrift998 = Organisasjon("Bedrift 998", "Business", "998877665", "ENK", "Active")
+        val bedrift999 = Organisasjon("Bedrift 999", "Business", "999999999", "ENK", "Active")
+        val properties = AltinnTilgangsstyringProperties(
+            inntektsmeldingServiceCode = 4936,
+            inntektsmeldingServiceEdition = 1,
+        )
+        whenever(altinnTilgangsstyringService.altinnTilgangsstyringProperties).thenReturn(properties)
+        whenever(altinnTilgangsstyringService.hentAdressesperreTilganger()).thenReturn(setOf(bedrift998, bedrift999))
+        whenever(altinnTilgangsstyringService.hentInntektsmeldingEllerRefusjonTilganger()).thenReturn(setOf(bedrift998, bedrift999))
+        whenever(persondataService.hentDiskresjonskode(any())).thenReturn(Diskresjonskode.UGRADERT)
+        whenever(persondataService.hentDiskresjonskoder(any())).thenReturn(emptyMap())
+        whenever(grunnbelopService.alleGrunnbelop()).thenReturn(alleGrunnbelopMap)
         refusjonRepository.saveAll(refusjoner())
         refusjonRepository.findAll().forEach {
             refusjonService.oppdaterRefusjon(it, ADMIN_BRUKER)
@@ -72,10 +95,7 @@ class RefusjonApiTest(
     }
 
     private fun resetAuditCount() {
-        clearMocks(consoleLogger)
-        every {
-            consoleLogger.logg(any())
-        } returns Unit
+        clearInvocations(consoleLogger)
     }
 
     @Test
@@ -110,6 +130,19 @@ class RefusjonApiTest(
     }
 
     @Test
+    fun `innlogget-bruker returnerer organisasjoner med PascalCase-feltnavn`() {
+        val brukerJson = sendRequest(get("$REQUEST_MAPPING_INNLOGGET_ARBEIDSGIVER/innlogget-bruker"), arbGiverToken)
+        val organisasjoner: List<Map<String, Any?>> = JsonPath.read(brukerJson, "$.organisasjoner")
+
+        assertThat(organisasjoner).isNotEmpty
+        organisasjoner.forEach {
+            assertThat(it.keys).containsExactlyInAnyOrder(
+                "Name", "Type", "OrganizationNumber", "OrganizationForm", "Status", "ParentOrganizationNumber"
+            )
+        }
+    }
+
+    @Test
     fun `hentAlle refusjon for alle bedrifter arbeidsgiver har tilgang til`() {
         // GITT
         val BEDRIFT_NR1 = "998877665"
@@ -117,8 +150,7 @@ class RefusjonApiTest(
 
         // NÅR
         val brukerJson = sendRequest(get("$REQUEST_MAPPING_INNLOGGET_ARBEIDSGIVER/innlogget-bruker"), arbGiverToken)
-        val bruker: InnloggetBrukerTest = mapper.readValue(brukerJson, object : TypeReference<InnloggetBrukerTest>() {})
-        val orgNr = bruker.organisasjoner.map { it.organizationNumber }
+        val orgNr: List<String> = JsonPath.read(brukerJson, "$.organisasjoner[*].OrganizationNumber")
 
         val page1Json =
             sendRequest(get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/hentliste?page=0&size=3"), arbGiverToken)
@@ -165,9 +197,7 @@ class RefusjonApiTest(
         val json = sendRequest(get("$REQUEST_MAPPING_ARBEIDSGIVER_REFUSJON/$id"), arbGiverToken)
         assertEquals(id, JsonPath.read<String>(json, "$.id"))
 
-        verify(exactly = 1) {
-            consoleLogger.logg(any())
-        }
+        verify(consoleLogger) { consoleLogger.logg(any()) }
     }
 
     @Test
@@ -184,9 +214,7 @@ class RefusjonApiTest(
         val json = sendRequest(get("$REQUEST_MAPPING_SAKSBEHANDLER_REFUSJON/$id"), navToken)
         assertEquals(id, JsonPath.read<String>(json, "$.id"))
 
-        verify(exactly = 1) {
-            consoleLogger.logg(any())
-        }
+        verify(consoleLogger) { consoleLogger.logg(any()) }
     }
 
     @Test
@@ -234,15 +262,19 @@ class RefusjonApiTest(
             )
         ).isNotNull()
 
+        // Egenskaper som starter med æ/ø/å forsvinner stille uten accessorNaming-oppsettet i JsonConfiguration
+        assertNotNull(JsonPath.read<String>(refusjonEtterInntektsgrunnlag, "$['åpnetFørsteGang']"))
+
         // Huker av for at inntektene er opptjent i periode
-        val inntektsgrunnlagJson = mapper.writeValueAsString(
-            JsonPath.read(refusjonEtterInntektsgrunnlag, "$.refusjonsgrunnlag.inntektsgrunnlag")
+        val inntektslinjeIder = JsonPath.read<List<String>>(
+            refusjonEtterInntektsgrunnlag,
+            "$.refusjonsgrunnlag.inntektsgrunnlag.inntekter[?(@.erMedIInntektsgrunnlag == true)].id"
         )
-        val inntektsgrunnlag = mapper.readValue(inntektsgrunnlagJson, Inntektsgrunnlag::class.java)
-        inntektsgrunnlag.inntekter.filter { it.erMedIInntektsgrunnlag() }.forEach {
+        assertThat(inntektslinjeIder).isNotEmpty()
+        inntektslinjeIder.forEach {
             setInntektslinjeOpptjentIPeriode(
                 refusjonId = id,
-                inntektslinjeId = it.id,
+                inntektslinjeId = it,
                 erOpptjentIPeriode = true
             )
         }

@@ -1,6 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.hendelseslogg
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import tools.jackson.module.kotlin.jacksonObjectMapper
 import jakarta.persistence.AttributeConverter
 import jakarta.persistence.Converter
 

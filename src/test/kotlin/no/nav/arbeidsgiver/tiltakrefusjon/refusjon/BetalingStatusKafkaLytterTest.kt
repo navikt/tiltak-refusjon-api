@@ -1,72 +1,58 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.ninjasquad.springmockk.MockkBean
-import io.mockk.every
-import io.mockk.verify
-import no.nav.arbeidsgiver.tiltakrefusjon.Topics
+import no.nav.arbeidsgiver.tiltakrefusjon.medFellesOppsett
+import tools.jackson.module.kotlin.jacksonMapperBuilder
+import org.mockito.kotlin.any
+import org.mockito.kotlin.argThat
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
+import org.mockito.Mockito.clearInvocations
 import no.nav.arbeidsgiver.tiltakrefusjon.enRefusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.etTilskuddsgrunnlag
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.ulid
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.data.repository.findByIdOrNull
-import org.springframework.kafka.test.context.EmbeddedKafka
-import org.springframework.test.annotation.DirtiesContext
-import org.springframework.test.context.ActiveProfiles
 import java.time.LocalDate
+import java.util.Optional
+import org.mockito.ArgumentMatchers.anyString
 
-@ActiveProfiles("local")
-@SpringBootTest(properties = ["tiltak-refusjon.kafka.enabled=true"])
-@EmbeddedKafka(partitions = 1, topics = [Topics.REFUSJON_ENDRET_BETALINGSSTATUS])
-@DirtiesContext
 class BetalingStatusKafkaLytterTest {
-    @MockkBean
-    lateinit var refusjonRepositoryMock: RefusjonRepository
-
-    @MockkBean
-    lateinit var korreksjonRepositoryMock: KorreksjonRepository
-
-    @Autowired
-    lateinit var objectMapper: ObjectMapper
-
-    @Autowired
-    lateinit var betalingStatusKafkaLytter: BetalingStatusKafkaLytter
+    private val refusjonRepositoryMock = mock<RefusjonRepository>()
+    private val korreksjonRepositoryMock = mock<KorreksjonRepository>()
+    private val objectMapper = jacksonMapperBuilder().medFellesOppsett().build()
+    private val lytter = BetalingStatusKafkaLytter(refusjonRepositoryMock, korreksjonRepositoryMock, objectMapper)
 
     @Test
     fun `setter riktig refusjon status basert på ulike betaling statuser fra Tiltak Økonomi`() {
-
-        val enRefusjon = enRefusjon()
-        enRefusjon.status = RefusjonStatus.SENDT_KRAV
-        every { refusjonRepositoryMock.findByIdOrNull(enRefusjon.id) } returns enRefusjon
-        every { refusjonRepositoryMock.findAllByStatus(RefusjonStatus.KLAR_FOR_INNSENDING) } returns emptyList()
-        every { refusjonRepositoryMock.save(any()) } returns enRefusjon
+        val refusjonUtbetalt = enRefusjon().apply { status = RefusjonStatus.SENDT_KRAV }
+        val refusjonFeilet = enRefusjon().apply { status = RefusjonStatus.SENDT_KRAV }
+        whenever(refusjonRepositoryMock.findById(anyString())).thenReturn(
+            Optional.of(refusjonUtbetalt),
+            Optional.of(refusjonFeilet)
+        )
+        doReturn(refusjonUtbetalt).whenever(refusjonRepositoryMock).save(any())
 
         val utbetaltVelykket = BetalingStatusEndringMelding(
             "T-34649-1",
-            enRefusjon.id,
+            refusjonUtbetalt.id,
             null,
             "34649", 11638.0,
             1, "11350501802", BetalingStatus.UTBETALT,
             LocalDate.now()
         )
-        betalingStatusKafkaLytter.oppdaterKorreksjonEllerRefusjonStatusBasertPåBetalingStatusFraØkonomi(objectMapper.writeValueAsString(utbetaltVelykket))
-        verify {
-            refusjonRepositoryMock.save(match {
-                it.status == RefusjonStatus.UTBETALT
-            })
-        }
+        lytter.oppdaterKorreksjonEllerRefusjonStatusBasertPåBetalingStatusFraØkonomi(
+            objectMapper.writeValueAsString(utbetaltVelykket)
+        )
+        verify(refusjonRepositoryMock).save(argThat { status == RefusjonStatus.UTBETALT })
+        clearInvocations(refusjonRepositoryMock)
 
         val utbetaltFeiletHendelse = utbetaltVelykket.copy(status = BetalingStatus.FEILET)
-        betalingStatusKafkaLytter.oppdaterKorreksjonEllerRefusjonStatusBasertPåBetalingStatusFraØkonomi(objectMapper.writeValueAsString(utbetaltFeiletHendelse))
-        verify {
-            refusjonRepositoryMock.save(match {
-                it.status == RefusjonStatus.UTBETALING_FEILET
-            })
-        }
+        lytter.oppdaterKorreksjonEllerRefusjonStatusBasertPåBetalingStatusFraØkonomi(
+            objectMapper.writeValueAsString(utbetaltFeiletHendelse)
+        )
+        verify(refusjonRepositoryMock).save(argThat { status == RefusjonStatus.UTBETALING_FEILET })
     }
-
 
     @Test
     fun `setter riktig status på korreksjon basert på melding fra Tiltak Økonomi`() {
@@ -87,8 +73,8 @@ class BetalingStatusKafkaLytterTest {
             status = Korreksjonstype.TILLEGSUTBETALING
         }
 
-        every { korreksjonRepositoryMock.findByIdOrNull(korreksjon.id) } returns korreksjon
-        every { korreksjonRepositoryMock.save(any()) } returns korreksjon
+        whenever(korreksjonRepositoryMock.findById(anyString())).thenReturn(Optional.of(korreksjon))
+        doReturn(korreksjon).whenever(korreksjonRepositoryMock).save(any())
 
         val utbetaltVelykket = BetalingStatusEndringMelding(
             "T-34649-1",
@@ -99,12 +85,10 @@ class BetalingStatusKafkaLytterTest {
             LocalDate.now()
         )
 
-        betalingStatusKafkaLytter.oppdaterKorreksjonEllerRefusjonStatusBasertPåBetalingStatusFraØkonomi(objectMapper.writeValueAsString(utbetaltVelykket))
+        lytter.oppdaterKorreksjonEllerRefusjonStatusBasertPåBetalingStatusFraØkonomi(
+            objectMapper.writeValueAsString(utbetaltVelykket)
+        )
 
-        verify {
-            korreksjonRepositoryMock.save(match {
-                it.status == Korreksjonstype.TILLEGGSUTBETALING_UTBETALT
-            })
-        }
+        verify(korreksjonRepositoryMock).save(argThat { status == Korreksjonstype.TILLEGGSUTBETALING_UTBETALT })
     }
 }

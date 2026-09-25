@@ -1,11 +1,8 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.inntekt
 
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.kotlinModule
-import com.fasterxml.jackson.module.kotlin.readValue
+import no.nav.arbeidsgiver.tiltakrefusjon.medFellesOppsett
+import tools.jackson.module.kotlin.jacksonMapperBuilder
+import tools.jackson.module.kotlin.readValue
 import io.micrometer.observation.annotation.Observed
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.request.Aktør
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.request.InntektRequest
@@ -33,14 +30,7 @@ class InntektskomponentServiceImpl(
     val ikompRestTemplate: RestTemplate,
 ) : InntektskomponentService {
 
-    private val objectMapper = run {
-        val mapper = ObjectMapper()
-        mapper.registerModule(JavaTimeModule())
-        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-        mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-        mapper.registerModule(kotlinModule())
-        mapper
-    }
+    private val objectMapper = jacksonMapperBuilder().medFellesOppsett().build()
 
     override fun hentInntekter(
         fnr: String,

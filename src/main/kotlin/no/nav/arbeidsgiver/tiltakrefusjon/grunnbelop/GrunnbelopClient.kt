@@ -17,6 +17,6 @@ class GrunnbelopClient(
 ) {
     @Retryable(value = [Exception::class], maxAttempts = 3, backoff = Backoff(delay = 1000))
     fun alleGrunnbelop(): TreeMap<LocalDate, Int> =
-        noAuthRestTemplate.getForObject<Array<GrunnbelopApiResponse>>(url)
+        requireNotNull(noAuthRestTemplate.getForObject<Array<GrunnbelopApiResponse>>(url)) { "Tomt svar fra grunnbeløp-API" }
             .associateTo(TreeMap()) { it.dato to it.grunnbeløp }
 }

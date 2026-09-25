@@ -1,16 +1,17 @@
 package no.nav.arbeidsgiver.tiltakrefusjon
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.ninjasquad.springmockk.MockkBean
-import io.mockk.every
-import io.mockk.verify
+import tools.jackson.databind.ObjectMapper
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonService
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
+import org.mockito.kotlin.any
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 
 @ActiveProfiles("local")
 @SpringBootTest
@@ -19,7 +20,7 @@ internal class AdminControllerTest {
 
     @Autowired
     lateinit var retryController: AdminController
-    @MockkBean
+    @MockitoBean
     lateinit var refusjonService: RefusjonService
     @Autowired
     lateinit var objectMapper: ObjectMapper
@@ -36,17 +37,15 @@ internal class AdminControllerTest {
             "godkjentTidspunkt": "2021-07-10T00:00:00.000000", "mentorTimelonn" : null, "mentorAntallTimer" : null}
             """
 
-        every {
-            refusjonService.opprettRefusjon(any())
-        } returns enRefusjon()
+        whenever(refusjonService.opprettRefusjon(any())).thenReturn(enRefusjon())
 
         retryController.opprettRefusjon(objectMapper.readValue(godkjentTilskuddsperiodeMelding, TilskuddsperiodeGodkjentMelding::class.java))
 
-        verify {
-            refusjonService.opprettRefusjon(match {
-                it.avtaleId == "77ef828e-426f-4587-b662-f4b94667b1ee"
-            })
-        }
+        verify(refusjonService).opprettRefusjon(
+            org.mockito.kotlin.check {
+                assert(it.avtaleId == "77ef828e-426f-4587-b662-f4b94667b1ee")
+            }
+        )
 
 
 

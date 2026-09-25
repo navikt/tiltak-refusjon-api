@@ -12,9 +12,6 @@ spring:
     consumer:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-  task:
-    scheduling:
-      enabled: false
   datasource:
     url: "jdbc:postgresql://localhost:7432/sample?user=sample&password=sample"
 no.nav.security.jwt:
@@ -50,8 +47,6 @@ tiltak-refusjon:
   kafka:
     enabled: true
     fake: false
-  scheduling:
-    enabled: false
   kontoregister:
     fake: true
   inntektskomponenten:

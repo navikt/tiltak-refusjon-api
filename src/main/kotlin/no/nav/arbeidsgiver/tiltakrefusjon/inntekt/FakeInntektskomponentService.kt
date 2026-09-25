@@ -25,8 +25,8 @@ class FakeInntektskomponentService : InntektskomponentService {
             val inntektslinjer = ArrayList<Inntektslinje>()
             val måned = YearMonth.of(datoFra.year, datoFra.month)
             inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "fastloenn", 20000.0, måned, datoTil, måned.atEndOfMonth()))
-            // Kan ikke ha minus på alle. Må kunne teste positivt. Så kun minus på en inntekt tre måneder bak
-            if (datoFra == Now.localDate().minusMonths(3).with(TemporalAdjusters.firstDayOfMonth())) {
+            // Kan ikke ha minus på alle. Må kunne teste positivt. Så kun minus på en inntekt to måneder bak
+            if(Period.between(datoFra.with(TemporalAdjusters.firstDayOfMonth()), Now.localDate().with(TemporalAdjusters.firstDayOfMonth())).months == 3) {
                 inntektslinjer.add(Inntektslinje("LOENNSINNTEKT", "trekkILoennForFerie", -25000.0,  måned, datoTil, måned.atEndOfMonth()))
             }
             return Pair(inntektslinjer, "fake respons med minus")

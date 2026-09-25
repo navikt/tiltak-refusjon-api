@@ -31,9 +31,6 @@ spring:
     consumer:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-  task:
-    scheduling:
-      enabled: false
 
 no.nav.security.jwt:
   tokenvalidationfilter:
@@ -65,8 +62,6 @@ tiltak-refusjon:
   kafka:
     enabled: false
     fake: true
-  scheduling:
-    enabled: false
   kontoregister:
     fake: true
   pdfgen:
@@ -99,6 +94,6 @@ server:
 
 wiremock:
   server:
-    port: ${WIREMOCK_SERVER_PORT:0}
+    port: ${WIREMOCK_SERVER_PORT:8090}
 
 NAIS_APP_IMAGE: ghcr.io/navikt/tiltak-refusjon-api/tiltak-refusjon-api:804742e2ce6cffec5d1b51715215c6734642cb30

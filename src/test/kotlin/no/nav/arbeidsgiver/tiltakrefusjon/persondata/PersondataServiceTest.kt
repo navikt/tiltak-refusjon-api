@@ -5,10 +5,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.context.ActiveProfiles
-import org.mockito.kotlin.any
-import org.mockito.kotlin.whenever
 
 @SpringBootTest
 @ActiveProfiles("local")
@@ -21,20 +18,8 @@ class PersondataServiceTest {
     @Autowired
     lateinit var persondataService: PersondataService
 
-    @MockitoBean
-    lateinit var persondataGateway: PersondataGateway
-
     @Test
     fun `henter fra pdl og defaulter til UGRADERT for de som ikke finnes`() {
-        whenever(persondataGateway.hentDiskresjonskoderEllerDefault(any(), any())).thenReturn(
-            mapOf(
-            STRENGT_FORTROLIG_UTLAND_FNR to Diskresjonskode.STRENGT_FORTROLIG_UTLAND,
-            STRENGT_FORTROLIG_FNR to Diskresjonskode.STRENGT_FORTROLIG,
-            FORTROLIG_FNR to Diskresjonskode.FORTROLIG,
-            UGRADERT_PERSON_TOM_RESPONSE_FNR to Diskresjonskode.UGRADERT,
-        )
-        )
-
         val fnrSet = setOf(
             STRENGT_FORTROLIG_UTLAND_FNR,
             STRENGT_FORTROLIG_FNR,

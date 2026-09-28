@@ -15,6 +15,8 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonStatus
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.beregn
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
+import no.nav.arbeidsgiver.tiltakrefusjon.utregning.Maksbeløp.AVTALT_TILSKUDD
+import no.nav.arbeidsgiver.tiltakrefusjon.utregning.Maksbeløp.FEM_GRUNNBELOP
 import no.nav.arbeidsgiver.tiltakrefusjon.utregning.UtregningsradType.ARBEIDSGIVERAVGIFT
 import no.nav.arbeidsgiver.tiltakrefusjon.utregning.UtregningsradType.AVTALT_BELOP
 import no.nav.arbeidsgiver.tiltakrefusjon.utregning.UtregningsradType.AVTALT_BELOP_REST_5G
@@ -50,9 +52,9 @@ class UtregningTest {
         val forventetResultat = utregning(
             gruppe(
                 BRUTTOLONN_I_PERIODEN tilsvarer 7777.kroner,
-                FERIEPENGER pluss 933.kroner medSats 0.12.prosent,
-                OBLIGATORISK_TJENESTEPENSJON pluss 174.kroner medSats 0.02.prosent,
-                ARBEIDSGIVERAVGIFT pluss 1253.kroner medSats 0.141.prosent
+                FERIEPENGER pluss 933.kroner utledesAv 0.12.prosentsats,
+                OBLIGATORISK_TJENESTEPENSJON pluss 174.kroner utledesAv 0.02.prosentsats,
+                ARBEIDSGIVERAVGIFT pluss 1253.kroner utledesAv 0.141.prosentsats
             ),
             gruppe(
                 REFUSJONSGRUNNLAG erLik 10137.kroner,
@@ -97,9 +99,9 @@ class UtregningTest {
         val forventetResultat = utregning(
             gruppe(
                 BRUTTOLONN_I_PERIODEN tilsvarer 300_000.kroner,
-                FERIEPENGER pluss 36_000.kroner medSats 0.12.prosent,
-                OBLIGATORISK_TJENESTEPENSJON pluss 6_720.kroner medSats 0.02.prosent,
-                ARBEIDSGIVERAVGIFT pluss 48_324.kroner medSats 0.141.prosent
+                FERIEPENGER pluss 36_000.kroner utledesAv 0.12.prosentsats,
+                OBLIGATORISK_TJENESTEPENSJON pluss 6_720.kroner utledesAv 0.02.prosentsats,
+                ARBEIDSGIVERAVGIFT pluss 48_324.kroner utledesAv 0.141.prosentsats
             ),
             gruppe(
                 REFUSJONSGRUNNLAG erLik 391_044.kroner,
@@ -107,7 +109,7 @@ class UtregningTest {
 
             ),
             gruppe(
-                BEREGNET_BELOP erLik 156_417.kroner utgårHvis true,
+                BEREGNET_BELOP erLik 156_417.kroner utgårFordi AVTALT_TILSKUDD,
                 AVTALT_BELOP tilsvarer 13_579.kroner
             ),
             gruppe(
@@ -155,10 +157,10 @@ class UtregningTest {
 
         val forventetResultat = utregning(
             gruppe(
-                TIMELONN_X_TIMER tilsvarer 3750.kroner medSats Timelonn(7.5, 500),
-                FERIEPENGER pluss 450.kroner medSats 0.12.prosent,
-                OBLIGATORISK_TJENESTEPENSJON pluss 84.kroner medSats 0.02.prosent,
-                ARBEIDSGIVERAVGIFT pluss 604.kroner medSats 0.141.prosent
+                TIMELONN_X_TIMER tilsvarer 3750.kroner utledesAv Timepris(kronerPerTime = 500, timer = 7.5),
+                FERIEPENGER pluss 450.kroner utledesAv 0.12.prosentsats,
+                OBLIGATORISK_TJENESTEPENSJON pluss 84.kroner utledesAv 0.02.prosentsats,
+                ARBEIDSGIVERAVGIFT pluss 604.kroner utledesAv 0.141.prosentsats
             ),
             gruppe(
                 REFUSJONSBELØP_TIL_UTBETALING erLik 4_888.kroner
@@ -183,10 +185,10 @@ class UtregningTest {
 
         val forventetResultat = utregning(
             gruppe(
-                TIMELONN_X_TIMER tilsvarer 3750.kroner medSats Timelonn(7.5, 500),
-                FERIEPENGER pluss 450.kroner medSats 0.12.prosent,
-                OBLIGATORISK_TJENESTEPENSJON pluss 84.kroner medSats 0.02.prosent,
-                ARBEIDSGIVERAVGIFT pluss 604.kroner medSats 0.141.prosent
+                TIMELONN_X_TIMER tilsvarer 3750.kroner utledesAv Timepris(kronerPerTime = 500, timer = 7.5),
+                FERIEPENGER pluss 450.kroner utledesAv 0.12.prosentsats,
+                OBLIGATORISK_TJENESTEPENSJON pluss 84.kroner utledesAv 0.02.prosentsats,
+                ARBEIDSGIVERAVGIFT pluss 604.kroner utledesAv 0.141.prosentsats
             ),
             gruppe(
                 SUM_TILSKUDD_FOR_EN_MND erLik 4888.kroner,
@@ -261,9 +263,9 @@ class UtregningTest {
         val forventetResultat = utregning(
             gruppe(
                 BRUTTOLONN_I_PERIODEN tilsvarer 300_000.kroner,
-                FERIEPENGER pluss 36_000.kroner medSats 0.12.prosent,
-                OBLIGATORISK_TJENESTEPENSJON pluss 6_720.kroner medSats 0.02.prosent,
-                ARBEIDSGIVERAVGIFT pluss 48_324.kroner medSats 0.141.prosent
+                FERIEPENGER pluss 36_000.kroner utledesAv 0.12.prosentsats,
+                OBLIGATORISK_TJENESTEPENSJON pluss 6_720.kroner utledesAv 0.02.prosentsats,
+                ARBEIDSGIVERAVGIFT pluss 48_324.kroner utledesAv 0.141.prosentsats
             ),
             gruppe(
                 REFUSJONSGRUNNLAG erLik 391_044.kroner,
@@ -271,7 +273,7 @@ class UtregningTest {
 
             ),
             gruppe(
-                BEREGNET_BELOP erLik 156_417.kroner utgårHvis true,
+                BEREGNET_BELOP erLik 156_417.kroner utgårFordi AVTALT_TILSKUDD,
                 AVTALT_BELOP tilsvarer 13_579.kroner,
                 TIDLIGERE_UTBETALT minus 13_579.kroner
             ),
@@ -321,19 +323,19 @@ class UtregningTest {
             gruppe(
                 BRUTTOLONN_I_PERIODEN tilsvarer 150_000.kroner,
                 FERIETREKK minus 1_200.kroner,
-                FERIEPENGER pluss 17_856.kroner medSats 0.12.prosent,
-                OBLIGATORISK_TJENESTEPENSJON pluss 3_333.kroner medSats 0.02.prosent,
-                ARBEIDSGIVERAVGIFT pluss 23_968.kroner medSats 0.141.prosent
+                FERIEPENGER pluss 17_856.kroner utledesAv 0.12.prosentsats,
+                OBLIGATORISK_TJENESTEPENSJON pluss 3_333.kroner utledesAv 0.02.prosentsats,
+                ARBEIDSGIVERAVGIFT pluss 23_968.kroner utledesAv 0.141.prosentsats
             ),
             gruppe(
                 REFUSJONSGRUNNLAG erLik 193_958.kroner,
                 TILSKUDDSPROSENT multiplisertMed 0.4.prosent
             ),
             gruppe(
-                BEREGNET_BELOP erLik 77_583.kroner utgårHvis true,
+                BEREGNET_BELOP erLik 77_583.kroner utgårFordi AVTALT_TILSKUDD,
                 AVTALT_BELOP tilsvarer 55_000.kroner,
                 RESTERENDE_FRATREKK_FOR_FERIE_FRA_TIDLIGERE_REFUSJONER minus 5_000.kroner,
-                (BEREGNET_BELOP_ETTER_RESTTREKK erLik 50_000.kroner).utgår(),
+                BEREGNET_BELOP_ETTER_RESTTREKK erLik 50_000.kroner utgårFordi FEM_GRUNNBELOP,
                 AVTALT_BELOP_REST_5G tilsvarer 2_000.kroner
             ),
             gruppe(
@@ -358,19 +360,19 @@ class UtregningTest {
             gruppe(
                 BRUTTOLONN_I_PERIODEN tilsvarer 150_000.kroner,
                 FERIETREKK minus 1_200.kroner,
-                FERIEPENGER pluss 17_856.kroner medSats 0.12.prosent,
-                OBLIGATORISK_TJENESTEPENSJON pluss 3_333.kroner medSats 0.02.prosent,
-                ARBEIDSGIVERAVGIFT pluss 23_968.kroner medSats 0.141.prosent
+                FERIEPENGER pluss 17_856.kroner utledesAv 0.12.prosentsats,
+                OBLIGATORISK_TJENESTEPENSJON pluss 3_333.kroner utledesAv 0.02.prosentsats,
+                ARBEIDSGIVERAVGIFT pluss 23_968.kroner utledesAv 0.141.prosentsats
             ),
             gruppe(
                 REFUSJONSGRUNNLAG erLik 193_958.kroner,
                 TILSKUDDSPROSENT multiplisertMed 0.4.prosent
             ),
             gruppe(
-                BEREGNET_BELOP erLik 77_583.kroner utgårHvis true,
+                BEREGNET_BELOP erLik 77_583.kroner utgårFordi AVTALT_TILSKUDD,
                 AVTALT_BELOP tilsvarer 55_000.kroner,
                 RESTERENDE_FRATREKK_FOR_FERIE_FRA_TIDLIGERE_REFUSJONER minus 5_000.kroner,
-                (BEREGNET_BELOP_ETTER_RESTTREKK erLik 50_000.kroner).utgår(),
+                BEREGNET_BELOP_ETTER_RESTTREKK erLik 50_000.kroner utgårFordi FEM_GRUNNBELOP,
                 AVTALT_BELOP_REST_5G tilsvarer 2_000.kroner,
                 TIDLIGERE_UTBETALT minus 2_000.kroner
             ),
@@ -421,16 +423,16 @@ class UtregningTest {
             gruppe(
                 BRUTTOLONN_I_PERIODEN tilsvarer 150_000.kroner,
                 FERIETREKK minus 1_200.kroner,
-                FERIEPENGER pluss 17_856.kroner medSats 0.12.prosent,
-                OBLIGATORISK_TJENESTEPENSJON pluss 3_333.kroner medSats 0.02.prosent,
-                ARBEIDSGIVERAVGIFT pluss 23_968.kroner medSats 0.141.prosent
+                FERIEPENGER pluss 17_856.kroner utledesAv 0.12.prosentsats,
+                OBLIGATORISK_TJENESTEPENSJON pluss 3_333.kroner utledesAv 0.02.prosentsats,
+                ARBEIDSGIVERAVGIFT pluss 23_968.kroner utledesAv 0.141.prosentsats
             ),
             gruppe(
                 REFUSJONSGRUNNLAG erLik 193_958.kroner,
                 TILSKUDDSPROSENT multiplisertMed 0.4.prosent
             ),
             gruppe(
-                BEREGNET_BELOP erLik 77_583.kroner utgårHvis true,
+                BEREGNET_BELOP erLik 77_583.kroner utgårFordi FEM_GRUNNBELOP,
                 AVTALT_BELOP_REST_5G tilsvarer 2_000.kroner
             ),
             gruppe(
@@ -455,16 +457,16 @@ class UtregningTest {
             gruppe(
                 BRUTTOLONN_I_PERIODEN tilsvarer 150_000.kroner,
                 FERIETREKK minus 1_200.kroner,
-                FERIEPENGER pluss 17_856.kroner medSats 0.12.prosent,
-                OBLIGATORISK_TJENESTEPENSJON pluss 3_333.kroner medSats 0.02.prosent,
-                ARBEIDSGIVERAVGIFT pluss 23_968.kroner medSats 0.141.prosent
+                FERIEPENGER pluss 17_856.kroner utledesAv 0.12.prosentsats,
+                OBLIGATORISK_TJENESTEPENSJON pluss 3_333.kroner utledesAv 0.02.prosentsats,
+                ARBEIDSGIVERAVGIFT pluss 23_968.kroner utledesAv 0.141.prosentsats
             ),
             gruppe(
                 REFUSJONSGRUNNLAG erLik 193_958.kroner,
                 TILSKUDDSPROSENT multiplisertMed 0.4.prosent
             ),
             gruppe(
-                BEREGNET_BELOP erLik 77_583.kroner utgårHvis true,
+                BEREGNET_BELOP erLik 77_583.kroner utgårFordi FEM_GRUNNBELOP,
                 AVTALT_BELOP_REST_5G tilsvarer 2_000.kroner,
                 TIDLIGERE_UTBETALT minus 2_000.kroner
             ),
@@ -487,9 +489,9 @@ private val negativInntekt = listOf(
     gruppe(
         BRUTTOLONN_I_PERIODEN tilsvarer 1000.kroner,
         FERIETREKK minus 35_000.kroner,
-        FERIEPENGER minus 4080.kroner medSats 0.12.prosent,
-        OBLIGATORISK_TJENESTEPENSJON minus 762.kroner medSats 0.02.prosent,
-        ARBEIDSGIVERAVGIFT minus 5477.kroner medSats 0.141.prosent
+        FERIEPENGER minus 4080.kroner utledesAv 0.12.prosentsats,
+        OBLIGATORISK_TJENESTEPENSJON minus 762.kroner utledesAv 0.02.prosentsats,
+        ARBEIDSGIVERAVGIFT minus 5477.kroner utledesAv 0.141.prosentsats
     ),
     gruppe(
         REFUSJONSGRUNNLAG erLik (-44318).kroner,

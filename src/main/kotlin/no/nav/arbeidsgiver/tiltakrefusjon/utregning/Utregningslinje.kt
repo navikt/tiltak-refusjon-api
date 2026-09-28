@@ -12,16 +12,18 @@ data class Utregningslinje(
     val type: UtregningsradType,
     val verdi: Verdi,
     val fortegn: Fortegn? = null,
-    val sats: Verdi? = null,
-    val utgår: Boolean? = null
+    val utledning: Utledning? = null,
+    val utgårFordi: Maksbeløp? = null
 ) {
     val label = type.label
 
-    infix fun medSats(sats: Verdi): Utregningslinje = copy(sats = sats)
+    infix fun utledesAv(utledning: Utledning): Utregningslinje = copy(utledning = utledning)
 
-    fun utgår(): Utregningslinje = copy(utgår = true)
-
-    infix fun utgårHvis(betingelse: Boolean): Utregningslinje = if (betingelse) utgår() else this
+    /**
+     * Markerer linjen som overstrøket fordi [maksbeløp] ga et lavere tak. Er [maksbeløp] null, gjelder
+     * linjen og blir stående.
+     */
+    infix fun utgårFordi(maksbeløp: Maksbeløp?): Utregningslinje = copy(utgårFordi = maksbeløp)
 }
 
 /** Linjen vises uten fortegn, typisk som første linje i en gruppe. */

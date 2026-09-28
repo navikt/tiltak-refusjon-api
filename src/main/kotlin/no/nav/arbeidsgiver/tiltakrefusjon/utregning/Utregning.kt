@@ -4,6 +4,8 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Beregning
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refundering
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.kalkulerBruttoLønn
+import no.nav.arbeidsgiver.tiltakrefusjon.utregning.Maksbeløp.AVTALT_TILSKUDD
+import no.nav.arbeidsgiver.tiltakrefusjon.utregning.Maksbeløp.FEM_GRUNNBELOP
 import no.nav.arbeidsgiver.tiltakrefusjon.utregning.UtregningsradType.ARBEIDSGIVERAVGIFT
 import no.nav.arbeidsgiver.tiltakrefusjon.utregning.UtregningsradType.AVTALT_BELOP
 import no.nav.arbeidsgiver.tiltakrefusjon.utregning.UtregningsradType.AVTALT_BELOP_REST_5G
@@ -49,13 +51,13 @@ private fun mentorUtregning(refundering: Refundering): Utregning? {
 
     val sosialeUtgifter = Utregningsgruppe(
         listOf(
-            TIMELONN_X_TIMER tilsvarer beregning.lønn.kroner medSats Timelonn(
-                tilskuddsgrunnlag.mentorAntallTimer ?: 0.0,
-                tilskuddsgrunnlag.mentorTimelonn ?: 0
+            TIMELONN_X_TIMER tilsvarer beregning.lønn.kroner utledesAv Timepris(
+                kronerPerTime = tilskuddsgrunnlag.mentorTimelonn ?: 0,
+                timer = tilskuddsgrunnlag.mentorAntallTimer ?: 0.0
             ),
-            FERIEPENGER pluss beregning.feriepenger.kroner medSats tilskuddsgrunnlag.feriepengerSats.prosent,
-            OBLIGATORISK_TJENESTEPENSJON pluss beregning.tjenestepensjon.kroner medSats tilskuddsgrunnlag.otpSats.prosent,
-            ARBEIDSGIVERAVGIFT pluss beregning.arbeidsgiveravgift.kroner medSats tilskuddsgrunnlag.arbeidsgiveravgiftSats.prosent
+            FERIEPENGER pluss beregning.feriepenger.kroner utledesAv tilskuddsgrunnlag.feriepengerSats.prosentsats,
+            OBLIGATORISK_TJENESTEPENSJON pluss beregning.tjenestepensjon.kroner utledesAv tilskuddsgrunnlag.otpSats.prosentsats,
+            ARBEIDSGIVERAVGIFT pluss beregning.arbeidsgiveravgift.kroner utledesAv tilskuddsgrunnlag.arbeidsgiveravgiftSats.prosentsats
         )
     )
 
@@ -90,9 +92,9 @@ private fun tilskuddsutregning(refundering: Refundering): Utregning? {
         if (beregning.fratrekkLønnFerie != 0)
             FERIETREKK pluss beregning.fratrekkLønnFerie.kroner
         else null,
-        FERIEPENGER pluss beregning.feriepenger.kroner medSats tilskuddsgrunnlag.feriepengerSats.prosent,
-        OBLIGATORISK_TJENESTEPENSJON pluss beregning.tjenestepensjon.kroner medSats tilskuddsgrunnlag.otpSats.prosent,
-        ARBEIDSGIVERAVGIFT pluss beregning.arbeidsgiveravgift.kroner medSats tilskuddsgrunnlag.arbeidsgiveravgiftSats.prosent
+        FERIEPENGER pluss beregning.feriepenger.kroner utledesAv tilskuddsgrunnlag.feriepengerSats.prosentsats,
+        OBLIGATORISK_TJENESTEPENSJON pluss beregning.tjenestepensjon.kroner utledesAv tilskuddsgrunnlag.otpSats.prosentsats,
+        ARBEIDSGIVERAVGIFT pluss beregning.arbeidsgiveravgift.kroner utledesAv tilskuddsgrunnlag.arbeidsgiveravgiftSats.prosentsats
     )
 
     val tidligereRefundertBolk = if (beregning.tidligereRefundertBeløp != 0)
@@ -146,14 +148,21 @@ private fun justertBeregning(
     // som ikke tilfører noe. Med minusbeløp trengs avtalt beløp som grunnlag for fratrekket.
     val femGErstatterAvtaltBeløp = over5g && !harMinusbeløp
 
+    // Taket som faktisk erstatter det beregnede beløpet. 5G har forrang: når begge slår inn uten
+    // minusbeløp, utelates avtalt beløp-linjen, og det er 5G-linjen som overtar.
+    val beregnetBeløpErstattesAv = when {
+        femGErstatterAvtaltBeløp -> FEM_GRUNNBELOP
+        overTilskuddsbeløp -> AVTALT_TILSKUDD
+        else -> null
+    }
+
     // Samme grunnlag som Refusjonsberegner bruker: er beregnet beløp kappet til avtalt tilskudd,
     // er det tilskuddsbeløpet minusbeløpet trekkes fra.
     val beløpFørMinustrekk = if (overTilskuddsbeløp) tilskuddsbeløp else beregning.beregnetBeløp
 
     return Utregningsgruppe(
         listOfNotNull(
-            BEREGNET_BELOP erLik beregning.beregnetBeløp.kroner
-                    utgårHvis (overTilskuddsbeløp || femGErstatterAvtaltBeløp),
+            BEREGNET_BELOP erLik beregning.beregnetBeløp.kroner utgårFordi beregnetBeløpErstattesAv,
             if (overTilskuddsbeløp && !femGErstatterAvtaltBeløp)
                 AVTALT_BELOP tilsvarer tilskuddsbeløp.kroner
             else null,
@@ -161,7 +170,7 @@ private fun justertBeregning(
                 RESTERENDE_FRATREKK_FOR_FERIE_FRA_TIDLIGERE_REFUSJONER pluss minusbeløp.kroner
             else null,
             if (over5g && harMinusbeløp)
-                (BEREGNET_BELOP_ETTER_RESTTREKK erLik (beløpFørMinustrekk + minusbeløp).kroner).utgår()
+                BEREGNET_BELOP_ETTER_RESTTREKK erLik (beløpFørMinustrekk + minusbeløp).kroner utgårFordi FEM_GRUNNBELOP
             else null,
             if (over5g)
                 AVTALT_BELOP_REST_5G tilsvarer (beregning.refusjonsbeløp + tidligereUtbetalt).kroner

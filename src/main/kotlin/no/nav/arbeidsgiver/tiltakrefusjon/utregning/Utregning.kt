@@ -1,5 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.utregning
 
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Beregning
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refundering
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.kalkulerBruttoLønn
@@ -97,7 +98,7 @@ private fun tilskuddsutregning(refundering: Refundering): Utregning? {
     val tidligereRefundertBolk = if (beregning.tidligereRefundertBeløp != 0)
         listOf(
             SUM_BRUTTO_LONNSUTGIFTER erLik beregning.sumUtgifter.kroner,
-            TIDLIGERE_REFUNDERBART_FOR_FRAVAER pluss (-beregning.tidligereRefundertBeløp).kroner
+            TIDLIGERE_REFUNDERBART_FOR_FRAVAER minus beregning.tidligereRefundertBeløp.kroner
         )
     else emptyList()
 
@@ -106,54 +107,68 @@ private fun tilskuddsutregning(refundering: Refundering): Utregning? {
         TILSKUDDSPROSENT multiplisertMed tilskuddsgrunnlag.lønnstilskuddsprosent.prosent
     )
 
-    // Refusjonsbeløp og beregnet beløp er ikke like, som enten betyr at vi har gått over maksbeløper (tilskudd eller 5G),
-    // eller at det fins et minusbeløp eller "tidligere utbetalt" (altså vi utfører en korrigering), eventuelt alt
-    // på en gang.
-    val justertBeregningsgruppe = if (beregning.refusjonsbeløp != beregning.beregnetBeløp) {
-        val overTilskuddsbeløp = beregning.overTilskuddsbeløp
-        val over5g = beregning.overFemGrunnbeløp == true
-        val minusbeløp = refundering.refusjonsgrunnlag.forrigeRefusjonMinusBeløp
-        val tidligereUtbetalt = beregning.tidligereUtbetalt
-
-        val utgaarFoerMinusbelop = overTilskuddsbeløp || (over5g && minusbeløp == 0)
-
-        val beregnetMedMinusbelop = listOfNotNull(
-            BEREGNET_BELOP erLik beregning.beregnetBeløp.kroner utgårHvis utgaarFoerMinusbelop,
-            if (overTilskuddsbeløp)
-                AVTALT_BELOP tilsvarer tilskuddsgrunnlag.tilskuddsbeløp.kroner
-            else null,
-            if (minusbeløp != 0)
-                RESTERENDE_FRATREKK_FOR_FERIE_FRA_TIDLIGERE_REFUSJONER pluss minusbeløp.kroner
-            else null,
-        )
-
-        val minusTidligereUtbetalt = listOfNotNull(
-            if (tidligereUtbetalt != 0)
-                TIDLIGERE_UTBETALT minus tidligereUtbetalt.kroner
-            else null
-        )
-
-        // Hvis beløp overskrider 5g, skal reduksjonslinje vises. Dersom et minusbeløp også eksisterer for refusjonen,
-        // må vi i tillegg vise resultat før reduksjon (ellers vil "BEREGNET_BELØP fungere som
-        val over5G = if (over5g)
-            listOfNotNull(
-                if (minusbeløp != 0) (BEREGNET_BELOP_ETTER_RESTTREKK erLik (beregning.beregnetBeløp + minusbeløp).kroner).utgår()
-                else null,
-                AVTALT_BELOP_REST_5G tilsvarer (beregning.refusjonsbeløp + tidligereUtbetalt).kroner
-            ) else emptyList()
-
-        Utregningsgruppe(
-            beregnetMedMinusbelop + over5G + minusTidligereUtbetalt
-        )
-    } else null
-
     return Utregning(
         listOfNotNull(
             Utregningsgruppe(sosialeUtgifter),
             Utregningsgruppe(tidligereRefundertBolk),
             Utregningsgruppe(refusjonsgrunnlagsbolk),
-            justertBeregningsgruppe,
+            justertBeregning(
+                beregning = beregning,
+                tilskuddsbeløp = tilskuddsgrunnlag.tilskuddsbeløp,
+                minusbeløp = refundering.refusjonsgrunnlag.forrigeRefusjonMinusBeløp
+            ),
             Utregningsgruppe(listOf(REFUSJONSBELØP_TIL_UTBETALING erLik beregning.refusjonsbeløp.kroner))
         ).filter { it.rader.isNotEmpty() }
+    )
+}
+
+/**
+ * Gruppa som forklarer hvorfor refusjonsbeløpet avviker fra det beregnede beløpet. Avviket oppstår når vi
+ * har gått over et maksbeløp (avtalt tilskudd eller 5G), når det fins et minusbeløp fra en tidligere
+ * refusjon, eller når vi korrigerer og må trekke fra det som alt er utbetalt. Flere av dem kan slå inn
+ * samtidig. Er beløpene like, trengs ingen forklaring og gruppa utelates.
+ *
+ * Linjene under står i samme rekkefølge som de vises for arbeidsgiver.
+ */
+private fun justertBeregning(
+    beregning: Beregning,
+    tilskuddsbeløp: Int,
+    minusbeløp: Int
+): Utregningsgruppe? {
+    if (beregning.refusjonsbeløp == beregning.beregnetBeløp) return null
+
+    val overTilskuddsbeløp = beregning.overTilskuddsbeløp
+    val over5g = beregning.overFemGrunnbeløp == true
+    val tidligereUtbetalt = beregning.tidligereUtbetalt
+    val harMinusbeløp = minusbeløp != 0
+
+    // Uten minusbeløp er det 5G-linjen som forklarer resultatet, og avtalt beløp blir et mellomledd
+    // som ikke tilfører noe. Med minusbeløp trengs avtalt beløp som grunnlag for fratrekket.
+    val femGErstatterAvtaltBeløp = over5g && !harMinusbeløp
+
+    // Samme grunnlag som Refusjonsberegner bruker: er beregnet beløp kappet til avtalt tilskudd,
+    // er det tilskuddsbeløpet minusbeløpet trekkes fra.
+    val beløpFørMinustrekk = if (overTilskuddsbeløp) tilskuddsbeløp else beregning.beregnetBeløp
+
+    return Utregningsgruppe(
+        listOfNotNull(
+            BEREGNET_BELOP erLik beregning.beregnetBeløp.kroner
+                    utgårHvis (overTilskuddsbeløp || femGErstatterAvtaltBeløp),
+            if (overTilskuddsbeløp && !femGErstatterAvtaltBeløp)
+                AVTALT_BELOP tilsvarer tilskuddsbeløp.kroner
+            else null,
+            if (harMinusbeløp)
+                RESTERENDE_FRATREKK_FOR_FERIE_FRA_TIDLIGERE_REFUSJONER pluss minusbeløp.kroner
+            else null,
+            if (over5g && harMinusbeløp)
+                (BEREGNET_BELOP_ETTER_RESTTREKK erLik (beløpFørMinustrekk + minusbeløp).kroner).utgår()
+            else null,
+            if (over5g)
+                AVTALT_BELOP_REST_5G tilsvarer (beregning.refusjonsbeløp + tidligereUtbetalt).kroner
+            else null,
+            if (tidligereUtbetalt != 0)
+                TIDLIGERE_UTBETALT minus tidligereUtbetalt.kroner
+            else null
+        )
     )
 }

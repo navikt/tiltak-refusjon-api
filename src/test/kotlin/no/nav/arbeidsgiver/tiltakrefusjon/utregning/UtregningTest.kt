@@ -50,13 +50,13 @@ class UtregningTest {
         val forventetResultat = utregning(
             gruppe(
                 BRUTTOLONN_I_PERIODEN tilsvarer 7777.kroner,
-                FERIEPENGER medSats 0.12.prosent pluss 933.kroner,
-                OBLIGATORISK_TJENESTEPENSJON medSats 0.02.prosent pluss 174.kroner,
-                ARBEIDSGIVERAVGIFT medSats 0.141.prosent pluss 1253.kroner
+                FERIEPENGER pluss 933.kroner medSats 0.12.prosent,
+                OBLIGATORISK_TJENESTEPENSJON pluss 174.kroner medSats 0.02.prosent,
+                ARBEIDSGIVERAVGIFT pluss 1253.kroner medSats 0.141.prosent
             ),
             gruppe(
                 REFUSJONSGRUNNLAG erLik 10137.kroner,
-                TILSKUDDSPROSENT multiplisert 0.4.prosent
+                TILSKUDDSPROSENT multiplisertMed 0.4.prosent
             ),
             gruppe(
                 REFUSJONSBELØP_TIL_UTBETALING erLik 4055.kroner,
@@ -97,17 +97,17 @@ class UtregningTest {
         val forventetResultat = utregning(
             gruppe(
                 BRUTTOLONN_I_PERIODEN tilsvarer 300_000.kroner,
-                FERIEPENGER medSats 0.12.prosent pluss 36_000.kroner,
-                OBLIGATORISK_TJENESTEPENSJON medSats 0.02.prosent pluss 6_720.kroner,
-                ARBEIDSGIVERAVGIFT medSats 0.141.prosent pluss 48_324.kroner
+                FERIEPENGER pluss 36_000.kroner medSats 0.12.prosent,
+                OBLIGATORISK_TJENESTEPENSJON pluss 6_720.kroner medSats 0.02.prosent,
+                ARBEIDSGIVERAVGIFT pluss 48_324.kroner medSats 0.141.prosent
             ),
             gruppe(
                 REFUSJONSGRUNNLAG erLik 391_044.kroner,
-                TILSKUDDSPROSENT multiplisert 0.4.prosent
+                TILSKUDDSPROSENT multiplisertMed 0.4.prosent
 
             ),
             gruppe(
-                (BEREGNET_BELOP erLik 156_417.kroner).apply { this.utgårHvis(true) },
+                BEREGNET_BELOP erLik 156_417.kroner utgårHvis true,
                 AVTALT_BELOP tilsvarer 13_579.kroner
             ),
             gruppe(
@@ -155,10 +155,10 @@ class UtregningTest {
 
         val forventetResultat = utregning(
             gruppe(
-                TIMELONN_X_TIMER medSats Timelonn(7.5, 500) tilsvarer 3750.kroner,
-                FERIEPENGER medSats 0.12.prosent pluss 450.kroner,
-                OBLIGATORISK_TJENESTEPENSJON medSats 0.02.prosent pluss 84.kroner,
-                ARBEIDSGIVERAVGIFT medSats 0.141.prosent pluss 604.kroner
+                TIMELONN_X_TIMER tilsvarer 3750.kroner medSats Timelonn(7.5, 500),
+                FERIEPENGER pluss 450.kroner medSats 0.12.prosent,
+                OBLIGATORISK_TJENESTEPENSJON pluss 84.kroner medSats 0.02.prosent,
+                ARBEIDSGIVERAVGIFT pluss 604.kroner medSats 0.141.prosent
             ),
             gruppe(
                 REFUSJONSBELØP_TIL_UTBETALING erLik 4_888.kroner
@@ -183,10 +183,10 @@ class UtregningTest {
 
         val forventetResultat = utregning(
             gruppe(
-                TIMELONN_X_TIMER medSats Timelonn(7.5, 500) tilsvarer 3750.kroner,
-                FERIEPENGER medSats 0.12.prosent pluss 450.kroner,
-                OBLIGATORISK_TJENESTEPENSJON medSats 0.02.prosent pluss 84.kroner,
-                ARBEIDSGIVERAVGIFT medSats 0.141.prosent pluss 604.kroner
+                TIMELONN_X_TIMER tilsvarer 3750.kroner medSats Timelonn(7.5, 500),
+                FERIEPENGER pluss 450.kroner medSats 0.12.prosent,
+                OBLIGATORISK_TJENESTEPENSJON pluss 84.kroner medSats 0.02.prosent,
+                ARBEIDSGIVERAVGIFT pluss 604.kroner medSats 0.141.prosent
             ),
             gruppe(
                 SUM_TILSKUDD_FOR_EN_MND erLik 4888.kroner,
@@ -261,17 +261,17 @@ class UtregningTest {
         val forventetResultat = utregning(
             gruppe(
                 BRUTTOLONN_I_PERIODEN tilsvarer 300_000.kroner,
-                FERIEPENGER medSats 0.12.prosent pluss 36_000.kroner,
-                OBLIGATORISK_TJENESTEPENSJON medSats 0.02.prosent pluss 6_720.kroner,
-                ARBEIDSGIVERAVGIFT medSats 0.141.prosent pluss 48_324.kroner
+                FERIEPENGER pluss 36_000.kroner medSats 0.12.prosent,
+                OBLIGATORISK_TJENESTEPENSJON pluss 6_720.kroner medSats 0.02.prosent,
+                ARBEIDSGIVERAVGIFT pluss 48_324.kroner medSats 0.141.prosent
             ),
             gruppe(
                 REFUSJONSGRUNNLAG erLik 391_044.kroner,
-                TILSKUDDSPROSENT multiplisert 0.4.prosent
+                TILSKUDDSPROSENT multiplisertMed 0.4.prosent
 
             ),
             gruppe(
-                (BEREGNET_BELOP erLik 156_417.kroner).apply { this.utgårHvis(true) },
+                BEREGNET_BELOP erLik 156_417.kroner utgårHvis true,
                 AVTALT_BELOP tilsvarer 13_579.kroner,
                 TIDLIGERE_UTBETALT minus 13_579.kroner
             ),
@@ -321,18 +321,18 @@ class UtregningTest {
             gruppe(
                 BRUTTOLONN_I_PERIODEN tilsvarer 22_423.kroner,
                 FERIETREKK minus 1_200.kroner,
-                FERIEPENGER medSats 0.12.prosent pluss 2_547.kroner,
-                OBLIGATORISK_TJENESTEPENSJON medSats 0.02.prosent pluss 475.kroner,
-                ARBEIDSGIVERAVGIFT medSats 0.141.prosent pluss 3_419.kroner
+                FERIEPENGER pluss 2_547.kroner medSats 0.12.prosent,
+                OBLIGATORISK_TJENESTEPENSJON pluss 475.kroner medSats 0.02.prosent,
+                ARBEIDSGIVERAVGIFT pluss 3_419.kroner medSats 0.141.prosent
             ),
             gruppe(
                 REFUSJONSGRUNNLAG erLik 27_664.kroner,
-                TILSKUDDSPROSENT multiplisert 0.4.prosent
+                TILSKUDDSPROSENT multiplisertMed 0.4.prosent
             ),
             gruppe(
                 BEREGNET_BELOP erLik 11_065.kroner,
                 RESTERENDE_FRATREKK_FOR_FERIE_FRA_TIDLIGERE_REFUSJONER minus 5_000.kroner,
-                (BEREGNET_BELOP_ETTER_RESTTREKK erLik 6_065.kroner).apply {utgår = true },
+                (BEREGNET_BELOP_ETTER_RESTTREKK erLik 6_065.kroner).utgår(),
                 AVTALT_BELOP_REST_5G tilsvarer 2_000.kroner
             ),
             gruppe(
@@ -357,18 +357,112 @@ class UtregningTest {
             gruppe(
                 BRUTTOLONN_I_PERIODEN tilsvarer 22_423.kroner,
                 FERIETREKK minus 1_200.kroner,
-                FERIEPENGER medSats 0.12.prosent pluss 2_547.kroner,
-                OBLIGATORISK_TJENESTEPENSJON medSats 0.02.prosent pluss 475.kroner,
-                ARBEIDSGIVERAVGIFT medSats 0.141.prosent pluss 3_419.kroner
+                FERIEPENGER pluss 2_547.kroner medSats 0.12.prosent,
+                OBLIGATORISK_TJENESTEPENSJON pluss 475.kroner medSats 0.02.prosent,
+                ARBEIDSGIVERAVGIFT pluss 3_419.kroner medSats 0.141.prosent
             ),
             gruppe(
                 REFUSJONSGRUNNLAG erLik 27_664.kroner,
-                TILSKUDDSPROSENT multiplisert 0.4.prosent
+                TILSKUDDSPROSENT multiplisertMed 0.4.prosent
             ),
             gruppe(
                 BEREGNET_BELOP erLik 11_065.kroner,
                 RESTERENDE_FRATREKK_FOR_FERIE_FRA_TIDLIGERE_REFUSJONER minus 5_000.kroner,
-                (BEREGNET_BELOP_ETTER_RESTTREKK erLik 6_065.kroner).apply {utgår = true },
+                (BEREGNET_BELOP_ETTER_RESTTREKK erLik 6_065.kroner).utgår(),
+                AVTALT_BELOP_REST_5G tilsvarer 2_000.kroner,
+                TIDLIGERE_UTBETALT minus 2_000.kroner
+            ),
+            gruppe(
+                REFUSJONSBELØP_TIL_UTBETALING erLik 0.kroner
+            )
+        )
+
+        assertEquals(forventetKorreksjonsresultat, Utregning.from(korreksjonsutkast))
+    }
+
+    @Test
+    fun testUtenResterendeFratrekkOg5G() {
+        val mnd = Now.yearMonth()
+        val inntektsgrunnlag = Inntektsgrunnlag(
+            inntekter = listOf(
+                Inntektslinje(
+                    inntektType = "LOENNSINNTEKT",
+                    beskrivelse = "timeloenn",
+                    måned = Now.yearMonth(),
+                    beløp = 22_423.0,
+                    opptjeningsperiodeTom = null,
+                    opptjeningsperiodeFom = null,
+                    erOpptjentIPeriode = true
+                ),
+                Inntektslinje(
+                    inntektType = "LOENNSINNTEKT",
+                    beskrivelse = "trekkILoennForFerie",
+                    måned = Now.yearMonth().minusMonths(1),
+                    beløp = -1_200.0,
+                    opptjeningsperiodeTom = null,
+                    opptjeningsperiodeFom = null,
+                    erOpptjentIPeriode = true
+                )
+            ),
+            respons = ""
+        )
+
+        val refusjon = minusbelop5Gsen().medInntektsgrunnlag(mnd, inntektsgrunnlag)
+            .apply { this.refusjonsgrunnlag.forrigeRefusjonMinusBeløp = 0 }
+        refusjon.refusjonsgrunnlag.inntekterKunFraTiltaket = true
+        refusjon.refusjonsgrunnlag.beregning =
+            beregn(
+                enBeregningskontekst(), refusjon
+            )
+
+        val forventetResultat = utregning(
+            gruppe(
+                BRUTTOLONN_I_PERIODEN tilsvarer 22_423.kroner,
+                FERIETREKK minus 1_200.kroner,
+                FERIEPENGER pluss 2_547.kroner medSats 0.12.prosent,
+                OBLIGATORISK_TJENESTEPENSJON pluss 475.kroner medSats 0.02.prosent,
+                ARBEIDSGIVERAVGIFT pluss 3_419.kroner medSats 0.141.prosent
+            ),
+            gruppe(
+                REFUSJONSGRUNNLAG erLik 27_664.kroner,
+                TILSKUDDSPROSENT multiplisertMed 0.4.prosent
+            ),
+            gruppe(
+                BEREGNET_BELOP erLik 11_065.kroner utgårHvis true,
+                AVTALT_BELOP_REST_5G tilsvarer 2_000.kroner
+            ),
+            gruppe(
+                REFUSJONSBELØP_TIL_UTBETALING erLik 2_000.kroner
+            )
+        )
+
+        assertEquals(forventetResultat, Utregning.from(refusjon))
+
+        refusjon.status = RefusjonStatus.UTBETALT
+        val korreksjonsutkast = refusjon.opprettKorreksjonsutkast(
+            setOf(Korreksjonsgrunn.DELTAKER_HAR_IKKE_VÆRT_TILSTEDE_I_PERIODEN),
+            null,
+            refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
+            null
+        ).medInntektsgrunnlag(mnd, inntektsgrunnlag)
+
+        korreksjonsutkast.refusjonsgrunnlag.sumUtbetaltVarig = (alleGrunnbelopMap.floorEntry(Now.localDate()).component2() * 5) - 2_000
+        korreksjonsutkast.refusjonsgrunnlag.beregning = beregn(enBeregningskontekst(), korreksjonsutkast)
+
+        val forventetKorreksjonsresultat = utregning(
+            gruppe(
+                BRUTTOLONN_I_PERIODEN tilsvarer 22_423.kroner,
+                FERIETREKK minus 1_200.kroner,
+                FERIEPENGER pluss 2_547.kroner medSats 0.12.prosent,
+                OBLIGATORISK_TJENESTEPENSJON pluss 475.kroner medSats 0.02.prosent,
+                ARBEIDSGIVERAVGIFT pluss 3_419.kroner medSats 0.141.prosent
+            ),
+            gruppe(
+                REFUSJONSGRUNNLAG erLik 27_664.kroner,
+                TILSKUDDSPROSENT multiplisertMed 0.4.prosent
+            ),
+            gruppe(
+                BEREGNET_BELOP erLik 11_065.kroner utgårHvis true,
                 AVTALT_BELOP_REST_5G tilsvarer 2_000.kroner,
                 TIDLIGERE_UTBETALT minus 2_000.kroner
             ),
@@ -387,47 +481,17 @@ private fun utregning(vararg grupper: Utregningsgruppe): Utregning = Utregning(
     grupper.toList()
 )
 
-private infix operator fun UtregningsradType.minus(kroner: Kroner): Utregningslinje =
-    Utregningslinje(this, kroner, Fortegn.MINUS)
-
-private infix fun UtregningsradType.multiplisert(prosent: Prosent): Utregningslinje =
-    Utregningslinje(this, prosent, fortegn = Fortegn.MULTIPLISER)
-
-private infix fun Utregningslinje.pluss(kroner: Kroner): Utregningslinje =
-    this.copy(fortegn = Fortegn.PLUSS, verdi = kroner)
-
-private infix fun UtregningsradType.medSats(prosent: Verdi) = Utregningslinje(this, 0.kroner, sats = prosent)
-
-private infix fun Utregningslinje.tilsvarer(kroner: Kroner) = this.copy(verdi = kroner)
-
-val negativInntekt = listOf(
-    Utregningsgruppe(
-        listOf(
-            Utregningslinje(BRUTTOLONN_I_PERIODEN, 1000.kroner),
-            Utregningslinje(FERIETREKK, 35000.kroner, Fortegn.MINUS),
-            Utregningslinje(
-                FERIEPENGER,
-                4080.kroner,
-                Fortegn.MINUS
-            ).medSats(0.12.prosent),
-            Utregningslinje(
-                OBLIGATORISK_TJENESTEPENSJON,
-                762.kroner,
-                Fortegn.MINUS
-            ).medSats(0.02.prosent),
-            Utregningslinje(ARBEIDSGIVERAVGIFT, 5477.kroner, Fortegn.MINUS).medSats(
-                0.141.prosent
-            )
-        )
-    ), Utregningsgruppe(
-        listOf(
-            Utregningslinje(REFUSJONSGRUNNLAG, (-44318).kroner, Fortegn.ER_LIK),
-            Utregningslinje(
-                TILSKUDDSPROSENT,
-                verdi = 0.4.prosent,
-                fortegn = Fortegn.MULTIPLISER
-            )
-        )
+private val negativInntekt = listOf(
+    gruppe(
+        BRUTTOLONN_I_PERIODEN tilsvarer 1000.kroner,
+        FERIETREKK minus 35_000.kroner,
+        FERIEPENGER minus 4080.kroner medSats 0.12.prosent,
+        OBLIGATORISK_TJENESTEPENSJON minus 762.kroner medSats 0.02.prosent,
+        ARBEIDSGIVERAVGIFT minus 5477.kroner medSats 0.141.prosent
+    ),
+    gruppe(
+        REFUSJONSGRUNNLAG erLik (-44318).kroner,
+        TILSKUDDSPROSENT multiplisertMed 0.4.prosent
     )
 )
 

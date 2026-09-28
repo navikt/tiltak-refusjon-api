@@ -353,7 +353,7 @@ class UtregningTest {
             null
         ).medInntektsgrunnlag(mnd, inntektsgrunnlag)
 
-        korreksjonsutkast.refusjonsgrunnlag.sumUtbetaltVarig = (alleGrunnbelopMap.floorEntry(Now.localDate()).component2() * 5) - 2_000
+        korreksjonsutkast.refusjonsgrunnlag.sumUtbetaltVarig = (alleGrunnbelopMap.floorEntry(mnd.atDay(1)).component2() * 5) - 2_000
         korreksjonsutkast.refusjonsgrunnlag.beregning = beregn(enBeregningskontekst(), korreksjonsutkast)
 
         val forventetKorreksjonsresultat = utregning(

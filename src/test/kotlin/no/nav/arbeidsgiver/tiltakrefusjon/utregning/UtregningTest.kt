@@ -1,19 +1,17 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.utregning
 
 import no.nav.arbeidsgiver.tiltakrefusjon.alleGrunnbelopMap
-import no.nav.arbeidsgiver.tiltakrefusjon.enBeregningskontekst
 import no.nav.arbeidsgiver.tiltakrefusjon.enRefusjon
-import no.nav.arbeidsgiver.tiltakrefusjon.etInntektsgrunnlag
 import no.nav.arbeidsgiver.tiltakrefusjon.etTilskuddsgrunnlag
-import no.nav.arbeidsgiver.tiltakrefusjon.medInntektsgrunnlag
-import no.nav.arbeidsgiver.tiltakrefusjon.minusbelop5Gsen
+import no.nav.arbeidsgiver.tiltakrefusjon.medBeregning
+import no.nav.arbeidsgiver.tiltakrefusjon.medInntekterKunFraTiltaket
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Inntektsgrunnlag
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Inntektslinje
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Korreksjonsgrunn
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refundering
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonStatus
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.beregn
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.utregning.Maksbeløp.AVTALT_TILSKUDD
 import no.nav.arbeidsgiver.tiltakrefusjon.utregning.Maksbeløp.FEM_GRUNNBELOP
@@ -41,13 +39,11 @@ import org.junit.jupiter.api.assertNull
 class UtregningTest {
     @Test
     fun `en utregning med positivt resultat`() {
-        val refusjon = enRefusjon(etTilskuddsgrunnlag(tiltakstype = Tiltakstype.SOMMERJOBB))
-            .medInntektsgrunnlag(Now.yearMonth(), etInntektsgrunnlag(Now.yearMonth(), true))
-        refusjon.refusjonsgrunnlag.inntekterKunFraTiltaket = true
-        refusjon.refusjonsgrunnlag.beregning =
-            beregn(
-                enBeregningskontekst(), refusjon
-            )
+        val refusjon = refusjon(
+            tiltakstype = Tiltakstype.SOMMERJOBB
+        )
+            .medInntekter(7777)
+            .medBeregning()
 
         val forventetResultat = utregning(
             gruppe(
@@ -73,28 +69,11 @@ class UtregningTest {
 
     @Test
     fun `en over tilskuddsbelop`() {
-        val refusjon = enRefusjon(etTilskuddsgrunnlag(tiltakstype = Tiltakstype.SOMMERJOBB))
-            .medInntektsgrunnlag(
-                Now.yearMonth(), Inntektsgrunnlag(
-                    inntekter = listOf(
-                        Inntektslinje(
-                            inntektType = "LOENNSINNTEKT",
-                            beskrivelse = "timeloenn",
-                            måned = Now.yearMonth(),
-                            beløp = 300000.0,
-                            opptjeningsperiodeTom = null,
-                            opptjeningsperiodeFom = null,
-                            erOpptjentIPeriode = true
-                        )
-                    ),
-                    respons = ""
-                )
-            )
-        refusjon.refusjonsgrunnlag.inntekterKunFraTiltaket = true
-        refusjon.refusjonsgrunnlag.beregning =
-            beregn(
-                enBeregningskontekst(), refusjon
-            )
+        val refusjon = refusjon(
+            tilskuddsbelop = 13_579
+        )
+            .medInntekter(300_000)
+            .medBeregning()
 
         val forventetResultat = utregning(
             gruppe(
@@ -138,16 +117,12 @@ class UtregningTest {
                     )
         )
 
-        val refusjon = enRefusjon(etTilskuddsgrunnlag(tiltakstype = Tiltakstype.SOMMERJOBB))
-            .medInntektsgrunnlag(Now.yearMonth(), etInntektsgrunnlag(Now.yearMonth(), true))
-            .medFerietrekk()
-        refusjon.refusjonsgrunnlag.inntekterKunFraTiltaket = false
-        refusjon.refusjonsgrunnlag.endretBruttoLønn = 1000
-        refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp = -500
-        refusjon.refusjonsgrunnlag.beregning =
-            beregn(
-                enBeregningskontekst(), refusjon
-            )
+        val refusjon = refusjon()
+            .medInntekter(7777)
+            .medFerietrekk(35_000)
+            .medEndretBruttolonn(1000)
+            .medMinusbelop(500)
+            .medBeregning()
 
         assertEquals(forventetResultat, Utregning.from(refusjon))
     }
@@ -173,9 +148,7 @@ class UtregningTest {
                 mentorTimelonn = 500,
                 mentorAntallTimer = 7.5
             )
-        )
-        refusjon.refusjonsgrunnlag.beregning =
-            beregn(enBeregningskontekst(), refusjon)
+        ).medBeregning()
 
         assertEquals(forventetResultat, Utregning.from(refusjon))
     }
@@ -205,9 +178,7 @@ class UtregningTest {
                 mentorTimelonn = 500,
                 mentorAntallTimer = 7.5
             )
-        )
-        refusjon.refusjonsgrunnlag.beregning =
-            beregn(enBeregningskontekst(), refusjon)
+        ).medBeregning()
 
         assertEquals(forventetResultat, Utregning.from(refusjon))
     }
@@ -218,37 +189,18 @@ class UtregningTest {
             etTilskuddsgrunnlag(tiltakstype = Tiltakstype.VTAO).copy(
                 tilskuddsbeløp = 4000
             )
-        )
-        refusjon.refusjonsgrunnlag.beregning =
-            beregn(enBeregningskontekst(), refusjon)
+        ).medBeregning()
 
         assertNull(Utregning.from(refusjon))
     }
 
     @Test
     fun `en korreksjonsutregning`() {
-        val mnd = Now.yearMonth()
-        val inntektsgrunnlag = Inntektsgrunnlag(
-            inntekter = listOf(
-                Inntektslinje(
-                    inntektType = "LOENNSINNTEKT",
-                    beskrivelse = "timeloenn",
-                    måned = Now.yearMonth(),
-                    beløp = 300000.0,
-                    opptjeningsperiodeTom = null,
-                    opptjeningsperiodeFom = null,
-                    erOpptjentIPeriode = true
-                )
-            ),
-            respons = ""
+        val refusjon = refusjon(
+            tilskuddsbelop = 13_579
         )
-        val refusjon = enRefusjon(etTilskuddsgrunnlag(tiltakstype = Tiltakstype.SOMMERJOBB))
-            .medInntektsgrunnlag(mnd, inntektsgrunnlag)
-        refusjon.refusjonsgrunnlag.inntekterKunFraTiltaket = true
-        refusjon.refusjonsgrunnlag.beregning =
-            beregn(
-                enBeregningskontekst(), refusjon
-            )
+            .medInntekter(300_000)
+            .medBeregning()
         refusjon.status = RefusjonStatus.UTBETALT
 
         val korreksjonsutkast = refusjon.opprettKorreksjonsutkast(
@@ -256,9 +208,9 @@ class UtregningTest {
             null,
             0,
             null
-        ).medInntektsgrunnlag(mnd, inntektsgrunnlag)
-
-        korreksjonsutkast.refusjonsgrunnlag.beregning = beregn(enBeregningskontekst(), korreksjonsutkast)
+        )
+            .medInntekter(300_000)
+            .medBeregning()
 
         val forventetResultat = utregning(
             gruppe(
@@ -287,37 +239,16 @@ class UtregningTest {
 
     @Test
     fun testMedResterendeFratrekkOg5G() {
-        val mnd = Now.yearMonth()
-        val inntektsgrunnlag = Inntektsgrunnlag(
-            inntekter = listOf(
-                Inntektslinje(
-                    inntektType = "LOENNSINNTEKT",
-                    beskrivelse = "timeloenn",
-                    måned = Now.yearMonth(),
-                    beløp = 150000.0,
-                    opptjeningsperiodeTom = null,
-                    opptjeningsperiodeFom = null,
-                    erOpptjentIPeriode = true
-                ),
-                Inntektslinje(
-                    inntektType = "LOENNSINNTEKT",
-                    beskrivelse = "trekkILoennForFerie",
-                    måned = Now.yearMonth().minusMonths(1),
-                    beløp = -1_200.0,
-                    opptjeningsperiodeTom = null,
-                    opptjeningsperiodeFom = null,
-                    erOpptjentIPeriode = true
-                )
-            ),
-            respons = ""
+        val totaltUtbetaltForTiltaket = (alleGrunnbelopMap.floorEntry(Now.localDate()).component2() * 5) - 2_000
+        val refusjon = refusjon(
+            tiltakstype = Tiltakstype.VARIG_LONNSTILSKUDD,
+            tilskuddsbelop = 55000
         )
-
-        val refusjon = minusbelop5Gsen().medInntektsgrunnlag(mnd, inntektsgrunnlag)
-        refusjon.refusjonsgrunnlag.inntekterKunFraTiltaket = true
-        refusjon.refusjonsgrunnlag.beregning =
-            beregn(
-                enBeregningskontekst(), refusjon
-            )
+            .medInntekter(150_000)
+            .medFerietrekk(1_200)
+            .medMinusbelop(5_000)
+            .medTotaltUtbetaltForTiltak(totaltUtbetaltForTiltaket)
+            .medBeregning()
 
         val forventetResultat = utregning(
             gruppe(
@@ -351,10 +282,11 @@ class UtregningTest {
             null,
             refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
             null
-        ).medInntektsgrunnlag(mnd, inntektsgrunnlag)
-
-        korreksjonsutkast.refusjonsgrunnlag.sumUtbetaltVarig = (alleGrunnbelopMap.floorEntry(mnd.atDay(1)).component2() * 5) - 2_000
-        korreksjonsutkast.refusjonsgrunnlag.beregning = beregn(enBeregningskontekst(), korreksjonsutkast)
+        )
+            .medInntekter(150_000)
+            .medFerietrekk(1_200)
+            .medTotaltUtbetaltForTiltak(totaltUtbetaltForTiltaket)
+            .medBeregning()
 
         val forventetKorreksjonsresultat = utregning(
             gruppe(
@@ -386,38 +318,15 @@ class UtregningTest {
 
     @Test
     fun testUtenResterendeFratrekkOg5G() {
-        val mnd = Now.yearMonth()
-        val inntektsgrunnlag = Inntektsgrunnlag(
-            inntekter = listOf(
-                Inntektslinje(
-                    inntektType = "LOENNSINNTEKT",
-                    beskrivelse = "timeloenn",
-                    måned = Now.yearMonth(),
-                    beløp = 150_000.0,
-                    opptjeningsperiodeTom = null,
-                    opptjeningsperiodeFom = null,
-                    erOpptjentIPeriode = true
-                ),
-                Inntektslinje(
-                    inntektType = "LOENNSINNTEKT",
-                    beskrivelse = "trekkILoennForFerie",
-                    måned = Now.yearMonth().minusMonths(1),
-                    beløp = -1_200.0,
-                    opptjeningsperiodeTom = null,
-                    opptjeningsperiodeFom = null,
-                    erOpptjentIPeriode = true
-                )
-            ),
-            respons = ""
+        val totaltUtbetaltForTiltaket = (alleGrunnbelopMap.floorEntry(Now.localDate()).component2() * 5) - 2_000
+        val refusjon = refusjon(
+            tiltakstype = Tiltakstype.VARIG_LONNSTILSKUDD,
+            tilskuddsbelop = 55000
         )
-
-        val refusjon = minusbelop5Gsen().medInntektsgrunnlag(mnd, inntektsgrunnlag)
-            .apply { this.refusjonsgrunnlag.forrigeRefusjonMinusBeløp = 0 }
-        refusjon.refusjonsgrunnlag.inntekterKunFraTiltaket = true
-        refusjon.refusjonsgrunnlag.beregning =
-            beregn(
-                enBeregningskontekst(), refusjon
-            )
+            .medInntekter(150_000)
+            .medFerietrekk(1_200)
+            .medTotaltUtbetaltForTiltak(totaltUtbetaltForTiltaket)
+            .medBeregning()
 
         val forventetResultat = utregning(
             gruppe(
@@ -448,10 +357,11 @@ class UtregningTest {
             null,
             refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
             null
-        ).medInntektsgrunnlag(mnd, inntektsgrunnlag)
-
-        korreksjonsutkast.refusjonsgrunnlag.sumUtbetaltVarig = (alleGrunnbelopMap.floorEntry(Now.localDate()).component2() * 5) - 2_000
-        korreksjonsutkast.refusjonsgrunnlag.beregning = beregn(enBeregningskontekst(), korreksjonsutkast)
+        )
+            .medInntekter(150_000)
+            .medFerietrekk(1_200)
+            .medTotaltUtbetaltForTiltak(totaltUtbetaltForTiltaket)
+            .medBeregning()
 
         val forventetKorreksjonsresultat = utregning(
             gruppe(
@@ -499,17 +409,62 @@ private val negativInntekt = listOf(
     )
 )
 
-fun Refundering.medFerietrekk(): Refundering {
+
+fun refusjon(tiltakstype: Tiltakstype = Tiltakstype.SOMMERJOBB, tilskuddsbelop: Int = 10_000): Refusjon {
+    val tilskuddsgrunnlag = etTilskuddsgrunnlag().copy(
+        tiltakstype = tiltakstype,
+        tilskuddsbeløp = tilskuddsbelop
+    )
+    return enRefusjon(tilskuddsgrunnlag)
+        .medInntekterKunFraTiltaket()
+}
+
+
+fun <T : Refundering> T.medInntekter(belop: Number): T {
+    this.refusjonsgrunnlag.inntektsgrunnlag = Inntektsgrunnlag(
+        inntekter = listOf(
+            Inntektslinje(
+                inntektType = "LOENNSINNTEKT",
+                beskrivelse = "timeloenn",
+                måned = Now.yearMonth(),
+                beløp = belop.toDouble(),
+                opptjeningsperiodeTom = null,
+                opptjeningsperiodeFom = null,
+                erOpptjentIPeriode = true
+            )
+        ),
+        respons = ""
+    )
+    return this
+}
+
+fun <T : Refundering> T.medEndretBruttolonn(belop: Number): T {
+    this.refusjonsgrunnlag.inntekterKunFraTiltaket = false
+    this.refusjonsgrunnlag.endretBruttoLønn = belop.toInt()
+    return this
+}
+
+fun <T : Refundering> T.medMinusbelop(belop: Number): T {
+    this.refusjonsgrunnlag.forrigeRefusjonMinusBeløp = belop.toInt() * -1
+    return this
+}
+
+fun <T : Refundering> T.medFerietrekk(belop: Number): T {
     this.refusjonsgrunnlag.inntektsgrunnlag?.inntekter += listOf(
         Inntektslinje(
             inntektType = "LOENNSINNTEKT",
             beskrivelse = "trekkILoennForFerie",
             måned = Now.yearMonth().minusMonths(1),
-            beløp = -35000.0,
+            beløp = -belop.toDouble(),
             opptjeningsperiodeTom = Now.localDate(),
             opptjeningsperiodeFom = Now.localDate(),
             erOpptjentIPeriode = true
         )
     )
+    return this
+}
+
+fun <T : Refundering> T.medTotaltUtbetaltForTiltak(belop: Number): T {
+    this.refusjonsgrunnlag.sumUtbetaltVarig = belop.toInt()
     return this
 }

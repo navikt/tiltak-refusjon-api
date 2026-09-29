@@ -63,11 +63,11 @@ private fun mentorBeregning(tilskuddsgrunnlag: Tilskuddsgrunnlag): Beregning {
 }
 
 fun beregnRefusjonsbeløp(
-    inntekter: List<Inntektslinje>,
+    inntekter: Collection<Inntektslinje>,
     tilskuddsgrunnlag: Tilskuddsgrunnlag,
     tidligereUtbetalt: Int,
     korrigertBruttoLønn: Int? = null,
-    fratrekkRefunderbarSum: Int? = null,
+    fratrekkRefunderbarBeløp: Int = 0,
     forrigeRefusjonMinusBeløp: Int = 0,
     tilskuddFom: LocalDate,
     sumUtbetaltVarig: Int = 0,
@@ -82,7 +82,6 @@ fun beregnRefusjonsbeløp(
         tilskuddFom,
         ekstraFerietrekk
     ).roundToInt()
-    val fratrekkRefunderbarBeløp = fratrekkRefunderbarSum ?: 0
     val lønnFratrukketFerie = lønn + trekkgrunnlagFerie
     val feriepenger = lønnFratrukketFerie * tilskuddsgrunnlag.feriepengerSats
     val tjenestepensjon = (lønnFratrukketFerie + feriepenger) * tilskuddsgrunnlag.otpSats
@@ -146,7 +145,7 @@ fun beregnRefusjon(beregningskontekst: Beregningskontekst, refusjon: Refusjon) =
 fun beregnKorreksjon(beregningskontekst: Beregningskontekst, korreksjon: Korreksjon) =
     beregn(beregningskontekst, korreksjon)
 
-private fun beregn(beregningskontekst: Beregningskontekst, refundering: Refundering): Beregning? {
+fun beregn(beregningskontekst: Beregningskontekst, refundering: Refundering): Beregning? {
     if (!refundering.refusjonsgrunnlag.harTilstrekkeligInformasjonForBeregning()) {
         return null
     }
@@ -166,11 +165,11 @@ private fun beregn(beregningskontekst: Beregningskontekst, refundering: Refunder
         }
 
         Tiltakstype.SOMMERJOBB, Tiltakstype.VARIG_LONNSTILSKUDD, Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD, Tiltakstype.FIREARIG_LONNSTILSKUDD -> beregnRefusjonsbeløp(
-            inntekter = refundering.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.toList() ?: emptyList(),
+            inntekter = refundering.refusjonsgrunnlag.inntektsgrunnlag?.inntekter ?: emptyList(),
             tilskuddsgrunnlag = refundering.refusjonsgrunnlag.tilskuddsgrunnlag,
             tidligereUtbetalt = refundering.refusjonsgrunnlag.tidligereUtbetalt,
             korrigertBruttoLønn = refundering.refusjonsgrunnlag.endretBruttoLønn,
-            fratrekkRefunderbarSum = refundering.refusjonsgrunnlag.refunderbarBeløp,
+            fratrekkRefunderbarBeløp = refundering.refusjonsgrunnlag.refunderbarBeløp ?: 0,
             forrigeRefusjonMinusBeløp = refundering.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
             tilskuddFom = refundering.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
             sumUtbetaltVarig = refundering.refusjonsgrunnlag.sumUtbetaltVarig,
@@ -182,7 +181,7 @@ private fun beregn(beregningskontekst: Beregningskontekst, refundering: Refunder
 
 
 fun leggSammenTrekkGrunnlag(
-    inntekter: List<Inntektslinje>,
+    inntekter: Collection<Inntektslinje>,
     tilskuddFom: LocalDate,
     ekstraFerietrekk: Int? = null
 ): Double {
@@ -195,7 +194,7 @@ fun leggSammenTrekkGrunnlag(
 }
 
 fun kalkulerBruttoLønn(
-    inntekter: List<Inntektslinje>,
+    inntekter: Collection<Inntektslinje>,
 ): Double =
     inntekter.filter { it.erMedIInntektsgrunnlag() && it.erOpptjentIPeriode != null && it.erOpptjentIPeriode!! }
         .sumOf { it.beløp }

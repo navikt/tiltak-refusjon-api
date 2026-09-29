@@ -31,6 +31,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.MidlerFrigjortÅrsak
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.antallMånederEtter
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.ulid
+import no.nav.arbeidsgiver.tiltakrefusjon.utregning.Utregning
 import org.springframework.data.domain.AbstractAggregateRoot
 import java.time.Instant
 import java.time.LocalDate
@@ -110,6 +111,9 @@ class Refusjon(
     @JsonProperty
     fun måTaStillingTilInntekter(): Boolean =
         !this.tiltakstype().harFastUtbetalingssum()
+
+    @JsonProperty
+    fun utregning() = Utregning.from(this)
 
     override fun tiltakstype(): Tiltakstype = refusjonsgrunnlag.tilskuddsgrunnlag.tiltakstype
 
@@ -339,6 +343,7 @@ class Refusjon(
     fun opprettKorreksjonsutkast(
         korreksjonsgrunner: Set<Korreksjonsgrunn>,
         unntakOmInntekterFremitid: Int?,
+        minusbeløpFraRefusjonen: Int,
         annenGrunn: String?
     ): Korreksjon {
         krevStatus(
@@ -366,6 +371,7 @@ class Refusjon(
             unntakOmInntekterFremitid = unntakOmInntekterFremitid,
             annenGrunn = annenGrunn
         )
+        korreksjonsutkast.refusjonsgrunnlag.forrigeRefusjonMinusBeløp = minusbeløpFraRefusjonen
         this.korreksjonId = korreksjonsutkast.id
         return korreksjonsutkast
     }

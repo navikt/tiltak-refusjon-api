@@ -289,7 +289,7 @@ data class InnloggetSaksbehandler(
             tilskuddsgrunnlag = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag,
             tidligereUtbetalt = 0,
             korrigertBruttoLønn = refusjon.refusjonsgrunnlag.endretBruttoLønn,
-            fratrekkRefunderbarSum = refusjon.refusjonsgrunnlag.refunderbarBeløp,
+            fratrekkRefunderbarBeløp = refusjon.refusjonsgrunnlag.refunderbarBeløp ?: 0,
             forrigeRefusjonMinusBeløp = minusBeløp,
             tilskuddFom = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
             harFerietrekkForSammeMåned = harFerietrekkForSammeMåned,

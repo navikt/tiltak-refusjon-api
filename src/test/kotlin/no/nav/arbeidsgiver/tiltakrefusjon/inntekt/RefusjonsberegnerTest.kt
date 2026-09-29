@@ -130,7 +130,7 @@ class RefusjonsberegnerTest {
             tilskuddsgrunnlagSommerJobb,
             0,
             null,
-            null,
+            0,
             tilskuddFom = LocalDate.of(2023,6,1),
             harFerietrekkForSammeMåned = false,
             beregningskontekst = enBeregningskontekst()

@@ -366,6 +366,7 @@ class Refusjon(
             unntakOmInntekterFremitid = unntakOmInntekterFremitid,
             annenGrunn = annenGrunn
         )
+        korreksjonsutkast.refusjonsgrunnlag.forrigeRefusjonMinusBeløp = this.refusjonsgrunnlag.forrigeRefusjonMinusBeløp
         this.korreksjonId = korreksjonsutkast.id
         return korreksjonsutkast
     }

@@ -9,6 +9,10 @@
         "status": 200,
         "jsonBody": [
           {
+            "dato": "2026-05-01",
+            "grunnbeløp": 136549
+          },
+          {
             "dato": "2025-05-01",
             "grunnbeløp": 130160,
             "grunnbeløpPerMåned": 10847,

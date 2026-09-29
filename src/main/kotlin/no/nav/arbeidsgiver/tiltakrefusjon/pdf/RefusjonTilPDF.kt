@@ -1,6 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.pdf
 
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
+import no.nav.arbeidsgiver.tiltakrefusjon.utregning.Utregning
 
 data class RefusjonTilPDF(
     val type: Tiltakstype,
@@ -39,7 +40,7 @@ data class RefusjonTilPDF(
     val sumUtgifterFratrukketRefundertBeløp: Int,
     val mentorTimelonn: Int?,
     val mentorAntallTimer: Double?,
-    val reduksjonForDelvisPeriode: Int?
-
+    val reduksjonForDelvisPeriode: Int?,
+    val utregning: Utregning?
 )
 

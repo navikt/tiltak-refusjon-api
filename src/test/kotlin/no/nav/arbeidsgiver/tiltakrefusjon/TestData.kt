@@ -5,11 +5,12 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Beregningskontekst
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.BrukerRolle
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Inntektsgrunnlag
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Inntektslinje
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refundering
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonStatus
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tilskuddsgrunnlag
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.beregnRefusjon
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.beregn
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.ulid
 import no.nav.arbeidsgiver.tiltakrefusjon.varsling.VarselType
@@ -31,6 +32,7 @@ val alleGrunnbelopMap = mapOf<LocalDate, Int>(
     LocalDate.of(2023, 5, 1) to 118620,
     LocalDate.of(2024, 5, 1) to 124028,
     LocalDate.of(2025, 5, 1) to 130160,
+    LocalDate.of(2026, 5, 1) to 136549
 ).toMap(TreeMap())
 
 fun enBeregningskontekst() = Beregningskontekst(
@@ -1055,9 +1057,9 @@ fun Refusjon.medInntektsgrunnlag(
     return this
 }
 
-fun Refusjon.medBeregning(
-): Refusjon {
-    this.refusjonsgrunnlag.beregning = beregnRefusjon(enBeregningskontekst(), this)
+fun <T : Refundering> T.medBeregning(
+): T {
+    this.refusjonsgrunnlag.beregning = beregn(enBeregningskontekst(), this)
     return this
 }
 

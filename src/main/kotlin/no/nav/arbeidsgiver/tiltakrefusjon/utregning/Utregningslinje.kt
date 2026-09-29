@@ -38,7 +38,7 @@ internal infix fun UtregningsradType.erLik(kroner: Kroner) = Utregningslinje(thi
 internal infix fun UtregningsradType.pluss(kroner: Kroner) =
     Utregningslinje(this, kroner.råverdi.absoluteValue.kroner, if (kroner.råverdi < 0) MINUS else PLUSS)
 
-/** Trekker fra et beløp. Linjen vises alltid med `-`, uavhengig av fortegnet til [kroner]. */
+/** Trekker fra et beløp. Linjen vises med `-` for positive beløp og `+` for negative beløp. */
 internal infix fun UtregningsradType.minus(kroner: Kroner) =
     Utregningslinje(this, kroner.råverdi.absoluteValue.kroner, if (kroner.råverdi >= 0) MINUS else PLUSS)
 

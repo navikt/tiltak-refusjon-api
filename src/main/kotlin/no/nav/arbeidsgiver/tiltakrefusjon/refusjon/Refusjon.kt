@@ -339,6 +339,7 @@ class Refusjon(
     fun opprettKorreksjonsutkast(
         korreksjonsgrunner: Set<Korreksjonsgrunn>,
         unntakOmInntekterFremitid: Int?,
+        minusbeløpFraRefusjonen: Int,
         annenGrunn: String?
     ): Korreksjon {
         krevStatus(
@@ -366,6 +367,7 @@ class Refusjon(
             unntakOmInntekterFremitid = unntakOmInntekterFremitid,
             annenGrunn = annenGrunn
         )
+        korreksjonsutkast.refusjonsgrunnlag.forrigeRefusjonMinusBeløp = minusbeløpFraRefusjonen
         this.korreksjonId = korreksjonsutkast.id
         return korreksjonsutkast
     }

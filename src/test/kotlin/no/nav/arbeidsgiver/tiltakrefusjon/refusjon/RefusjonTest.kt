@@ -330,7 +330,14 @@ internal class RefusjonTest {
     @Test
     internal fun `korreksjon av uriktig status`() {
         val refusjon = enRefusjon().medInntektsgrunnlag().medBedriftKontonummer()
-        assertFeilkode(Feilkode.UGYLDIG_STATUS) { refusjon.opprettKorreksjonsutkast(setOf(Korreksjonsgrunn.UTBETALT_HELE_TILSKUDDSBELØP), 1, annenGrunn = null) }
+        assertFeilkode(Feilkode.UGYLDIG_STATUS) {
+            refusjon.opprettKorreksjonsutkast(
+                setOf(Korreksjonsgrunn.UTBETALT_HELE_TILSKUDDSBELØP),
+                1,
+                0,
+                annenGrunn = null
+            )
+        }
     }
 
     @Test

@@ -146,7 +146,7 @@ fun beregnRefusjon(beregningskontekst: Beregningskontekst, refusjon: Refusjon) =
 fun beregnKorreksjon(beregningskontekst: Beregningskontekst, korreksjon: Korreksjon) =
     beregn(beregningskontekst, korreksjon)
 
-private fun beregn(beregningskontekst: Beregningskontekst, refundering: Refundering): Beregning? {
+fun beregn(beregningskontekst: Beregningskontekst, refundering: Refundering): Beregning? {
     if (!refundering.refusjonsgrunnlag.harTilstrekkeligInformasjonForBeregning()) {
         return null
     }

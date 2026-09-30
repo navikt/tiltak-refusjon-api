@@ -352,7 +352,12 @@ class RefusjonService(
         utfortAv: InnloggetBruker
     ): Korreksjon {
         val korreksjonsutkast =
-            refusjon.opprettKorreksjonsutkast(korreksjonsgrunner, unntakOmInntekterFremitid, annetGrunn)
+            refusjon.opprettKorreksjonsutkast(
+                korreksjonsgrunner,
+                unntakOmInntekterFremitid,
+                refusjon.refusjonsgrunnlag.forrigeRefusjonMinusBeløp,
+                annetGrunn
+            )
         korreksjonRepository.save(korreksjonsutkast)
         refusjonRepository.save(refusjon)
         oppdaterRefundering(korreksjonsutkast, utfortAv)

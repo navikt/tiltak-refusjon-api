@@ -59,3 +59,4 @@ fun <M : tools.jackson.databind.ObjectMapper, B : MapperBuilder<M, B>> B.medFell
     .accessorNaming(DefaultAccessorNamingStrategy.Provider().withFirstCharAcceptance(true, true))
     .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
     .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
+    .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)

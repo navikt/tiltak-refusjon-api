@@ -8,7 +8,7 @@ spring:
     bootstrap-servers: localhost:9092
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JacksonJsonSerializer
     consumer:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
@@ -52,7 +52,7 @@ tiltak-refusjon:
   inntektskomponenten:
     fake: true
   altinn-tilgangstyring:
-    arbeidsgiverAltinnTilgangerUri: http://localhost:${wiremock.server.port}/altinn-tilganger
+    arbeidsgiverAltinnTilgangerUri: http://127.0.0.1:${wiremock.server.port}/altinn-tilganger
     inntektsmeldingServiceCode: 4936
     inntektsmeldingServiceEdition: 1
     adressesperreServiceCode: 5516
@@ -68,7 +68,9 @@ tiltak-refusjon:
     fortrolig-adresse: 1a1d2745-952f-4a0f-839f-9530145b1d4a
     strengt-fortrolig-adresse: 1a1d2745-952f-4a0f-839f-9530145b1d4a
   pdl-api:
-    uri: http://localhost:${wiremock.server.port}/persondata
+    uri: http://127.0.0.1:${wiremock.server.port}/persondata
+  grunnbelop:
+    uri: http://127.0.0.1:${wiremock.server.port}/grunnbelop
   pdfgen:
     uri: http://localhost:9001/api/v1/genpdf
 server:

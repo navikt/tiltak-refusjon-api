@@ -1,86 +1,60 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.varsling
 
-
-import com.ninjasquad.springmockk.MockkBean
-import io.mockk.every
-import io.mockk.verify
-import no.nav.arbeidsgiver.tiltakrefusjon.Topics
 import no.nav.arbeidsgiver.tiltakrefusjon.enRefusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.enVarsling
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonRepository
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonStatus
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.kafka.core.KafkaTemplate
-import org.springframework.kafka.test.context.EmbeddedKafka
-import org.springframework.test.context.ActiveProfiles
+import org.mockito.kotlin.any
+import org.mockito.kotlin.argThat
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 
-
-@ActiveProfiles("local")
-@SpringBootTest(properties = ["tiltak-refusjon.kafka.enabled=true"])
-@EmbeddedKafka(partitions = 1, topics = [Topics.TILTAK_VARSEL])
 class VarslingJobbTest {
-
-    @MockkBean
-    lateinit var refusjonRepositoryMock: RefusjonRepository
-
-    @MockkBean
-    lateinit var varslingRepositoryMock: VarslingRepository
-
-    @Autowired
-    lateinit var kafkaTemplate: KafkaTemplate<String, RefusjonVarselMelding>
-
-
-    lateinit var refusjonVarselProducer: RefusjonVarselProducer
+    private val refusjonRepositoryMock = mock<RefusjonRepository>()
+    private val varslingRepositoryMock = mock<VarslingRepository>()
+    private val kafkaTemplate = mock<KafkaTemplate<String, RefusjonVarselMelding>>()
+    private lateinit var refusjonVarselProducer: RefusjonVarselProducer
 
     @BeforeEach
     fun init() {
         refusjonVarselProducer = RefusjonVarselProducer(kafkaTemplate, varslingRepositoryMock)
+        whenever(kafkaTemplate.send(any(), any(), any())).thenReturn(java.util.concurrent.CompletableFuture.completedFuture(mock()))
     }
 
     @Test
     fun `testing av at varsling ikke blir sendt`() {
-        val varslingJobb =
-            VarslingJobb(refusjonRepositoryMock, varslingRepositoryMock, refusjonVarselProducer)
-
+        val varslingJobb = VarslingJobb(refusjonRepositoryMock, varslingRepositoryMock, refusjonVarselProducer)
 
         val enRefusjon = enRefusjon()
         enRefusjon.status = RefusjonStatus.KLAR_FOR_INNSENDING
 
-
-        every { refusjonRepositoryMock.findAllByStatus(RefusjonStatus.KLAR_FOR_INNSENDING) } returns listOf(enRefusjon)
-
-        every { varslingRepositoryMock.findAllByRefusjonId(enRefusjon.id) } returns listOf(
+        whenever(refusjonRepositoryMock.findAllByStatus(RefusjonStatus.KLAR_FOR_INNSENDING)).thenReturn(listOf(enRefusjon))
+        whenever(varslingRepositoryMock.findAllByRefusjonId(enRefusjon.id)).thenReturn(listOf(
             enVarsling(),
             enVarsling(VarselType.REVARSEL)
-        )
+        ))
 
         varslingJobb.sjekkForVarslingKlar()
 
-        verify(exactly = 0) { varslingRepositoryMock.save(match { it.varselType == VarselType.KLAR }) }
-
+        org.mockito.Mockito.verify(varslingRepositoryMock, org.mockito.Mockito.never()).save(argThat { varselType == VarselType.KLAR })
     }
 
     @Test
     fun `testing av at varsling klar blir sendt`() {
-        val varslingJobb =
-            VarslingJobb(refusjonRepositoryMock, varslingRepositoryMock, refusjonVarselProducer)
+        val varslingJobb = VarslingJobb(refusjonRepositoryMock, varslingRepositoryMock, refusjonVarselProducer)
 
         val enRefusjon = enRefusjon()
         enRefusjon.status = RefusjonStatus.KLAR_FOR_INNSENDING
 
-
-        every { refusjonRepositoryMock.findAllByStatus(RefusjonStatus.KLAR_FOR_INNSENDING) } returns listOf(enRefusjon)
-
-
-        every { varslingRepositoryMock.findAllByRefusjonId(enRefusjon.id) } returns emptyList()
+        whenever(refusjonRepositoryMock.findAllByStatus(RefusjonStatus.KLAR_FOR_INNSENDING)).thenReturn(listOf(enRefusjon))
+        whenever(varslingRepositoryMock.findAllByRefusjonId(enRefusjon.id)).thenReturn(emptyList())
 
         varslingJobb.sjekkForVarslingKlar()
 
-        verify(timeout = 2000, exactly = 1) { varslingRepositoryMock.save(any()) }
-
+        verify(varslingRepositoryMock).save(any())
     }
-
 }

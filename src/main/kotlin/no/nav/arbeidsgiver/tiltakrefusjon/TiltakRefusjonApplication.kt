@@ -7,8 +7,8 @@ import org.springframework.scheduling.annotation.EnableScheduling
 import kotlin.system.exitProcess
 
 @SpringBootApplication
-@EnableScheduling
 @EnableRetry
+@EnableScheduling
 class TiltakRefusjonApplication
 
 fun main(args: Array<String>) {

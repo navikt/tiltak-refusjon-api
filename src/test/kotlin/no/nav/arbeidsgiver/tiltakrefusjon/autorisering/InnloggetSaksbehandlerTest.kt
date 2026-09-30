@@ -1,5 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.autorisering
 
+import no.nav.arbeidsgiver.tiltakrefusjon.grunnbelop.GrunnbelopClient
 import no.nav.arbeidsgiver.tiltakrefusjon.grunnbelop.GrunnbelopService
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.FakeInntektskomponentService
 import no.nav.arbeidsgiver.tiltakrefusjon.norg.NorgService
@@ -17,13 +18,15 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.context.ActiveProfiles
 import java.util.*
+import no.nav.team_tiltak.felles.persondata.pdl.domene.Diskresjonskode
+import java.util.TreeMap
+import org.mockito.kotlin.whenever
 
 @SpringBootTest
 @ActiveProfiles("local")
-@AutoConfigureWireMock
 class InnloggetSaksbehandlerTest(
     @Autowired val refusjonRepository: RefusjonRepository,
     @Autowired val tilgangskontrollService: TilgangskontrollService,
@@ -32,33 +35,44 @@ class InnloggetSaksbehandlerTest(
     @Autowired val inntektskomponentService: FakeInntektskomponentService,
     @Autowired val kontoregisterService: FakeKontoregisterService,
     @Autowired val norgService: NorgService,
-    @Autowired val persondataService: PersondataService,
-    @Autowired val grunnbelopService: GrunnbelopService,
 ) {
+    @MockitoBean
+    lateinit var persondataService: PersondataService
+
+    @MockitoBean
+    lateinit var grunnbelopService: GrunnbelopService
+
+    @MockitoBean
+    lateinit var grunnbelopClient: GrunnbelopClient
+
+    lateinit var saksbehandler: InnloggetSaksbehandler
+
     @BeforeEach
     fun setUp() {
         refusjonRepository.deleteAll()
         refusjonRepository.saveAll(refusjoner())
+        whenever(persondataService.hentDiskresjonskoder(org.mockito.kotlin.any())).thenReturn(emptyMap())
+        whenever(persondataService.hentDiskresjonskode(org.mockito.kotlin.any())).thenReturn(Diskresjonskode.UGRADERT)
+        whenever(grunnbelopClient.alleGrunnbelop()).thenReturn(TreeMap())
+        saksbehandler = InnloggetSaksbehandler(
+            "Z123456",
+            UUID.fromString("550e8400-e29b-41d4-a716-446655440000"),
+            "Geir",
+            tilgangskontrollService,
+            norgService,
+            refusjonRepository,
+            korreksjonRepository,
+            refusjonService,
+            AdGruppeTilganger(
+                beslutter = true,
+                korreksjon = true,
+                fortroligAdresse = false,
+                strengtFortroligAdresse = false
+            ),
+            persondataService,
+            grunnbelopService,
+        )
     }
-
-    val saksbehandler = InnloggetSaksbehandler(
-        "Z123456",
-        UUID.fromString("550e8400-e29b-41d4-a716-446655440000"),
-        "Geir",
-        tilgangskontrollService,
-        norgService,
-        refusjonRepository,
-        korreksjonRepository,
-        refusjonService,
-        AdGruppeTilganger(
-            beslutter = true,
-            korreksjon = true,
-            fortroligAdresse = false,
-            strengtFortroligAdresse = false
-        ),
-        persondataService,
-        grunnbelopService,
-    )
 
     @Test
     fun `saksbehandler får ikke opp refusjoner som den ikke har tilgang til`() {

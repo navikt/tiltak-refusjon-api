@@ -1,6 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import no.nav.arbeidsgiver.tiltakrefusjon.Topics.REFUSJON_ENDRET_BETALINGSSTATUS
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

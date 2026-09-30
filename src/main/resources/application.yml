@@ -15,7 +15,7 @@ spring:
           password: ${KAFKA_CREDSTORE_PASSWORD}
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JacksonJsonSerializer
     consumer:
       group-id: "tiltak-refusjon-api-4"
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer

@@ -1,11 +1,10 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.autorisering
 
-import com.ninjasquad.springmockk.MockkBean
-import com.ninjasquad.springmockk.SpykBean
-import io.mockk.every
-import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgang
+import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringProperties
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
+import no.nav.arbeidsgiver.tiltakrefusjon.alleGrunnbelopMap
+import no.nav.arbeidsgiver.tiltakrefusjon.grunnbelop.GrunnbelopService
 import no.nav.arbeidsgiver.tiltakrefusjon.innloggetBruker
 import no.nav.arbeidsgiver.tiltakrefusjon.inntekt.InntektskomponentService
 import no.nav.arbeidsgiver.tiltakrefusjon.persondata.PersondataService
@@ -27,15 +26,17 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock
+import org.springframework.test.context.bean.override.mockito.MockitoBean
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
 import org.springframework.test.context.ActiveProfiles
+import org.mockito.kotlin.any
+import org.mockito.kotlin.whenever
 import java.time.LocalDateTime
 import java.time.temporal.TemporalAdjusters
 
 
 @SpringBootTest(properties = ["NAIS_APP_IMAGE=test"])
 @ActiveProfiles("local")
-@AutoConfigureWireMock
 internal class InnloggetArbeidsgiverTest(
     @Autowired
     val refusjonService: RefusjonService,
@@ -53,14 +54,17 @@ internal class InnloggetArbeidsgiverTest(
         BrukerRolle.ARBEIDSGIVER
     )
 
-    @SpykBean
+    @MockitoSpyBean
     lateinit var inntektskomponentService: InntektskomponentService
 
-    @MockkBean
+    @MockitoBean
     lateinit var altinnTilgangsstyringService: AltinnTilgangsstyringService
 
-    @MockkBean
+    @MockitoBean
     lateinit var persondataService: PersondataService
+
+    @MockitoBean
+    lateinit var grunnbelopService: GrunnbelopService
 
     @BeforeEach
     fun setup() {
@@ -74,28 +78,18 @@ internal class InnloggetArbeidsgiverTest(
             "Org form",
             "Status"
         )
-        val altinnTilgang: AltinnTilgang = AltinnTilgang(
-            organisasjon.organizationNumber,
-            setOf(),
-            setOf(),
-            listOf(),
-            organisasjon.name,
-            organisasjon.organizationForm,
+        val properties = AltinnTilgangsstyringProperties(
+            arbeidsgiverAltinnTilgangerUri = java.net.URI("http://localhost"),
+            inntektsmeldingServiceCode = 4936,
+            inntektsmeldingServiceEdition = 1,
+            adressesperreServiceCode = 5516,
+            adressesperreServiceEdition = 7,
         )
-        every { altinnTilgangsstyringService.altinnTilgangsstyringProperties.inntektsmeldingServiceCode } returns 4936
-        every { altinnTilgangsstyringService.altinnTilgangsstyringProperties.inntektsmeldingServiceEdition } returns 1
-        every { persondataService.hentDiskresjonskode(any()) } returns Diskresjonskode.UGRADERT
-        every { altinnTilgangsstyringService.hentAdressesperreTilganger() } returns setOf<Organisasjon>(
-            organisasjon
-        )
-        every {
-            altinnTilgangsstyringService.hentInntektsmeldingEllerRefusjonTilganger()
-        } returns setOf<Organisasjon>(
-            organisasjon
-        )
-        every { altinnTilgangsstyringService.hentInntektsmeldingEllerRefusjonTilganger() } returns setOf<Organisasjon>(
-            organisasjon
-        )
+        whenever(altinnTilgangsstyringService.altinnTilgangsstyringProperties).thenReturn(properties)
+        whenever(persondataService.hentDiskresjonskode(any())).thenReturn(Diskresjonskode.UGRADERT)
+        whenever(altinnTilgangsstyringService.hentAdressesperreTilganger()).thenReturn(setOf(organisasjon))
+        whenever(altinnTilgangsstyringService.hentInntektsmeldingEllerRefusjonTilganger()).thenReturn(setOf(organisasjon))
+        whenever(grunnbelopService.alleGrunnbelop()).thenReturn(alleGrunnbelopMap)
     }
 
     @Test
@@ -800,11 +794,11 @@ internal class InnloggetArbeidsgiverTest(
         )
         val refusjon = refusjonService.opprettRefusjon(melding)!!
 
-        every { altinnTilgangsstyringService.hentInntektsmeldingEllerRefusjonTilganger() } returns setOf(
-            Organisasjon("", "", bedriftNr, "", "")
+        whenever(altinnTilgangsstyringService.hentInntektsmeldingEllerRefusjonTilganger()).thenReturn(
+            setOf(Organisasjon("", "", bedriftNr, "", ""))
         )
-        every { altinnTilgangsstyringService.hentAdressesperreTilganger() } returns emptySet()
-        every { persondataService.hentDiskresjonskode(deltakerFnr) } returns Diskresjonskode.STRENGT_FORTROLIG
+        whenever(altinnTilgangsstyringService.hentAdressesperreTilganger()).thenReturn(emptySet())
+        whenever(persondataService.hentDiskresjonskode(deltakerFnr)).thenReturn(Diskresjonskode.STRENGT_FORTROLIG)
 
         val innlogget = InnloggetArbeidsgiver(
             identifikator = "04511349341",
@@ -823,10 +817,10 @@ internal class InnloggetArbeidsgiverTest(
         val periode1start = Now.localDate().minusMonths(4).with(TemporalAdjusters.firstDayOfMonth());
         val periode1slutt = Now.localDate().minusMonths(4).with(TemporalAdjusters.lastDayOfMonth());
 
-        every { altinnTilgangsstyringService.hentAdressesperreTilganger() } returns setOf(
-            Organisasjon("", "", "999999999", "", "")
+        whenever(altinnTilgangsstyringService.hentAdressesperreTilganger()).thenReturn(
+            setOf(Organisasjon("", "", "999999999", "", ""))
         )
-        every { persondataService.hentDiskresjonskode(deltakerFnr) } returns Diskresjonskode.FORTROLIG
+        whenever(persondataService.hentDiskresjonskode(deltakerFnr)).thenReturn(Diskresjonskode.FORTROLIG)
 
         val tilskuddMelding = TilskuddsperiodeGodkjentMelding(
             avtaleId = "1",

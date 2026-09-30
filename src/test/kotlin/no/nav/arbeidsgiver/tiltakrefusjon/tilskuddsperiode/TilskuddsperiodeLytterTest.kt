@@ -7,6 +7,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import org.junit.jupiter.api.Test
+import tools.jackson.databind.DeserializationFeature
 import java.time.LocalDateTime
 import java.util.*
 import org.mockito.kotlin.argThat
@@ -55,4 +56,60 @@ class TilskuddsperiodeLytterTest {
 
         verify(service).opprettRefusjon(argThat { avtaleId == tilskuddMelding.avtaleId })
     }
+
+    @Test
+    fun `skal tåle null i satser og lønnstilskuddsprosent når FAIL_ON_NULL_FOR_PRIMITIVES er på`() {
+        val strengLytter = TilskuddsperiodeKafkaLytter(
+            service,
+            jacksonMapperBuilder().medFellesOppsett()
+                .enable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                .build()
+        )
+        val melding = JsonConfiguration.kafkaJsonMapper.writeValueAsString(
+            enGodkjentMelding().copy(
+                feriepengerSats = null,
+                otpSats = null,
+                arbeidsgiveravgiftSats = null,
+                lønnstilskuddsprosent = null,
+            )
+        )
+
+        strengLytter.tilskuddsperiodeGodkjent(melding)
+
+        verify(service).opprettRefusjon(argThat {
+            feriepengerSats == null && otpSats == null && arbeidsgiveravgiftSats == null && lønnstilskuddsprosent == null
+        })
+    }
+
+    private fun enGodkjentMelding() = TilskuddsperiodeGodkjentMelding(
+        avtaleId = UUID.randomUUID().toString(),
+        tilskuddsperiodeId = UUID.randomUUID().toString(),
+        avtaleInnholdId = UUID.randomUUID().toString(),
+        tiltakstype = Tiltakstype.MENTOR,
+        deltakerFornavn = "Donald",
+        deltakerEtternavn = "Duck",
+        deltakerFnr = "12345678901",
+        arbeidsgiverFornavn = "Arne",
+        arbeidsgiverEtternavn = "Arbeidsgiver",
+        arbeidsgiverTlf = "41111111",
+        veilederNavIdent = "X123456",
+        bedriftNavn = "Duck Levering AS",
+        bedriftNr = "99999999",
+        tilskuddsbeløp = 12000,
+        tilskuddFom = Now.localDate().minusDays(15),
+        tilskuddTom = Now.localDate(),
+        feriepengerSats = 0.12,
+        otpSats = 0.02,
+        arbeidsgiveravgiftSats = 0.141,
+        lønnstilskuddsprosent = 60,
+        avtaleNr = 3456,
+        løpenummer = 3,
+        resendingsnummer = null,
+        enhet = "1000",
+        godkjentTidspunkt = LocalDateTime.now(),
+        arbeidsgiverKontonummer = "12345678908",
+        arbeidsgiverKid = null,
+        mentorTimelonn = 300,
+        mentorAntallTimer = 10.0,
+    )
 }

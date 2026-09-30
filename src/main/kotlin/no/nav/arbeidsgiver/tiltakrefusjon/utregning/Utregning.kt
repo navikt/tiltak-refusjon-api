@@ -3,7 +3,6 @@ package no.nav.arbeidsgiver.tiltakrefusjon.utregning
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Beregning
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refundering
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.kalkulerBruttoLønn
 import no.nav.arbeidsgiver.tiltakrefusjon.utregning.Maksbeløp.AVTALT_TILSKUDD
 import no.nav.arbeidsgiver.tiltakrefusjon.utregning.Maksbeløp.FEM_GRUNNBELOP
 import no.nav.arbeidsgiver.tiltakrefusjon.utregning.UtregningsradType.ARBEIDSGIVERAVGIFT
@@ -25,7 +24,6 @@ import no.nav.arbeidsgiver.tiltakrefusjon.utregning.UtregningsradType.TIDLIGERE_
 import no.nav.arbeidsgiver.tiltakrefusjon.utregning.UtregningsradType.TIDLIGERE_UTBETALT
 import no.nav.arbeidsgiver.tiltakrefusjon.utregning.UtregningsradType.TILSKUDDSPROSENT
 import no.nav.arbeidsgiver.tiltakrefusjon.utregning.UtregningsradType.TIMELONN_X_TIMER
-import kotlin.math.roundToInt
 
 data class Utregningsgruppe(val rader: List<Utregningslinje>)
 
@@ -82,10 +80,7 @@ private fun tilskuddsutregning(refundering: Refundering): Utregning? {
     val beregning = refundering.refusjonsgrunnlag.beregning ?: return null
     val tilskuddsgrunnlag = refundering.refusjonsgrunnlag.tilskuddsgrunnlag
     val inntekter = refundering.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.toList() ?: emptyList()
-    val kalkulertBruttoLønn = kalkulerBruttoLønn(inntekter).roundToInt()
-    val korrigertBruttoLønn = refundering.refusjonsgrunnlag.endretBruttoLønn
-    val lønn = if (korrigertBruttoLønn != null) minOf(korrigertBruttoLønn, kalkulertBruttoLønn)
-    else kalkulertBruttoLønn
+    val lønn = beregning.lønn
 
     val sosialeUtgifter = listOfNotNull(
         BRUTTOLONN_I_PERIODEN tilsvarer lønn.kroner,

@@ -1,5 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
@@ -34,6 +35,21 @@ class Refusjonsgrunnlag(
     var forrigeRefusjonMinusBeløp: Int = 0
     var sumUtbetaltVarig: Int = 0
     var harFerietrekkForSammeMåned: Boolean = false
+
+    @get:JsonProperty
+    val bruttolonnOpptjentIPerioden: Double
+        get() = inntektsgrunnlag?.beregnBruttolonnOpptjentIPerioden() ?: 0.0
+
+    @get:JsonProperty
+    val ferietrekkIPerioden: Double
+        get() {
+            return if (harFerietrekkForSammeMåned) 0.0
+            else inntektsgrunnlag?.beregnFerietrekk(tilskuddsgrunnlag.tilskuddFom) ?: 0.0
+        }
+
+    @get:JsonProperty
+    val bruttolonnOpptjentIPeriodenFratrukketFeriepenger: Double
+        get() = bruttolonnOpptjentIPerioden + ferietrekkIPerioden
 
     @OneToOne(orphanRemoval = true, cascade = [CascadeType.ALL])
     var beregning: Beregning? = null
@@ -101,6 +117,12 @@ class Refusjonsgrunnlag(
     fun refusjonsgrunnlagetErNullSomIZero(): Boolean {
         val beregning = this.beregning
         return beregning != null && beregning.refusjonsbeløp == 0
+    }
+
+    fun setAlleInntektslinjeTilOpptjentIPeriode(erOpptjentIPeriode: Boolean) {
+        inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.forEach { inntektslinje ->
+            setInntektslinjeTilOpptjentIPeriode(inntektslinje.id, erOpptjentIPeriode)
+        }
     }
 
     fun setInntektslinjeTilOpptjentIPeriode(inntekslinjeId: String, erOpptjentIPeriode: Boolean) {

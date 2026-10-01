@@ -8,6 +8,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.altinn.AltinnTilgangsstyringService
 import no.nav.arbeidsgiver.tiltakrefusjon.altinn.Organisasjon
 import no.nav.arbeidsgiver.tiltakrefusjon.persondata.PersondataService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.BrukerRolle
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.InntektslinjeOpptjening
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Korreksjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.KorreksjonRepository
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
@@ -171,13 +172,33 @@ data class InnloggetArbeidsgiver(
         refusjonRepository.save(refusjon)
     }
 
-    fun setInntektslinjeTilOpptjentIPeriode(
-        refusjonId: String, inntekslinjeId: String, erOpptjentIPeriode: Boolean, sistEndret: Instant?
+    fun setInntektslinjerTilOpptjentIPeriode(
+        refusjonId: String, opptjeninger: List<InntektslinjeOpptjening>, sistEndret: Instant?
     ) {
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(refusjonId) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr, refusjon.deltakerFnr)
         sjekkSistEndret(refusjon, sistEndret)
-        refusjon.setInntektslinjeTilOpptjentIPeriode(inntekslinjeId, erOpptjentIPeriode)
+        opptjeninger.forEach { opptjening ->
+            refusjon.setInntektslinjeTilOpptjentIPeriode(
+                opptjening.inntektslinjeId,
+                opptjening.erOpptjentIPeriode
+            )
+        }
+        if (opptjeninger.all { !it.erOpptjentIPeriode }) {
+            refusjonService.endreBruttolønn(refusjon, true, null, this)
+        }
+        refusjonService.gjørBeregning(refusjon, this)
+        refusjonService.oppdaterSistEndret(refusjon)
+        refusjonRepository.save(refusjon)
+    }
+
+    fun setInntektslinjeTilOpptjentIPeriode(
+        refusjonId: String, opptjening: InntektslinjeOpptjening, sistEndret: Instant?
+    ) {
+        val refusjon: Refusjon = refusjonRepository.findByIdOrNull(refusjonId) ?: throw RessursFinnesIkkeException()
+        sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr, refusjon.deltakerFnr)
+        sjekkSistEndret(refusjon, sistEndret)
+        refusjon.setInntektslinjeTilOpptjentIPeriode(opptjening.inntektslinjeId, opptjening.erOpptjentIPeriode)
         refusjonService.gjørBeregning(refusjon, this)
         refusjonService.oppdaterSistEndret(refusjon)
         refusjonRepository.save(refusjon)

@@ -145,14 +145,29 @@ class ArbeidsgiverRefusjonController(
         arbeidsgiver.settFratrekkRefunderbarBeløp(id, request.fratrekkRefunderbarBeløp, request.refunderbarBeløp, sistEndret)
     }
 
+
+    @PostMapping("/{id}/sett-inntektslinjer-opptjent-i-periode")
+    @Transactional
+    fun setAlleInntektslinjeTilOpptjentIPeriode(@PathVariable id: String, @RequestBody request: List<EndreRefundertInntektslinjeRequest>, @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant) {
+        val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
+        arbeidsgiver.setInntektslinjerTilOpptjentIPeriode(
+            refusjonId = id,
+            opptjeninger = request.map { InntektslinjeOpptjening.map(it) },
+            sistEndret = sistEndret
+        )
+    }
+
     @PostMapping("/{id}/set-inntektslinje-opptjent-i-periode")
     @Transactional
-    fun settInntektslinjeOpptjentIPeriode(@PathVariable id: String, @RequestBody request: EndreRefundertInntektslinjeRequest, @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant) {
+    fun setInntektslinjeOpptjentIPeriode(
+        @PathVariable id: String,
+        @RequestBody request: EndreRefundertInntektslinjeRequest,
+        @RequestHeader(HttpHeaders.IF_UNMODIFIED_SINCE) sistEndret: Instant
+    ) {
         val arbeidsgiver = innloggetBrukerService.hentInnloggetArbeidsgiver()
         arbeidsgiver.setInntektslinjeTilOpptjentIPeriode(
             refusjonId = id,
-            inntekslinjeId = request.inntektslinjeId,
-            erOpptjentIPeriode = request.erOpptjentIPeriode,
+            opptjening = InntektslinjeOpptjening.map(request),
             sistEndret
         )
     }

@@ -499,6 +499,14 @@ class Refusjon(
         registerEvent(MerketForInntekterFrem(this, merking, utførtAv))
     }
 
+    fun setAlleInntektslinjeTilOpptjentIPeriode(
+        erOpptjentIPeriode: Boolean
+    ) {
+        oppdaterStatus()
+        krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
+        refusjonsgrunnlag.setAlleInntektslinjeTilOpptjentIPeriode(erOpptjentIPeriode)
+    }
+
     fun setInntektslinjeTilOpptjentIPeriode(
         inntekslinjeId: String,
         erOpptjentIPeriode: Boolean

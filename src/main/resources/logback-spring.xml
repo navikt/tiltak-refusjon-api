@@ -5,6 +5,7 @@
     <logger name="jsonLogger" additivity="false" level="DEBUG">
         <appender-ref ref="consoleAppender"/>
     </logger>
+    <logger name="org.hibernate.orm.connections.pooling" level="WARN"/>
     <root level="INFO">
         <appender-ref ref="consoleAppender"/>
     </root>

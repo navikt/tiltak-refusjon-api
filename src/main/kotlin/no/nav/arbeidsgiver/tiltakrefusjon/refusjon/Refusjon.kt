@@ -504,13 +504,12 @@ class Refusjon(
         registerEvent(MerketForInntekterFrem(this, merking, utførtAv))
     }
 
-    fun setInntektslinjeTilOpptjentIPeriode(
-        inntekslinjeId: String,
-        erOpptjentIPeriode: Boolean
+    fun setInntektslinjerTilOpptjentIPeriode(
+        opptjeninger: List<InntektslinjeOpptjening>
     ) {
         oppdaterStatus()
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
-        refusjonsgrunnlag.setInntektslinjeTilOpptjentIPeriode(inntekslinjeId, erOpptjentIPeriode)
+        refusjonsgrunnlag.setInntektslinjerTilOpptjentIPeriode(opptjeninger)
     }
 
     fun settFratrekkRefunderbarBeløp(

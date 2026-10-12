@@ -1,5 +1,6 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.refusjon
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
@@ -34,6 +35,21 @@ class Refusjonsgrunnlag(
     var forrigeRefusjonMinusBeløp: Int = 0
     var sumUtbetaltVarig: Int = 0
     var harFerietrekkForSammeMåned: Boolean = false
+
+    @get:JsonProperty
+    val bruttolonnOpptjentIPerioden: Double
+        get() = inntektsgrunnlag?.beregnBruttolonnOpptjentIPerioden() ?: 0.0
+
+    @get:JsonProperty
+    val ferietrekkIPerioden: Double
+        get() {
+            return if (harFerietrekkForSammeMåned) 0.0
+            else inntektsgrunnlag?.beregnFerietrekk(tilskuddsgrunnlag.tilskuddFom) ?: 0.0
+        }
+
+    @get:JsonProperty
+    val bruttolonnOpptjentIPeriodenFratrukketFeriepenger: Double
+        get() = bruttolonnOpptjentIPerioden + ferietrekkIPerioden
 
     @OneToOne(orphanRemoval = true, cascade = [CascadeType.ALL])
     var beregning: Beregning? = null
@@ -103,21 +119,20 @@ class Refusjonsgrunnlag(
         return beregning != null && beregning.refusjonsbeløp == 0
     }
 
-    fun setInntektslinjeTilOpptjentIPeriode(inntekslinjeId: String, erOpptjentIPeriode: Boolean) {
-        val inntektslinje = inntektsgrunnlag?.inntekter?.find { it.id == inntekslinjeId }
-            ?: throw RuntimeException("Finner ikke inntektslinje med id=$inntekslinjeId for refusjongrunnlag=$id")
-        if (!inntektslinje.erMedIInntektsgrunnlag()) {
-            throw FeilkodeException(Feilkode.INNTEKTSLINJE_IKKE_MED_I_GRUNNLAG)
-        }
-        inntektslinje.erOpptjentIPeriode = erOpptjentIPeriode
-
-        var erNoenOpptjentIPerioden = false
-        inntektsgrunnlag?.inntekter?.forEach {
-            if (it.erOpptjentIPeriode == true) {
-                erNoenOpptjentIPerioden = true
+    fun setInntektslinjerTilOpptjentIPeriode(
+        opptjeninger: List<InntektslinjeOpptjening>
+    ) {
+        opptjeninger.forEach { opptjening ->
+            val inntektslinje = inntektsgrunnlag?.inntekter?.find { opptjening.inntektslinjeId == it.id }
+                ?: throw RuntimeException("Finner ikke inntektslinje med id=${opptjening.inntektslinjeId} for refusjongrunnlag=$id")
+            if (!inntektslinje.erMedIInntektsgrunnlag()) {
+                throw FeilkodeException(Feilkode.INNTEKTSLINJE_IKKE_MED_I_GRUNNLAG)
             }
+
+            inntektslinje.erOpptjentIPeriode = opptjening.erOpptjentIPeriode
         }
 
+        val erNoenOpptjentIPerioden = inntektsgrunnlag?.inntekter?.any { it.erOpptjentIPeriode == true } ?: false
         if (!erNoenOpptjentIPerioden) {
             beregning = null
             endretBruttoLønn = null

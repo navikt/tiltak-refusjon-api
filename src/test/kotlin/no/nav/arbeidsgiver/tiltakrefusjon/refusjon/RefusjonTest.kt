@@ -99,7 +99,7 @@ internal class RefusjonTest {
         }
 
         // Tar stilling til alle inntektslinjer
-        refusjon.setInntektslinjeTilOpptjentIPeriode(enInntektslinjeIkkeTattStillingTilOpptjening.id, true)
+        refusjon.setInntektslinjerTilOpptjentIPeriode(listOf(InntektslinjeOpptjening(enInntektslinjeIkkeTattStillingTilOpptjening.id, true)))
         refusjon.refusjonsgrunnlag.beregning = beregnRefusjon(enBeregningskontekst(), refusjon)
 
         refusjon.godkjennForArbeidsgiver(innloggetArbeidsgiver)
@@ -501,4 +501,3 @@ internal class RefusjonTest {
     //     assertFeilkode(Feilkode.KORREKSJONSBELOP_IKKE_NULL) { korreksjon.fullførKorreksjonVedOppgjort("X123456") }
     // }
 }
-

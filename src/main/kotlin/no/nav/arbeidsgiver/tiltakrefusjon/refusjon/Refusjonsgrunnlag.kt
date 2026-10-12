@@ -119,27 +119,20 @@ class Refusjonsgrunnlag(
         return beregning != null && beregning.refusjonsbeløp == 0
     }
 
-    fun setAlleInntektslinjeTilOpptjentIPeriode(erOpptjentIPeriode: Boolean) {
-        inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }?.forEach { inntektslinje ->
-            setInntektslinjeTilOpptjentIPeriode(inntektslinje.id, erOpptjentIPeriode)
-        }
-    }
-
-    fun setInntektslinjeTilOpptjentIPeriode(inntekslinjeId: String, erOpptjentIPeriode: Boolean) {
-        val inntektslinje = inntektsgrunnlag?.inntekter?.find { it.id == inntekslinjeId }
-            ?: throw RuntimeException("Finner ikke inntektslinje med id=$inntekslinjeId for refusjongrunnlag=$id")
-        if (!inntektslinje.erMedIInntektsgrunnlag()) {
-            throw FeilkodeException(Feilkode.INNTEKTSLINJE_IKKE_MED_I_GRUNNLAG)
-        }
-        inntektslinje.erOpptjentIPeriode = erOpptjentIPeriode
-
-        var erNoenOpptjentIPerioden = false
-        inntektsgrunnlag?.inntekter?.forEach {
-            if (it.erOpptjentIPeriode == true) {
-                erNoenOpptjentIPerioden = true
+    fun setInntektslinjerTilOpptjentIPeriode(
+        opptjeninger: List<InntektslinjeOpptjening>
+    ) {
+        opptjeninger.forEach { opptjening ->
+            val inntektslinje = inntektsgrunnlag?.inntekter?.find { opptjening.inntektslinjeId == it.id }
+                ?: throw RuntimeException("Finner ikke inntektslinje med id=${opptjening.inntektslinjeId} for refusjongrunnlag=$id")
+            if (!inntektslinje.erMedIInntektsgrunnlag()) {
+                throw FeilkodeException(Feilkode.INNTEKTSLINJE_IKKE_MED_I_GRUNNLAG)
             }
+
+            inntektslinje.erOpptjentIPeriode = opptjening.erOpptjentIPeriode
         }
 
+        val erNoenOpptjentIPerioden = inntektsgrunnlag?.inntekter?.any { it.erOpptjentIPeriode == true } ?: false
         if (!erNoenOpptjentIPerioden) {
             beregning = null
             endretBruttoLønn = null

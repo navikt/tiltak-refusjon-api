@@ -648,6 +648,26 @@ fun `tilskuddsperioder som er ettersendt men ikke utgått får riktig status ved
         }
     }
 
+    @Test
+    fun `satser og lønnstilskuddsprosent som mangler i meldingen lagres som 0`() {
+        val refusjon = refusjonService.opprettRefusjon(
+            eldreTilskuddsmeldingBase.copy(
+                tilskuddsperiodeId = "null-satser",
+                feriepengerSats = null,
+                otpSats = null,
+                arbeidsgiveravgiftSats = null,
+                lønnstilskuddsprosent = null,
+            )
+        )!!
+
+        val tilskuddsgrunnlag = requireNotNull(refusjonRepository.findByIdOrNull(refusjon.id))
+            .refusjonsgrunnlag.tilskuddsgrunnlag
+        assertThat(tilskuddsgrunnlag.feriepengerSats).isEqualTo(0.0)
+        assertThat(tilskuddsgrunnlag.otpSats).isEqualTo(0.0)
+        assertThat(tilskuddsgrunnlag.arbeidsgiveravgiftSats).isEqualTo(0.0)
+        assertThat(tilskuddsgrunnlag.lønnstilskuddsprosent).isEqualTo(0)
+    }
+
     fun gjørInntektoppslagForRefusjon(refusjon: Refusjon) {
         // Sett innhentede inntekter til opptjent i periode
         refusjon.refusjonsgrunnlag.inntektsgrunnlag?.inntekter?.filter { it.erMedIInntektsgrunnlag() }

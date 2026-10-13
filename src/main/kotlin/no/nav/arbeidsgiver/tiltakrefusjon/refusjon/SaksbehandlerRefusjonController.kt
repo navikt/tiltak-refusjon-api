@@ -77,13 +77,4 @@ class SaksbehandlerRefusjonController(
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
         saksbehandler.merkForUnntakOmInntekterFremITid(id, request.merking)
     }
-
-
-    @PostMapping("reberegn-dry/{id}")
-    fun reberegnDryRun(@PathVariable id: String, @RequestBody request: ReberegnRequest): Beregning {
-        val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
-        return saksbehandler.reberegnDryRun(id, request.harFerietrekkForSammeMåned, request.minusBeløp)
-    }
 }
-
-data class ReberegnRequest(val harFerietrekkForSammeMåned: Boolean, val minusBeløp: Int)

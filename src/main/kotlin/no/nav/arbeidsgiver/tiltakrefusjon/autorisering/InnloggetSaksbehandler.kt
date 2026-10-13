@@ -6,7 +6,6 @@ import no.nav.arbeidsgiver.tiltakrefusjon.grunnbelop.GrunnbelopService
 import no.nav.arbeidsgiver.tiltakrefusjon.norg.NorgService
 import no.nav.arbeidsgiver.tiltakrefusjon.persondata.PersondataService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.BegrensetRefusjon
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Beregning
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.BrukerRolle
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.HentSaksbehandlerRefusjonerQueryParametre
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Korreksjon
@@ -18,7 +17,6 @@ import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonRepository
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.RefusjonStatus
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
-import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.tilskuddsberegning
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.sortPageable
 import no.nav.team_tiltak.felles.persondata.pdl.domene.Diskresjonskode
 import org.slf4j.Logger
@@ -280,21 +278,5 @@ data class InnloggetSaksbehandler(
 
     fun hentEnhet(enhet: String): String? {
         return norgeService.hentEnhetNavn(enhet)
-    }
-
-    fun reberegnDryRun(id: String, harFerietrekkForSammeMåned: Boolean, minusBeløp: Int): Beregning {
-        val refusjon = finnRefusjon(id)
-        return tilskuddsberegning(
-            inntekter = refusjon.refusjonsgrunnlag.inntektsgrunnlag!!.inntekter.toList(),
-            tilskuddsgrunnlag = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag,
-            utbetaltIRefusjonSomSkalKorrigeres = 0,
-            manueltJustertBruttolønn = refusjon.refusjonsgrunnlag.endretBruttoLønn,
-            fratrekkRefunderbarSum = refusjon.refusjonsgrunnlag.refunderbarBeløp,
-            forrigeRefusjonMinusBeløp = minusBeløp,
-            tilskuddFom = refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom,
-            harFerietrekkForSammeMåned = harFerietrekkForSammeMåned,
-            sumUtbetaltForTiltaketIÅr = refusjon.refusjonsgrunnlag.sumUtbetaltVarig,
-            beregningskontekst = refusjonService.hentBeregningskontekst(refusjon)
-        )
     }
 }

@@ -18,6 +18,7 @@ enum class UtregningsradType(val label: String) {
     FERIETREKK("Fratrekk for ferie"),
     REFUSJONSBELOP_TIL_UTBETALING("Refusjonsbeløp til utbetaling"),
     BEREGNET_BELOP("Beregning basert på innhentede inntekter"),
+    BEREGNET_FASTBELOP("Beregnet beløp"),
     BEREGNET_BELOP_ETTER_RESTTREKK("Beregning etter resterende fratrekk"),
     AVTALT_BELOP_REST_5G("Avtalt tilskuddsbeløp (gjenstående etter 5G)"),
 }

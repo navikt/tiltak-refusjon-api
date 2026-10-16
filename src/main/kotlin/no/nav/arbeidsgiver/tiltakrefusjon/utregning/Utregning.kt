@@ -2,6 +2,7 @@ package no.nav.arbeidsgiver.tiltakrefusjon.utregning
 
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Beregning
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refundering
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
 import no.nav.arbeidsgiver.tiltakrefusjon.utregning.UtgaarGrunn.OVER_AVTALT_TILSKUDD
 import no.nav.arbeidsgiver.tiltakrefusjon.utregning.UtgaarGrunn.OVER_FEM_GRUNNBELOP
@@ -10,6 +11,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.utregning.UtregningsradType.AVTALT_BEL
 import no.nav.arbeidsgiver.tiltakrefusjon.utregning.UtregningsradType.AVTALT_BELOP_REST_5G
 import no.nav.arbeidsgiver.tiltakrefusjon.utregning.UtregningsradType.BEREGNET_BELOP
 import no.nav.arbeidsgiver.tiltakrefusjon.utregning.UtregningsradType.BEREGNET_BELOP_ETTER_RESTTREKK
+import no.nav.arbeidsgiver.tiltakrefusjon.utregning.UtregningsradType.BEREGNET_FASTBELOP
 import no.nav.arbeidsgiver.tiltakrefusjon.utregning.UtregningsradType.BRUTTOLONN_I_PERIODEN
 import no.nav.arbeidsgiver.tiltakrefusjon.utregning.UtregningsradType.FERIEPENGER
 import no.nav.arbeidsgiver.tiltakrefusjon.utregning.UtregningsradType.FERIETREKK
@@ -38,9 +40,33 @@ data class Utregning(
             Tiltakstype.SOMMERJOBB,
             Tiltakstype.VARIG_LONNSTILSKUDD -> tilskuddsutregning(refundering)
 
-            Tiltakstype.VTAO -> null
+            Tiltakstype.VTAO -> vtaoUtregning(refundering)
         }
     }
+}
+
+/**
+ * VTAO-utregning er såpass lite kompleks at det per nå ikke gir mening å vise en full utregning for refusjoner,
+ * derfor returneres null i det tilfellet.
+ *
+ * For korreksjoner forsøker vi å tydeliggjøre hvorfor vi ender opp med negativt beløp.
+ */
+private fun vtaoUtregning(refundering: Refundering): Utregning? {
+    if (refundering is Refusjon) return null
+
+    val beregning = refundering.refusjonsgrunnlag.beregning ?: return null
+
+    val tidligereUtbetalt = -beregning.tidligereUtbetalt
+
+    return utregning(
+        listOf(
+            BEREGNET_FASTBELOP tilsvarer beregning.beregnetBeløp,
+            TIDLIGERE_UTBETALT leggerTil tidligereUtbetalt
+        ),
+        listOf(
+            REFUSJONSBELOP_TIL_UTBETALING erLik beregning.refusjonsbeløp
+        )
+    )
 }
 
 private fun mentorUtregning(refundering: Refundering): Utregning? {

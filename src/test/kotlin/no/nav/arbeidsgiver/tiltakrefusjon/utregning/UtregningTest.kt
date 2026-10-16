@@ -201,14 +201,34 @@ class UtregningTest {
     }
 
     @Test
-    fun `vtao har ikke utregning`() {
+    fun `vtao utregning for korreksjon`() {
         val refusjon = enRefusjon(
             etTilskuddsgrunnlag(tiltakstype = Tiltakstype.VTAO).copy(
                 tilskuddsbeløp = 4000
             )
         ).medBeregning()
 
+        // VTAO-refusjoner har ikke utregning
         assertNull(Utregning.from(refusjon))
+
+        refusjon.status = RefusjonStatus.UTBETALT
+        val korreksjon = refusjon.opprettKorreksjonsutkast(
+            setOf(Korreksjonsgrunn.DELTAKER_HAR_IKKE_VÆRT_TILSTEDE_I_PERIODEN),
+            null,
+            null
+        ).medBeregning()
+
+        val forventetKorreksjonsutregning = utregning(
+            gruppe(
+                UtregningsradType.BEREGNET_FASTBELOP tilsvarer 0,
+                TIDLIGERE_UTBETALT leggerTil -4000
+            ),
+            gruppe(
+                REFUSJONSBELOP_TIL_UTBETALING erLik -4000
+            )
+        )
+
+        assertEquals(forventetKorreksjonsutregning, korreksjon.utregning())
     }
 
     @Test

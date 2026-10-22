@@ -133,7 +133,7 @@ private fun tilskuddsutregning(refundering: Refundering): Utregning? {
         } else {
             listOf(
                 SUM_BRUTTO_LONNSUTGIFTER erLik beregning.sumUtgifter,
-                TIDLIGERE_REFUNDERBART_FOR_FRAVAER leggerTil fravaerstrekkResultat.reeltTrekk.toInt()
+                TIDLIGERE_REFUNDERBART_FOR_FRAVAER leggerTil -fravaerstrekkResultat.reeltTrekk.toInt()
             )
         }
     else null

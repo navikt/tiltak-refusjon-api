@@ -208,6 +208,36 @@ class UtregningTest {
     }
 
     @Test
+    fun `fratrekk refunderbart belop trekkes som vanlig hvis summen forblir positiv`() {
+        val refusjon = refusjon()
+            .medInntekter(7777)
+            .medFerietrekk(5600)
+            .apply { this.settFratrekkRefunderbarBeløp(true, 1000) }
+            .medBeregning()
+
+        assertEquals(
+            utregning(
+                gruppe(BRUTTOLONN_I_PERIODEN tilsvarer 7777,
+                    FERIETREKK leggerTil -5600,
+                    FERIEPENGER leggerTil 261 ogErUtledetAv 12.prosent,
+                    OBLIGATORISK_TJENESTEPENSJON leggerTil 49 ogErUtledetAv 2.prosent,
+                    ARBEIDSGIVERAVGIFT leggerTil 351 ogErUtledetAv 0.141.prosent
+                ),
+                gruppe(
+                    SUM_BRUTTO_LONNSUTGIFTER erLik 2838,
+                    TIDLIGERE_REFUNDERBART_FOR_FRAVAER leggerTil -1000
+                ),
+                gruppe(
+                    REFUSJONSGRUNNLAG erLik 1838,
+                    TILSKUDDSPROSENT multiplisererMed 0.4.prosent
+                ),
+                gruppe(REFUSJONSBELOP_TIL_UTBETALING erLik 735)
+            ),
+            refusjon.utregning()
+        )
+    }
+
+    @Test
     fun `en mentoravtale uten delvis periode`() {
 
         val forventetResultat = utregning(

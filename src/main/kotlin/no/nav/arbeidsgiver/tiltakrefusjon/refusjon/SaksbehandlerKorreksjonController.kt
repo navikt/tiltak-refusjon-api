@@ -71,8 +71,7 @@ class SaksbehandlerKorreksjonController(
         val saksbehandler = innloggetBrukerService.hentInnloggetSaksbehandler()
         saksbehandler.setInntektslinjeTilOpptjentIPeriode(
             korreksjonId = id,
-            inntekslinjeId = request.inntektslinjeId,
-            erOpptjentIPeriode = request.erOpptjentIPeriode
+            opptjening = InntektslinjeOpptjening.map(request),
         )
     }
 

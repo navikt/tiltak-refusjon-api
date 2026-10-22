@@ -220,9 +220,11 @@ class Korreksjon(
         this.refusjonsgrunnlag.oppgiBedriftKontonummer(bedrifKontonummer)
     }
 
-    fun setInntektslinjeTilOpptjentIPeriode(inntekslinjeId: String, erOpptjentIPeriode: Boolean) {
+    fun setInntektslinjerTilOpptjentIPeriode(
+        opptjeninger: List<InntektslinjeOpptjening>
+    ) {
         krevStatus(Korreksjonstype.UTKAST)
-        refusjonsgrunnlag.setInntektslinjeTilOpptjentIPeriode(inntekslinjeId, erOpptjentIPeriode)
+        refusjonsgrunnlag.setInntektslinjerTilOpptjentIPeriode(opptjeninger)
     }
 
     fun settFratrekkRefunderbarBeløp(fratrekkRefunderbarBeløp: Boolean, refunderbarBeløp: Int?) {

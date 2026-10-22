@@ -8,6 +8,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.persondata.PersondataService
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.BegrensetRefusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.BrukerRolle
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.HentSaksbehandlerRefusjonerQueryParametre
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.InntektslinjeOpptjening
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Korreksjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.KorreksjonRepository
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Korreksjonsgrunn
@@ -243,11 +244,11 @@ data class InnloggetSaksbehandler(
         refusjonRepository.save(refusjon)
     }
 
-    fun setInntektslinjeTilOpptjentIPeriode(korreksjonId: String, inntekslinjeId: String, erOpptjentIPeriode: Boolean) {
+    fun setInntektslinjeTilOpptjentIPeriode(korreksjonId: String, opptjening: InntektslinjeOpptjening) {
         sjekkKorreksjonTilgang()
         val korreksjon = korreksjonRepository.findByIdOrNull(korreksjonId) ?: throw RessursFinnesIkkeException()
         sjekkLesetilgang(korreksjon)
-        korreksjon.setInntektslinjeTilOpptjentIPeriode(inntekslinjeId, erOpptjentIPeriode)
+        korreksjon.setInntektslinjerTilOpptjentIPeriode(listOf(opptjening))
         refusjonService.gjørBeregning(korreksjon, this)
 
         korreksjonRepository.save(korreksjon)

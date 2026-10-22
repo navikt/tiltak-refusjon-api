@@ -505,11 +505,12 @@ class Refusjon(
     }
 
     fun setInntektslinjerTilOpptjentIPeriode(
-        opptjeninger: List<InntektslinjeOpptjening>
+        opptjeninger: List<InntektslinjeOpptjening>,
+        erNyTabell: Boolean,
     ) {
         oppdaterStatus()
         krevStatus(RefusjonStatus.KLAR_FOR_INNSENDING)
-        refusjonsgrunnlag.setInntektslinjerTilOpptjentIPeriode(opptjeninger)
+        refusjonsgrunnlag.setInntektslinjerTilOpptjentIPeriode(opptjeninger, erNyTabell)
     }
 
     fun settFratrekkRefunderbarBeløp(

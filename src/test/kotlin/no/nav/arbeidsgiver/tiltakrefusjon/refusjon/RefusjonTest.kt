@@ -99,7 +99,7 @@ internal class RefusjonTest {
         }
 
         // Tar stilling til alle inntektslinjer
-        refusjon.setInntektslinjerTilOpptjentIPeriode(listOf(InntektslinjeOpptjening(enInntektslinjeIkkeTattStillingTilOpptjening.id, true)))
+        refusjon.setInntektslinjerTilOpptjentIPeriode(listOf(InntektslinjeOpptjening(enInntektslinjeIkkeTattStillingTilOpptjening.id, true)), false)
         refusjon.refusjonsgrunnlag.beregning = beregn(enBeregningskontekst(), refusjon)
 
         refusjon.godkjennForArbeidsgiver(innloggetArbeidsgiver)

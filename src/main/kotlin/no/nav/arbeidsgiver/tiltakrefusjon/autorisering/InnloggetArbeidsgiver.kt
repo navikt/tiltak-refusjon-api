@@ -178,12 +178,13 @@ data class InnloggetArbeidsgiver(
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(refusjonId) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr, refusjon.deltakerFnr)
         sjekkSistEndret(refusjon, sistEndret)
-        refusjon.setInntektslinjerTilOpptjentIPeriode(opptjeninger)
+        refusjon.setInntektslinjerTilOpptjentIPeriode(opptjeninger, true)
         if (opptjeninger.all { !it.erOpptjentIPeriode }) {
             refusjonService.endreBruttolønn(refusjon, true, null, this)
+        } else {
+            refusjonService.gjørBeregning(refusjon, this)
+            refusjonService.oppdaterSistEndret(refusjon)
         }
-        refusjonService.gjørBeregning(refusjon, this)
-        refusjonService.oppdaterSistEndret(refusjon)
         refusjonRepository.save(refusjon)
     }
 
@@ -193,7 +194,7 @@ data class InnloggetArbeidsgiver(
         val refusjon: Refusjon = refusjonRepository.findByIdOrNull(refusjonId) ?: throw RessursFinnesIkkeException()
         sjekkHarTilgangTilRefusjonerForBedrift(refusjon.bedriftNr, refusjon.deltakerFnr)
         sjekkSistEndret(refusjon, sistEndret)
-        refusjon.setInntektslinjerTilOpptjentIPeriode(listOf(opptjening))
+        refusjon.setInntektslinjerTilOpptjentIPeriode(listOf(opptjening), false)
         refusjonService.gjørBeregning(refusjon, this)
         refusjonService.oppdaterSistEndret(refusjon)
         refusjonRepository.save(refusjon)

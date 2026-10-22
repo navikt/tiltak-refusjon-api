@@ -93,12 +93,15 @@ class Refusjonsgrunnlag(
         this.bedriftKontonummerInnhentetTidspunkt = Now.localDateTime()
     }
 
-    fun resetEndreBruttolønn() {
+    fun resetEndreBruttolønn(resetRefunderbarBeløp: Boolean = true) {
         this.inntekterKunFraTiltaket = null
         this.endretBruttoLønn = null
-        this.fratrekkRefunderbarBeløp = null
-        this.refunderbarBeløp = null
         this.beregning = null
+
+        if (resetRefunderbarBeløp) {
+            this.fratrekkRefunderbarBeløp = null
+            this.refunderbarBeløp = null
+        }
     }
 
     fun endreBruttolønn(inntekterKunFraTiltaket: Boolean?, bruttoLønn: Int?) {
@@ -120,7 +123,8 @@ class Refusjonsgrunnlag(
     }
 
     fun setInntektslinjerTilOpptjentIPeriode(
-        opptjeninger: List<InntektslinjeOpptjening>
+        opptjeninger: List<InntektslinjeOpptjening>,
+        erNyTabell: Boolean = false
     ) {
         opptjeninger.forEach { opptjening ->
             val inntektslinje = inntektsgrunnlag?.inntekter?.find { opptjening.inntektslinjeId == it.id }
@@ -134,10 +138,7 @@ class Refusjonsgrunnlag(
 
         val erNoenOpptjentIPerioden = inntektsgrunnlag?.inntekter?.any { it.erOpptjentIPeriode == true } ?: false
         if (!erNoenOpptjentIPerioden) {
-            beregning = null
-            endretBruttoLønn = null
-            fratrekkRefunderbarBeløp = null
-            inntekterKunFraTiltaket = null
+            resetEndreBruttolønn(resetRefunderbarBeløp = !erNyTabell)
         }
     }
 

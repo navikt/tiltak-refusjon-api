@@ -11,7 +11,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.ulid
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.*
+import java.util.SortedSet
 
 @Entity
 data class Inntektsgrunnlag(

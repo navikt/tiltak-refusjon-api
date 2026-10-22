@@ -41,6 +41,8 @@ data class Utregning(
             Tiltakstype.VARIG_LONNSTILSKUDD -> tilskuddsutregning(refundering)
 
             Tiltakstype.VTAO -> vtaoUtregning(refundering)
+
+            Tiltakstype.INKLUDERINGSTILSKUDD -> null
         }
     }
 }

@@ -164,5 +164,6 @@ class Refusjonsgrunnlag(
             Tiltakstype.VTAO -> true
             Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD, Tiltakstype.VARIG_LONNSTILSKUDD, Tiltakstype.SOMMERJOBB, Tiltakstype.FIREARIG_LONNSTILSKUDD ->
                 harValgtMinstEnInntektslinje() && harTattStillingTilEndringAvBruttolønn()
+            Tiltakstype.INKLUDERINGSTILSKUDD -> false
         }
 }

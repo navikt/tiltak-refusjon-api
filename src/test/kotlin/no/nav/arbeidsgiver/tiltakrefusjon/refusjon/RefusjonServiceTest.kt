@@ -713,7 +713,7 @@ private val eldreTilskuddsmeldingBase = TilskuddsperiodeGodkjentMelding(
 
 private fun statusVedEtterregistrering(tiltakstype: Tiltakstype): RefusjonStatus =
     when (tiltakstype) {
-        Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD, Tiltakstype.VARIG_LONNSTILSKUDD, Tiltakstype.SOMMERJOBB, Tiltakstype.FIREARIG_LONNSTILSKUDD -> RefusjonStatus.KLAR_FOR_INNSENDING
+        Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD, Tiltakstype.VARIG_LONNSTILSKUDD, Tiltakstype.SOMMERJOBB, Tiltakstype.FIREARIG_LONNSTILSKUDD, Tiltakstype.INKLUDERINGSTILSKUDD -> RefusjonStatus.KLAR_FOR_INNSENDING
         Tiltakstype.VTAO, Tiltakstype.MENTOR -> RefusjonStatus.FOR_TIDLIG
     }
 

@@ -183,6 +183,8 @@ fun beregn(beregningskontekst: Beregningskontekst, refundering: Refundering): Be
             harFerietrekkForSammeMåned = refundering.refusjonsgrunnlag.harFerietrekkForSammeMåned,
             beregningskontekst = beregningskontekst
         )
+
+        Tiltakstype.INKLUDERINGSTILSKUDD -> null
     }
 }
 

@@ -117,7 +117,6 @@ private fun tilskuddsutregning(refundering: Refundering): Utregning? {
     )
 
     val fravaerstrekkResultat = trekkFraTidligereRefundertGrunnetFravaer(beregning.sumUtgifter.toDouble(),  beregning.tidligereRefundertBeløp)
-    val tidligereRefundertResultererIMinus = beregning.sumUtgifter >=0 && beregning.sumUtgifterFratrukketRefundertBeløp < 0
 
     val tidligereRefundert = if (fratrekkGrunnetfravaer != 0)
         if (fravaerstrekkResultat.type == FravaersTrekkResultatType.GIKK_I_MINUS) {

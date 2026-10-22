@@ -1,9 +1,11 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.utregning
 
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Beregning
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.FravaersTrekkResultatType
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refundering
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Refusjon
 import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.Tiltakstype
+import no.nav.arbeidsgiver.tiltakrefusjon.refusjon.trekkFraTidligereRefundertGrunnetFravaer
 import no.nav.arbeidsgiver.tiltakrefusjon.utregning.UtgaarGrunn.OVER_AVTALT_TILSKUDD
 import no.nav.arbeidsgiver.tiltakrefusjon.utregning.UtgaarGrunn.OVER_FEM_GRUNNBELOP
 import no.nav.arbeidsgiver.tiltakrefusjon.utregning.UtregningsradType.ARBEIDSGIVERAVGIFT
@@ -26,6 +28,7 @@ import no.nav.arbeidsgiver.tiltakrefusjon.utregning.UtregningsradType.TIDLIGERE_
 import no.nav.arbeidsgiver.tiltakrefusjon.utregning.UtregningsradType.TIDLIGERE_UTBETALT
 import no.nav.arbeidsgiver.tiltakrefusjon.utregning.UtregningsradType.TILSKUDDSPROSENT
 import no.nav.arbeidsgiver.tiltakrefusjon.utregning.UtregningsradType.TIMELONN_X_TIMER
+import kotlin.math.roundToInt
 
 typealias Utregningsgruppe = List<Utregningslinje>
 
@@ -113,15 +116,31 @@ private fun tilskuddsutregning(refundering: Refundering): Utregning? {
         ARBEIDSGIVERAVGIFT leggerTil beregning.arbeidsgiveravgift ogErUtledetAv tilskuddsgrunnlag.arbeidsgiveravgiftSats.prosent
     )
 
-    val tidligereRefundert = if (beregning.tidligereRefundertBeløp != 0)
-        listOf(
-            SUM_BRUTTO_LONNSUTGIFTER erLik beregning.sumUtgifter,
-            TIDLIGERE_REFUNDERBART_FOR_FRAVAER leggerTil fratrekkGrunnetfravaer
-        )
+    val fravaerstrekkResultat = trekkFraTidligereRefundertGrunnetFravaer(beregning.sumUtgifter.toDouble(),  beregning.tidligereRefundertBeløp)
+    val tidligereRefundertResultererIMinus = beregning.sumUtgifter >=0 && beregning.sumUtgifterFratrukketRefundertBeløp < 0
+
+    val tidligereRefundert = if (fratrekkGrunnetfravaer != 0)
+        if (fravaerstrekkResultat.type == FravaersTrekkResultatType.GIKK_I_MINUS) {
+            listOf(
+                SUM_BRUTTO_LONNSUTGIFTER erLik beregning.sumUtgifter,
+                TIDLIGERE_REFUNDERBART_FOR_FRAVAER leggerTil fratrekkGrunnetfravaer utgårGrunnet UtgaarGrunn.FRAVAERSTREKK_GIR_MINUSBELOP,
+                TIDLIGERE_REFUNDERBART_FOR_FRAVAER leggerTil -fravaerstrekkResultat.reeltTrekk.toInt()
+            )
+        } else if (fravaerstrekkResultat.type == FravaersTrekkResultatType.VAR_I_MINUS) {
+            listOf(
+                SUM_BRUTTO_LONNSUTGIFTER erLik beregning.sumUtgifter,
+                TIDLIGERE_REFUNDERBART_FOR_FRAVAER leggerTil fratrekkGrunnetfravaer utgårGrunnet UtgaarGrunn.FRAVAERSTREKK_GIR_MINUSBELOP
+            )
+        } else {
+            listOf(
+                SUM_BRUTTO_LONNSUTGIFTER erLik beregning.sumUtgifter,
+                TIDLIGERE_REFUNDERBART_FOR_FRAVAER leggerTil fravaerstrekkResultat.reeltTrekk.toInt()
+            )
+        }
     else null
 
     val refusjonsgrunnlag = listOf(
-        REFUSJONSGRUNNLAG erLik beregning.sumUtgifterFratrukketRefundertBeløp,
+        REFUSJONSGRUNNLAG erLik fravaerstrekkResultat.resultat.roundToInt(),
         TILSKUDDSPROSENT multiplisererMed tilskuddsgrunnlag.lønnstilskuddsprosent.prosent
     )
 

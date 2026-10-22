@@ -28,8 +28,10 @@ import no.nav.arbeidsgiver.tiltakrefusjon.utregning.UtregningsradType.REDUKSJON_
 import no.nav.arbeidsgiver.tiltakrefusjon.utregning.UtregningsradType.REFUSJONSBELOP_TIL_UTBETALING
 import no.nav.arbeidsgiver.tiltakrefusjon.utregning.UtregningsradType.REFUSJONSGRUNNLAG
 import no.nav.arbeidsgiver.tiltakrefusjon.utregning.UtregningsradType.RESTERENDE_FRATREKK_FOR_FERIE_FRA_TIDLIGERE_REFUSJONER
+import no.nav.arbeidsgiver.tiltakrefusjon.utregning.UtregningsradType.SUM_BRUTTO_LONNSUTGIFTER
 import no.nav.arbeidsgiver.tiltakrefusjon.utregning.UtregningsradType.SUM_TILSKUDD_FOR_EN_MND
 import no.nav.arbeidsgiver.tiltakrefusjon.utregning.UtregningsradType.TIDLIGERE_UTBETALT
+import no.nav.arbeidsgiver.tiltakrefusjon.utregning.UtregningsradType.TIDLIGERE_REFUNDERBART_FOR_FRAVAER
 import no.nav.arbeidsgiver.tiltakrefusjon.utregning.UtregningsradType.TILSKUDDSPROSENT
 import no.nav.arbeidsgiver.tiltakrefusjon.utregning.UtregningsradType.TIMELONN_X_TIMER
 import org.junit.jupiter.api.AfterEach
@@ -142,6 +144,97 @@ class UtregningTest {
             .medBeregning()
 
         assertEquals(forventetResultat, Utregning.from(refusjon))
+    }
+
+    @Test
+    fun `fratrekk refunderbart belop ignoreres hvis sum av utgifter er negativt`() {
+        val refusjon = refusjon()
+            .medInntekter(7777)
+            .medFerietrekk(35000)
+            .apply { this.settFratrekkRefunderbarBeløp(true, 1000) }
+            .medBeregning()
+
+        assertEquals(
+            utregning(
+                gruppe(BRUTTOLONN_I_PERIODEN tilsvarer 7777,
+                    FERIETREKK leggerTil -35000,
+                    FERIEPENGER leggerTil -3267 ogErUtledetAv 12.prosent,
+                    OBLIGATORISK_TJENESTEPENSJON leggerTil -610 ogErUtledetAv 2.prosent,
+                    ARBEIDSGIVERAVGIFT leggerTil -4385 ogErUtledetAv 0.141.prosent
+                ),
+                gruppe(
+                   SUM_BRUTTO_LONNSUTGIFTER erLik -35485,
+                    TIDLIGERE_REFUNDERBART_FOR_FRAVAER leggerTil -1000 utgårGrunnet UtgaarGrunn.FRAVAERSTREKK_GIR_MINUSBELOP,
+                    ),
+                gruppe(
+                    REFUSJONSGRUNNLAG erLik -35485,
+                    TILSKUDDSPROSENT multiplisererMed 0.4.prosent
+                ),
+                gruppe(REFUSJONSBELOP_TIL_UTBETALING erLik -14194)
+            ),
+            refusjon.utregning()
+        )
+    }
+
+    @Test
+    fun `fratrekk refunderbart belop reduseres hvis summen vil bli negativ`() {
+        val refusjon = refusjon()
+            .medInntekter(7777)
+            .medFerietrekk(7600)
+            .apply { this.settFratrekkRefunderbarBeløp(true, 1000) }
+            .medBeregning()
+
+        assertEquals(
+            utregning(
+                gruppe(BRUTTOLONN_I_PERIODEN tilsvarer 7777,
+                    FERIETREKK leggerTil -7600,
+                    FERIEPENGER leggerTil 21 ogErUtledetAv 12.prosent,
+                    OBLIGATORISK_TJENESTEPENSJON leggerTil 4 ogErUtledetAv 2.prosent,
+                    ARBEIDSGIVERAVGIFT leggerTil 29 ogErUtledetAv 0.141.prosent
+                ),
+                gruppe(
+                    SUM_BRUTTO_LONNSUTGIFTER erLik 231,
+                    TIDLIGERE_REFUNDERBART_FOR_FRAVAER leggerTil -1000 utgårGrunnet UtgaarGrunn.FRAVAERSTREKK_GIR_MINUSBELOP,
+                    TIDLIGERE_REFUNDERBART_FOR_FRAVAER leggerTil -231
+                ),
+                gruppe(
+                    REFUSJONSGRUNNLAG erLik 0,
+                    TILSKUDDSPROSENT multiplisererMed 0.4.prosent
+                ),
+                gruppe(REFUSJONSBELOP_TIL_UTBETALING erLik 0)
+            ),
+            refusjon.utregning()
+        )
+    }
+
+    @Test
+    fun `fratrekk refunderbart belop trekkes som vanlig hvis summen forblir positiv`() {
+        val refusjon = refusjon()
+            .medInntekter(7777)
+            .medFerietrekk(5600)
+            .apply { this.settFratrekkRefunderbarBeløp(true, 1000) }
+            .medBeregning()
+
+        assertEquals(
+            utregning(
+                gruppe(BRUTTOLONN_I_PERIODEN tilsvarer 7777,
+                    FERIETREKK leggerTil -5600,
+                    FERIEPENGER leggerTil 261 ogErUtledetAv 12.prosent,
+                    OBLIGATORISK_TJENESTEPENSJON leggerTil 49 ogErUtledetAv 2.prosent,
+                    ARBEIDSGIVERAVGIFT leggerTil 351 ogErUtledetAv 0.141.prosent
+                ),
+                gruppe(
+                    SUM_BRUTTO_LONNSUTGIFTER erLik 2838,
+                    TIDLIGERE_REFUNDERBART_FOR_FRAVAER leggerTil -1000
+                ),
+                gruppe(
+                    REFUSJONSGRUNNLAG erLik 1838,
+                    TILSKUDDSPROSENT multiplisererMed 0.4.prosent
+                ),
+                gruppe(REFUSJONSBELOP_TIL_UTBETALING erLik 735)
+            ),
+            refusjon.utregning()
+        )
     }
 
     @Test

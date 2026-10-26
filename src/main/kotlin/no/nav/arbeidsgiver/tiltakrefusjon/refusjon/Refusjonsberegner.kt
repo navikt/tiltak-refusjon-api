@@ -102,15 +102,10 @@ fun tilskuddsberegning(
     val sumUtgifter = lønnFratrukketFerie + tjenestepensjon + feriepenger + arbeidsgiveravgift
     val fratrekkRefunderbarBeløp = fratrekkRefunderbarSum ?: 0
     val sumUtgifterFratrukketRefundertBeløp = sumUtgifter - fratrekkRefunderbarBeløp
-    val beregnetBeløpUtenFratrukketRefundertBeløp = sumUtgifter * (tilskuddsgrunnlag.lønnstilskuddsprosent / 100.0)
-    var beregnetBeløp = sumUtgifterFratrukketRefundertBeløp * (tilskuddsgrunnlag.lønnstilskuddsprosent / 100.0)
 
-    if (beregnetBeløpUtenFratrukketRefundertBeløp > 0 && beregnetBeløp < 0) {
-        beregnetBeløp = 0.0
-    }
-    if (beregnetBeløpUtenFratrukketRefundertBeløp < 0) {
-        beregnetBeløp = beregnetBeløpUtenFratrukketRefundertBeløp
-    }
+    val fravaerstrekkResultat: FravaerstrekkResultat = trekkFraTidligereRefundertGrunnetFravaer(sumUtgifter, fratrekkRefunderbarBeløp)
+
+    val beregnetBeløp = fravaerstrekkResultat.resultat * (tilskuddsgrunnlag.lønnstilskuddsprosent / 100.0)
 
     val avrundetBeregnetBeløp: Int = beregnetBeløp.roundToInt()
 
@@ -150,6 +145,39 @@ fun tilskuddsberegning(
         grunnbelopBrukt = grunnbelopForPerioden.belop,
         grunnbelopDato = grunnbelopForPerioden.gjelderFraOgMed,
     )
+}
+
+enum class FravaersTrekkResultatType () {
+    GIKK_I_MINUS,
+    VAR_I_MINUS,
+    REDUSERT_BELOP
+}
+
+data class FravaerstrekkResultat(
+    val type: FravaersTrekkResultatType,
+    val reeltTrekk: Double,
+    val resultat: Double,
+)
+
+/**
+ * Gitt en sum av utgifter (lønnsinntekt, ferietrekk...) skal "tidligere refundert beløp grunnet fravær" trekkes på
+ * følgende måte:
+ *
+ * 1. Dersom trekket vil resultere i minusbeløp; blir resultatet 0
+ * 2. Dersom sumUtgifter allerede var negativ, se helt bort fra fratrekket
+ * 3. Ellers trekkes fraværstrekk fra sumUtgifter
+ */
+fun trekkFraTidligereRefundertGrunnetFravaer(sumUtgifter: Double, fravaerstrekk: Int): FravaerstrekkResultat {
+    val sumUtgifterFratrukketRefundertBeløp = sumUtgifter - fravaerstrekk
+    val fratrekkRefundertBelopResultererIMinus = sumUtgifter >= 0 && sumUtgifterFratrukketRefundertBeløp < 0
+
+    return if (fratrekkRefundertBelopResultererIMinus) {
+        FravaerstrekkResultat(FravaersTrekkResultatType.GIKK_I_MINUS, sumUtgifter, 0.0)
+    } else if (sumUtgifter < 0) { // Ignorerer fratrekkRefunderbartBeløp dersom sum av utgifter allerede er negativ
+        FravaerstrekkResultat(FravaersTrekkResultatType.VAR_I_MINUS, 0.0, sumUtgifter)
+    } else {
+        FravaerstrekkResultat(FravaersTrekkResultatType.REDUSERT_BELOP, fravaerstrekk.toDouble(), sumUtgifterFratrukketRefundertBeløp)
+    }
 }
 
 fun beregn(beregningskontekst: Beregningskontekst, refundering: Refundering): Beregning? {

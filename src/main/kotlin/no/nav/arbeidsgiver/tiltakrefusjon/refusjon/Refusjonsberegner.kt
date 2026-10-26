@@ -147,6 +147,18 @@ fun tilskuddsberegning(
     )
 }
 
+enum class FravaersTrekkResultatType () {
+    GIKK_I_MINUS,
+    VAR_I_MINUS,
+    REDUSERT_BELOP
+}
+
+data class FravaerstrekkResultat(
+    val type: FravaersTrekkResultatType,
+    val reeltTrekk: Double,
+    val resultat: Double,
+)
+
 /**
  * Gitt en sum av utgifter (lønnsinntekt, ferietrekk...) skal "tidligere refundert beløp grunnet fravær" trekkes på
  * følgende måte:
@@ -167,18 +179,6 @@ fun trekkFraTidligereRefundertGrunnetFravaer(sumUtgifter: Double, fravaerstrekk:
         FravaerstrekkResultat(FravaersTrekkResultatType.REDUSERT_BELOP, fravaerstrekk.toDouble(), sumUtgifterFratrukketRefundertBeløp)
     }
 }
-
-enum class FravaersTrekkResultatType () {
-    GIKK_I_MINUS,
-    VAR_I_MINUS,
-    REDUSERT_BELOP
-}
-
-data class FravaerstrekkResultat(
-    val type: FravaersTrekkResultatType,
-    val reeltTrekk: Double,
-    val resultat: Double,
-)
 
 fun beregn(beregningskontekst: Beregningskontekst, refundering: Refundering): Beregning? {
     if (!refundering.refusjonsgrunnlag.harTilstrekkeligInformasjonForBeregning()) {

@@ -7,6 +7,8 @@ import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.MidlerFrigjortÅrsak
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeAnnullertMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeForkortetMelding
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
+import no.nav.arbeidsgiver.tiltakrefusjon.JsonConfiguration
+import tools.jackson.databind.node.ObjectNode
 import no.nav.arbeidsgiver.tiltakrefusjon.utils.Now
 import no.nav.arbeidsgiver.tiltakrefusjon.varsling.VarslingRepository
 import org.assertj.core.api.Assertions.assertThat
@@ -71,7 +73,7 @@ class RefusjonServiceTest(
     fun `godkjennForArbeidsgiver feiler fordi refusjon er ikke klar til innsending`() {
 
         val deltakerFnr = "00000000000"
-        val tilskuddMelding = TilskuddsperiodeGodkjentMelding(
+        val tilskuddMelding = TilskuddsperiodeGodkjentMelding.Lonnstilskudd(
             avtaleId = "1",
             tilskuddsbeløp = 1000,
             tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
@@ -99,8 +101,6 @@ class RefusjonServiceTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
-            mentorTimelonn = null,
-            mentorAntallTimer = null,
         )
 
 
@@ -118,7 +118,7 @@ class RefusjonServiceTest(
     fun `rekkefølge GODKJENNING av refusjon, ingen krav til godkjenning i rekkefølge`() {
 
         val deltakerFnr = "00000000000"
-        val tilskuddMelding = TilskuddsperiodeGodkjentMelding(
+        val tilskuddMelding = TilskuddsperiodeGodkjentMelding.Lonnstilskudd(
             avtaleId = "1",
             tilskuddsbeløp = 1000,
             tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
@@ -146,10 +146,8 @@ class RefusjonServiceTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
-            mentorTimelonn = null,
-            mentorAntallTimer = null,
         )
-        val tilskuddMelding2LittEldreMedLøpenummer2 = TilskuddsperiodeGodkjentMelding(
+        val tilskuddMelding2LittEldreMedLøpenummer2 = TilskuddsperiodeGodkjentMelding.Lonnstilskudd(
             avtaleId = "1",
             tilskuddsbeløp = 1000,
             tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
@@ -177,11 +175,9 @@ class RefusjonServiceTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
-            mentorTimelonn = null,
-            mentorAntallTimer = null,
         )
 
-        val tilskuddMelding3LittEldreMedLøpenummer3 = TilskuddsperiodeGodkjentMelding(
+        val tilskuddMelding3LittEldreMedLøpenummer3 = TilskuddsperiodeGodkjentMelding.Lonnstilskudd(
             avtaleId = "1",
             tilskuddsbeløp = 1000,
             tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
@@ -209,8 +205,6 @@ class RefusjonServiceTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
-            mentorTimelonn = null,
-            mentorAntallTimer = null,
         )
 
         val refusjon1 = refusjonService.opprettRefusjon(tilskuddMelding)!!
@@ -242,7 +236,7 @@ class RefusjonServiceTest(
     fun `godkjenner refusjon med 0 kr, skal bli en annullering til oebs`() {
         val deltakerFnr = "00000000000"
         // Tilskuddsperiode med nullbeløp. Skal gi godkjent med nullbeløpstatus
-        val tilskuddMelding = TilskuddsperiodeGodkjentMelding(
+        val tilskuddMelding = TilskuddsperiodeGodkjentMelding.Lonnstilskudd(
             avtaleId = "1",
             tilskuddsbeløp = 0,
             tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
@@ -270,8 +264,6 @@ class RefusjonServiceTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
-            mentorTimelonn = null,
-            mentorAntallTimer = null,
         )
         val refusjon = refusjonService.opprettRefusjon(tilskuddMelding)!!
         refusjonService.gjørBedriftKontonummeroppslag(refusjon)
@@ -288,7 +280,7 @@ class RefusjonServiceTest(
     @Test
     fun `oppretter, forkorter, og forlenger`() {
         val deltakerFnr = "00000000000"
-        val tilskuddMelding = TilskuddsperiodeGodkjentMelding(
+        val tilskuddMelding = TilskuddsperiodeGodkjentMelding.Lonnstilskudd(
             avtaleId = "1",
             tilskuddsbeløp = 1000,
             tiltakstype = Tiltakstype.SOMMERJOBB,
@@ -316,8 +308,6 @@ class RefusjonServiceTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
-            mentorTimelonn = null,
-            mentorAntallTimer = null,
         )
         refusjonService.opprettRefusjon(tilskuddMelding)
         val pageable: Pageable = PageRequest.of(0, 100)
@@ -360,7 +350,7 @@ class RefusjonServiceTest(
     @Test
     fun `kaller opprett på samme melding flere ganger, skal bare lagre den ene`() {
         val deltakerFnr = "00000000000"
-        val tilskuddMelding = TilskuddsperiodeGodkjentMelding(
+        val tilskuddMelding = TilskuddsperiodeGodkjentMelding.Lonnstilskudd(
             avtaleId = "1",
             tilskuddsbeløp = 1000,
             tiltakstype = Tiltakstype.SOMMERJOBB,
@@ -388,8 +378,6 @@ class RefusjonServiceTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
-            mentorTimelonn = null,
-            mentorAntallTimer = null,
         )
         refusjonService.opprettRefusjon(tilskuddMelding)
         refusjonService.opprettRefusjon(tilskuddMelding)
@@ -405,7 +393,7 @@ class RefusjonServiceTest(
     @Test
     fun `inntektsoppslag skal ta hensyn til unntaksregel`() {
         val deltakerFnr = "00000000000"
-        val tilskuddMelding = TilskuddsperiodeGodkjentMelding(
+        val tilskuddMelding = TilskuddsperiodeGodkjentMelding.Lonnstilskudd(
             avtaleId = "2",
             tilskuddsbeløp = 1000,
             tiltakstype = Tiltakstype.SOMMERJOBB,
@@ -433,8 +421,6 @@ class RefusjonServiceTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
-            mentorTimelonn = null,
-            mentorAntallTimer = null,
         )
         val refusjon = refusjonService.opprettRefusjon(tilskuddMelding) ?: fail("Skulle kunne opprette refusjon")
 
@@ -451,7 +437,7 @@ class RefusjonServiceTest(
     @Test
     fun `inntektsoppslag skal ta hensyn til at arbeidsgiver klikker på knapp for å hente neste måneds inntekter`() {
         val deltakerFnr = "00000000000"
-        val tilskuddMelding = TilskuddsperiodeGodkjentMelding(
+        val tilskuddMelding = TilskuddsperiodeGodkjentMelding.Lonnstilskudd(
             avtaleId = "2",
             tilskuddsbeløp = 1000,
             tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
@@ -480,8 +466,6 @@ class RefusjonServiceTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
-            mentorTimelonn = null,
-            mentorAntallTimer = null,
         )
         val refusjon = refusjonService.opprettRefusjon(tilskuddMelding) ?: fail("Skulle kunne opprette refusjon")
 
@@ -497,7 +481,7 @@ class RefusjonServiceTest(
     @Test
     fun `Inntektsoppslag for andre typer enn sommerjobb skal sjekke 1 måned ekstra`() {
         val deltakerFnr = "00000000000"
-        val tilskuddMelding = TilskuddsperiodeGodkjentMelding(
+        val tilskuddMelding = TilskuddsperiodeGodkjentMelding.Lonnstilskudd(
             avtaleId = "2",
             tilskuddsbeløp = 1000,
             tiltakstype = Tiltakstype.VARIG_LONNSTILSKUDD,
@@ -525,8 +509,6 @@ class RefusjonServiceTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
-            mentorTimelonn = null,
-            mentorAntallTimer = null,
         )
         val refusjon = refusjonService.opprettRefusjon(tilskuddMelding) ?: fail("Skulle kunne opprette refusjon")
         refusjonService.gjørInntektsoppslag(refusjon, innloggetArbeidsgiver)
@@ -541,7 +523,7 @@ class RefusjonServiceTest(
     @Test
     fun `Manuell annullering av tilskuddsperiode fordi det ikke vil bli søkt om refusjon annullerer ikke refusjon`() {
         val deltakerFnr = "00000000000"
-        val tilskuddMelding = TilskuddsperiodeGodkjentMelding(
+        val tilskuddMelding = TilskuddsperiodeGodkjentMelding.Lonnstilskudd(
             avtaleId = "1",
             tilskuddsbeløp = 1000,
             tiltakstype = Tiltakstype.SOMMERJOBB,
@@ -569,8 +551,6 @@ class RefusjonServiceTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
-            mentorTimelonn = null,
-            mentorAntallTimer = null,
         )
         refusjonService.opprettRefusjon(tilskuddMelding)
         assertThat(
@@ -599,12 +579,11 @@ fun `tilskuddsperioder som er ettersendt men ikke utgått får riktig status ved
         refusjonStatus: RefusjonStatus,
     ) {
         val refusjon = refusjonService.opprettRefusjon(
-            eldreTilskuddsmeldingBase.copy(
-                tiltakstype = tiltakstype,
+            eldreTilskuddsmelding(tiltakstype, eldreTilskuddsmeldingBase.copy(
                 tilskuddFom = YearMonth.from(Now.localDate().minusMonths(1)).atDay(1),
                 tilskuddTom = YearMonth.from(Now.localDate().minusMonths(1)).atEndOfMonth(),
                 godkjentTidspunkt = LocalDateTime.now().minusMonths(2),
-            )
+            ))
         )!!
 
         val lagretRefusjon = requireNotNull(refusjonRepository.findByIdOrNull(refusjon.id))
@@ -617,12 +596,11 @@ fun `tilskuddsperioder som er ettersendt men ikke utgått får riktig status ved
         tiltakstype: Tiltakstype
     ) {
         val refusjon = refusjonService.opprettRefusjon(
-            eldreTilskuddsmeldingBase.copy(
-                tiltakstype = tiltakstype,
+            eldreTilskuddsmelding(tiltakstype, eldreTilskuddsmeldingBase.copy(
                 tilskuddFom = YearMonth.from(Now.localDate().minusMonths(6)).atDay(1),
                 tilskuddTom = YearMonth.from(Now.localDate().minusMonths(6)).atEndOfMonth(),
                 godkjentTidspunkt = LocalDateTime.now().minusMonths(5),
-                )
+                ))
         )!!
 
         val lagretRefusjon = requireNotNull(refusjonRepository.findByIdOrNull(refusjon.id))
@@ -636,10 +614,7 @@ fun `tilskuddsperioder som er ettersendt men ikke utgått får riktig status ved
         forventetStatus: RefusjonStatus
     ) {
         val refusjon = refusjonService.opprettRefusjon(
-            eldreTilskuddsmeldingBase.copy(
-                tiltakstype = tiltakstype,
-                resendingsnummer = 1
-            )
+            eldreTilskuddsmelding(tiltakstype) { it.put("resendingsnummer", 1) }
         )!!
 
         val lagretRefusjon = refusjonRepository.findByIdOrNull(refusjon.id)
@@ -651,13 +626,7 @@ fun `tilskuddsperioder som er ettersendt men ikke utgått får riktig status ved
     @Test
     fun `satser og lønnstilskuddsprosent som mangler i meldingen lagres som 0`() {
         val refusjon = refusjonService.opprettRefusjon(
-            eldreTilskuddsmeldingBase.copy(
-                tilskuddsperiodeId = "null-satser",
-                feriepengerSats = null,
-                otpSats = null,
-                arbeidsgiveravgiftSats = null,
-                lønnstilskuddsprosent = null,
-            )
+            eldreTilskuddsmelding(Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD) { it.put("tilskuddsperiodeId", "null-satser") }
         )!!
 
         val tilskuddsgrunnlag = requireNotNull(refusjonRepository.findByIdOrNull(refusjon.id))
@@ -666,6 +635,59 @@ fun `tilskuddsperioder som er ettersendt men ikke utgått får riktig status ved
         assertThat(tilskuddsgrunnlag.otpSats).isEqualTo(0.0)
         assertThat(tilskuddsgrunnlag.arbeidsgiveravgiftSats).isEqualTo(0.0)
         assertThat(tilskuddsgrunnlag.lønnstilskuddsprosent).isEqualTo(0)
+    }
+
+    @Test
+    fun `mentormelding lagrer satser, timelønn og timer og gir mentorberegning`() {
+        val melding = TilskuddsperiodeGodkjentMelding.Mentor(
+            avtaleId = "mentor-avtale",
+            tilskuddsperiodeId = "mentor-periode",
+            avtaleInnholdId = "1",
+            deltakerFornavn = "Mikke",
+            deltakerEtternavn = "Mus",
+            deltakerFnr = "00000000000",
+            arbeidsgiverFornavn = "Arne",
+            arbeidsgiverEtternavn = "Arbeidsgiver",
+            arbeidsgiverTlf = "41111111",
+            veilederNavIdent = "X123456",
+            bedriftNavn = "Bedriften AS",
+            bedriftNr = "999999999",
+            tilskuddsbeløp = 4000,
+            tilskuddFom = YearMonth.from(Now.localDate().minusMonths(1)).atDay(1),
+            tilskuddTom = YearMonth.from(Now.localDate().minusMonths(1)).atEndOfMonth(),
+            avtaleNr = 4567,
+            løpenummer = 1,
+            enhet = "1000",
+            godkjentTidspunkt = LocalDateTime.now().minusMonths(1),
+            arbeidsgiverKontonummer = "12345678908",
+            arbeidsgiverKid = null,
+            feriepengerSats = 0.12,
+            otpSats = 0.02,
+            arbeidsgiveravgiftSats = 0.141,
+            mentorTimelonn = 300,
+            mentorAntallTimer = 10.0,
+        )
+
+        val refusjon = refusjonService.opprettRefusjon(melding)!!
+
+        val lagret = requireNotNull(refusjonRepository.findByIdOrNull(refusjon.id))
+        val tilskuddsgrunnlag = lagret.refusjonsgrunnlag.tilskuddsgrunnlag
+        assertThat(tilskuddsgrunnlag.tiltakstype).isEqualTo(Tiltakstype.MENTOR)
+        assertThat(tilskuddsgrunnlag.feriepengerSats).isEqualTo(0.12)
+        assertThat(tilskuddsgrunnlag.otpSats).isEqualTo(0.02)
+        assertThat(tilskuddsgrunnlag.arbeidsgiveravgiftSats).isEqualTo(0.141)
+        assertThat(tilskuddsgrunnlag.mentorTimelonn).isEqualTo(300)
+        assertThat(tilskuddsgrunnlag.mentorAntallTimer).isEqualTo(10.0)
+
+        // Lønn 300 * 10 = 3000, feriepenger 360, OTP 67, arbeidsgiveravgift 483: sum 3910.
+        // Mentor refunderer fast tilskuddsbeløp.
+        val beregning = requireNotNull(lagret.refusjonsgrunnlag.beregning)
+        assertThat(beregning.lønn).isEqualTo(3000)
+        assertThat(beregning.feriepenger).isEqualTo(360)
+        assertThat(beregning.tjenestepensjon).isEqualTo(67)
+        assertThat(beregning.arbeidsgiveravgift).isEqualTo(483)
+        assertThat(beregning.sumUtgifter).isEqualTo(3910)
+        assertThat(beregning.refusjonsbeløp).isEqualTo(4000)
     }
 
     fun gjørInntektoppslagForRefusjon(refusjon: Refusjon) {
@@ -678,7 +700,7 @@ fun `tilskuddsperioder som er ettersendt men ikke utgått får riktig status ved
 
 }
 
-private val eldreTilskuddsmeldingBase = TilskuddsperiodeGodkjentMelding(
+private val eldreTilskuddsmeldingBase = TilskuddsperiodeGodkjentMelding.Vtao(
     avtaleId = "1",
     tilskuddsbeløp = 5000,
     tiltakstype = Tiltakstype.VTAO,
@@ -687,18 +709,14 @@ private val eldreTilskuddsmeldingBase = TilskuddsperiodeGodkjentMelding(
     arbeidsgiverFornavn = "Arne",
     arbeidsgiverEtternavn = "Arbeidsgiver",
     arbeidsgiverTlf = "41111111",
-    arbeidsgiveravgiftSats = 0.0,
     avtaleInnholdId = "1",
     bedriftNavn = "Bedriften AS",
     bedriftNr = "999999999",
     deltakerFnr = "00000000000",
-    feriepengerSats = 0.0,
-    otpSats = 0.0,
     tilskuddFom = Now.localDate().minusMonths(6).withDayOfMonth(1),
     tilskuddTom = YearMonth.from(Now.localDate().minusMonths(6)).atEndOfMonth(),
     tilskuddsperiodeId = "1",
     veilederNavIdent = "X123456",
-    lønnstilskuddsprosent = 0,
     avtaleNr = 3456,
     løpenummer = 1,
     resendingsnummer = null,
@@ -707,9 +725,22 @@ private val eldreTilskuddsmeldingBase = TilskuddsperiodeGodkjentMelding(
     godkjentTidspunkt = LocalDateTime.now().minusMonths(5),
     arbeidsgiverKontonummer = "12345678908",
     arbeidsgiverKid = null,
-    mentorTimelonn = null,
-    mentorAntallTimer = null,
 )
+
+/** Bygger meldingen via JSON, slik at subtypen velges av tiltakstype som i Kafka-lytteren. */
+private fun eldreTilskuddsmelding(
+    tiltakstype: Tiltakstype,
+    base: TilskuddsperiodeGodkjentMelding.Vtao = eldreTilskuddsmeldingBase,
+    endring: (ObjectNode) -> Unit = {},
+): TilskuddsperiodeGodkjentMelding {
+    val json = JsonConfiguration.kafkaJsonMapper.valueToTree<ObjectNode>(base)
+        .put("tiltakstype", tiltakstype.name)
+    if (tiltakstype == Tiltakstype.INKLUDERINGSTILSKUDD) {
+        json.putObject("inkluderingstilskuddsutgift").put("id", "1").put("beløp", 5000)
+    }
+    endring(json)
+    return JsonConfiguration.kafkaJsonMapper.treeToValue(json, TilskuddsperiodeGodkjentMelding::class.java)
+}
 
 private fun statusVedEtterregistrering(tiltakstype: Tiltakstype): RefusjonStatus =
     when (tiltakstype) {

@@ -69,7 +69,7 @@ class RefusjonberegnerFratrekkFerieTest(
         deltakerFnr: String,
         bedriftNr: String
     ): TilskuddsperiodeGodkjentMelding {
-        val tilskuddsperiodeGodkjentMelding = TilskuddsperiodeGodkjentMelding(
+        val tilskuddsperiodeGodkjentMelding = TilskuddsperiodeGodkjentMelding.Lonnstilskudd(
             avtaleId = ulid(),
             tilskuddsperiodeId = ulid(),
             avtaleInnholdId = ulid(),
@@ -97,8 +97,6 @@ class RefusjonberegnerFratrekkFerieTest(
             godkjentTidspunkt = LocalDateTime.of(tilskuddTom.year, tilskuddTom.month, tilskuddTom.dayOfMonth, 0, 0),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
-            mentorTimelonn = null,
-            mentorAntallTimer = null,
         )
         return tilskuddsperiodeGodkjentMelding
     }

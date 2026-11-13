@@ -221,7 +221,7 @@ class RefusjonVarig5GTest(
 
 private val deltakerFnr = "06435607002"
 
-private val tilskuddsmelding = TilskuddsperiodeGodkjentMelding(
+private val tilskuddsmelding = TilskuddsperiodeGodkjentMelding.Lonnstilskudd(
     avtaleId = "1",
     tilskuddsbeløp = 400000,
     tiltakstype = Tiltakstype.VARIG_LONNSTILSKUDD,
@@ -249,17 +249,15 @@ private val tilskuddsmelding = TilskuddsperiodeGodkjentMelding(
     godkjentTidspunkt = LocalDateTime.of(2024, 2, 1, 0, 0),
     arbeidsgiverKontonummer = "12345678908",
     arbeidsgiverKid = null,
-    mentorTimelonn = null,
-    mentorAntallTimer = null,
 )
 
 private val differanseI5G = (åretsG * 5) - (forrigeÅretsG * 5)
 
-private fun TilskuddsperiodeGodkjentMelding.medNyId(id: String): TilskuddsperiodeGodkjentMelding {
+private fun TilskuddsperiodeGodkjentMelding.Lonnstilskudd.medNyId(id: String): TilskuddsperiodeGodkjentMelding.Lonnstilskudd {
     return this.copy(tilskuddsperiodeId = id)
 }
 
-private fun TilskuddsperiodeGodkjentMelding.medNyPeriode(år: Int, måned: Int): TilskuddsperiodeGodkjentMelding {
+private fun TilskuddsperiodeGodkjentMelding.Lonnstilskudd.medNyPeriode(år: Int, måned: Int): TilskuddsperiodeGodkjentMelding.Lonnstilskudd {
     return this.copy(
         tilskuddFom = LocalDate.of(år, måned, 1),
         tilskuddTom = LocalDate.of(år, måned, 1).with(lastDayOfMonth()),

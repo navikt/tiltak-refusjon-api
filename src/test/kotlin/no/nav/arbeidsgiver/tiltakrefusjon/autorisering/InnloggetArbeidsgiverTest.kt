@@ -95,7 +95,7 @@ internal class InnloggetArbeidsgiverTest(
     @Test
     fun finnRefusjon() {
         val deltakerFnr = "00000000000"
-        val tilskuddMelding = TilskuddsperiodeGodkjentMelding(
+        val tilskuddMelding = TilskuddsperiodeGodkjentMelding.Lonnstilskudd(
             avtaleId = "1",
             tilskuddsbeløp = 1000,
             tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
@@ -123,10 +123,8 @@ internal class InnloggetArbeidsgiverTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
-            mentorTimelonn = null,
-            mentorAntallTimer = null,
         )
-        val tilskuddMelding2LittEldreMedLøpenummer2 = TilskuddsperiodeGodkjentMelding(
+        val tilskuddMelding2LittEldreMedLøpenummer2 = TilskuddsperiodeGodkjentMelding.Lonnstilskudd(
             avtaleId = "1",
             tilskuddsbeløp = 1000,
             tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
@@ -154,8 +152,6 @@ internal class InnloggetArbeidsgiverTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
-            mentorTimelonn = null,
-            mentorAntallTimer = null,
         )
 
         val refusjon1 = refusjonService.opprettRefusjon(tilskuddMelding)!!
@@ -190,7 +186,7 @@ internal class InnloggetArbeidsgiverTest(
             persondataService
         )
 
-        val tilskuddMelding2LittEldreMedLøpenummer2 = TilskuddsperiodeGodkjentMelding(
+        val tilskuddMelding2LittEldreMedLøpenummer2 = TilskuddsperiodeGodkjentMelding.Lonnstilskudd(
             avtaleId = "1",
             tilskuddsbeløp = 1000,
             tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
@@ -218,8 +214,6 @@ internal class InnloggetArbeidsgiverTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
-            mentorTimelonn = null,
-            mentorAntallTimer = null,
         )
 
         val refusjon2 = opprettRefusjonOgGjørInntektoppslag(tilskuddMelding2LittEldreMedLøpenummer2)
@@ -245,7 +239,7 @@ internal class InnloggetArbeidsgiverTest(
         val periode4start = Now.localDate().minusMonths(1).with(TemporalAdjusters.firstDayOfMonth());
         val periode4slutt = Now.localDate().minusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
 
-        val tilskuddMelding = TilskuddsperiodeGodkjentMelding(
+        val tilskuddMelding = TilskuddsperiodeGodkjentMelding.Lonnstilskudd(
             avtaleId = "1",
             tilskuddsbeløp = 1000,
             tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
@@ -273,10 +267,8 @@ internal class InnloggetArbeidsgiverTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
-            mentorTimelonn = null,
-            mentorAntallTimer = null,
         )
-        val tilskuddMelding2LittEldreMedLøpenummer2 = TilskuddsperiodeGodkjentMelding(
+        val tilskuddMelding2LittEldreMedLøpenummer2 = TilskuddsperiodeGodkjentMelding.Lonnstilskudd(
             avtaleId = "1",
             tilskuddsbeløp = 1000,
             tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
@@ -304,12 +296,10 @@ internal class InnloggetArbeidsgiverTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
-            mentorTimelonn = null,
-            mentorAntallTimer = null,
         )
 
         // Stort nok tilskuddsbeløp for å "nullstille" siste minusbeløp
-        val tilskuddMelding3LittEldreMedLøpenummer3 = TilskuddsperiodeGodkjentMelding(
+        val tilskuddMelding3LittEldreMedLøpenummer3 = TilskuddsperiodeGodkjentMelding.Lonnstilskudd(
             avtaleId = "1",
             tilskuddsbeløp = 10000,
             tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
@@ -337,11 +327,9 @@ internal class InnloggetArbeidsgiverTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
-            mentorTimelonn = null,
-            mentorAntallTimer = null,
         )
 
-        val tilskuddMelding4LittEldreMedLøpenummer4 = TilskuddsperiodeGodkjentMelding(
+        val tilskuddMelding4LittEldreMedLøpenummer4 = TilskuddsperiodeGodkjentMelding.Lonnstilskudd(
             avtaleId = "1",
             tilskuddsbeløp = 10000,
             tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
@@ -369,8 +357,6 @@ internal class InnloggetArbeidsgiverTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
-            mentorTimelonn = null,
-            mentorAntallTimer = null,
         )
 
         val innloggetArbeidsgiver = InnloggetArbeidsgiver(
@@ -433,7 +419,7 @@ internal class InnloggetArbeidsgiverTest(
         val periode4start = Now.localDate().minusMonths(1).with(TemporalAdjusters.firstDayOfMonth());
         val periode4slutt = Now.localDate().minusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
 
-        val tilskuddMelding = TilskuddsperiodeGodkjentMelding(
+        val tilskuddMelding = TilskuddsperiodeGodkjentMelding.Lonnstilskudd(
             avtaleId = "1",
             tilskuddsbeløp = 1000,
             tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
@@ -461,10 +447,8 @@ internal class InnloggetArbeidsgiverTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
-            mentorTimelonn = null,
-            mentorAntallTimer = null,
         )
-        val tilskuddMelding2LittEldreMedLøpenummer2 = TilskuddsperiodeGodkjentMelding(
+        val tilskuddMelding2LittEldreMedLøpenummer2 = TilskuddsperiodeGodkjentMelding.Lonnstilskudd(
             avtaleId = "2",
             tilskuddsbeløp = 1000,
             tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
@@ -492,12 +476,10 @@ internal class InnloggetArbeidsgiverTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
-            mentorTimelonn = null,
-            mentorAntallTimer = null,
         )
 
         // Stort nok tilskuddsbeløp for å "nullstille" siste minusbeløp
-        val tilskuddMelding3LittEldreMedLøpenummer3 = TilskuddsperiodeGodkjentMelding(
+        val tilskuddMelding3LittEldreMedLøpenummer3 = TilskuddsperiodeGodkjentMelding.Lonnstilskudd(
             avtaleId = "3",
             tilskuddsbeløp = 10000,
             tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
@@ -525,12 +507,10 @@ internal class InnloggetArbeidsgiverTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
-            mentorTimelonn = null,
-            mentorAntallTimer = null,
         )
 
         // Stort nok tilskuddsbeløp for å "nullstille" siste minusbeløp
-        val tilskuddMelding4LittEldreMedLøpenummer4 = TilskuddsperiodeGodkjentMelding(
+        val tilskuddMelding4LittEldreMedLøpenummer4 = TilskuddsperiodeGodkjentMelding.Lonnstilskudd(
             avtaleId = "4",
             tilskuddsbeløp = 10000,
             tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
@@ -558,8 +538,6 @@ internal class InnloggetArbeidsgiverTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
-            mentorTimelonn = null,
-            mentorAntallTimer = null,
         )
 
         val innloggetArbeidsgiver = InnloggetArbeidsgiver(
@@ -599,7 +577,7 @@ internal class InnloggetArbeidsgiverTest(
 
     @Test
     fun finnRefusjonUtenMinusBeløpSidenDetErBareEnRefusjonMedLøpenummer1() {
-        val tilskuddMeldingUtenFerieTrekk = TilskuddsperiodeGodkjentMelding(
+        val tilskuddMeldingUtenFerieTrekk = TilskuddsperiodeGodkjentMelding.Lonnstilskudd(
             avtaleId = "1",
             tilskuddsbeløp = 1000,
             tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
@@ -627,8 +605,6 @@ internal class InnloggetArbeidsgiverTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
-            mentorTimelonn = null,
-            mentorAntallTimer = null,
         )
 
 
@@ -659,7 +635,7 @@ internal class InnloggetArbeidsgiverTest(
         val periode3slutt = Now.localDate().minusMonths(2).with(TemporalAdjusters.lastDayOfMonth());
 
         val deltakerFnr = "10517741103"
-        val tilskuddMelding2LittEldreMedLøpenummer2 = TilskuddsperiodeGodkjentMelding(
+        val tilskuddMelding2LittEldreMedLøpenummer2 = TilskuddsperiodeGodkjentMelding.Lonnstilskudd(
             avtaleId = "1",
             tilskuddsbeløp = 1000,
             tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
@@ -687,8 +663,6 @@ internal class InnloggetArbeidsgiverTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
-            mentorTimelonn = null,
-            mentorAntallTimer = null,
         )
 
         // Stort nok tilskuddsbeløp for å "nullstille" siste minusbeløp
@@ -761,7 +735,7 @@ internal class InnloggetArbeidsgiverTest(
     fun `finnRefusjon feiler når strengt fortrolig og ingen adressesperre tilgang`() {
         val bedriftNr = "999999999"
         val deltakerFnr = "10517741103"
-        val melding = TilskuddsperiodeGodkjentMelding(
+        val melding = TilskuddsperiodeGodkjentMelding.Lonnstilskudd(
             avtaleId = "1",
             tilskuddsbeløp = 1000,
             tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
@@ -789,8 +763,6 @@ internal class InnloggetArbeidsgiverTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
-            mentorTimelonn = null,
-            mentorAntallTimer = null,
         )
         val refusjon = refusjonService.opprettRefusjon(melding)!!
 
@@ -822,7 +794,7 @@ internal class InnloggetArbeidsgiverTest(
         )
         whenever(persondataService.hentDiskresjonskode(deltakerFnr)).thenReturn(Diskresjonskode.FORTROLIG)
 
-        val tilskuddMelding = TilskuddsperiodeGodkjentMelding(
+        val tilskuddMelding = TilskuddsperiodeGodkjentMelding.Lonnstilskudd(
             avtaleId = "1",
             tilskuddsbeløp = 1000,
             tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
@@ -850,8 +822,6 @@ internal class InnloggetArbeidsgiverTest(
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
-            mentorTimelonn = null,
-            mentorAntallTimer = null,
         )
         val innlogget = InnloggetArbeidsgiver(
             identifikator = "04511349341",

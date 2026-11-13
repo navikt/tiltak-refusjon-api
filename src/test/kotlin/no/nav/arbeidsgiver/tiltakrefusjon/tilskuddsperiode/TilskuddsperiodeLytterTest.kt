@@ -13,14 +13,19 @@ import java.util.*
 import org.mockito.kotlin.argThat
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
+import org.junit.jupiter.api.assertThrows
+import tools.jackson.core.JacksonException
+import tools.jackson.databind.node.ObjectNode
 
 class TilskuddsperiodeLytterTest {
     private val service = mock<RefusjonService>()
-    private val lytter = TilskuddsperiodeKafkaLytter(service, jacksonMapperBuilder().medFellesOppsett().build())
+    private val mapper = jacksonMapperBuilder().medFellesOppsett().build()
+    private val lytter = TilskuddsperiodeKafkaLytter(service, mapper)
 
     @Test
     fun `skal opprette refusjon når melding blir lest fra topic`() {
-        val tilskuddMelding = TilskuddsperiodeGodkjentMelding(
+        val tilskuddMelding = TilskuddsperiodeGodkjentMelding.Lonnstilskudd(
             avtaleId = UUID.randomUUID().toString(),
             tilskuddsperiodeId = UUID.randomUUID().toString(),
             avtaleInnholdId = UUID.randomUUID().toString(),
@@ -48,8 +53,6 @@ class TilskuddsperiodeLytterTest {
             godkjentTidspunkt = LocalDateTime.now(),
             arbeidsgiverKontonummer = "12345678908",
             arbeidsgiverKid = null,
-            mentorTimelonn = null,
-            mentorAntallTimer = null,
         )
 
         lytter.tilskuddsperiodeGodkjent(JsonConfiguration.kafkaJsonMapper.writeValueAsString(tilskuddMelding))
@@ -66,7 +69,7 @@ class TilskuddsperiodeLytterTest {
                 .build()
         )
         val melding = JsonConfiguration.kafkaJsonMapper.writeValueAsString(
-            enGodkjentMelding().copy(
+            enLonnstilskuddMelding().copy(
                 feriepengerSats = null,
                 otpSats = null,
                 arbeidsgiveravgiftSats = null,
@@ -77,11 +80,111 @@ class TilskuddsperiodeLytterTest {
         strengLytter.tilskuddsperiodeGodkjent(melding)
 
         verify(service).opprettRefusjon(argThat {
-            feriepengerSats == null && otpSats == null && arbeidsgiveravgiftSats == null && lønnstilskuddsprosent == null
+            this is TilskuddsperiodeGodkjentMelding.Lonnstilskudd &&
+                feriepengerSats == null && otpSats == null && arbeidsgiveravgiftSats == null && lønnstilskuddsprosent == null
         })
     }
 
-    private fun enGodkjentMelding() = TilskuddsperiodeGodkjentMelding(
+    @Test
+    fun `historisk melding med alle felt leses som riktig subtype`() {
+        val historisk = mapper.readValue(
+            JsonConfiguration.kafkaJsonMapper.writeValueAsString(enMentorMelding()),
+            ObjectNode::class.java
+        ).put("lønnstilskuddsprosent", 60)
+
+        lytter.tilskuddsperiodeGodkjent(historisk.toString())
+
+        verify(service).opprettRefusjon(argThat {
+            this is TilskuddsperiodeGodkjentMelding.Mentor && mentorTimelonn == 300 && mentorAntallTimer == 10.0
+        })
+    }
+
+    @Test
+    fun `vtao-melding uten satser leses som Vtao`() {
+        val vtao = mapper.readValue(
+            JsonConfiguration.kafkaJsonMapper.writeValueAsString(enMentorMelding()),
+            ObjectNode::class.java
+        ).put("tiltakstype", "VTAO")
+        listOf("feriepengerSats", "otpSats", "arbeidsgiveravgiftSats", "mentorTimelonn", "mentorAntallTimer").forEach { vtao.remove(it) }
+
+        lytter.tilskuddsperiodeGodkjent(vtao.toString())
+
+        verify(service).opprettRefusjon(argThat { this is TilskuddsperiodeGodkjentMelding.Vtao })
+    }
+
+    @Test
+    fun `inkluderingstilskudd-melding leses med utgift`() {
+        val inkludering = mapper.readValue(
+            JsonConfiguration.kafkaJsonMapper.writeValueAsString(enMentorMelding()),
+            ObjectNode::class.java
+        ).put("tiltakstype", "INKLUDERINGSTILSKUDD")
+        inkludering.putObject("inkluderingstilskuddsutgift")
+            .put("id", "utgift-1").put("navn", "Utstyr").put("beløp", 5000).put("beskrivelse", "Hev-senk-pult").put("type", "UTSTYR")
+
+        lytter.tilskuddsperiodeGodkjent(inkludering.toString())
+
+        verify(service).opprettRefusjon(argThat {
+            this is TilskuddsperiodeGodkjentMelding.Inkluderingstilskudd && inkluderingstilskuddsutgift?.beløp == 5000
+        })
+    }
+
+    @Test
+    fun `historisk inkluderingstilskudd-melding uten utgift leses`() {
+        val historisk = mapper.readValue(
+            JsonConfiguration.kafkaJsonMapper.writeValueAsString(enMentorMelding()),
+            ObjectNode::class.java
+        ).put("tiltakstype", "INKLUDERINGSTILSKUDD")
+
+        lytter.tilskuddsperiodeGodkjent(historisk.toString())
+
+        verify(service).opprettRefusjon(argThat {
+            this is TilskuddsperiodeGodkjentMelding.Inkluderingstilskudd && inkluderingstilskuddsutgift == null
+        })
+    }
+
+    @Test
+    fun `melding uten tiltakstype avvises`() {
+        val utenType = mapper.readValue(
+            JsonConfiguration.kafkaJsonMapper.writeValueAsString(enMentorMelding()),
+            ObjectNode::class.java
+        )
+        utenType.remove("tiltakstype")
+
+        assertThrows<JacksonException> { lytter.tilskuddsperiodeGodkjent(utenType.toString()) }
+        verifyNoInteractions(service)
+    }
+
+    private fun enLonnstilskuddMelding() = TilskuddsperiodeGodkjentMelding.Lonnstilskudd(
+        avtaleId = UUID.randomUUID().toString(),
+        tilskuddsperiodeId = UUID.randomUUID().toString(),
+        avtaleInnholdId = UUID.randomUUID().toString(),
+        tiltakstype = Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD,
+        deltakerFornavn = "Donald",
+        deltakerEtternavn = "Duck",
+        deltakerFnr = "12345678901",
+        arbeidsgiverFornavn = "Arne",
+        arbeidsgiverEtternavn = "Arbeidsgiver",
+        arbeidsgiverTlf = "41111111",
+        veilederNavIdent = "X123456",
+        bedriftNavn = "Duck Levering AS",
+        bedriftNr = "99999999",
+        tilskuddsbeløp = 12000,
+        tilskuddFom = Now.localDate().minusDays(15),
+        tilskuddTom = Now.localDate(),
+        feriepengerSats = 0.12,
+        otpSats = 0.02,
+        arbeidsgiveravgiftSats = 0.141,
+        lønnstilskuddsprosent = 60,
+        avtaleNr = 3456,
+        løpenummer = 3,
+        resendingsnummer = null,
+        enhet = "1000",
+        godkjentTidspunkt = LocalDateTime.now(),
+        arbeidsgiverKontonummer = "12345678908",
+        arbeidsgiverKid = null,
+    )
+
+    private fun enMentorMelding() = TilskuddsperiodeGodkjentMelding.Mentor(
         avtaleId = UUID.randomUUID().toString(),
         tilskuddsperiodeId = UUID.randomUUID().toString(),
         avtaleInnholdId = UUID.randomUUID().toString(),
@@ -101,7 +204,6 @@ class TilskuddsperiodeLytterTest {
         feriepengerSats = 0.12,
         otpSats = 0.02,
         arbeidsgiveravgiftSats = 0.141,
-        lønnstilskuddsprosent = 60,
         avtaleNr = 3456,
         løpenummer = 3,
         resendingsnummer = null,

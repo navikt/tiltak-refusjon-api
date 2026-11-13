@@ -50,6 +50,24 @@ class RefusjonService(
             return null
         }
 
+        val satser = when (tilskuddsperiodeGodkjentMelding) {
+            is TilskuddsperiodeGodkjentMelding.Lonnstilskudd -> Satser(
+                feriepengerSats = tilskuddsperiodeGodkjentMelding.feriepengerSats,
+                otpSats = tilskuddsperiodeGodkjentMelding.otpSats,
+                arbeidsgiveravgiftSats = tilskuddsperiodeGodkjentMelding.arbeidsgiveravgiftSats,
+                lønnstilskuddsprosent = tilskuddsperiodeGodkjentMelding.lønnstilskuddsprosent,
+            )
+            is TilskuddsperiodeGodkjentMelding.Mentor -> Satser(
+                feriepengerSats = tilskuddsperiodeGodkjentMelding.feriepengerSats,
+                otpSats = tilskuddsperiodeGodkjentMelding.otpSats,
+                arbeidsgiveravgiftSats = tilskuddsperiodeGodkjentMelding.arbeidsgiveravgiftSats,
+                mentorTimelonn = tilskuddsperiodeGodkjentMelding.mentorTimelonn,
+                mentorAntallTimer = tilskuddsperiodeGodkjentMelding.mentorAntallTimer,
+            )
+            is TilskuddsperiodeGodkjentMelding.Vtao,
+            is TilskuddsperiodeGodkjentMelding.Inkluderingstilskudd -> Satser()
+        }
+
         val tilskuddsgrunnlag = Tilskuddsgrunnlag(
             avtaleId = tilskuddsperiodeGodkjentMelding.avtaleId,
             avtaleFom = tilskuddsperiodeGodkjentMelding.avtaleFom,
@@ -66,19 +84,19 @@ class RefusjonService(
             bedriftNr = tilskuddsperiodeGodkjentMelding.bedriftNr,
             tilskuddFom = tilskuddsperiodeGodkjentMelding.tilskuddFom,
             tilskuddTom = tilskuddsperiodeGodkjentMelding.tilskuddTom,
-            feriepengerSats = tilskuddsperiodeGodkjentMelding.feriepengerSats ?: 0.0,
-            otpSats = tilskuddsperiodeGodkjentMelding.otpSats ?: 0.0,
-            arbeidsgiveravgiftSats = tilskuddsperiodeGodkjentMelding.arbeidsgiveravgiftSats ?: 0.0,
+            feriepengerSats = satser.feriepengerSats ?: 0.0,
+            otpSats = satser.otpSats ?: 0.0,
+            arbeidsgiveravgiftSats = satser.arbeidsgiveravgiftSats ?: 0.0,
             tiltakstype = tilskuddsperiodeGodkjentMelding.tiltakstype,
             tilskuddsbeløp = tilskuddsperiodeGodkjentMelding.tilskuddsbeløp,
-            lønnstilskuddsprosent = tilskuddsperiodeGodkjentMelding.lønnstilskuddsprosent ?: 0,
+            lønnstilskuddsprosent = satser.lønnstilskuddsprosent ?: 0,
             avtaleNr = tilskuddsperiodeGodkjentMelding.avtaleNr,
             løpenummer = tilskuddsperiodeGodkjentMelding.løpenummer,
             resendingsnummer = tilskuddsperiodeGodkjentMelding.resendingsnummer,
             enhet = tilskuddsperiodeGodkjentMelding.enhet,
             godkjentAvBeslutterTidspunkt = tilskuddsperiodeGodkjentMelding.godkjentTidspunkt,
-            mentorTimelonn = tilskuddsperiodeGodkjentMelding.mentorTimelonn,
-            mentorAntallTimer = tilskuddsperiodeGodkjentMelding.mentorAntallTimer,
+            mentorTimelonn = satser.mentorTimelonn,
+            mentorAntallTimer = satser.mentorAntallTimer,
         )
         val refusjon = Refusjon(
             tilskuddsgrunnlag = tilskuddsgrunnlag,
@@ -546,3 +564,12 @@ class RefusjonService(
 
 private fun Refundering.fraSammeÅrSom(refusjon: Refundering): Boolean =
     this.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom.year.equals(refusjon.refusjonsgrunnlag.tilskuddsgrunnlag.tilskuddFom.year)
+
+private data class Satser(
+    val feriepengerSats: Double? = null,
+    val otpSats: Double? = null,
+    val arbeidsgiveravgiftSats: Double? = null,
+    val lønnstilskuddsprosent: Int? = null,
+    val mentorTimelonn: Int? = null,
+    val mentorAntallTimer: Double? = null,
+)

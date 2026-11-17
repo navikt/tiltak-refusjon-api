@@ -59,15 +59,12 @@ class AdminController(
     private val antivirusClient: AntivirusClient,
 ) {
     val logger = LoggerFactory.getLogger(javaClass)
-    private val antivirusTestfil = ClassPathResource("antivirus/testfil.txt").inputStream.use {
-        it.readNBytes(1025)
-    }.also {
-        check(it.size <= 1024) { "Testfilen for antivirus er for stor" }
-    }
 
     @PostMapping("antivirus-test")
-    fun testAntivirus(): Map<String, AntivirusResultat> =
-        mapOf("resultat" to antivirusClient.skann(antivirusTestfil))
+    fun testAntivirus(): Map<String, AntivirusResultat> {
+        val testfil = ClassPathResource("antivirus/testfil.txt").contentAsByteArray
+        return mapOf("resultat" to antivirusClient.skann(testfil))
+    }
 
     @org.springframework.web.bind.annotation.ExceptionHandler(AntivirusException::class)
     fun håndterAntivirusfeil(e: AntivirusException): ProblemDetail =

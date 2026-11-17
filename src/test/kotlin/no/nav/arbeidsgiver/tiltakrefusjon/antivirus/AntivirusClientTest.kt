@@ -18,7 +18,6 @@ import org.springframework.test.web.client.match.MockRestRequestMatchers.request
 import org.springframework.test.web.client.response.MockRestResponseCreators.withException
 import org.springframework.test.web.client.response.MockRestResponseCreators.withStatus
 import org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess
-import tools.jackson.module.kotlin.jacksonMapperBuilder
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import java.io.IOException
 import java.net.URI
@@ -145,9 +144,8 @@ class AntivirusClientTest {
         val meterRegistry = SimpleMeterRegistry()
         return Fixture(
             client = AntivirusClient(
-                AntivirusProperties(uri = URI(SCAN_URI)),
+                URI(SCAN_URI),
                 restTemplate,
-                jacksonMapperBuilder().build(),
                 meterRegistry
             ),
             server = MockRestServiceServer.bindTo(restTemplate).build(),
@@ -181,13 +179,13 @@ class AntivirusClientTest {
             """[{"result":"OK","virus":"found","error":""}]""",
             """[{"result":"FOUND","virus":"","error":""}]""",
             """[{"result":"OK","virus":17,"error":""}]""",
-            """[{"result":"OK","virus":"","error":false}]""",
             """[{"result":"OK","virus":"","error":""}] {}""",
             """[{"result":"OK","virus":"","error":""},{"result":"OK","virus":"","error":""}]"""
         )
 
         @JvmStatic
         fun skannefeilSvar(): Stream<String> = Stream.of(
+            """[{"result":"OK","virus":"","error":false}]""",
             """[{"result":"ERROR","virus":"","error":"scanner unavailable"}]""",
             """[{"result":"OK","virus":"","error":"scanner unavailable"}]""",
             """[{"result":"FOUND","virus":"Example.Test","error":"scanner unavailable"}]"""

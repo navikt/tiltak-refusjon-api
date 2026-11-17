@@ -2,8 +2,6 @@ package no.nav.arbeidsgiver.tiltakrefusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.automatisk_utbetaling.AutomatiskInnsendingService
 import no.nav.arbeidsgiver.tiltakrefusjon.antivirus.AntivirusClient
-import no.nav.arbeidsgiver.tiltakrefusjon.antivirus.AntivirusException
-import no.nav.arbeidsgiver.tiltakrefusjon.antivirus.AntivirusResultat
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.ADMIN_BRUKER
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.SYSTEM_BRUKER
 import no.nav.arbeidsgiver.tiltakrefusjon.grunnbelop.GrunnbelopService
@@ -31,7 +29,6 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.ResponseEntity
 import org.springframework.http.ResponseEntity.ok
 import org.springframework.http.HttpStatus
-import org.springframework.http.ProblemDetail
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -61,16 +58,12 @@ class AdminController(
     val logger = LoggerFactory.getLogger(javaClass)
 
     @PostMapping("antivirus-test")
-    fun testAntivirus(): Map<String, AntivirusResultat> {
+    fun testAntivirus(): ResponseEntity<String> = try {
         val testfil = ClassPathResource("antivirus/testfil.txt").contentAsByteArray
-        return mapOf("resultat" to antivirusClient.skann(testfil))
+        ok(antivirusClient.skann(testfil).name)
+    } catch (e: Exception) {
+        ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.javaClass.simpleName)
     }
-
-    @org.springframework.web.bind.annotation.ExceptionHandler(AntivirusException::class)
-    fun håndterAntivirusfeil(e: AntivirusException): ProblemDetail =
-        ProblemDetail.forStatusAndDetail(HttpStatus.BAD_GATEWAY, "Antivirusskanningen kunne ikke fullføres.").apply {
-            setProperty("grunn", e.grunn.name)
-        }
 
     @GetMapping("kontoregister/{orgnr}")
     fun kontoregisterKall(@PathVariable orgnr: String): String {

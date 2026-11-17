@@ -5,6 +5,7 @@ import org.assertj.core.api.Assertions.catchThrowable
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
+import org.junit.jupiter.params.provider.ValueSource
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
@@ -18,6 +19,9 @@ import org.springframework.test.web.client.match.MockRestRequestMatchers.request
 import org.springframework.test.web.client.response.MockRestResponseCreators.withException
 import org.springframework.test.web.client.response.MockRestResponseCreators.withStatus
 import org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess
+import org.springframework.web.client.ResourceAccessException
+import org.springframework.web.client.RestClientException
+import org.springframework.web.client.RestClientResponseException
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import java.io.IOException
 import java.net.URI
@@ -59,10 +63,26 @@ class AntivirusClientTest {
 
         val exception = skannFeil(fixture.client)
 
-        assertThat(exception.grunn).isEqualTo(AntivirusFeil.SKANNEFEIL)
         assertThat(exception.cause).isNull()
-        assertThat(exception.message).isEqualTo("Antivirusskanningen feilet: SKANNEFEIL")
+        assertThat(exception.message).isEqualTo("Antivirusskanningen feilet")
         assertThat(fixture.meterRegistry.get("refusjon.antivirus").tag("resultat", "FEIL").counter().count()).isEqualTo(1.0)
+        fixture.server.verify()
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = ["Scan failure", "Invalid response", "Unknown command", "Unsupported command"])
+    fun `feildetaljer fra ClamAV bevares uten å havne i exception-meldingen`(skannefeil: String) {
+        val fixture = fixture()
+        fixture.server.expect(requestTo(SCAN_URI))
+            .andRespond(withSuccess(
+                """[{"result":"ERROR","virus":"","error":"$skannefeil"}]""",
+                MediaType.APPLICATION_JSON
+            ))
+
+        val exception = skannFeil(fixture.client)
+
+        assertThat(exception.skannefeil).isEqualTo(skannefeil)
+        assertThat(exception.message).doesNotContain(skannefeil)
         fixture.server.verify()
     }
 
@@ -73,7 +93,20 @@ class AntivirusClientTest {
         fixture.server.expect(requestTo(SCAN_URI))
             .andRespond(withSuccess(body, MediaType.APPLICATION_JSON))
 
-        assertThat(skannFeil(fixture.client).grunn).isEqualTo(AntivirusFeil.UGYLDIG_SVAR)
+        assertThat(catchThrowable { fixture.client.skann(byteArrayOf(0x41)) })
+            .isInstanceOf(RestClientException::class.java)
+        fixture.server.verify()
+    }
+
+    @ParameterizedTest
+    @MethodSource("uleseligeSvar")
+    fun `feil fra responskonvertering beholdes`(body: String) {
+        val fixture = fixture()
+        fixture.server.expect(requestTo(SCAN_URI))
+            .andRespond(withSuccess(body, MediaType.APPLICATION_JSON))
+
+        assertThat(catchThrowable { fixture.client.skann(byteArrayOf(0x41)) })
+            .isInstanceOf(RestClientException::class.java)
         fixture.server.verify()
     }
 
@@ -83,17 +116,19 @@ class AntivirusClientTest {
         fixture.server.expect(requestTo(SCAN_URI))
             .andRespond(withSuccess("", MediaType.APPLICATION_JSON))
 
-        assertThat(skannFeil(fixture.client).grunn).isEqualTo(AntivirusFeil.UGYLDIG_SVAR)
+        assertThat(catchThrowable { fixture.client.skann(byteArrayOf(0x41)) })
+            .isInstanceOf(RestClientException::class.java)
         fixture.server.verify()
     }
 
     @Test
-    fun `respons uten JSON content type gir ugyldig svar`() {
+    fun `feil innholdstype beholder responskonverteringens exception`() {
         val fixture = fixture()
         fixture.server.expect(requestTo(SCAN_URI))
             .andRespond(withSuccess("""[{"result":"OK","virus":"","error":""}]""", MediaType.TEXT_PLAIN))
 
-        assertThat(skannFeil(fixture.client).grunn).isEqualTo(AntivirusFeil.UGYLDIG_SVAR)
+        assertThat(catchThrowable { fixture.client.skann(byteArrayOf(0x41)) })
+            .isInstanceOf(RestClientException::class.java)
         fixture.server.verify()
     }
 
@@ -104,24 +139,36 @@ class AntivirusClientTest {
         fixture.server.expect(requestTo(SCAN_URI))
             .andRespond(withStatus(status))
 
-        val exception = skannFeil(fixture.client)
-
-        assertThat(exception.grunn).isEqualTo(AntivirusFeil.HTTP_FEIL)
-        assertThat(exception.message).doesNotContain(status.reasonPhrase)
+        assertThat(catchThrowable { fixture.client.skann(byteArrayOf(0x41)) })
+            .isInstanceOfSatisfying(RestClientResponseException::class.java) {
+                assertThat(it.statusCode).isEqualTo(status)
+            }
         fixture.server.verify()
     }
 
     @Test
-    fun `transportfeil gir tilkoblingsfeil uten underliggende feil`() {
+    fun `transportfeil beholder opprinnelig årsak`() {
         val fixture = fixture()
+        val cause = IOException("private upstream detail")
         fixture.server.expect(requestTo(SCAN_URI))
-            .andRespond(withException(IOException("private upstream detail")))
+            .andRespond(withException(cause))
 
-        val exception = skannFeil(fixture.client)
+        assertThat(catchThrowable { fixture.client.skann(byteArrayOf(0x41)) })
+            .isInstanceOfSatisfying(ResourceAccessException::class.java) {
+                assertThat(it.cause).isSameAs(cause)
+            }
+        fixture.server.verify()
+    }
 
-        assertThat(exception.grunn).isEqualTo(AntivirusFeil.TILKOBLINGSFEIL)
-        assertThat(exception.cause).isNull()
-        assertThat(exception.message).doesNotContain("private upstream detail")
+    @Test
+    fun `uventede unntak telles og kastes videre uten omskriving`() {
+        val fixture = fixture()
+        val exception = IllegalStateException("Uventet feil")
+        fixture.server.expect(requestTo(SCAN_URI))
+            .andRespond { throw exception }
+
+        assertThat(catchThrowable { fixture.client.skann(byteArrayOf(0x41)) }).isSameAs(exception)
+        assertThat(fixture.meterRegistry.get("refusjon.antivirus").tag("resultat", "FEIL").counter().count()).isEqualTo(1.0)
         fixture.server.verify()
     }
 
@@ -136,8 +183,8 @@ class AntivirusClientTest {
         fixture.server.verify()
     }
 
-    private fun skannFeil(client: AntivirusClient): AntivirusException =
-        catchThrowable { client.skann(byteArrayOf(0x41)) } as AntivirusException
+    private fun skannFeil(client: AntivirusClient): SkannefeilException =
+        catchThrowable { client.skann(byteArrayOf(0x41)) } as SkannefeilException
 
     private fun fixture(): Fixture {
         val restTemplate = AntivirusConfiguration().antivirusRestTemplate()
@@ -164,23 +211,27 @@ class AntivirusClientTest {
 
         @JvmStatic
         fun ugyldigeSvar(): Stream<String> = Stream.of(
-            "{",
             "null",
             "[]",
             "[null]",
+            """[{"result":"UNKNOWN","virus":"","error":""}]""",
+            """[{"result":"ok","virus":"","error":""}]""",
+            """[{"result":"OK","virus":"found","error":""}]""",
+            """[{"result":"FOUND","virus":"","error":""}]""",
+            """[{"result":"OK","virus":17,"error":""}]""",
+            """[{"result":"OK","virus":"","error":""},{"result":"OK","virus":"","error":""}]"""
+        )
+
+        @JvmStatic
+        fun uleseligeSvar(): Stream<String> = Stream.of(
+            "{",
             "{}",
             """{"result":"OK","virus":"","error":""}""",
             """[{"result":"OK","virus":""}]""",
             """[{"result":null,"virus":"","error":""}]""",
             """[{"result":"OK","virus":null,"error":""}]""",
             """[{"result":"OK","virus":"","error":null}]""",
-            """[{"result":"UNKNOWN","virus":"","error":""}]""",
-            """[{"result":"ok","virus":"","error":""}]""",
-            """[{"result":"OK","virus":"found","error":""}]""",
-            """[{"result":"FOUND","virus":"","error":""}]""",
-            """[{"result":"OK","virus":17,"error":""}]""",
-            """[{"result":"OK","virus":"","error":""}] {}""",
-            """[{"result":"OK","virus":"","error":""},{"result":"OK","virus":"","error":""}]"""
+            """[{"result":"OK","virus":"","error":""}] {}"""
         )
 
         @JvmStatic

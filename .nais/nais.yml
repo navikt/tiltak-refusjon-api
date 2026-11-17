@@ -45,6 +45,8 @@ spec:
           namespace: poao
         - application: arbeidsgiver-altinn-tilganger
           namespace: fager
+        - application: clamav
+          namespace: nais-system
   kafka:
     pool: {{kafka-pool}}
   envFrom:

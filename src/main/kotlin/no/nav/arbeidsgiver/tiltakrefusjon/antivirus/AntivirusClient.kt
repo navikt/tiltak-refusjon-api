@@ -16,12 +16,19 @@ import org.springframework.web.client.ResourceAccessException
 import org.springframework.web.client.RestClientException
 import org.springframework.web.client.RestClientResponseException
 import org.springframework.web.client.RestTemplate
+import org.springframework.web.client.exchange
 import java.net.URI
 import java.net.http.HttpClient
 import java.time.Duration
 
 @Configuration
 class AntivirusConfiguration {
+    /**
+     * HTTP-klient for antivirusskanning.
+     *
+     * Eksplisitte tidsavbrudd tilpasset små filer.
+     * Read timeout inkluderer både opplasting og venting på skanneresultatet.
+     */
     @Bean
     fun antivirusRestTemplate(): RestTemplate {
         val httpClient = HttpClient.newBuilder()
@@ -49,7 +56,7 @@ class AntivirusClient(
                 contentType = MediaType.APPLICATION_OCTET_STREAM
                 accept = listOf(MediaType.APPLICATION_JSON)
             }
-            val response = restTemplate.exchange(uri, HttpMethod.PUT, HttpEntity(fil, headers), Array<ClamavSvar>::class.java)
+            val response = restTemplate.exchange<Array<ClamavSvar>>(uri, HttpMethod.PUT, HttpEntity(fil, headers))
             if (!response.statusCode.is2xxSuccessful) {
                 throw AntivirusException(AntivirusFeil.HTTP_FEIL)
             }
@@ -57,9 +64,9 @@ class AntivirusClient(
             if (svar.result == "ERROR" || svar.error.isNotEmpty()) {
                 throw AntivirusException(AntivirusFeil.SKANNEFEIL)
             }
-            val resultat = when {
-                svar.result == "OK" && svar.virus.isEmpty() -> AntivirusResultat.REN
-                svar.result == "FOUND" && svar.virus.isNotBlank() -> AntivirusResultat.VIRUS
+            val resultat = when (svar.result) {
+                "OK" if svar.virus.isEmpty() -> AntivirusResultat.REN
+                "FOUND" if svar.virus.isNotBlank() -> AntivirusResultat.VIRUS
                 else -> throw AntivirusException(AntivirusFeil.UGYLDIG_SVAR)
             }
             meterRegistry.counter("refusjon.antivirus", "resultat", resultat.name).increment()

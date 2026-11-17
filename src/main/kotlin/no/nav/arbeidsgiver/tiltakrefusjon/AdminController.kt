@@ -1,6 +1,9 @@
 package no.nav.arbeidsgiver.tiltakrefusjon
 
 import no.nav.arbeidsgiver.tiltakrefusjon.automatisk_utbetaling.AutomatiskInnsendingService
+import no.nav.arbeidsgiver.tiltakrefusjon.antivirus.AntivirusClient
+import no.nav.arbeidsgiver.tiltakrefusjon.antivirus.AntivirusException
+import no.nav.arbeidsgiver.tiltakrefusjon.antivirus.AntivirusResultat
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.ADMIN_BRUKER
 import no.nav.arbeidsgiver.tiltakrefusjon.autorisering.SYSTEM_BRUKER
 import no.nav.arbeidsgiver.tiltakrefusjon.grunnbelop.GrunnbelopService
@@ -21,11 +24,14 @@ import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeForko
 import no.nav.arbeidsgiver.tiltakrefusjon.tilskuddsperiode.TilskuddsperiodeGodkjentMelding
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.slf4j.LoggerFactory
+import org.springframework.core.io.ClassPathResource
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.ResponseEntity
 import org.springframework.http.ResponseEntity.ok
+import org.springframework.http.HttpStatus
+import org.springframework.http.ProblemDetail
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -50,8 +56,24 @@ class AdminController(
     private val ubetaltRefusjonRapport: UbetaltRefusjonRapport,
     private val grunnbelopService: GrunnbelopService,
     private val statusJobb: StatusJobb,
+    private val antivirusClient: AntivirusClient,
 ) {
     val logger = LoggerFactory.getLogger(javaClass)
+    private val antivirusTestfil = ClassPathResource("antivirus/testfil.txt").inputStream.use {
+        it.readNBytes(1025)
+    }.also {
+        check(it.size <= 1024) { "Testfilen for antivirus er for stor" }
+    }
+
+    @PostMapping("antivirus-test")
+    fun testAntivirus(): Map<String, AntivirusResultat> =
+        mapOf("resultat" to antivirusClient.skann(antivirusTestfil))
+
+    @org.springframework.web.bind.annotation.ExceptionHandler(AntivirusException::class)
+    fun håndterAntivirusfeil(e: AntivirusException): ProblemDetail =
+        ProblemDetail.forStatusAndDetail(HttpStatus.BAD_GATEWAY, "Antivirusskanningen kunne ikke fullføres.").apply {
+            setProperty("grunn", e.grunn.name)
+        }
 
     @GetMapping("kontoregister/{orgnr}")
     fun kontoregisterKall(@PathVariable orgnr: String): String {

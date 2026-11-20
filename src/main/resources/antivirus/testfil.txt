@@ -1,0 +1,1 @@
+Syntetisk testfil for antiviruskontroll.

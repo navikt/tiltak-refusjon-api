@@ -2,6 +2,7 @@
 # Husk å oppdater datofeltene til ønsket dato.
 # NB: tilDato er ikke "tilOgMedDato"!!!
 POST http://localhost:12345/internal/admin/forleng-frister-til-og-med-dato
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -14,6 +15,7 @@ Content-Type: application/json
 
 ### Tving annullering av refusjon
 POST http://localhost:12345/internal/admin/annuller-refusjon-ved-tilskuddsperiode
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -22,6 +24,7 @@ Content-Type: application/json
 
 ### Forleng frist på refusjon
 POST http://localhost:12345/internal/admin/forleng-frister
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -37,8 +40,13 @@ Content-Type: application/json
 # Et relevant eksempel kan være at appen fikk problemer og restartet nøyaktig etter
 # en vellykket godkjenning (databasetransaksjon), men før eventlytteren ble kalt.
 POST http://localhost:12345/internal/admin/send-refusjon-godkjent-melding
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
   "refusjonId": "<REFUSJON_ID"
 }
+
+### Test antivirus
+POST http://localhost:12345/internal/admin/antivirus-test
+Authorization: Bearer {{token}}

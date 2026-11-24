@@ -143,6 +143,7 @@ class AntivirusClientTest {
             .isInstanceOfSatisfying(RestClientResponseException::class.java) {
                 assertThat(it.statusCode).isEqualTo(status)
             }
+        assertThat(fixture.meterRegistry.get("refusjon.antivirus").tag("resultat", "FEIL").counter().count()).isEqualTo(1.0)
         fixture.server.verify()
     }
 
@@ -244,6 +245,6 @@ class AntivirusClientTest {
 
         @JvmStatic
         fun ikkeVellykkedeHttpStatus(): Stream<HttpStatus> =
-            Stream.of(HttpStatus.BAD_GATEWAY, HttpStatus.FOUND)
+            Stream.of(HttpStatus.SERVICE_UNAVAILABLE, HttpStatus.BAD_GATEWAY, HttpStatus.FOUND)
     }
 }

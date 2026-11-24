@@ -35,7 +35,7 @@ jobs:
           repo_labels=$(gh api --paginate "repos/$GH_REPO/labels" --jq '.[].name')
           opprett_label() {
             if ! grep -Fxq -- "$1" <<< "$repo_labels"; then
-              gh label create "$1" --color "$2" --description "$3"
+              gh label create "$1" --color "$2" --description "$3" || gh api --silent "repos/$GH_REPO/labels/$1"
             fi
           }
           opprett_label "semver:patch" "0e8a16" "Dependabot: patch-oppdatering"

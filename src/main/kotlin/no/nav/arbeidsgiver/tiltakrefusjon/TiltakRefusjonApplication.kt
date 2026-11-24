@@ -2,12 +2,12 @@ package no.nav.arbeidsgiver.tiltakrefusjon
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
-import org.springframework.retry.annotation.EnableRetry
+import org.springframework.resilience.annotation.EnableResilientMethods
 import org.springframework.scheduling.annotation.EnableScheduling
 import kotlin.system.exitProcess
 
 @SpringBootApplication
-@EnableRetry
+@EnableResilientMethods
 @EnableScheduling
 class TiltakRefusjonApplication
 

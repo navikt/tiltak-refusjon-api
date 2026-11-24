@@ -68,7 +68,7 @@ class AntivirusClient(
                 throw SkannefeilException(svar.error)
             }
             val resultat = when (svar.result) {
-                "OK" if svar.virus.isEmpty() -> AntivirusResultat.REN
+                "OK" if svar.virus.isEmpty() -> AntivirusResultat.OK
                 "FOUND" if svar.virus.isNotBlank() -> AntivirusResultat.VIRUS
                 else -> throw RestClientException("Ugyldig svar fra antivirus")
             }
@@ -83,6 +83,6 @@ class AntivirusClient(
     private data class ClamavSvar(val result: String, val virus: String, val error: String)
 }
 
-enum class AntivirusResultat { REN, VIRUS }
+enum class AntivirusResultat { OK, VIRUS }
 
 class SkannefeilException(val skannefeil: String) : RuntimeException("Antivirusskanningen feilet")

@@ -41,7 +41,7 @@ class AntivirusClientTest {
             .andExpect(header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE))
             .andExpect(headerDoesNotExist(HttpHeaders.AUTHORIZATION))
             .andRespond(withSuccess("""[{"result":"OK","virus":"","error":"","filename":"ignored.txt"}]""", MediaType.APPLICATION_JSON))
-        assertThat(fixture.client.skann(requestBody)).isEqualTo(AntivirusResultat.REN)
+        assertThat(fixture.client.skann(requestBody)).isEqualTo(AntivirusResultat.OK)
         fixture.server.verify()
 
         fixture.server.reset()
@@ -50,7 +50,7 @@ class AntivirusClientTest {
         assertThat(fixture.client.skann(requestBody)).isEqualTo(AntivirusResultat.VIRUS)
         fixture.server.verify()
 
-        assertThat(fixture.meterRegistry.get("refusjon.antivirus").tag("resultat", "REN").counter().count()).isEqualTo(1.0)
+        assertThat(fixture.meterRegistry.get("refusjon.antivirus").tag("resultat", "OK").counter().count()).isEqualTo(1.0)
         assertThat(fixture.meterRegistry.get("refusjon.antivirus").tag("resultat", "VIRUS").counter().count()).isEqualTo(1.0)
     }
 
@@ -180,7 +180,7 @@ class AntivirusClientTest {
         fixture.server.expect(requestTo(SCAN_URI))
             .andRespond(withSuccess(body, MediaType.APPLICATION_JSON))
 
-        assertThat(fixture.client.skann(byteArrayOf())).isEqualTo(AntivirusResultat.REN)
+        assertThat(fixture.client.skann(byteArrayOf())).isEqualTo(AntivirusResultat.OK)
         fixture.server.verify()
     }
 

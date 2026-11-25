@@ -68,3 +68,5 @@ tiltak-refusjon:
     uri: http://tiltak-pdfgen/api/v1/genpdf
   grunnbelop:
     uri: "https://g.nav.no/api/v1/historikk/grunnbel%C3%B8p"
+  antivirus:
+    uri: ${ANTIVIRUS_URI:http://clamav.nais-system.svc.cluster.local/api/v2/scan}

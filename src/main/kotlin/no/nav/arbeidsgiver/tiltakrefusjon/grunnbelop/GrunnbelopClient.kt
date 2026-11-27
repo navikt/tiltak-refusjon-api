@@ -1,8 +1,7 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.grunnbelop
 
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.retry.annotation.Backoff
-import org.springframework.retry.annotation.Retryable
+import org.springframework.resilience.annotation.Retryable
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.getForObject
@@ -15,7 +14,7 @@ class GrunnbelopClient(
     @param:Value("\${tiltak-refusjon.grunnbelop.uri}") private val url: URI,
     private val noAuthRestTemplate: RestTemplate
 ) {
-    @Retryable(value = [Exception::class], maxAttempts = 3, backoff = Backoff(delay = 1000))
+    @Retryable(value = [Exception::class], maxRetries = 2, delay = 1000)
     fun alleGrunnbelop(): TreeMap<LocalDate, Int> =
         requireNotNull(noAuthRestTemplate.getForObject<Array<GrunnbelopApiResponse>>(url)) { "Tomt svar fra grunnbeløp-API" }
             .associateTo(TreeMap()) { it.dato to it.grunnbeløp }

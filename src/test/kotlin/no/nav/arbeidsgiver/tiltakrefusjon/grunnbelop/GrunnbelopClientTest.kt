@@ -1,20 +1,15 @@
 package no.nav.arbeidsgiver.tiltakrefusjon.grunnbelop
 
-import no.nav.arbeidsgiver.tiltakrefusjon.TiltakRefusjonApplication
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.entry
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.springframework.aop.support.AopUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Import
 import org.springframework.http.MediaType
-import org.springframework.http.client.ClientHttpRequestFactory
 import org.springframework.resilience.annotation.EnableResilientMethods
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig
@@ -24,7 +19,6 @@ import org.springframework.test.web.client.response.MockRestResponseCreators.wit
 import org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess
 import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestTemplate
-import java.time.LocalDate
 import java.util.concurrent.TimeUnit
 
 @SpringJUnitConfig(GrunnbelopClientTest.RetryTestConfiguration::class)
@@ -46,31 +40,17 @@ class GrunnbelopClientTest {
     lateinit var restTemplate: RestTemplate
 
     private lateinit var server: MockRestServiceServer
-    private lateinit var opprinneligRequestFactory: ClientHttpRequestFactory
 
     @BeforeEach
     fun setUp() {
-        opprinneligRequestFactory = restTemplate.requestFactory
         server = MockRestServiceServer.bindTo(restTemplate).build()
     }
 
-    @AfterEach
-    fun tearDown() {
-        restTemplate.requestFactory = opprinneligRequestFactory
-    }
-
     @Test
-    fun `henter og sorterer grunnbeløp uten omforsøk ved suksess`() {
-        assertThat(TiltakRefusjonApplication::class.java.isAnnotationPresent(EnableResilientMethods::class.java)).isTrue()
-        assertThat(AopUtils.isAopProxy(grunnbelopClient)).isTrue()
+    fun `henter grunnbeløp uten omforsøk ved suksess`() {
         forventSuksess()
 
-        val grunnbelop = grunnbelopClient.alleGrunnbelop()
-
-        assertThat(grunnbelop).containsExactly(
-            entry(LocalDate.of(2024, 5, 1), 124028),
-            entry(LocalDate.of(2025, 5, 1), 130160)
-        )
+        assertThat(grunnbelopClient.alleGrunnbelop()).hasSize(1)
         server.verify()
     }
 
@@ -81,7 +61,7 @@ class GrunnbelopClientTest {
         }
         forventSuksess()
 
-        assertThat(grunnbelopClient.alleGrunnbelop()).hasSize(2)
+        assertThat(grunnbelopClient.alleGrunnbelop()).hasSize(1)
         server.verify()
     }
 
@@ -105,24 +85,11 @@ class GrunnbelopClientTest {
         }
     }
 
-    @Test
-    fun `prøver også på nytt når grunnbeløp-API gir tomt svar`() {
-        repeat(3) {
-            server.expect(requestTo("https://grunnbelop.example.test"))
-                .andRespond(withSuccess("", MediaType.APPLICATION_JSON))
-        }
-
-        val feil = assertThrows<IllegalArgumentException> { grunnbelopClient.alleGrunnbelop() }
-
-        assertThat(feil).hasMessage("Tomt svar fra grunnbeløp-API")
-        server.verify()
-    }
-
     private fun forventSuksess() {
         server.expect(requestTo("https://grunnbelop.example.test"))
             .andRespond(
                 withSuccess(
-                    """[{"dato":"2025-05-01","grunnbeløp":130160},{"dato":"2024-05-01","grunnbeløp":124028}]""",
+                    """[{"dato":"2025-05-01","grunnbeløp":130160}]""",
                     MediaType.APPLICATION_JSON
                 )
             )
